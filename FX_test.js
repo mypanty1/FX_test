@@ -1,5 +1,5 @@
 javascript:(function(){
-			
+	
 if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release.test.inetcore.mts.ru:81/fix#/')>=0)||(window.location.href.indexOf('http://demo.test.inetcore.mts.ru:81/fix/#/')>=0))){
 	document.title = 'Inetcore+';
 	
@@ -89,8 +89,133 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				document.getElementById('building-template').innerHTML=myBuilding_template;
 				document.getElementById('ports-el-template').innerHTML=myPorts_template;
 				document.getElementById('set-port-modal').innerHTML=mySetPort_template;
+				document.getElementById('account-template').innerHTML=myAccount_template;
 			};
 		};
+		
+		var myAccount_template=`
+			<div v-if="data">
+				<div class="info-block account-info">
+					<screen-header-el :border="data.PORT_NAME ? '' : 'none' ">
+						<template slot="title">лицевой счет</template>
+						<span class="led" :class="ledClass"></span>
+						{{ data.ACCOUNT }}
+						<template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
+						<template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
+					</screen-header-el>
+					<div v-show="data.PORT_NAME">
+						<div @click="toPort">
+							<i class="fas fa-ethernet faded mr-1"></i>
+							{{ data.PORT_NAME }}
+							<i class="fa fa-chevron-right float-right"></i>
+						</div>
+						<div v-show="data.FIRST_DATE">
+							{{ data.FIRST_DATE }}
+							<span class="inscription">первый выход</span>
+						</div>
+						<div v-show="data.LAST_DATE">
+							{{ data.LAST_DATE }}
+							<span class="inscription">последний выход</span>
+						</div>
+						<div v-if="loading.account" class="progress">
+							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="info-block account-info">
+					<div class="clearfix">
+						<span class="card-title">Сессии</span>
+						<button @click="refreshSessions" :disabled="loading.session > 0" class="btn btn-title float-right">
+							<i class="fas fa-sync-alt"></i>
+						</button>
+						<button @click="sessionHelp" class="btn btn-title float-right">
+							<i class="fas fa-info"></i>
+						</button>
+					</div>
+					<ul v-if="data.sessions" class="list-group list-group-flush">
+						<li v-for="(session, index) in data.sessions.online" class="list-group-item px-0">
+							<session-el :session="session" :lock="loading.session > 0"></session-el>
+						</li>
+					</ul>
+					<div v-if="loading.session > 0" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+
+				<div class="info-block account-info">
+					<div @click="toDeviceEvents(data.ACCOUNT)" :disabled="deviceEventLoading">Недоступность<span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
+						<template v-if="hasActiveDeviceEvent">
+							<span class="float-right" style="margin: 0 10px;"><i class="fas fa-exclamation-triangle red"></i></span>
+							<span class="float-right small-text mt-1">{{ maxDeviceEventDuration }}</span>
+						</template>
+					</div>
+					<div v-if="deviceEventLoading" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+
+				<div class="info-block account-info">
+					<a class="card-body collapse collapsed show info-block-title display nohover d-flex" data-toggle="collapse" data-target="#collapseServices" href="#collapseServices">
+						<div class="d-flex justify-content-between card-title-complex">
+							<div>Услуги</div>
+							<div v-if="data.account" class="body-hidden" :class="balance.minus ? 'text-danger' : 'text-black-50'">
+								<span v-show="balance.minus">-</span>
+								<span>{{ balance.balance }} ₽ </span>
+							</div>
+						</div>
+						<div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+					</a>
+					<div class="collapse" id="collapseServices">
+						<div v-if="data.account">
+							<div :class="{'text-danger' : balance.minus}">
+								<span v-show="balance.minus">-</span>
+								<span>{{ balance.balance }} ₽ </span>
+								<span class="inscription">баланс</span>
+							</div>
+							<div> {{ balance.lastsum }} ₽ {{ balance.lastpaydate }} <span class="inscription">последний платеж</span></div>
+						</div>
+						<hr>
+						<ul v-if="data.account" class="list-group list-group-flush">
+							<li v-for="vgroup in serviceList" class="list-group-item">
+								<div class="link">
+									<div class="font-weight-bold">{{ vgroup.serviceclassname }}<span class="state" :class="stateClass(vgroup)">{{ vgroup.status_name }}</span></div>
+									<div>ID: {{ vgroup.vgid }}</div>
+									<div>{{ vgroup.tarif }}</div>
+									<passwd-el v-if="isPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
+									<button v-if="vgroup.available_for_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div v-if="loading.service || loading.updateVgroups" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+
+				<div class="info-block account-info">
+					<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseBlockHistory" href="#collapseBlockHistory">
+						<span>История блокировок</span>
+						<div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+					</a>
+					<div class="collapse" id="collapseBlockHistory">
+						<div v-if="data.locks && data.locks.text" class="small-text">{{ data.locks.text }}</div>
+						<ul v-if="data.locks" class="list-group list-group-flush">
+							<li v-for="row in data.locks.rows" class="list-group-item">
+							<div class="link">
+								<div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
+								<div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
+								<div>{{ row["type"] }}<span class="inscription"></span></div>
+							</div>
+							</li>
+						</ul>
+					</div>
+					<div v-if="loading.locks" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+			</div>
+		`;
 		
 		var mySetPort_template=`
 			<div class="container-fluid mySetPort">
