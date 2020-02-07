@@ -37,17 +37,18 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.rk_in_entrance{width:140px;}/*остальное через style*/
 			
 			.device_in_rack{margin-top:2px;padding-left:4px;border:1px solid #000;border-radius:4px;text-align:left;width:220px;height:24px;background-color:#ddd;color:#000;}
-			.type_ETH{background-color:#ddeeff;}
-			.type_OP{width:130px;height:48px;background-color:#ddeeff;}
+			.type_ETH{background-color:#eff;}/*#ddeeff*/
+			.type_OP{width:130px;height:48px;background-color:#ffe;}/*#ddeeff*/
 			.type_CR{width:60px;height:20px;}
 			.type_PP{}
 			.rk_in_entrance .type_PP{width:130px;}
-			.type_SBE{height:48px;background-color:#ddf;}
-			.type_OSW{background-color:#ddf;}
-			.type_FAMP{height:48px;background-color:#ddf;}
-			.type_OLT{height:48px;background-color:#ddf;}
-			.type_CPE{width:160px;background-color:#ddeeff;}
-			.type_Voip{width:160px;background-color:#ddeeff;}
+			.type_SBE{height:48px;background-color:#eef;}/*#ddf*/
+			.type_OSW{background-color:#ddf;}/*#eef*/
+			.type_FAMP{height:48px;background-color:#eef;}/*#ddf*/
+			.type_MPLS{height:36px;background-color:#eef;}
+			.type_OLT{height:36px;background-color:#eef;}/*#ddf*/
+			.type_CPE{width:160px;background-color:#fef;}/*#ddeeff*/
+			.type_Voip{width:160px;background-color:#fef;}/*#ddeeff*/
 				.online{border-right:10px solid green;}
 				.offline{border-right:10px solid red;}
 				.nomon{background-color:#ddd;}
@@ -84,14 +85,184 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*this is sw*/
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='оптический приемник'){
 				/*this is op*/
-			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.indexOf('Наряды')>=0){
+			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')){
 				/*this is Start page*/
 				document.getElementById('building-template').innerHTML=myBuilding_template;
 				document.getElementById('ports-el-template').innerHTML=myPorts_template;
+				document.getElementById('port-template').innerHTML=myPort_template;
 				document.getElementById('set-port-modal').innerHTML=mySetPort_template;
 				document.getElementById('account-template').innerHTML=myAccount_template;
 			};
 		};
+		
+		var myPort_template=`
+			<div v-if="data">
+				<div class="info-block port-info">
+					<screen-header-el @click="refresh">
+						<template slot="title">порт № {{ data.number }}</template>
+						<span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_ADMIN_STATUS)">a</span>
+						<span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_OPER_STATUS)">o</span>
+						{{ data.snmp_name }}
+						<template slot="info">№ {{ data.number }}<span class="speed">{{ data.status.IF_SPEED ? '(' + data.status.IF_SPEED + ')' : '' }}</span></template>
+						<template slot="minor">{{ data.name }}</template>
+					</screen-header-el>
+					<div @click="toDevice">
+						<i class="fas fa-network-wired faded mr-1"></i>{{ data.device_name }}<i class="fa fa-chevron-right float-right"></i>
+					</div>
+					<div v-if="data.last_mac">{{ data.last_mac.last_at }}<span class="inscription">последний выход</span></div>
+					<div v-if="data.last_mac">{{ data.last_mac.value }}<span class="inscription">последний MAC</span></div>
+					<div v-bind:disabled="loading.status" v-show="data.status" class="snmp-status">
+						<span v-on:click="clearErrors"><i class="fa fa-recycle"></i></span>
+						<span class="speed">{{ IOErrors }}</span>
+						<span class="inscription">ошибки</span>
+					</div>
+					<div v-bind:disabled="loading.loopback" class="snmp-status">
+						<span v-if="loading.loopback">Проверяем...</span>
+						<span v-else><img v-if="data.loopback.detected" src="../f/i/icons/kz.svg" title="Обнаружена петля">{{ data.loopback.text }}</span>
+						<span class="inscription">петля</span>
+					</div>
+					<div class="small-text">{{ data.snmp_description }}</div>
+					<div v-show="loading.status || loading.loopback" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+				
+				<div class="info-block">
+					<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseActions" href="#collapseActions">
+						<span>Действия</span>
+						<div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+					</a>
+					<div class="collapse" id="collapseActions">
+						<div class="action-block">
+							<button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
+								<i class="fas fa-power-off"></i>Перезагрузить порт<span v-show="data.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
+							</button>
+							<div v-show="loading.restart" class="progress">
+								<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+							</div>
+						</div>
+						<div class="action-block">
+							<button v-bind:disabled="blockedSetPortForUser" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
+								<i class="fas fa-link"></i>Привязать лицевой счет
+							</button>
+						</div>
+						<div class="action-block">
+							<button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">
+								<i class="fas fa-ruler-combined"></i>Кабель тест
+							</button>
+							<template v-if="data.cabletest">
+								<div v-if="data.cabletest.type == 'error'" class="alert alert-danger">{{ data.cabletest.message }}</div>
+								<pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\\n') }}</pre>
+							</template>
+							<div v-show="loading.cabletest" class="progress">
+								<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+							</div>
+						</div>
+						<div class="action-block">
+							<button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">
+								<i class="fas fa-stream"></i>Показать лог
+							</button>
+							<div v-show="loading.log" class="progress">
+								<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+							</div>
+						</div>
+						<div class="action-block">
+							<button @click="showPortMacs" v-bind:disabled="loading.macs || blockedSetButton" class="btn btn-action btn-row btn-sm">
+								<i class="fas fa-at"></i>MAC-адреса
+							</button>
+							<template v-if="macs">
+								<div v-if="macs.type == 'error'" class="alert alert-danger">{{ macs.message }}</div>
+								<pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\\n') }}</pre>
+							</template>
+							<div v-show="loading.macs" class="progress">
+								<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="info-block port-info">
+					<div v-if="loading.link"><span>Подключения</span></div>
+					<ul class="list-group list-group-flush">
+						<li v-for="link in data.link" class="list-group-item">
+							<div v-if="link.ACCOUNT" class="link">
+								<div :class="{ contract : link.CLOSE_DATE }">
+									<div @click="jump(link)" class="link-title">
+										<i class="fa fa-user"></i>Абонент<i class="fa fa-chevron-right float-right"></i>
+									</div>
+									<div>{{ link.ACCOUNT }}<span class="inscription">лицевой счет</span></div>
+									<div v-if="link.FLAT_NUMBER">№ {{ link.FLAT_NUMBER }}<span class="inscription">квартира</span></div>
+									<div>{{ link.START_DATE }}<span class="inscription">заключен</span></div>
+									<div v-if="link.CLOSE_DATE">{{ link.CLOSE_DATE }}<span class="inscription">расторгнут</span></div>
+									<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
+									<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
+									<div>{{ link.LAST_DATE }}<span class="inscription">последний выход</span></div>
+								</div>
+							</div>
+							<div v-else-if="link.LINK_DEVICE_NAME" class="link">
+								<div v-on:click="jump(link)" class="link-title">
+									<i class="fa fa-microchip"></i>Устройство<i class="fa fa-chevron-right float-right"></i>
+								</div>
+								<div>{{ link.LINK_DEVICE_NAME }}<span class="inscription">устройство</span></div>
+								<div>{{ link.LINK_PORT_NAME }}<span class="inscription">порт</span></div>
+								<div>{{ link.LINK_SNMP_PORT_NAME }}<span class="inscription">SNMP имя порта</span></div>
+							</div>
+							<div v-else-if="link.empty" class="link">
+								<div class="link-title">
+									<i class="fa fa-circle-notch"></i>Свободный порт
+								</div>
+							</div>
+							<div v-else class="link">
+								<div class="link-title">
+									<i class="fa fa-user-secret"></i>
+								</div>
+								<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
+								<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
+								<div>{{ link.LAST_DATE }}<span class="inscription">последний выход</span></div>
+							</div>
+						</li>
+						<li v-if="state == 'bad'" class="list-group-item">
+							<div class="link-title">
+								<i class="fa fa-window-close"></i>Битый порт
+							</div>
+						</li>
+						<li v-else-if="state == 'free'" class="list-group-item">
+							<div class="link-title">
+								<i class="fa fa-expand"></i>Свободный порт
+							</div>
+						</li>
+					</ul>
+					<div v-if="loading.link" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
+				</div>
+				
+				<div class="modal fade" id="logModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="exampleModalLabel">Лог</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div v-show="log.status == 'success'" style="height: 396px; overflow: scroll;">
+									<p v-for="logLine in log.data">{{logLine}}</p>
+								</div>
+								<div v-show="log.status == 'error'" style="height: 396px; overflow: scroll;">
+									<p class="text-danger">Ошибка получения данных</p>
+								</div>
+								<div v-if="loading.log" class="progress">
+									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+								</div>
+								<button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">Закрыть</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
 		
 		var myAccount_template=`
 			<div v-if="data">
@@ -364,43 +535,41 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 											</div>
 											<div class="col-6">
 												<div class="row">
-												<div class="col-6 port-link-info">
-												<div v-if="loaded.portStatuses && !error.empty" class="port-adm-link-status" :class="linkStatusClass(index)" style="border-radius:4px;"></div>
-												</div>
-												<div class="col-6 port-speed-info">
-												<div class="port-high-speed">
-												<span v-if="loaded.portStatuses && !error.empty">{{ portSpeed(index) }}</span>
-												</div>
-												</div>
+													<div class="col-6 port-link-info">
+														<div v-if="loaded.portStatuses && !error.empty" class="port-adm-link-status" :class="linkStatusClass(index)" style="border-radius:4px;"></div>
+													</div>
+													<div class="col-6 port-speed-info">
+														<div class="port-high-speed"><span v-if="loaded.portStatuses && !error.empty">{{ portSpeed(index) }}</span></div>
+													</div>
 												</div>
 												<div class="row">
-												<div v-if="port.port_errors" class="port-errors-value">{{ port.port_errors}}</div>
-												<div v-else class="port-errors-value">- / -</div>
+													<div v-if="port.port_errors" class="port-errors-value">{{ port.port_errors}}</div>
+													<div v-else class="port-errors-value">- / -</div>
 												</div>
 											</div>
 										</div>
 										<div class="row">
 											<div class="port-pairs-info col d-flex justify-content-center align-items-center" :class="portMetrStatusClass(index)">
-											<template v-if="isCable(index)">
-											<template v-if="port.port_loop && !port.port_loop.loop_status">
-											<div class="port-loop">Петля</div>
-											</template>
-											<template v-if="loaded.portStatuses && !error.empty">
-											<template v-for="(pair, i) in pairs(index)">
-											<div class="col port-pair-info">
-											<div v-if="pair.pair && loaded.portStatuses && !error.empty" class="row">
-											<div class="port-pair d-flex justify-content-center align-items-center" :class="pair.class"><div>{{ pair.pair }}</div></div>
-											</div>
-											<div class="row">
-											<div class="port-metr">{{ pair.metr }}</div>
-											</div>
-											</div>
-											</template>
-											</template>
-											</template>                
-											<template v-else>
-											<div class="port-no-cable">Cвободен</div>
-											</template>
+												<template v-if="isCable(index)">
+													<template v-if="port.port_loop && !port.port_loop.loop_status">
+														<div class="port-loop">Петля</div>
+													</template>
+													<template v-if="loaded.portStatuses && !error.empty">
+														<template v-for="(pair, i) in pairs(index)">
+															<div class="col port-pair-info">
+																<div v-if="pair.pair && loaded.portStatuses && !error.empty" class="row">
+																	<div class="port-pair d-flex justify-content-center align-items-center" :class="pair.class"><div>{{ pair.pair }}</div></div>
+																</div>
+																<div class="row">
+																	<div class="port-metr">{{ pair.metr }}</div>
+																</div>
+															</div>
+														</template>
+													</template>
+												</template>                
+												<template v-else>
+													<div class="port-no-cable">Cвободен</div>
+												</template>
 											</div>
 										</div>
 									</div>
@@ -469,42 +638,43 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
 				</div>
 				</div>
+				
 				<div class="info-block" v-show="showEntrance" >
-				<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseEntrance" href="#collapseEntrance" >
-				<span class="card-title"> Квартиры </span>
-				<div v-show="data.entrances && data.entrances.length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-				</a>
-				<div v-if="data.entrances && data.entrances.length > 0" class="building-info collapse" id="collapseEntrance">
-				<div class="align-items-center justify-content-between pb-2" :class="data.entrances[0].ENTRANCE_ID ? 'd-flex' : 'd-none'">
-				<span class="small-text">Подключено:</span>
-				<span class="small-text">Подъезды</span>
-				</div>
-				<ul class="list-group list-group-flush">
-				<li v-for="(entrance) in data.entrances" @click="selectEntrance(entrance)" class="list-group-item d-flex align-items-center justify-content-between">
-				<div class="w-75">
-				<div :class='{ "float-left mr-2": entrance.INTERNET_BLOCK_TYPE }'>
-				<h5 v-if="entrance.FLAT_FROM_TO" class="m-0 p-0"> {{ entrance.FLAT_FROM_TO }} </h5>
-				<h6 v-else class="m-0 p-0">Подключенные квартиры</h6>
-				</div>
-				<div class="bg-warning px-2 mb-1 rounded text-truncate"> {{ entrance.INTERNET_BLOCK_TYPE }} </div>
-				<div v-for="(device) in entrance.DEVICE_LIST" class="minor-text" v-show="entrance.DEVICE_LIST">
-				<i class="fas fa-project-diagram blue"></i> {{ device }}
-				</div>
-				</div>
-				<div>
-				<template v-if="entrance.ENTRANCE_NO">
-				<h4>{{ entrance.ENTRANCE_NO }}</h4>
-				</template>
-				<template v-else>
-				<i class="fas fa-chevron-right"></i>
-				</template>
-				</div>
-				</li>
-				</ul>
-				</div>
-				<div v-show="loading.entrances" class="progress">
-				<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-				</div>
+					<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseEntrance" href="#collapseEntrance" >
+						<span class="card-title"> Квартиры </span>
+						<div v-show="data.entrances && data.entrances.length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+					</a>
+					<div v-if="data.entrances && data.entrances.length > 0" class="building-info collapse" id="collapseEntrance">
+						<div class="align-items-center justify-content-between pb-2" :class="data.entrances[0].ENTRANCE_ID ? 'd-flex' : 'd-none'">
+							<span class="small-text">Подключено:</span>
+							<span class="small-text">Подъезды</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li v-for="(entrance) in data.entrances" @click="selectEntrance(entrance)" class="list-group-item d-flex align-items-center justify-content-between">
+								<div class="w-75">
+									<div :class='{ "float-left mr-2": entrance.INTERNET_BLOCK_TYPE }'>
+										<h5 v-if="entrance.FLAT_FROM_TO" class="m-0 p-0"> {{ entrance.FLAT_FROM_TO }} </h5>
+										<h6 v-else class="m-0 p-0">Подключенные квартиры</h6>
+									</div>
+									<div class="bg-warning px-2 mb-1 rounded text-truncate"> {{ entrance.INTERNET_BLOCK_TYPE }} </div>
+									<div v-for="(device) in entrance.DEVICE_LIST" class="minor-text" v-show="entrance.DEVICE_LIST">
+										<i class="fas fa-project-diagram blue"></i> {{ device }}
+									</div>
+								</div>
+								<div>
+									<template v-if="entrance.ENTRANCE_NO">
+										<h4>{{ entrance.ENTRANCE_NO }}</h4>
+									</template>
+									<template v-else>
+										<i class="fas fa-chevron-right"></i>
+									</template>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div v-show="loading.entrances" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					</div>
 				</div>
 				
 				<div class="info-block myDevices">
