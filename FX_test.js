@@ -92,7 +92,162 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				document.getElementById('port-template').innerHTML=myPort_template;
 				document.getElementById('set-port-modal').innerHTML=mySetPort_template;
 				document.getElementById('account-template').innerHTML=myAccount_template;
+				myVueComponents();
 			};
+		};
+		
+		function myVueComponents(){
+			Vue.component('port-comparer-el', {
+			  template: '#port-comparer-el-template',
+			  props: ['storage', 'devices'],
+			  data: function () {
+				return {
+				  loading: false,
+				  saved: false,
+				  deviceList: {},
+				  timestamp: null,
+				  compared: false,
+				  changed: 0,
+				  count: 0,
+				  showAll: false
+				}
+			  },
+			  created: function () {
+				if (this.storage.mutation) {
+				  for (var key in this.storage.mutation) this[key] = this.storage.mutation[key];
+				}
+			  },
+			  beforeDestroy: function () {
+				this.storage.mutation = {};
+				for (var key in this.$data) this.storage.mutation[key] = this[key];
+			  },
+			  computed: {
+				classSaveBtn: function () {
+				  return {
+					'disabled': this.loading && !this.saved
+				  }
+				},
+				classCompareBtn: function () {
+				  return {
+					'disabled': this.loading && this.saved
+				  }
+				}
+			  },
+			  methods: {
+				help: function () {
+				  app.showModal({
+					title: 'Справка',
+					component: 'help-modal',
+					data: 'Необходимо сохранить текущее состояние нажав кнопку "Cохранить", произвести манипуляции с портами и после чего по нажатию на кнопку "Cравнить" будет производиться сравнение состояний портов с сохраненным.'
+				  });
+				},
+				classChangeEntry: function (entry) {
+				  if (this.showAll && this.compared) {
+					return entry.changed ? 'changed' : 'not changed';
+				  }
+				},
+				portWord: function(length) {
+				  var remainder = length/10;
+				  if (remainder == 1) {
+					return 'порт';
+				  } else if (remainder > 4 || remainder == 0) {
+					return 'портов';
+				  } else {
+					return 'порта';
+				  }
+				},
+				changeWord: function(length) {
+				  var remainder = length/10;
+				  if (remainder == 1) {
+					return 'изменился';
+				  } else {
+					return 'изменились';
+				  }
+				},
+				onLoad: function (state) {
+				  this.loading = state;
+				  this.$emit('loading', state);
+				},
+				loadPortStatuses: function (compare) {
+				  if (this.loading) return;
+				  this.onLoad(true);
+				  if (!compare) {
+					this.saved = false;
+					this.deviceList = {};
+				  }
+				  this.compared = false;
+				  this.changed = 0;
+				  var self = this;
+				  let devices = this.devices.filter(device => /eth/i.test(device.DEVICE_NAME));
+				  httpPost('/call/dnm/port_statuses', { devices: devices }).then(function(data) {
+					if (compare) {
+					  self.deviceList = self.comparePorts(data);
+					  self.compared = true;
+					} else {
+					  self.deviceList = self.enrichPorts(data);
+					  self.count = self.calcPortCount(data);
+					  self.saved = true;
+					}
+					self.timestamp = new Date().toLocaleTimeString();
+					self.onLoad(false);
+				  });
+				},
+				calcPortCount: function (devices) {
+				  var count = 0;
+				  for (var device in devices) {
+					if (devices[device].ports) count += devices[device].ports.length;
+				  }
+				  return count;
+				},
+				portChanged: function (before, after) {
+				  var diff = 0;
+				  if (before.oper_state != after.oper_state) diff++;
+				  for (var i = 1; i < 5; i++) {
+					var pair = 'pair_' + i;
+					var metr = 'mert_' + i;
+					if (before[pair]) {
+					  if (before[pair] != after[pair]) {diff++};
+					  if ((parseInt(before[metr]) - parseInt(after[metr])) > 3) {diff++};
+					}
+				  }
+				  return diff != 0;
+				},
+				enrichPorts: function (devices) {
+				  for (var device in devices) {
+					var ports = devices[device].ports;
+					if (!ports) continue;
+					for (var i = 0; i < ports.length; i++) {
+					  ports[i].status = ports[i].oper_state.includes('up') ? 'up' : 'down';
+					}
+				  }
+				  return devices;
+				},
+				comparePorts: function (data) {
+				  for (var devicename in this.deviceList) {
+					var device = this.deviceList[devicename];
+					if (!device.ports) {return};
+					if (!data[device.name]) {return};
+					for (var i = 0; i < device.ports.length; i++) {
+					  var port = data[device.name].ports.find(function(el) { return el.iface == device.ports[i].iface});
+					  if (!port) {return};
+					  port.status = port.oper_state.includes('up') ? 'up' : 'down';
+					  if (this.portChanged(device.ports[i], port)) {
+						port.changed = true;
+						port.old = device.ports[i];
+						this.changed++;
+					  } else {
+						port.changed = false;
+					  }
+					}
+				  }
+				  return data;
+				},
+				toPort: function (port) {
+				  var target = 'PORT-' + port.devicename + '/' + port.index_iface;
+				  app.jump(target, true);
+				}
+			  }
+			});
 		};
 		
 		var myPort_template=`
