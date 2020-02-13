@@ -1076,7 +1076,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;">
 					<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span> {{ device.ip }} ( {{ device.ports.length }} ) </h5>
 					<div v-for="(item, index) in device.ports">
-						<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)>
+						<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)">
 							<div v-if="item.loading" class="port">загрузка...</div>
 							<div v-else @click="toPort(item)" class="port" :class="classChangeEntry(item)">
 								<span v-if="item.status=='up'" class="led on"></span>
