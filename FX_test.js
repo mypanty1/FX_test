@@ -88,6 +88,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')){
 				/*this is Start page*/
 				document.getElementById('building-template').innerHTML=myBuilding_template;
+				document.getElementById('port-comparer-el-template').innerHTML=myPortComparerEl_template;
 				document.getElementById('ports-el-template').innerHTML=myPorts_template;
 				document.getElementById('port-template').innerHTML=myPort_template;
 				document.getElementById('set-port-modal').innerHTML=mySetPort_template;
@@ -245,6 +246,75 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				toPort: function (port) {
 				  var target = 'PORT-' + port.devicename + '/' + port.index_iface;
 				  app.jump(target, true);
+				}
+			  }
+			});
+			Vue.component('orders-view', {
+			  template: '#orders-template',
+			  props: ['data'],
+			  data: function () {
+				return {
+				  date: new Date(),
+				  orderList: [],
+				  
+				  statusList: {
+					assigned: {text: 'Назначен', check: true},
+					sent: {text: 'Отправлен', check: true},
+					transit: {text: 'В пути', check: true},
+					inProgress: {text: 'В работе', check: true},
+					done: {text: 'Выполнен', check: true},
+					none: {text: 'Не выполнен', check: true},
+					canceled: {text: 'Отменен', check: true},
+					preSent: {text: 'Предв. Отправлен', check: true},
+					resolved: {text: 'Завершен', check: true}
+				  },
+
+				  loading: false
+				}
+			  },
+			  created: function () {
+				/*this.showSetting();*/
+			  },
+			  computed: {
+				filterOrder: function () {
+				  var self = this;
+				  return this.orderList.filter(function (order) {
+					for ( var key in self.statusList ) {
+					  if (self.statusList[key].text == order.status && self.statusList[key].check) return order;
+					}
+				  });
+				},
+			  },
+			  methods: {
+				showSetting: function () {
+				  this.$root.showModal({ title: 'Наряды', data: this, component: 'order-modal' });
+				},
+				load: function () {
+				  if (this.loading) return;
+				  this.loading = true;
+				  this.orderList.splice(0, this.orderList.length);
+				  var self = this;
+				  httpGet('/call/wfm/engineer_tasks?date=' + this.date).then(function (data) {
+					switch (data.type) {
+					  case 'warning':
+						self.$root.message = data.text;
+						break;
+					  case 'error':
+						self.$root.message = data.error;
+						break;
+					  default:
+						self.orderList = data;
+						break;
+					}
+					self.loading = false;
+				  });
+				},
+				showPreviousDay: function () {
+				  this.date = Dt.addDays(-1, this.date);
+				  this.load();
+				},
+				selectOrder: function (order) {
+				  this.$root.showModal({ title: order.tasktype + ' ' + order.NumberOrder, data: order, component: 'order-details-modal' });
 				}
 			  }
 			});
@@ -738,7 +808,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<li @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;">
 									<div class="col port-basic-info-row">
 										<div>{{ port.number }}</div>
-										<div v-show="port.flat" class="port-desc" style="width:40px;"><span>{{ port.flat }}</span></div>
+										<div v-show="port.flat" class="port-desc" style="width:60%;"><span>{{ port.flat }}</span></div>
 									</div>
 								</li>
 							</ul>
@@ -954,6 +1024,78 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								</div>
 							</li>
 						</ul>
+					</div>
+				</div>
+			</div>
+		`;
+		
+		var myPortComparerEl_template=`
+			<div v-if="devices">
+				<div class="line-row">
+					<span class="pl-4 pb-1">
+						<input v-model="showAll" name="allPortsCheck" type="checkbox" class="check-mts" id="allPortsCheck">
+						<label for="allPortsCheck">отображать все порты</label>
+					</span>
+				</div>
+				<div class="line-row">
+					<button @click="loadPortStatuses(false)" class="btn btn-sm btn-action" :class="classSaveBtn" :disabled="loading">
+						<i class="fas fa-save"></i> Cохранить
+					</button>
+					<button @click="loadPortStatuses(true)" class="btn btn-sm btn-action" :class="classCompareBtn" :disabled="loading || !saved">
+						<i class="fas fa-list"></i> Cравнить
+					</button>
+					<button @click="help" class="btn btn-title float-right">
+						<i class="fas fa-info"></i>
+					</button>
+				</div>
+				<div class="bar-info">
+					<div v-show="saved" class="note small-text">
+						<div>сохранено: {{ timestamp }}; {{ count }}
+							<span>{{ portWord(count) }}</span>
+						</div>
+					</div>
+				</div>
+				<div v-if="saved">
+					<div v-for="device in deviceList">
+						<div v-if="device.message" class="alert alert-warning mutation-alert">
+							<div>
+								<span class="font-weight-bold">{{ device.name }}</span>
+								{{ device.ip }}
+							</div>
+							<div>{{ device.message }}</div>
+						</div>
+					</div>
+				</div>
+				<div v-if="compared">
+					<div class="note small-text">
+					{{ changeWord(changed) }}
+					{{ changed }}
+					{{ portWord(changed) }}
+					</div>
+				</div>
+				<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;">
+					<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span> {{ device.ip }} ( {{ device.ports.length }} ) </h5>
+					<div v-for="(item, index) in device.ports">
+						<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)>
+							<div v-if="item.loading" class="port">загрузка...</div>
+							<div v-else @click="toPort(item)" class="port" :class="classChangeEntry(item)">
+								<span v-if="item.status=='up'" class="led on"></span>
+								<span v-else="item.status=='down'" class="led disable"></span>
+								<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
+								<span class="number">{{ item.iface.replace('1/','порт ') }}</span>
+								<div class="float-right"><i class="fas fa-chevron-right"></i></div>
+								<div class="minor-text" style="text-align-last: left;">
+									<div>
+										<span v-if="item.pair_1" style="color:black;background-color:orange;">Пара 1: {{ item.pair_1 }} {{ item.metr_1 }};</span>
+										<span v-if="item.pair_2" style="color:black;background-color:lightgreen">Пара 2: {{ item.pair_2 }} {{ item.metr_2 }};</span>
+									</div>
+									<div>
+										<span v-if="item.pair_3" style="color:black;background-color:lightblue">Пара 3: {{ item.pair_3 }} {{ item.metr_3 }};</span>
+										<span v-if="item.pair_4" style="color:black;background-color:chocolate">Пара 4: {{ item.pair_4 }} {{ item.metr_4 }};</span>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
