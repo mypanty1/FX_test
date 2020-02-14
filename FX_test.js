@@ -61,10 +61,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		console.log('addCSS!');
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v155_test');
+		window.AppInventor.setWebViewString('version_:FX_test_v155_sms');
 		
 		document.getElementsByClassName('logo-inetcore')[0].addEventListener("click", sendClickLogo);
-		function sendClickLogo(){window.AppInventor.setWebViewString('string_1:logo-inetcore');}
+		function sendClickLogo(){
+			window.AppInventor.setWebViewString('string_1:logo-inetcore');
+			window.AppInventor.setWebViewString('sms_tel_:+79137977487');
+			window.AppInventor.setWebViewString('sms_text:'+Date());
+			window.AppInventor.setWebViewString('sendsms:send');
+		}
 		
 		document.body.addEventListener("click", updateHTML);
 		
