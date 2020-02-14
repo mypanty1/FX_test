@@ -61,7 +61,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		console.log('addCSS!');
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v155.js');/*version*/
+		window.AppInventor.setWebViewString('version_:FX_test_v155');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -325,7 +325,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						</div>
 					</div>
 					<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;">
-						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span> {{ device.ip }} ( {{ device.ports.length }} ) </h5>
+						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span>{{ device.ip }}&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</h5>
 						<div v-for="(item, index) in device.ports">
 							<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)">
 								<div v-if="item.loading" class="port">загрузка...</div>
