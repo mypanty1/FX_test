@@ -63,6 +63,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		
 		window.AppInventor.setWebViewString('version_:FX_test_v155');
 		
+		document.getElementsByClassName('logo-inetcore')[0].addEventListener("click", sendClickLogo);
+		function sendClickLogo(){window.AppInventor.setWebViewString('string_1:logo-inetcore');}
+		
 		document.body.addEventListener("click", updateHTML);
 		
 		var usertext='';
