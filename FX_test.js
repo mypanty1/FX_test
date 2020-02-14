@@ -91,8 +91,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				document.getElementById('port-comparer-el-template').innerHTML=myPortComparerEl_template;
 				document.getElementById('ports-el-template').innerHTML=myPorts_template;
 				document.getElementById('port-template').innerHTML=myPort_template;
-				document.getElementById('set-port-modal').innerHTML=mySetPort_template;
-				document.getElementById('account-template').innerHTML=myAccount_template;
+				/*document.getElementById('set-port-modal').innerHTML=mySetPort_template;*/
+				/*document.getElementById('account-template').innerHTML=myAccount_template;*/
 				myVueComponents();
 			};
 		};
