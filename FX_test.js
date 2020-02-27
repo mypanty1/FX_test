@@ -1,6 +1,6 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release.test.inetcore.mts.ru:81/fix#/')>=0)||(window.location.href.indexOf('http://demo.test.inetcore.mts.ru:81/fix/#/')>=0))){
+if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release-20-3.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://master.test.inetcore.mts.ru/fix#/')>=0))){
 	document.title = 'Inetcore+';
 	
 	function start(){
@@ -59,15 +59,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
-		console.log('addCSS!');
+		/*console.log('addCSS!');*/
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v155');
+		window.AppInventor.setWebViewString('version_:FX_test_v156');
+		/*document.getElementsByClassName('logo-inetcore')[0].addEventListener("click", sendClickLogo);*/
+		/*function sendClickLogo(){window.AppInventor.setWebViewString('string_1:logo-inetcore');}*/
 		
 		document.body.addEventListener("click", updateHTML);
 		
 		var usertext='';
 		function updateHTML(){
-			console.log('click! date:'+Date());
+			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='Домовой узел'){
 				/*this is du*/
 				if(document.getElementsByClassName('info-block')[1].getElementsByClassName('progress')[0].style.display!=''&&document.getElementById('collapseEntrance')!=null){
@@ -196,7 +198,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							<div v-for="(racks, number) in data.racks" class="entrance_for_rack" style="">
 								<h5>Подъезд {{ number }}</h5>
 								<ul class="list-group list-group-flush" style="flex-direction:column-reverse;">
-									<li v-bind:name="rack.RACK_NMAE" class="list-group-item rack_in_entrance":class='{ "rk_in_entrance":rack.RACK_TYPE!="Антивандальный" }' v-for="(rack) in racks"  style="margin-top:4px;padding: 4px 0px 4px 4px;border:1px solid #000;border-radius:4px;background-color:#aaa;color:#000;">
+									<li v-bind:name="rack.RACK_NMAE.replace('КР','KR')" class="list-group-item rack_in_entrance":class='{ "rk_in_entrance":rack.RACK_TYPE!="Антивандальный" }' v-for="(rack) in racks"  style="margin-top:4px;padding: 4px 0px 4px 4px;border:1px solid #000;border-radius:4px;background-color:#aaa;color:#000;">
 										<div>
 											<p class="mb-0">
 												<strong>{{ rack.FLOOR }} этаж</strong>
@@ -283,16 +285,18 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			document.getElementById('port-comparer-el-template').innerHTML=`
 				<div v-if="devices">
 					<div class="line-row">
-						<span class="pl-4 pb-1">
-							<input v-model="showAll" name="allPortsCheck" type="checkbox" class="check-mts" id="allPortsCheck">
-							<label for="allPortsCheck">отображать все порты</label>
+						<span class="pl-4 pb-2 position-relative">
+							<input v-model="showAll" name="all-ports-check" type="checkbox" class="check-mts" id="all-ports-check">
+							<label for="all-ports-check">Отображать все порты</label><!--enable-->
+							<input v-model="withCableTest" name="with-cable-test" type="checkbox" class="check-mts" id="with-cable-test" :disabled="loading">
+							<label for="with-cable-test">C кабель-тестом</label>
 						</span>
 					</div>
 					<div class="line-row">
-						<button @click="loadPortStatuses(false)" class="btn btn-sm btn-action" :class="classSaveBtn" :disabled="loading">
+						<button @click="loadPortStatuses(false)" class="btn btn-sm btn-action" :disabled="disableSaveBtn">
 							<i class="fas fa-save"></i> Cохранить
 						</button>
-						<button @click="loadPortStatuses(true)" class="btn btn-sm btn-action" :class="classCompareBtn" :disabled="loading || !saved">
+						<button @click="loadPortStatuses(true)" class="btn btn-sm btn-action" :disabled="disableCompareBtn">
 							<i class="fas fa-list"></i> Cравнить
 						</button>
 						<button @click="help" class="btn btn-title float-right">
@@ -301,8 +305,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 					<div class="bar-info">
 						<div v-show="saved" class="note small-text">
-							<div>сохранено: {{ timestamp }}; {{ count }}
-								<span>{{ portWord(count) }}</span>
+							<div>сохранено: {{ timestamp }};
+								<span>{{ words(deviceList) }}</span>
 							</div>
 						</div>
 					</div>
@@ -319,28 +323,28 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 					<div v-if="compared">
 						<div class="note small-text">
-						{{ changeWord(changed) }}
-						{{ changed }}
-						{{ portWord(changed) }}
+							{{ changeWord(changed) }}
+							{{ changed }}
+							{{ portWord(changed) }}
 						</div>
 					</div>
-					<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;">
-						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span>{{ device.ip }}&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</h5>
+					<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;"><!--style-->
+						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span>{{ device.ip }}&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</h5><!--add-->
 						<div v-for="(item, index) in device.ports">
-							<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)">
+							<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)"><!--style-->
 								<div v-if="item.loading" class="port">загрузка...</div>
 								<div v-else @click="toPort(item)" class="port" :class="classChangeEntry(item)">
-									<span v-if="item.status=='up'" class="led on"></span>
-									<span v-else="item.status=='down'" class="led disable"></span>
-									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
-									<span class="number">{{ item.iface.replace('1/','порт ') }}</span>
+									<span v-if="item.status=='up'" class="led on"></span><!--add-->
+									<span v-else="item.status=='down'" class="led disable"></span><!--add-->
+									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span><!--add-->
+									<span class="number">{{ item.iface.replace('1/','порт ') }}</span><!--add-->
 									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
 									<div class="minor-text" style="text-align-last: left;">
-										<div>
+										<div><!--add-->
 											<span v-if="item.pair_1" style="color:black;background-color:orange;">Пара 1: {{ item.pair_1 }} {{ item.metr_1 }};</span>
 											<span v-if="item.pair_2" style="color:black;background-color:lightgreen">Пара 2: {{ item.pair_2 }} {{ item.metr_2 }};</span>
 										</div>
-										<div>
+										<div><!--add-->
 											<span v-if="item.pair_3" style="color:black;background-color:lightblue">Пара 3: {{ item.pair_3 }} {{ item.metr_3 }};</span>
 											<span v-if="item.pair_4" style="color:black;background-color:chocolate">Пара 4: {{ item.pair_4 }} {{ item.metr_4 }};</span>
 										</div>
@@ -351,157 +355,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 				</div>
 			`;
-			Vue.component('port-comparer-el', {
-			  template: '#port-comparer-el-template',
-			  props: ['storage', 'devices'],
-			  data: function () {
-				return {
-				  loading: false,
-				  saved: false,
-				  deviceList: {},
-				  timestamp: null,
-				  compared: false,
-				  changed: 0,
-				  count: 0,
-				  showAll: false
-				}
-			  },
-			  created: function () {
-				if (this.storage.mutation) {
-				  for (var key in this.storage.mutation) this[key] = this.storage.mutation[key];
-				}
-			  },
-			  beforeDestroy: function () {
-				this.storage.mutation = {};
-				for (var key in this.$data) this.storage.mutation[key] = this[key];
-			  },
-			  computed: {
-				classSaveBtn: function () {
-				  return {
-					'disabled': this.loading && !this.saved
-				  }
-				},
-				classCompareBtn: function () {
-				  return {
-					'disabled': this.loading && this.saved
-				  }
-				}
-			  },
-			  methods: {
-				help: function () {
-				  app.showModal({
-					title: 'Справка',
-					component: 'help-modal',
-					data: 'Необходимо сохранить текущее состояние нажав кнопку "Cохранить", произвести манипуляции с портами и после чего по нажатию на кнопку "Cравнить" будет производиться сравнение состояний портов с сохраненным.'
-				  });
-				},
-				classChangeEntry: function (entry) {
-				  if (this.showAll && this.compared) {
-					return entry.changed ? 'changed' : 'not changed';
-				  }
-				},
-				portWord: function(length) {
-				  var remainder = length;
-				  if (remainder == 1) {
-					return 'порт';
-				  } else if (remainder > 4 || remainder == 0) {
-					return 'портов';
-				  } else {
-					return 'порта';
-				  }
-				},
-				changeWord: function(length) {
-				  var remainder = length;
-				  if (remainder == 1) {
-					return 'изменился';
-				  } else {
-					return 'изменились';
-				  }
-				},
-				onLoad: function (state) {
-				  this.loading = state;
-				  this.$emit('loading', state);
-				},
-				loadPortStatuses: function (compare) {
-				  if (this.loading) return;
-				  this.onLoad(true);
-				  if (!compare) {
-					this.saved = false;
-					this.deviceList = {};
-				  }
-				  this.compared = false;
-				  this.changed = 0;
-				  var self = this;
-				  let devices = this.devices.filter(device => /eth/i.test(device.DEVICE_NAME));
-				  httpPost('/call/dnm/port_statuses', { devices: devices }).then(function(data) {
-					if (compare) {
-					  self.deviceList = self.comparePorts(data);
-					  self.compared = true;
-					} else {
-					  self.deviceList = self.enrichPorts(data);
-					  self.count = self.calcPortCount(data);
-					  self.saved = true;
-					}
-					self.timestamp = new Date().toLocaleTimeString();
-					self.onLoad(false);
-				  });
-				},
-				calcPortCount: function (devices) {
-				  var count = 0;
-				  for (var device in devices) {
-					if (devices[device].ports) count += devices[device].ports.length;
-				  }
-				  return count;
-				},
-				portChanged: function (before, after) {
-				  var diff = 0;
-				  if (before.oper_state != after.oper_state) diff++;
-				  for (var i = 1; i < 5; i++) {
-					var pair = 'pair_' + i;
-					var metr = 'mert_' + i;
-					if (before[pair]) {
-					  if (before[pair] != after[pair]) diff++;
-					  if ((parseInt(before[metr]) - parseInt(after[metr])) > 3) diff++;
-					}
-				  }
-				  return diff != 0;
-				},
-				enrichPorts: function (devices) {
-				  for (var device in devices) {
-					var ports = devices[device].ports;
-					if (!ports) continue;
-					for (var i = 0; i < ports.length; i++) {
-					  ports[i].status = ports[i].oper_state.includes('up') ? 'up' : 'down';
-					}
-				  }
-				  return devices;
-				},
-				comparePorts: function (data) {
-				  for (var devicename in this.deviceList) {
-					var device = this.deviceList[devicename];
-					if (!device.ports) return;
-					if (!data[device.name]) return;
-					for (var i = 0; i < device.ports.length; i++) {
-					  var port = data[device.name].ports.find(function(el) { return el.iface == device.ports[i].iface});
-					  if (!port) return;
-					  port.status = port.oper_state.includes('up') ? 'up' : 'down';
-					  if (this.portChanged(device.ports[i], port)) {
-						port.changed = true;
-						port.old = device.ports[i];
-						this.changed++;
-					  } else {
-						port.changed = false;
-					  }
-					}
-				  }
-				  return data;
-				},
-				toPort: function (port) {
-				  var target = 'PORT-' + port.devicename + '/' + port.index_iface;
-				  app.jump(target, true);
-				}
-			  }
-			});
+			/*Vue.component('port-comparer-el', {*/
 		};
 		
 		function myOrders_template(){
@@ -632,7 +486,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									<template v-for="(port, index) in ports">
 										<div class="port-details col-4 col-sm-2 col-md-2 col-lg" @click="selectPort(port)">
 											<div class="row port-basic-info-row">
-												<div class="col-6 port-basic-info d-flex justify-content-center align-items-center" :class="portClass(port)" style="border-radius:6px;">
+												<div class="col-6 port-basic-info d-flex justify-content-center align-items-center" :class="portClass(port)" style="border-radius:6px;"><!--style-->
 													<div class="row port-basic-info-row">
 														<div class="port-number">{{ port.number }}</div>
 														<div v-show="port.flat" class="flat-separator"></div>
@@ -642,7 +496,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 												<div class="col-6">
 													<div class="row">
 														<div class="col-6 port-link-info">
-															<div v-if="loaded.portStatuses && !error.empty" class="port-adm-link-status" :class="linkStatusClass(index)" style="border-radius:4px;"></div>
+															<div v-if="loaded.portStatuses && !error.empty" class="port-adm-link-status" :class="linkStatusClass(index)" style="border-radius:4px;"></div><!--style-->
 														</div>
 														<div class="col-6 port-speed-info">
 															<div class="port-high-speed"><span v-if="loaded.portStatuses && !error.empty">{{ portSpeed(index) }}</span></div>
@@ -686,10 +540,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<template v-if="!showdetails">
 							<div class="ports-el-compactly">
 								<ul class="list-group port-list">
-									<li @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;">
-										<div class="col port-basic-info-row">
-											<div>{{ port.number }}</div>
-											<div v-show="port.flat" class="port-desc" style="width:60%;"><span>{{ port.flat }}</span></div>
+									<li @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;"><!--style-->
+										<div class="col port-basic-info-row" style="margin:0px 2px 0px 2px;display:grid;grid-template-columns:30% 70%;"><!--style-->
+											<div style="grid-row:1/2;grid-column:1/2;"><div class="led"></div></div><!--add-->
+											<div style="grid-row:1/2;grid-column:2/3;"><!--add--><div>{{ port.number }}</div></div>
+											<div style="grid-row:2/3;grid-column:1/3;"><!--add--><div class="port-desc" style="width:80%"><!--style--><span>{{ port.flat }}</span></div></div>
 										</div>
 									</li>
 								</ul>
@@ -702,28 +557,32 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</a>
 							<div class="collapse legend-body" id="collapseLegend">
 								<ul class="list-group">
-									<li class="list-group-item"><div class="legend-port port-busy" style="border-radius:4px;">0</div>занятые</li>
-									<li class="list-group-item"><div class="legend-port port-expired" style="border-radius:4px;">0</div>можно освободить</li>
-									<li class="list-group-item"><div class="legend-port port-new" style="border-radius:4px;">0</div>новый MAC</li>
-									<li class="list-group-item"><div class="legend-port port-free" style="border-radius:4px;">0</div>cвободные</li>
-									<li class="list-group-item"><div class="legend-port port-bad" style="border-radius:4px;">0</div>битые</li>
-									<li class="list-group-item"><div class="legend-port port-trunk busy" style="border-radius:4px;">0</div>тех. занятые</li>
-									<li class="list-group-item"><div class="legend-port port-trunk free" style="border-radius:4px;">0</div>тех. свободные</li>
+									<li class="list-group-item"><div class="legend-port port-busy" style="border-radius:4px;">0</div>занятые</li><!--style-->
+									<li class="list-group-item"><div class="legend-port port-expired" style="border-radius:4px;">0</div>можно освободить</li><!--style-->
+									<li class="list-group-item"><div class="legend-port port-new" style="border-radius:4px;">0</div>новый MAC</li><!--style-->
+									<li class="list-group-item"><div class="legend-port port-free" style="border-radius:4px;">0</div>cвободные</li><!--style-->
+									<li class="list-group-item"><div class="legend-port port-bad" style="border-radius:4px;">0</div>битые</li><!--style-->
+									<li class="list-group-item"><div class="legend-port port-trunk busy" style="border-radius:4px;">0</div>тех. занятые</li><!--style,text-->
+									<li class="list-group-item"><div class="legend-port port-trunk free" style="border-radius:4px;">0</div>тех. свободные</li><!--style,text-->
+									<div class="w-100 py-1">Статусы порта:</div>
+									<li class="list-group-item"><div class="port-desc port-desc-new">NEW</div>новый MAC</li>
+									<li class="list-group-item"><div class="port-desc port-desc-hub">HUB</div>hub (возможно)</li>
+									<li class="list-group-item"><div class="port-desc">MOVE</div>переезд</li>
 									<template v-if="showdetails">
 										<div class="w-100 py-1">Результат кабель-теста:</div>
 										<li class="list-group-item"><div class="port-pair port-pair-open port-legend-info legend-port">O</div>Open</li>
-										<li class="list-group-item"><div class="port-pair port-pair-close port-legend-info legend-port">C</div>Close</li>
 										<li class="list-group-item"><div class="port-pair port-pair-short port-legend-info legend-port">S</div>Short</li>
+										<li class="list-group-item"><div class="port-pair port-pair-close port-legend-info legend-port">C</div>Crosstalk</li>
 										<li class="list-group-item"><div class="port-pair port-pair-error port-legend-info legend-port">E</div>Error</li>
 										<div class="w-100 py-1">Ошибки:</div>
 										<li class="list-group-item"><div class="legend-port legend-port-state">- / -</div>Тест ошибок не запускался</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state">0 / 0</div>Исходящие / Входящие</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state">0 / 0</div>Прием / Передача</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">999Т</div>999 тысяч ошибок</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">999М</div>999 миллионов ошибок</li>
 										<div class="w-100 py-1">Статус порта:</div>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-up">-</div>Есть link</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-down">-</div>Link отсутствует</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-off">-</div>Порт выключен</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-up" style="border-radius:4px;">-</div>Link UP</li><!--style,text-->
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-down" style="border-radius:4px;">-</div>Link DOWN</li><!--style,text-->
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-off" style="border-radius:4px;">-</div>Port disabled</li><!--style,text-->
 									</template>
 								</ul>
 							</div>
@@ -1177,9 +1036,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	
 	function testDevicesList(){
 		var devices=document.getElementById('collapseDevices').getElementsByClassName('device_in_list');
+		console.log('devices_in_list_count: %c%i','color:darkblue',devices.length);
 		for(var d=0; d<devices.length; d++){
-			if(devices[d].getAttribute('id').split('_')[0]=='ETH'){
-				httpGet('/call/device/device_port_list?device='+devices[d].getAttribute('id')+'&fresh='+Math.random(), true).then(function(data_p){
+			var d_name=devices[d].getAttribute('id');
+			var d_type=devices[d].getAttribute('id').split('_')[0];
+			console.log('device_in_list: %c%s%c type: %c%s','color:darkorange',d_name,'','color:darkorange',d_type);
+			if(d_type=='ETH'){
+				httpGet('/call/device/device_port_list?device='+d_name+'&fresh='+Math.random(), true).then(function(data_p){
+					console.log('device_in_list: %c%s%c ports_count: %c%i%c %O','color:darkorange',data_p[0].device_name,'','color:darkblue',data_p.length,'',data_p);
 					var ports=data_p.map(function(item_p, index_p, array_p){
 						var stata_counter_eth = document.getElementById(item_p.device_name).getElementsByClassName('s_'+item_p.state.replace(' ','_'))[0];
 						stata_counter_eth.setAttribute('counter',(+stata_counter_eth.getAttribute('counter')+1));
@@ -1195,30 +1059,38 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	function testDevices(){
 		function isEmpty(object){for(var key in object){return false}return true};/*used in testDevice(d_name)*/
 		var racks=document.getElementById('collapseRacks').getElementsByClassName('list-group-item');
+		console.log('racks_in_site_count: %c%i','color:darkblue',racks.length);
 		for(var r=0; r<racks.length; r++){
 			var devices=racks[r].getElementsByClassName('device_in_rack');
+			console.log('rack: %c%s%c devices_in_rack_count: %c%i','color:darkorange',racks[r].getAttribute('name'),'','color:darkblue',devices.length);
 			for(var d=0; d<devices.length; d++){
 				var d_name=devices[d].getAttribute('name');
 				var d_type=devices[d].getAttribute('name').split('_')[0];
 				devices[d].addEventListener('click', function(event){document.getElementById(event.target.attributes.name.value).click();});
+				console.log('device_in_rack: %c%s%c type: %c%s','color:darkorange',d_name,'','color:darkorange',d_type);
 				if(d_type!='PP'&&d_type!='CR'){
 					document.getElementsByName(d_name)[0].classList.add('nomon');
 					httpGet('/call/device/device_info?device='+d_name+'&fresh='+Math.random(), true).then(function(data_d){
 						if(!isEmpty(data_d[0])){
+							console.log('device_info: %c%s %c%O','color:darkorange',data_d[0].DEVICE_NAME,'',data_d[0]);
 							httpPost('/call/dnm/device_ping', {'device':data_d[0]}, true).then(function(data_pi){
 								if(data_pi.code=='200'){
 									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.remove('nomon');
 									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('online');
+									console.log('device_ping: %c%s%c status:%c online!','color:darkorange',data_d[0].DEVICE_NAME,'','color:darkgreen;font-weight:600;');
 								}else if(data_pi.code=='400'){
 									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.remove('nomon');
 									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('offline');
+									console.log('device_ping: %c%s%c status:%c offline!','color:darkorange',data_d[0].DEVICE_NAME,'','color:darkred;font-weight:600;');
 								}else{
 									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('nomon');
+									console.log('device_ping: %c%s%c status:%c nomon!','color:darkorange',data_d[0].DEVICE_NAME,'','');
 								};
 								document.getElementsByName(data_d[0].DEVICE_NAME)[0].innerHTML='['+data_d[0].DEVICE_NAME.split('_')[0]+'] '+data_d[0].IP_ADDRESS;
 							});
 							if(data_d[0].DEVICE_NAME.split('_')[0]=='ETH'){
 								httpGet('/call/device/device_port_list?device='+data_d[0].DEVICE_NAME+'&fresh='+Math.random(), true).then(function(data_p){
+									console.log('device_in_rack: %c%s%c ports_count: %c%i%c %O','color:darkorange',data_p[0].device_name,'','color:darkblue',data_p.length,'',data_p);
 									var ports=data_p.map(function(item_p, index_p, array_p){
 										var stata_counter = document.getElementsByName(item_p.device_name)[0].parentElement.parentElement.parentElement.getElementsByClassName('s_'+item_p.state.replace(' ','_'))[0];
 										stata_counter.setAttribute('counter',(+stata_counter.getAttribute('counter')+1));
