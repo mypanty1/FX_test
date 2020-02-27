@@ -62,8 +62,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*console.log('addCSS!');*/
 		
 		window.AppInventor.setWebViewString('version_:FX_test_v156');
-		document.getElementsByClassName('logo-inetcore')[0].addEventListener("click", sendClickLogo);
-		function sendClickLogo(){window.AppInventor.setWebViewString('string_5:[logo-inetcore] click!');};
+		document.getElementsByClassName('btn-head')[0].addEventListener("click", sendClickMenu);
+		document.getElementsByClassName('btn-head')[1].addEventListener("click", sendClickNav);
+		function sendClickMenu(){window.AppInventor.setWebViewString('string_5:(btn-head)[0] click!');};
+		function sendClickNav(){window.AppInventor.setWebViewString('string_6:(btn-head)[1] click!');};
 		
 		document.body.addEventListener("click", updateHTML);
 		
