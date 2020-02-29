@@ -56,16 +56,29 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.status10{margin-left:10px;font-weight:600;color:darkorange;}/*Отключена*/
 			.status5{margin-left:10px;font-weight:600;color:darkred;}/*Заблокирована*/
 			.status0{margin-left:10px;font-weight:600;color:darkgreen;}/*Активна*/
+			
+			.speed_10{background-color:#ffc107;}
+			.speed_100{background-color:#28a745;}
+			.speed_1G{background-color:#17a2b8;}
+			.speed_10G{background-color:#007bff;}
+			.r1c4{grid-row:1/2;grid-column:4/5;margin-left:2px;}
+			.r2c4{grid-row:2/3;grid-column:4/5;margin-left:2px;}
+			.r3c4{grid-row:3/4;grid-column:4/5;margin-left:2px;}
+			.r4c4{grid-row:4/5;grid-column:4/5;margin-left:2px;}
+			.r1c5{grid-row:1/2;grid-column:5/6;height:16px;display:inline-flex;}/*pair1*/
+			.r2c5{grid-row:2/3;grid-column:5/6;height:16px;display:inline-flex;}/*pair2*/
+			.r3c5{grid-row:3/4;grid-column:5/6;height:16px;display:inline-flex;}/*pair3*/
+			.r4c5{grid-row:4/5;grid-column:5/6;height:16px;display:inline-flex;}/*pair4*/
+			.pair_a{height:16px;color:black;background-color:orange;}
+			.pair_b{height:16px;color:black;background-color:lightgreen;}
+			.pair_c{height:16px;color:black;background-color:lightblue;}
+			.pair_d{height:16px;color:black;background-color:chocolate;}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v156');
-		document.getElementsByClassName('btn-head')[0].addEventListener("click", sendClickMenu);
-		document.getElementsByClassName('btn-head')[1].addEventListener("click", sendClickNav);
-		function sendClickMenu(){window.AppInventor.setWebViewString('string_5:(btn-head)[0] click!');};
-		function sendClickNav(){window.AppInventor.setWebViewString('string_6:(btn-head)[1] click!');};
+		window.AppInventor.setWebViewString('version_:FX_test_v157');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -480,62 +493,31 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</template>
 							<div v-else>
 								<div v-if="!loaded.portStatuses" class="progress ports-progress">
-								<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
 								</div>
 							</div>
 							<div class="container ports-el-detail">
-								<div v-if="isPortsLoaded" class="row">
-									<template v-for="(port, index) in ports">
-										<div class="port-details col-4 col-sm-2 col-md-2 col-lg" @click="selectPort(port)">
-											<div class="row port-basic-info-row">
-												<div class="col-6 port-basic-info d-flex justify-content-center align-items-center" :class="portClass(port)" style="border-radius:6px;"><!--style-->
-													<div class="row port-basic-info-row">
-														<div class="port-number">{{ port.number }}</div>
-														<div v-show="port.flat" class="flat-separator"></div>
-														<div v-if="port.flat" class="port-flat-number">{{ port.flat }}</div>
-													</div>
-												</div>
-												<div class="col-6">
-													<div class="row">
-														<div class="col-6 port-link-info">
-															<div v-if="loaded.portStatuses && !error.empty" class="port-adm-link-status" :class="linkStatusClass(index)" style="border-radius:4px;"></div><!--style-->
-														</div>
-														<div class="col-6 port-speed-info">
-															<div class="port-high-speed"><span v-if="loaded.portStatuses && !error.empty">{{ portSpeed(index) }}</span></div>
-														</div>
-													</div>
-													<div class="row">
-														<div v-if="port.port_errors" class="port-errors-value">{{ port.port_errors}}</div>
-														<div v-else class="port-errors-value">- / -</div>
-													</div>
-												</div>
-											</div>
-											<div class="row">
-												<div class="port-pairs-info col d-flex justify-content-center align-items-center" :class="portMetrStatusClass(index)">
-													<template v-if="isCable(index)">
-														<template v-if="port.port_loop && !port.port_loop.loop_status">
-															<div class="port-loop">Петля</div>
-														</template>
-														<template v-if="loaded.portStatuses && !error.empty">
-															<template v-for="(pair, i) in pairs(index)">
-																<div class="col port-pair-info">
-																	<div v-if="pair.pair && loaded.portStatuses && !error.empty" class="row">
-																		<div class="port-pair d-flex justify-content-center align-items-center" :class="pair.class"><div>{{ pair.pair }}</div></div>
-																	</div>
-																	<div class="row">
-																		<div class="port-metr">{{ pair.metr }}</div>
-																	</div>
-																</div>
-															</template>
-														</template>
-													</template>                
-													<template v-else>
-														<div class="port-no-cable">Cвободен</div>
-													</template>
-												</div>
-											</div>
+								<div v-if="isPortsLoaded"><!--remove class-->
+									<div style="display:flex;flex-direction:column;font-size:14px;line-height:14px;"><!--add new and replace all-->
+										<div @click="selectPort(port)" v-for="(port, index) in ports" style="margin-bottom:2px;padding: 2px 4px 2px 4px;border:1px solid #000;border-radius:4px;display:grid;grid-template-columns:20px 20px 40px 20px auto;grid-template-rows:16px 16px 16px 16px;grid-gap:2px;">
+											<div style="grid-row:1/2;grid-column:1/4;"><div :class="portClass(port)" style="height:16px;border-radius:2px;"></div></div>
+											<div style="grid-row:1/2;grid-column:1/2;"><div :class="portClass(port)" style="text-align:center;height:16px;width:20px;border:1px solid #000;border-radius:2px;">{{ port.number }}</div></div>
+											<div style="grid-row:1/2;grid-column:2/4;"><div v-if="port.flat" :class="portClass(port)" style="text-align:center;">{{ port.flat }}</div></div>
+											<div style="grid-row:2/3;grid-column:1/3;"><div v-if="loaded.portStatuses && !error.empty" style="text-align:center;height:16px;width:40px;border-radius:2px;" :style="(port.port_status.admin_state=='down')?'background-color:red':((port.port_status.oper_state=='down')?'background-color:gray;':'background-color:#30BA30;')">{{ port.port_status.oper_state }}</div></div>
+											<div style="grid-row:2/3;grid-column:3/4;"><div v-if="loaded.portStatuses && !error.empty" :class="'speed_'+portSpeed(index)" style="text-align:center;border-radius:2px;height:16px;width:40px;">{{ portSpeed(index) }}</div></div>
+											<div style="grid-row:3/4;grid-column:1/4;text-align:center;"><div v-if="!port.port_errors">- / -</div></div>
+											<div style="grid-row:3/4;grid-column:1/4;text-align:center;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
+											<div style="grid-row:4/5;grid-column:1/4;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
+											<div class="r1c4">A:</div>
+											<div class="r2c4">B:</div>
+											<div class="r3c4">C:</div>
+											<div class="r4c4">D:</div>
+											<div class="r1c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_a">{{ port.port_status.pair_1 }} {{ port.port_status.metr_1 }}</div></div>
+											<div class="r2c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_b">{{ port.port_status.pair_2 }} {{ port.port_status.metr_2 }}</div></div>
+											<div class="r3c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_c">{{ port.port_status.pair_3 }} {{ port.port_status.metr_3 }}</div></div>
+											<div class="r4c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_d">{{ port.port_status.pair_4 }} {{ port.port_status.metr_4 }}</div></div>
 										</div>
-									</template>
+									</div>
 								</div>
 							</div>
 						</template>			
