@@ -64,10 +64,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			
 			.myportsflex{display:flex;flex-direction:row;flex-wrap:wrap;font-size:10px;line-height:14px;text-align:center;}
 			.myportinflex{margin:1px;padding:2px 5px 2px 2px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
-			.mypstatus{border-radius:2px;}
-			.mypnumber{border-radius:2px;font-size:20px;line-height:30px;}
+			.mypstatus{border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
+			.mypnumber{border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
 			.mypnumber.port-free{/*border:1px solid #000*/}
-			.myspeed{font-size:12px;border-radius:2px;background-color:gray;}
+			.mylegend{width:40px;height:16px;text-align:center;line-height:16px;font-size:12px;display:inline-block;padding:0px 4px;margin:0px 10px 0px 0px;}
+			.myspeed{border-radius:2px;background-color:gray;}
 			.myspeed10{background-color:#ffc107;}
 			.myspeed100{background-color:#28a745;}
 			.myspeed1G{background-color:#42b9cc;}
@@ -533,7 +534,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<template v-if="!showdetails">
 							<div class="ports-el-compactly">
 								<div class="list-group port-list">
-									<div @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;">
+									<div @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:4px;margin:2px 0px 0px 2px;">
 										<div class="col port-basic-info-row" style="margin:0px 2px 0px 2px;display:grid;grid-template-columns:30% 70%;">
 											<div style="grid-area:1/1/2/2;"><div class="led"></div></div>
 											<div style="grid-area:1/2/2/3;"><div>{{ port.number }}</div></div>
@@ -550,32 +551,30 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</a>
 							<div class="collapse legend-body" id="collapseLegend">
 								<ul class="list-group">
-									<li class="list-group-item"><div class="legend-port port-busy">0</div>занятые</li>
-									<li class="list-group-item"><div class="legend-port port-expired">0</div>можно освободить</li>
-									<li class="list-group-item"><div class="legend-port port-new">0</div>новый MAC</li>
-									<li class="list-group-item"><div class="legend-port port-free">0</div>cвободные</li>
-									<li class="list-group-item"><div class="legend-port port-bad">0</div>битые</li>
-									<li class="list-group-item"><div class="legend-port port-trunk busy">0</div>тех. занятые</li>
-									<li class="list-group-item"><div class="legend-port port-trunk free">0</div>тех. свободные</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-busy">0</div>занятые</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-expired">0</div>можно освободить</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-new">0</div>новый MAC</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-free">0</div>cвободные</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-bad">0</div>битые</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-trunk busy">0</div>тех. занятые</li>
+									<li class="list-group-item"><div class="mylegend myspeed legend-port port-trunk free">0</div>тех. свободные</li>
 									<div class="w-100 py-1">Статусы порта:</div>
-									<li class="list-group-item"><div class="port-desc port-desc-new">NEW</div>новый MAC</li>
-									<li class="list-group-item"><div class="port-desc port-desc-hub">HUB</div>hub (возможно)</li>
-									<li class="list-group-item"><div class="port-desc">MOVE</div>переезд</li>
+									<li class="list-group-item"><div class="mylegend myspeed port-new">NEW</div>новый MAC</li>
+									<li class="list-group-item"><div class="mylegend myspeed port-hub">HUB</div>hub (возможно)</li>
+									<li class="list-group-item"><div class="mylegend myspeed port-expired">MOVE</div>переезд</li>
 									<template v-if="showdetails">
-										<div class="w-100 py-1">Результат кабель-теста:</div>
-										<li class="list-group-item"><div class="port-pair port-pair-open port-legend-info legend-port">O</div>Open</li>
-										<li class="list-group-item"><div class="port-pair port-pair-short port-legend-info legend-port">S</div>Short</li>
-										<li class="list-group-item"><div class="port-pair port-pair-close port-legend-info legend-port">C</div>Crosstalk</li>
-										<li class="list-group-item"><div class="port-pair port-pair-error port-legend-info legend-port">E</div>Error</li>
+										<div class="w-100 py-1">Link speed:</div>
+										<li class="list-group-item"><div class="mylegend myspeed myspeed10 myoperstateup">10</div>линк на десятке</li>
+										<li class="list-group-item"><div class="mylegend myspeed myspeed100">100</div>линк на сотке</li>
+										<li class="list-group-item"><div class="mylegend myspeed myspeed1G">1G</div>гиговый линк</li>
+										<li class="list-group-item"><div class="mylegend myspeed myspeed10G">10G</div>10гиговый линк</li>
+										<li class="list-group-item"><div class="mylegend myspeed myoperstatedown">down</div>Link down</li>
+										<li class="list-group-item"><div class="mylegend myspeed myadmstatedown">off</div>Port disabled</li>
 										<div class="w-100 py-1">Ошибки:</div>
 										<li class="list-group-item"><div class="legend-port legend-port-state">- / -</div>Тест ошибок не запускался</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">0 / 0</div>Прием / Передача</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">999Т</div>999 тысяч ошибок</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">999М</div>999 миллионов ошибок</li>
-										<div class="w-100 py-1">Статус порта:</div>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-up">-</div>Link UP</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-down">-</div>Link DOWN</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-off">-</div>Port disabled</li>
 									</template>
 								</ul>
 							</div>
