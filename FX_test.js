@@ -57,28 +57,35 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.status5{margin-left:10px;font-weight:600;color:darkred;}/*Заблокирована*/
 			.status0{margin-left:10px;font-weight:600;color:darkgreen;}/*Активна*/
 			
-			.speed_10{background-color:#ffc107;}
-			.speed_100{background-color:#28a745;}
-			.speed_1G{background-color:#17a2b8;}
-			.speed_10G{background-color:#007bff;}
-			.r1c4{grid-row:1/2;grid-column:4/5;margin-left:2px;}
-			.r2c4{grid-row:2/3;grid-column:4/5;margin-left:2px;}
-			.r3c4{grid-row:3/4;grid-column:4/5;margin-left:2px;}
-			.r4c4{grid-row:4/5;grid-column:4/5;margin-left:2px;}
-			.r1c5{grid-row:1/2;grid-column:5/6;height:16px;display:inline-flex;}/*pair1*/
-			.r2c5{grid-row:2/3;grid-column:5/6;height:16px;display:inline-flex;}/*pair2*/
-			.r3c5{grid-row:3/4;grid-column:5/6;height:16px;display:inline-flex;}/*pair3*/
-			.r4c5{grid-row:4/5;grid-column:5/6;height:16px;display:inline-flex;}/*pair4*/
-			.pair_a{height:16px;color:black;background-color:orange;}
-			.pair_b{height:16px;color:black;background-color:lightgreen;}
-			.pair_c{height:16px;color:black;background-color:lightblue;}
-			.pair_d{height:16px;color:black;background-color:chocolate;}
+			.led.myoon{background-color:#30BA30;}
+			.led.myodown{background-color:gray;}
+			.led.myaon{}
+			.led.myadown{background-color:red;}
+			
+			.myportsflex{display:flex;flex-direction:row;flex-wrap:wrap;font-size:10px;line-height:14px;text-align:center;}
+			.myportinflex{margin:1px;padding:2px 5px 2px 2px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
+			.mypstatus{border-radius:2px;}
+			.mypnumber{border-radius:2px;font-size:20px;line-height:30px;}
+			.mypnumber.port-free{/*border:1px solid #000*/}
+			.myspeed{font-size:12px;border-radius:2px;background-color:gray;}
+			.myspeed10{background-color:#ffc107;}
+			.myspeed100{background-color:#28a745;}
+			.myspeed1G{background-color:#42b9cc;}
+			.myspeed10G{background-color:#007bff;}
+			.myoperstateup{}
+			.myoperstatedown{background-color:gray;}
+			.myadmstateup{}
+			.myadmstatedown{background-color:red;}
+			.mypaira{text-align:left;padding-left:2px;color:#000;background-color:#eacf9c;}
+			.mypairb{text-align:left;padding-left:2px;color:#000;background-color:#b4f3b4;}
+			.mypairc{text-align:left;padding-left:2px;color:#000;background-color:#c5e3ec;}
+			.mypaird{text-align:left;padding-left:2px;color:#000;background-color:#c78e65;}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v157');
+		window.AppInventor.setWebViewString('version_:FX_test_v158');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -497,25 +504,27 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								</div>
 							</div>
 							<div class="container ports-el-detail">
-								<div v-if="isPortsLoaded"><!--remove class-->
-									<div style="display:flex;flex-direction:column;font-size:14px;line-height:14px;"><!--add new and replace all-->
-										<div @click="selectPort(port)" v-for="(port, index) in ports" style="margin-bottom:2px;padding: 2px 4px 2px 4px;border:1px solid #000;border-radius:4px;display:grid;grid-template-columns:20px 20px 40px 20px auto;grid-template-rows:16px 16px 16px 16px;grid-gap:2px;">
-											<div style="grid-row:1/2;grid-column:1/4;"><div :class="portClass(port)" style="height:16px;border-radius:2px;"></div></div>
-											<div style="grid-row:1/2;grid-column:1/2;"><div :class="portClass(port)" style="text-align:center;height:16px;width:20px;border:1px solid #000;border-radius:2px;">{{ port.number }}</div></div>
-											<div style="grid-row:1/2;grid-column:2/4;"><div v-if="port.flat" :class="portClass(port)" style="text-align:center;">{{ port.flat }}</div></div>
-											<div style="grid-row:2/3;grid-column:1/3;"><div v-if="loaded.portStatuses && !error.empty" style="text-align:center;height:16px;width:40px;border-radius:2px;" :style="(port.port_status.admin_state=='down')?'background-color:red':((port.port_status.oper_state=='down')?'background-color:gray;':'background-color:#30BA30;')">{{ port.port_status.oper_state }}</div></div>
-											<div style="grid-row:2/3;grid-column:3/4;"><div v-if="loaded.portStatuses && !error.empty" :class="'speed_'+portSpeed(index)" style="text-align:center;border-radius:2px;height:16px;width:40px;">{{ portSpeed(index) }}</div></div>
-											<div style="grid-row:3/4;grid-column:1/4;text-align:center;"><div v-if="!port.port_errors">- / -</div></div>
-											<div style="grid-row:3/4;grid-column:1/4;text-align:center;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
-											<div style="grid-row:4/5;grid-column:1/4;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
-											<div class="r1c4">A:</div>
-											<div class="r2c4">B:</div>
-											<div class="r3c4">C:</div>
-											<div class="r4c4">D:</div>
-											<div class="r1c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_a">{{ port.port_status.pair_1 }} {{ port.port_status.metr_1 }}</div></div>
-											<div class="r2c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_b">{{ port.port_status.pair_2 }} {{ port.port_status.metr_2 }}</div></div>
-											<div class="r3c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_c">{{ port.port_status.pair_3 }} {{ port.port_status.metr_3 }}</div></div>
-											<div class="r4c5"><div v-if="loaded.portStatuses && !error.empty" class="pair_d">{{ port.port_status.pair_4 }} {{ port.port_status.metr_4 }}</div></div>
+								<div v-if="isPortsLoaded">
+									<div class="myportsflex">
+										<div @click="selectPort(port)" v-for="(port, index) in ports" class="myportinflex">
+											<div style="grid-area:1/1/2/5;"><div class="mypstatus" :class="portClass(port)">-</div></div>
+											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{ port.number }}</div></div>
+											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{ port.flat }}</div></div>
+											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="'myspeed'+portSpeed(index)+' myoperstate'+port.port_status.oper_state+' myadmstate'+port.port_status.admin_state">{{ (port.port_status.admin_state=='up')?((port.port_status.oper_state=='up')?portSpeed(index):port.port_status.oper_state):"off" }}</div></div>
+											<div style="grid-area:3/1/4/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_1||port.port_status.metr_1)" class="mypaira">-</div></div>
+											<div style="grid-area:4/1/5/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_2||port.port_status.metr_2)" class="mypairb">-</div></div>
+											<div style="grid-area:5/1/6/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_3||port.port_status.metr_3)" class="mypairc">-</div></div>
+											<div style="grid-area:6/1/7/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_4||port.port_status.metr_4)" class="mypaird">-</div></div>
+											<div style="grid-area:3/1/4/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypaira">{{ port.port_status.pair_1 }}</div></div>
+											<div style="grid-area:4/1/5/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypairb">{{ port.port_status.pair_2 }}</div></div>
+											<div style="grid-area:5/1/6/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypairc">{{ port.port_status.pair_3 }}</div></div>
+											<div style="grid-area:6/1/7/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypaird">{{ port.port_status.pair_4 }}</div></div>
+											<div style="grid-area:3/3/4/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypaira">{{ port.port_status.metr_1 }}</div></div>
+											<div style="grid-area:4/3/5/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypairb">{{ port.port_status.metr_2 }}</div></div>
+											<div style="grid-area:5/3/6/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypairc">{{ port.port_status.metr_3 }}</div></div>
+											<div style="grid-area:6/3/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypaird">{{ port.port_status.metr_4 }}</div></div>
+											<div style="grid-area:7/1/8/5;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
+											<div style="grid-area:8/1/9/5;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
 										</div>
 									</div>
 								</div>
@@ -523,15 +532,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						</template>			
 						<template v-if="!showdetails">
 							<div class="ports-el-compactly">
-								<ul class="list-group port-list">
-									<li @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;"><!--style-->
-										<div class="col port-basic-info-row" style="margin:0px 2px 0px 2px;display:grid;grid-template-columns:30% 70%;"><!--style-->
-											<div style="grid-row:1/2;grid-column:1/2;"><div class="led"></div></div><!--add-->
-											<div style="grid-row:1/2;grid-column:2/3;"><!--add--><div>{{ port.number }}</div></div>
-											<div style="grid-row:2/3;grid-column:1/3;"><!--add--><div class="port-desc" style="width:80%"><!--style--><span>{{ port.flat }}</span></div></div>
+								<div class="list-group port-list">
+									<div @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:6px;margin:2px 0px 0px 2px;">
+										<div class="col port-basic-info-row" style="margin:0px 2px 0px 2px;display:grid;grid-template-columns:30% 70%;">
+											<div style="grid-area:1/1/2/2;"><div class="led"></div></div>
+											<div style="grid-area:1/2/2/3;"><div>{{ port.number }}</div></div>
+											<div style="grid-area:2/1/3/3;"><div class="port-desc" style="width:80%"><span>{{ port.flat }}</span></div></div>
 										</div>
-									</li>
-								</ul>
+									</div>
+								</div>
 							</div>
 						</template>
 						<div class="legend mt-2">
@@ -541,13 +550,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</a>
 							<div class="collapse legend-body" id="collapseLegend">
 								<ul class="list-group">
-									<li class="list-group-item"><div class="legend-port port-busy" style="border-radius:4px;">0</div>занятые</li><!--style-->
-									<li class="list-group-item"><div class="legend-port port-expired" style="border-radius:4px;">0</div>можно освободить</li><!--style-->
-									<li class="list-group-item"><div class="legend-port port-new" style="border-radius:4px;">0</div>новый MAC</li><!--style-->
-									<li class="list-group-item"><div class="legend-port port-free" style="border-radius:4px;">0</div>cвободные</li><!--style-->
-									<li class="list-group-item"><div class="legend-port port-bad" style="border-radius:4px;">0</div>битые</li><!--style-->
-									<li class="list-group-item"><div class="legend-port port-trunk busy" style="border-radius:4px;">0</div>тех. занятые</li><!--style,text-->
-									<li class="list-group-item"><div class="legend-port port-trunk free" style="border-radius:4px;">0</div>тех. свободные</li><!--style,text-->
+									<li class="list-group-item"><div class="legend-port port-busy">0</div>занятые</li>
+									<li class="list-group-item"><div class="legend-port port-expired">0</div>можно освободить</li>
+									<li class="list-group-item"><div class="legend-port port-new">0</div>новый MAC</li>
+									<li class="list-group-item"><div class="legend-port port-free">0</div>cвободные</li>
+									<li class="list-group-item"><div class="legend-port port-bad">0</div>битые</li>
+									<li class="list-group-item"><div class="legend-port port-trunk busy">0</div>тех. занятые</li>
+									<li class="list-group-item"><div class="legend-port port-trunk free">0</div>тех. свободные</li>
 									<div class="w-100 py-1">Статусы порта:</div>
 									<li class="list-group-item"><div class="port-desc port-desc-new">NEW</div>новый MAC</li>
 									<li class="list-group-item"><div class="port-desc port-desc-hub">HUB</div>hub (возможно)</li>
@@ -564,9 +573,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 										<li class="list-group-item"><div class="legend-port legend-port-state">999Т</div>999 тысяч ошибок</li>
 										<li class="list-group-item"><div class="legend-port legend-port-state">999М</div>999 миллионов ошибок</li>
 										<div class="w-100 py-1">Статус порта:</div>
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-up" style="border-radius:4px;">-</div>Link UP</li><!--style,text-->
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-down" style="border-radius:4px;">-</div>Link DOWN</li><!--style,text-->
-										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-off" style="border-radius:4px;">-</div>Port disabled</li><!--style,text-->
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-up">-</div>Link UP</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-down">-</div>Link DOWN</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state-adm port-adm-link-off">-</div>Port disabled</li>
 									</template>
 								</ul>
 							</div>
@@ -574,6 +583,241 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</template>
 				</div>
 			`;
+			Vue.component('ports-el',{
+				template:'#ports-el-template',
+				props:['ports','loading','showdetails','isoptical'],
+				data:function(){
+					return{
+						portsLoop:[],
+						loaded:{
+							portStatuses:false,
+							portsLoop:true,
+							portsErrors:true,
+						},
+					error:{
+						empty:false,
+						emptyMessage:'',
+					},
+					showShadow:true,
+					}
+				},
+				computed:{
+					btnShadowClass:function(){
+						return this.showShadow?"btn-shadow":"";
+					},
+					isPortsLoaded:function(){
+						if(this.ports){
+							this.loadPortsInfo();
+							return true;
+						}
+						return false;
+					},
+				},
+				methods:{
+					/*EMITS*/
+					changeTab:function(){
+						this.$emit('change-tab');
+					},
+					selectPort:function(port){
+						this.$emit('select-port',port);
+					},
+					/*Ports map*/
+					updateAll:function(){
+						if(this.ports){
+							for(var i=0;i<this.ports.length;i++){
+								if(this.ports[i].port_status){
+									delete this.ports[i].port_status;
+								}
+							}
+							this.loadPortsInfo();
+						}
+					},
+					errorsHandler:function(e){
+						console.warn(e);
+						this.error.emptyMessage="Неизвестная ошибка. Попробуйте обновить порты.";
+					},
+					/*Ports speed, status, cable test*/
+					loadPortsInfo:function(){
+						this.loaded.portStatuses=false;
+						this.error.empty=false;
+						if(this.ports&&this.ports.length){
+							var self=this;
+							var device=this.ports[0].device_name;
+							if(!this.ports[0].port_status){/*.port_status - кэш информации о портах*/
+								httpPost('/call/dnm/port_statuses',{devices:[{DEVICE_NAME: device}],add:'cable'}).then(function(data){
+									if(!data[device])throw new Error("Не удалось получить данные с сервера");
+									if(!data[device].ports)throw new Error("Не удалось получить информацию о портах");
+									var ports=data[device].ports;
+									for(var i=0;i<self.ports.length;i++){
+										if(ports[i]){
+											ports[i].status=ports[i].oper_state.includes('up')?'up':'down';
+										}else{
+											console.warn('UNDEFINED',i);
+										}
+										Vue.set(self.ports[i],'port_status',ports[i]);
+									}
+									self.loaded.portStatuses=true;
+								}).catch(function(e){
+									self.errorsHandler(e);
+									self.error.empty=true;
+									self.loaded.portStatuses=true;
+								});
+							}else{
+								self.loaded.portStatuses=true;
+							}
+						}
+					},
+					portSpeed:function(index){
+						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
+						if(this.ports[index].port_status){
+							return replace[this.ports[index].port_status.high_speed];
+						}else{
+							return '-';
+						}
+					},
+					/*Ports errors*/
+					getPortsErrors:function(){
+						/*this.error.empty = false;*/
+						this.error.emptyMessage='';
+						var self=this;
+						var requestsCount=this.ports.length;
+						var statusCount=0;
+						this.loaded.portsErrors=false;
+						this.ports.forEach(function(port){
+							(function(port){
+								var params={
+									device:port.device_name,
+									port:port.snmp_number
+								};
+								httpGet(buildUrl('port_status', params),false).then(function(data){
+									var errors=self.numShow(data.IF_IN_ERRORS)+' / '+self.numShow(data.IF_OUT_ERRORS);
+									Vue.set(port,'port_errors',errors);
+									var packets=self.numShow(data.IF_IN_NUCAST_PKTS)+' / '+self.numShow(data.IF_OUT_NUCAST_PKTS);
+									Vue.set(port,'port_packets',packets);
+									self.loaded.portsErrors=requestsCount==++statusCount;
+								}).catch(function(e){
+									self.errorsHandler(e);
+									self.loaded.portsErrors=true;
+								});
+							}(port));
+						});
+					},
+					numShow:function(errorsCount){
+						var order={1:'',2:'т',3:'м',4:'м'};
+						if(typeof(errorsCount)=='string'){errorsCount=+errorsCount};
+						var value=errorsCount.toLocaleString('ru-RU').split(/\s/g);
+						return isNaN(value[0])?'-':+value[0]+order[value.length];
+					},
+					/*description: "Петля отсутствует"*/
+					/*detected: false*/
+					detectLoop:function(){
+						this.loaded.portsLoop=false;
+						this.error.emptyMessage='';
+						var self=this;
+						var deviceParams=weedOut(this.ports[0].device,'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION');
+						httpPost('/call/dnm/ports_info_loopback',{device:deviceParams}).then(function(data){
+							var dataIndex=0;
+							if(data){
+								for(var i=0;i<self.ports.length;i++){
+									if(data[dataIndex]&&self.ports[i].snmp_name==data[dataIndex].iface){
+										Vue.set(self.ports[i],'port_loop',data[dataIndex]);
+										dataIndex++;
+									}else{
+										Vue.set(self.ports[i],'port_loop',null); /*FIX Тут на самом деле функция определения петли отключена*/
+									}
+								}
+							}else{
+								/*Если null, то устройство вообще не поддерживает такую функцию*/
+							}
+							self.loaded.portsLoop=true;
+						}).catch(function(e){
+							self.errorsHandler(e);
+							self.loaded.portsLoop=true;
+						});
+					},
+					isCable:function(portNumber){
+						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[portNumber].port_status){
+							var port=this.ports[portNumber];
+							if(port){
+								return port.port_status.pair_1!="No_Cable";
+							}else{
+								return false;
+							}
+						}else{
+							return true;
+						}
+					},
+					linkStatusClass:function(portNumber){
+						var status="";
+						var port=this.ports[portNumber].port_status;
+						if(port){
+							if(port.admin_state=='down'){
+								status="off";
+							}else{
+								status=port.status;
+							}
+						}else{status='off'}/*FIX: There is no data*/
+						return "port-adm-link-"+status;
+					},
+					pairs:function(index){
+						/*FIX при вызове других методов вызывается два раза*/
+						var allowStatuses=['close','open','short'];
+						var pairs=[];
+						var show=false;
+						if(this.ports[index].port_status){
+							var pair=this.ports[index].port_status;
+							for(var i=1;i<=4;i++){
+								show=show||pair["metr_" + i];
+								var metr=pair["metr_"+i]?parseInt(pair["metr_"+i],10):'-';
+								metr= sNaN(metr)?'-':metr+"M";
+								var status=null;
+								var cssClass="default";
+								if(pair["pair_"+i]){
+									status=pair["pair_"+i].toLowerCase();
+									if(allowStatuses.includes(status)){
+										cssClass=status;
+										status=status[0].toUpperCase();
+									}else{
+										cssClass="error";
+										status="E";
+									}
+								}
+								var info={
+									metr: metr,
+									pair:status,
+									class:"port-pair-"+cssClass
+								};
+								pairs.push(info);
+							}
+						}else{
+							return [];
+						}
+						return show?pairs:[];
+					},
+					portMetrStatusClass(index){
+						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status){
+							var arr=[];
+							var pair=this.ports[index].port_status;
+							for(var i=1;i<=4;i++){
+								if(pair["metr_"+i]){
+									arr.push(parseInt(pair["metr_"+i],10));
+								}
+							}
+							if(arr.length>1){
+								arr=arr.sort();
+								return Math.abs(arr[0]-arr[arr.length-1])>5?"port-pairs-info-warn":"port-pairs-info-ok";
+							}else{
+								return "port-pairs-info-ok";
+							}
+						}else{
+							return "port-pairs-info-ok";
+						}
+					},
+					portClass:function(port){
+						return 'port-'+port.state;
+					},
+				}
+			});
 		};
 		
 		function myPort_template(){
