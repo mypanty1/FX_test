@@ -64,9 +64,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			
 			.myportsflex{display:flex;flex-direction:row;flex-wrap:wrap;font-size:10px;line-height:14px;text-align:center;}
 			.myportinflex{margin:1px;padding:2px 5px 2px 2px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
-			.mypstatus{border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
-			.mypnumber{border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
-			.mypnumber.port-free{/*border:1px solid #000*/}
+			.mypstline{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
+			.mypstatus{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
+			.mypnumber{height:30px;border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
 			.mylegend{width:40px;height:16px;text-align:center;line-height:16px;font-size:12px;display:inline-block;padding:0px 4px;margin:0px 10px 0px 0px;}
 			.myspeed{border-radius:2px;background-color:gray;}
 			.myspeed10{background-color:#ffc107;}
@@ -77,16 +77,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.myoperstatedown{background-color:gray;}
 			.myadmstateup{}
 			.myadmstatedown{background-color:red;}
-			.mypaira{text-align:left;padding-left:2px;color:#000;background-color:#eacf9c;}
-			.mypairb{text-align:left;padding-left:2px;color:#000;background-color:#b4f3b4;}
-			.mypairc{text-align:left;padding-left:2px;color:#000;background-color:#c5e3ec;}
-			.mypaird{text-align:left;padding-left:2px;color:#000;background-color:#c78e65;}
+			.mypair{text-align:left;padding-left:2px;color:#000;}
+			.mypaira{background-color:#eacf9c;}
+			.mypairb{background-color:#b4f3b4;}
+			.mypairc{background-color:#c5e3ec;}
+			.mypaird{background-color:#c78e65;}
+			.myportok{width:100%;height:100%;}
+			.myportwarn{border:2px dotted #000;}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 		
-		window.AppInventor.setWebViewString('version_:FX_test_v158');
+		window.AppInventor.setWebViewString('version_:FX_test_v159');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -508,22 +511,23 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<div v-if="isPortsLoaded">
 									<div class="myportsflex">
 										<div @click="selectPort(port)" v-for="(port, index) in ports" class="myportinflex">
-											<div style="grid-area:1/1/2/5;"><div class="mypstatus" :class="portClass(port)">-</div></div>
+											<div style="grid-area:1/1/2/5;"><div class="mypstline" :class="portClass(port)"></div></div>
 											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{ port.number }}</div></div>
 											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{ port.flat }}</div></div>
 											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="'myspeed'+portSpeed(index)+' myoperstate'+port.port_status.oper_state+' myadmstate'+port.port_status.admin_state">{{ (port.port_status.admin_state=='up')?((port.port_status.oper_state=='up')?portSpeed(index):port.port_status.oper_state):"off" }}</div></div>
-											<div style="grid-area:3/1/4/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_1||port.port_status.metr_1)" class="mypaira">-</div></div>
-											<div style="grid-area:4/1/5/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_2||port.port_status.metr_2)" class="mypairb">-</div></div>
-											<div style="grid-area:5/1/6/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_3||port.port_status.metr_3)" class="mypairc">-</div></div>
-											<div style="grid-area:6/1/7/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_4||port.port_status.metr_4)" class="mypaird">-</div></div>
-											<div style="grid-area:3/1/4/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypaira">{{ port.port_status.pair_1 }}</div></div>
-											<div style="grid-area:4/1/5/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypairb">{{ port.port_status.pair_2 }}</div></div>
-											<div style="grid-area:5/1/6/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypairc">{{ port.port_status.pair_3 }}</div></div>
-											<div style="grid-area:6/1/7/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypaird">{{ port.port_status.pair_4 }}</div></div>
-											<div style="grid-area:3/3/4/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypaira">{{ port.port_status.metr_1 }}</div></div>
-											<div style="grid-area:4/3/5/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypairb">{{ port.port_status.metr_2 }}</div></div>
-											<div style="grid-area:5/3/6/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypairc">{{ port.port_status.metr_3 }}</div></div>
-											<div style="grid-area:6/3/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypaird">{{ port.port_status.metr_4 }}</div></div>
+											<div style="grid-area:3/1/4/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_1||port.port_status.metr_1)" class="mypair mypaira">-</div></div>
+											<div style="grid-area:4/1/5/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_2||port.port_status.metr_2)" class="mypair mypairb">-</div></div>
+											<div style="grid-area:5/1/6/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_3||port.port_status.metr_3)" class="mypair mypairc">-</div></div>
+											<div style="grid-area:6/1/7/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_4||port.port_status.metr_4)" class="mypair mypaird">-</div></div>
+											<div style="grid-area:3/1/4/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaira">{{ port.port_status.pair_1 }}</div></div>
+											<div style="grid-area:4/1/5/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairb">{{ port.port_status.pair_2 }}</div></div>
+											<div style="grid-area:5/1/6/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairc">{{ port.port_status.pair_3 }}</div></div>
+											<div style="grid-area:6/1/7/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaird">{{ port.port_status.pair_4 }}</div></div>
+											<div style="grid-area:3/3/4/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaira">{{ port.port_status.metr_1 }}</div></div>
+											<div style="grid-area:4/3/5/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairb">{{ port.port_status.metr_2 }}</div></div>
+											<div style="grid-area:5/3/6/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairc">{{ port.port_status.metr_3 }}</div></div>
+											<div style="grid-area:6/3/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaird">{{ port.port_status.metr_4 }}</div></div>
+											<div style="grid-area:3/1/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="myportok":class="portMetrStatusClass(index)"></div></div>
 											<div style="grid-area:7/1/8/5;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
 											<div style="grid-area:8/1/9/5;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
 										</div>
@@ -804,12 +808,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							}
 							if(arr.length>1){
 								arr=arr.sort();
-								return Math.abs(arr[0]-arr[arr.length-1])>5?"port-pairs-info-warn":"port-pairs-info-ok";
+								return Math.abs(arr[0]-arr[arr.length-1])>5?"myportwarn":"myportok";
 							}else{
-								return "port-pairs-info-ok";
+								return "myportok";
 							}
 						}else{
-							return "port-pairs-info-ok";
+							return "myportok";
 						}
 					},
 					portClass:function(port){
