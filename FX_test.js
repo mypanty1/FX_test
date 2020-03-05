@@ -1,6 +1,6 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release-20-3.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://master.test.inetcore.mts.ru/fix#/')>=0))){
+if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://master.test.inetcore.mts.ru/fix#/')>=0))){
 	document.title = 'Inetcore+';
 	
 	function start(){
@@ -83,11 +83,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.mypairc{background-color:#c5e3ec;}
 			.mypaird{background-color:#c78e65;}
 			.myportok{width:100%;height:100%;}
-			.myportwarn{border:2px dotted #000;}
+			.myportwarn{border:1px dashed #000;}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
+		
+		/*var borderblink=setInterval(warnportsblink,500);*/
+		function warnportsblink(){
+			var warnports=document.getElementsByClassName('myportwarn');
+			for(var p=0; p<warnports.length; p++){
+				warnports[p].classList.toggle('myborderblink');
+			};
+		};
 		
 		window.AppInventor.setWebViewString('version_:FX_test_v159');
 		
@@ -678,9 +686,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							return '-';
 						}
 					},
-					/*Ports errors*/
 					getPortsErrors:function(){
-						/*this.error.empty = false;*/
 						this.error.emptyMessage='';
 						var self=this;
 						var requestsCount=this.ports.length;
@@ -695,8 +701,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								httpGet(buildUrl('port_status', params),false).then(function(data){
 									var errors=self.numShow(data.IF_IN_ERRORS)+' / '+self.numShow(data.IF_OUT_ERRORS);
 									Vue.set(port,'port_errors',errors);
-									var packets=self.numShow(data.IF_IN_NUCAST_PKTS)+' / '+self.numShow(data.IF_OUT_NUCAST_PKTS);
-									Vue.set(port,'port_packets',packets);
 									self.loaded.portsErrors=requestsCount==++statusCount;
 								}).catch(function(e){
 									self.errorsHandler(e);
@@ -711,8 +715,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						var value=errorsCount.toLocaleString('ru-RU').split(/\s/g);
 						return isNaN(value[0])?'-':+value[0]+order[value.length];
 					},
-					/*description: "Петля отсутствует"*/
-					/*detected: false*/
 					detectLoop:function(){
 						this.loaded.portsLoop=false;
 						this.error.emptyMessage='';
@@ -738,67 +740,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							self.loaded.portsLoop=true;
 						});
 					},
-					isCable:function(portNumber){
-						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[portNumber].port_status){
-							var port=this.ports[portNumber];
-							if(port){
-								return port.port_status.pair_1!="No_Cable";
-							}else{
-								return false;
-							}
-						}else{
-							return true;
-						}
-					},
-					linkStatusClass:function(portNumber){
-						var status="";
-						var port=this.ports[portNumber].port_status;
-						if(port){
-							if(port.admin_state=='down'){
-								status="off";
-							}else{
-								status=port.status;
-							}
-						}else{status='off'}/*FIX: There is no data*/
-						return "port-adm-link-"+status;
-					},
-					pairs:function(index){
-						/*FIX при вызове других методов вызывается два раза*/
-						var allowStatuses=['close','open','short'];
-						var pairs=[];
-						var show=false;
-						if(this.ports[index].port_status){
-							var pair=this.ports[index].port_status;
-							for(var i=1;i<=4;i++){
-								show=show||pair["metr_" + i];
-								var metr=pair["metr_"+i]?parseInt(pair["metr_"+i],10):'-';
-								metr= sNaN(metr)?'-':metr+"M";
-								var status=null;
-								var cssClass="default";
-								if(pair["pair_"+i]){
-									status=pair["pair_"+i].toLowerCase();
-									if(allowStatuses.includes(status)){
-										cssClass=status;
-										status=status[0].toUpperCase();
-									}else{
-										cssClass="error";
-										status="E";
-									}
-								}
-								var info={
-									metr: metr,
-									pair:status,
-									class:"port-pair-"+cssClass
-								};
-								pairs.push(info);
-							}
-						}else{
-							return [];
-						}
-						return show?pairs:[];
-					},
-					portMetrStatusClass(index){
-						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status){
+					portMetrStatusClass(index){/*заглушка*/
+						if(false/*this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status*/){
 							var arr=[];
 							var pair=this.ports[index].port_status;
 							for(var i=1;i<=4;i++){
