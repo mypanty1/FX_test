@@ -57,6 +57,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.status5{margin-left:10px;font-weight:600;color:darkred;}/*Заблокирована*/
 			.status0{margin-left:10px;font-weight:600;color:darkgreen;}/*Активна*/
 			
+			.mycompareddevice{border:1px solid black;border-radius:6px;margin:2px 0px;}
+			.mycomparedport{border:1px solid darkgray;border-radius:6px;margin:2px;display:none;}
+			.mycomparedport.ethernetCsmacd{display:block;}
+			.mycomparedport.gigabitEthernet{display:block;}
+			
 			.led.myoon{background-color:#30BA30;}
 			.led.myodown{background-color:gray;}
 			.led.myaon{}
@@ -88,16 +93,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
-		
-		/*var borderblink=setInterval(warnportsblink,500);*/
-		function warnportsblink(){
-			var warnports=document.getElementsByClassName('myportwarn');
-			for(var p=0; p<warnports.length; p++){
-				warnports[p].classList.toggle('myborderblink');
-			};
-		};
-		
-		window.AppInventor.setWebViewString('version_:FX_test_v159');
+				
+		window.AppInventor.setWebViewString('version_:FX_test_v160');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -321,7 +318,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div class="line-row">
 						<span class="pl-4 pb-2 position-relative">
 							<input v-model="showAll" name="all-ports-check" type="checkbox" class="check-mts" id="all-ports-check">
-							<label for="all-ports-check">Отображать все порты</label><!--enable-->
+							<label for="all-ports-check">Отображать все порты</label>
 							<input v-model="withCableTest" name="with-cable-test" type="checkbox" class="check-mts" id="with-cable-test" :disabled="loading">
 							<label for="with-cable-test">C кабель-тестом</label>
 						</span>
@@ -362,25 +359,24 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							{{ portWord(changed) }}
 						</div>
 					</div>
-					<div v-for="(device, index) in deviceList" style="border:1px solid black;border-radius:6px;margin:2px 0px;"><!--style-->
-						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span>{{ device.ip }}&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</h5><!--add-->
+					<div v-for="(device, index) in deviceList" class="mycompareddevice">
+						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span><span>{{ device.ip }}</span><span class="small-text">&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</span></h5>
 						<div v-for="(item, index) in device.ports">
-							<div v-show="showAll || item.changed" style="border:1px solid darkgray;border-radius:6px;margin:2px;" v-bind:class="classChangeEntry(item)"><!--style-->
+							<div v-show="showAll || item.changed" class="mycomparedport":class="item.type_iface+' '+classChangeEntry(item)">
 								<div v-if="item.loading" class="port">загрузка...</div>
-								<div v-else @click="toPort(item)" class="port" :class="classChangeEntry(item)">
-									<span v-if="item.status=='up'" class="led on"></span><!--add-->
-									<span v-else="item.status=='down'" class="led disable"></span><!--add-->
-									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span><!--add-->
-									<span class="number">{{ item.iface.replace('1/','порт ') }}</span><!--add-->
+								<div v-else @click="toPort(item)" class="port":class="classChangeEntry(item)">
+									<span class="led":class="(item.status=='up')?'on':'disable'"></span>
+									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
+									<span class="number">{{ item.iface.replace('1/','порт ') }}</span>
 									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
 									<div class="minor-text" style="text-align-last: left;">
-										<div><!--add-->
-											<span v-if="item.pair_1" style="color:black;background-color:orange;">Пара 1: {{ item.pair_1 }} {{ item.metr_1 }};</span>
-											<span v-if="item.pair_2" style="color:black;background-color:lightgreen">Пара 2: {{ item.pair_2 }} {{ item.metr_2 }};</span>
+										<div>
+											<span v-if="item.pair_1" class="mypair mypaira">pair 1: {{ item.pair_1 }} {{ item.metr_1 }}</span>
+											<span v-if="item.pair_2" class="mypair mypairb">pair 2: {{ item.pair_2 }} {{ item.metr_2 }}</span>
 										</div>
-										<div><!--add-->
-											<span v-if="item.pair_3" style="color:black;background-color:lightblue">Пара 3: {{ item.pair_3 }} {{ item.metr_3 }};</span>
-											<span v-if="item.pair_4" style="color:black;background-color:chocolate">Пара 4: {{ item.pair_4 }} {{ item.metr_4 }};</span>
+										<div>
+											<span v-if="item.pair_3" class="mypair mypairc">pair 3: {{ item.pair_3 }} {{ item.metr_3 }}</span>
+											<span v-if="item.pair_4" class="mypair mypaird">pair 4: {{ item.pair_4 }} {{ item.metr_4 }}</span>
 										</div>
 									</div>
 								</div>
@@ -389,7 +385,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 				</div>
 			`;
-			/*Vue.component('port-comparer-el', {*/
 		};
 		
 		function myOrders_template(){
