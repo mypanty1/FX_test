@@ -1,58 +1,12 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://master.test.inetcore.mts.ru/fix#/')>=0))){
+if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release-20-4.test.inetcore.mts.ru/fix#/')>=0))){
 	document.title = 'Inetcore+';
 	
 	function start(){
 		var addCSS = document.createElement('style');
 		addCSS.type = 'text/css';
 		const myCSS = `			
-			.device_in_list{}/*остальное через style*/
-				.device_ETH{background-color:#eff;}
-				.device_OP{background-color:#ffe;}
-				.device_SBE{background-color:#eef;}
-				.device_OSW{background-color:#eef;}
-				.device_FAMP{background-color:#eef;}
-				.device_MPLS{background-color:#eef;}
-				.device_OLT{background-color:#eef;}
-				.device_CPE{background-color:#fef;}
-				.device_Voip{background-color:#fef;}
-			
-			.stata{display:inline-flex;width:220px;height:20px;text-align:center;color:#000;}
-			.stata_sw{display:inline-flex;width:100%;height:20px;text-align:center;color:#000;}
-				.s_bad{background-color:gold;}
-				.s_busy{background-color:#d43;color:#fff;}
-				.s_expired{background-color:#fdd;}
-				.s_closed{background-color:#fdd;}
-				.s_double{background-color:#fdd}
-				.s_hub{background-color:#d34;color:#fff;}
-				.s_new{background-color:#e1f3fd;font-weight:600;}
-				.s_free{background-color:#fff;}
-				.s_trunk_busy{background-color:#555;color:#fff;}
-				.s_trunk_free{background-color:#ddd;}
-			
-			.entrance_for_rack{margin-bottom:1rem;padding:4px;border:1px solid #000;border-radius:4px;background-color:#eee;color:#000;}
-			
-			.rack_in_entrance{width:230px;}/*остальное через style*/
-			.rk_in_entrance{width:140px;}/*остальное через style*/
-			
-			.device_in_rack{margin-top:2px;padding-left:4px;border:1px solid #000;border-radius:4px;text-align:left;width:220px;height:24px;background-color:#ddd;color:#000;}
-			.type_ETH{background-color:#eff;}/*#ddeeff*/
-			.type_OP{width:130px;height:48px;background-color:#ffe;}/*#ddeeff*/
-			.type_CR{width:60px;height:20px;}
-			.type_PP{}
-			.rk_in_entrance .type_PP{width:130px;}
-			.type_SBE{height:48px;background-color:#eef;}/*#ddf*/
-			.type_OSW{background-color:#ddf;}/*#eef*/
-			.type_FAMP{height:48px;background-color:#eef;}/*#ddf*/
-			.type_MPLS{height:36px;background-color:#eef;}
-			.type_OLT{height:36px;background-color:#eef;}/*#ddf*/
-			.type_CPE{width:160px;background-color:#fef;}/*#ddeeff*/
-			.type_Voip{width:160px;background-color:#fef;}/*#ddeeff*/
-				.online{border-right:10px solid green;}
-				.offline{border-right:10px solid red;}
-				.nomon{background-color:#ddd;}
-				
 			.status10{margin-left:10px;font-weight:600;color:darkorange;}/*Отключена*/
 			.status5{margin-left:10px;font-weight:600;color:darkred;}/*Заблокирована*/
 			.status0{margin-left:10px;font-weight:600;color:darkgreen;}/*Активна*/
@@ -94,7 +48,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v160');
+		window.AppInventor.setWebViewString('version_:FX_test_v161');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -103,19 +57,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='Домовой узел'){
 				/*this is du*/
-				if(document.getElementsByClassName('info-block')[1].getElementsByClassName('progress')[0].style.display!=''&&document.getElementById('collapseEntrance')!=null){
-					
-				};
-				if(document.getElementsByClassName('info-block')[2].getElementsByClassName('progress')[0].style.display!=''&&document.getElementById('collapseDevices')!=null){
-					if(document.getElementById('collapseDevices')!=null&&!document.getElementsByClassName('myDevices')[0].classList.contains('ok')){
-						testDevicesList();
-					};
-				};
-				if(document.getElementsByClassName('info-block')[3].getElementsByClassName('progress')[0].style.display=='none'!=''&&document.getElementById('collapseRacks')!=null){
-					if(document.getElementById('collapseRacks')!=null&&!document.getElementsByClassName('myRacks')[0].classList.contains('ok')){
-						testDevices();
-					};
-				};
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='коммутатор'){
 				/*this is sw*/
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='оптический приемник'){
@@ -123,193 +64,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')){
 				/*this is Start page*/
 				myOrders_template();
-				myBuilding_template();
 				myPortComparerEl_template();
 				myPortsEl_template();
 				myPort_template();
 				mySetPort_modal();
 				myAccount_template();
 			};
-		};
-		
-		function myBuilding_template(){
-			document.getElementById('building-template').innerHTML=`
-				<div v-if="data" class="myBuilding">
-					<div class="info-block"> <!-- стандартный блок информации -->
-					<screen-header-el border="none">
-					<template slot="title">Домовой узел</template>
-					{{ data.node }}
-					<template slot="info">{{ data.address }}</template>
-					</screen-header-el>
-					<div v-show="loading.data" class="progress">
-					<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-					</div>
-					
-					<div class="info-block" v-show="showEntrance" >
-						<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseEntrance" href="#collapseEntrance" >
-							<span class="card-title"> Квартиры </span>
-							<div v-show="data.entrances && data.entrances.length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div v-if="data.entrances && data.entrances.length > 0" class="building-info collapse" id="collapseEntrance">
-							<div class="align-items-center justify-content-between pb-2" :class="data.entrances[0].ENTRANCE_ID ? 'd-flex' : 'd-none'">
-								<span class="small-text">Подключено:</span>
-								<span class="small-text">Подъезды</span>
-							</div>
-							<ul class="list-group list-group-flush">
-								<li v-for="(entrance) in data.entrances" @click="selectEntrance(entrance)" class="list-group-item d-flex align-items-center justify-content-between">
-									<div class="w-75">
-										<div :class='{ "float-left mr-2": entrance.INTERNET_BLOCK_TYPE }'>
-											<h5 v-if="entrance.FLAT_FROM_TO" class="m-0 p-0"> {{ entrance.FLAT_FROM_TO }} </h5>
-											<h6 v-else class="m-0 p-0">Подключенные квартиры</h6>
-										</div>
-										<div class="bg-warning px-2 mb-1 rounded text-truncate"> {{ entrance.INTERNET_BLOCK_TYPE }} </div>
-										<div v-for="(device) in entrance.DEVICE_LIST" class="minor-text" v-show="entrance.DEVICE_LIST">
-											<i class="fas fa-project-diagram blue"></i> {{ device }}
-										</div>
-									</div>
-									<div>
-										<template v-if="entrance.ENTRANCE_NO">
-											<h4>{{ entrance.ENTRANCE_NO }}</h4>
-										</template>
-										<template v-else>
-											<i class="fas fa-chevron-right"></i>
-										</template>
-									</div>
-								</li>
-							</ul>
-						</div>
-						<div v-show="loading.entrances" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="info-block myDevices">
-						<a class="card-body collapse show info-block-title display nohover collapsed" data-toggle="collapse" data-target="#collapseDevices" href="#collapseDevices" aria-expanded="false">
-							<span class="card-title"> Устройства </span>
-							<div v-show="data.devices && data.devices.length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div v-if="data.devices && data.devices.length > 0" class="building-info collapse" id="collapseDevices">
-							<ul class="list-group list-group-flush">
-								<li v-bind:id="device.DEVICE_NAME" v-for="(device, index) in data.devices" v-if="device.DESCRIPTION" v-on:click="select(device, index)" style="margin: 2px 0px 2px 0px;padding: 2px 4px 2px 4px;border:1px solid #000;border-radius:4px;" class="list-group-item device_in_list":class="'device_'+device.DEVICE_NAME.split('_')[0]">
-									<div>
-										<ping-el :device="device"><strong>{{ device.IP_ADDRESS }}</strong></ping-el>
-										<span class="minor-text">{{ device.DEVICE_NAME }}</span>
-									</div>
-									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
-									<div>{{ device.VENDOR }}<span class="minor-text">{{ device.MODEL }}</span></div>
-									<div>{{ device.DISPLAY_NAME }}</div>
-									<div v-if="device.DEVICE_NAME.split('_')[0]=='ETH'" class="stata_sw">
-										<span>порты:</span>
-										<div class="s_bad" style="width:0rem;" counter="0"></div>
-										<div class="s_busy s_hub" style="width:0rem;" counter="0"></div>
-										<!--<div class="s_hub" style="width:0rem;" counter="0"></div>-->
-										<div class="s_expired s_closed s_double" style="width:0rem;" counter="0"></div>
-										<!--<div class="s_closed" style="width:0rem;" counter="0"></div>-->
-										<!--<div class="s_double" style="width:0rem;" counter="0"></div>-->
-										<div class="s_new" style="width:0rem;" counter="0"></div>
-										<div class="s_free" style="width:0rem;" counter="0"></div>
-										<div class="s_trunk_busy" style="width:0rem;" counter="0"></div>
-										<div class="s_trunk_free" style="width:0rem;" counter="0"></div>
-									</div>
-								</li>
-							</ul>
-						</div>
-						<div v-show="loading.devices" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="info-block myRacks">
-						<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseRacks" href="#collapseRacks" aria-expanded="false">
-							<span class="card-title"> Шкафы, устройства, плинты </span>
-							<div v-show="data.racks && Object.keys(data.racks).length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div v-if="data.racks && Object.keys(data.racks).length > 0" class="building-info collapse" id="collapseRacks">
-							<div v-for="(racks, number) in data.racks" class="entrance_for_rack" style="">
-								<h5>Подъезд {{ number }}</h5>
-								<ul class="list-group list-group-flush" style="flex-direction:column-reverse;">
-									<li v-bind:name="rack.RACK_NMAE.replace('КР','KR')" class="list-group-item rack_in_entrance":class='{ "rk_in_entrance":rack.RACK_TYPE!="Антивандальный" }' v-for="(rack) in racks"  style="margin-top:4px;padding: 4px 0px 4px 4px;border:1px solid #000;border-radius:4px;background-color:#aaa;color:#000;">
-										<div>
-											<p class="mb-0">
-												<strong>{{ rack.FLOOR }} этаж</strong>
-												<span v-if="rack.RACK_TYPE=='Антивандальный'"> Шкаф </span>
-												<span v-else> РК </span>
-												<span class="minor-text" style="color:#000;">{{ rack.LOCATION }}</span>
-											</p>
-										</div>
-										<div v-if="rack.NE_IN_RACK!=null&&rack.RACK_TYPE=='Антивандальный'" class="stata">
-											<span>порты:</span>
-											<div class="s_bad" style="width:0rem;" counter="0"></div>
-											<div class="s_busy s_hub" style="width:0rem;" counter="0"></div>
-											<!--<div class="s_hub" style="width:0rem;" counter="0"></div>-->
-											<div class="s_expired s_closed s_double" style="width:0rem;" counter="0"></div>
-											<!--<div class="s_closed" style="width:0rem;" counter="0"></div>-->
-											<!--<div class="s_double" style="width:0rem;" counter="0"></div>-->
-											<div class="s_new" style="width:0rem;" counter="0"></div>
-											<div class="s_free" style="width:0rem;" counter="0"></div>
-											<div class="s_trunk_busy" style="width:0rem;" counter="0"></div>
-											<div class="s_trunk_free" style="width:0rem;" counter="0"></div>
-										</div>
-										<!--<div>{{ rack.NE_IN_RACK }}</div>-->
-										<div v-if="rack.NE_IN_RACK!=null">
-											<div v-for="item in rack.NE_IN_RACK.split(', ')">
-												<div v-bind:name="item.trim().replace('КР','KR')" class="device_in_rack":class="'type_'+item.trim().replace('КР','KR').split('_')[0]">{{ (item.trim().replace('КР','KR').split('_')[0]=='PP')?'Патч-панель':((item.trim().replace('КР','KR').split('_')[0]=='CR')?'Плинт':item.trim().replace('КР','KR')) }}</div>
-											</div>
-										</div>
-									</li>
-								</ul>
-							</div>
-						</div>
-						<div v-show="loading.racks" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="info-block">
-						<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseMutations" href="#collapseMutations">
-							<span>Изменения состояния портов</span>
-							<div v-if="data.devices && data.devices.length > 0" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div v-if="data.devices && data.devices.length > 0" class="collapse mutations" id="collapseMutations">
-							<port-comparer-el :storage="data" :devices="deviceNameList" @loading="loadMutation"></port-comparer-el>
-						</div>
-						<div v-show="loading.mutation" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="info-block">
-						<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseLessor" href="#collapseLessor" >
-							<span class="card-title"> Управляющая компания </span>
-							<div v-show="data.lessor" class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div v-if="data.lessor" class="building-info collapse" id="collapseLessor">
-							<ul class="list-group list-group-flush">
-								<li class="list-group-item">
-									{{ data.lessor.name }}
-									<div>
-										<div class="small-text">Контактный номер телефона</div>
-										<span class="line-text">{{ data.lessor.phone }}</span>
-									</div>
-									<div>
-										<div class="small-text">ФИО ответственного от УК-ТСЖ</div>
-										<span class="line-text">{{ data.lessor.person }}</span>
-									</div>
-									<div>
-										<div class="small-text">Должность ответственного от УК-ТСЖ</div>
-										<span class="line-text">{{ data.lessor.position }}</span>
-									</div>
-									<div>
-										<div class="small-text">Особенности доступа</div>
-										<span class="line-text">{{ data.details }}</span>
-									</div>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			`;
 		};
 		
 		function myPortComparerEl_template(){
@@ -397,15 +157,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  orderList: [],
 				  
 				  statusList: {
-					assigned: {text: 'Назначен', check: true},
+					assigned: {text: 'Назначен', check: false},
 					sent: {text: 'Отправлен', check: true},
 					transit: {text: 'В пути', check: true},
 					inProgress: {text: 'В работе', check: true},
 					done: {text: 'Выполнен', check: true},
-					none: {text: 'Не выполнен', check: true},
-					canceled: {text: 'Отменен', check: true},
+					none: {text: 'Не выполнен', check: false},
+					canceled: {text: 'Отменен', check: false},
 					preSent: {text: 'Предв. Отправлен', check: true},
-					resolved: {text: 'Завершен', check: true}
+					resolved: {text: 'Завершен', check: false}
 				  },
 
 				  loading: false
@@ -735,24 +495,58 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							self.loaded.portsLoop=true;
 						});
 					},
-					portMetrStatusClass(index){/*заглушка*/
-						if(false/*this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status*/){
+					pairs:function(index){
+						var allowStatuses=['close','open','short'];
+						var pairs=[];
+						var show=false;
+						if(this.ports[index].port_status){
+							var pair=this.ports[index].port_status;
+							for(var i=1;i<=4;i++){
+								show=show||pair["metr_" + i];
+								var metr=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'-';
+								metr=isNaN(metr)?'-':metr+"M";
+								var status=null;
+								var cssClass="default";
+								if(pair["pair_"+i]){
+									status=pair["pair_"+i].toLowerCase();
+									if(allowStatuses.includes(status)){
+										cssClass=status;
+										status=status[0].toUpperCase();
+									}else{
+										cssClass="error";
+										status="E";
+									};
+								};
+								var info={
+									metr: metr,
+									pair:status,
+									class:"port-pair-"+cssClass
+								};
+								pairs.push(info);
+							};
+						}else{
+							return [];
+						};
+						return show ? pairs : [];
+					},
+					portMetrStatusClass(index){
+						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status){
 							var arr=[];
 							var pair=this.ports[index].port_status;
 							for(var i=1;i<=4;i++){
-								if(pair["metr_"+i]){
+								if (pair["metr_"+i]){
 									arr.push(parseInt(pair["metr_"+i],10));
-								}
-							}
+								};
+							};
 							if(arr.length>1){
 								arr=arr.sort();
-								return Math.abs(arr[0]-arr[arr.length-1])>5?"myportwarn":"myportok";
+								return Math.abs(arr[0]-arr[arr.length-1])>5?"port-pairs-info-warn":"port-pairs-info-ok";
 							}else{
-								return "myportok";
-							}
+								return "port-pairs-info-ok";
+							};
 						}else{
-							return "myportok";
-						}
+							return "port-pairs-info-ok";
+						};
 					},
 					portClass:function(port){
 						return 'port-'+port.state;
@@ -1202,80 +996,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		};
 		
 	};start();
-	
-	function testDevicesList(){
-		var devices=document.getElementById('collapseDevices').getElementsByClassName('device_in_list');
-		console.log('devices_in_list_count: %c%i','color:darkblue',devices.length);
-		for(var d=0; d<devices.length; d++){
-			var d_name=devices[d].getAttribute('id');
-			var d_type=devices[d].getAttribute('id').split('_')[0];
-			console.log('device_in_list: %c%s%c type: %c%s','color:darkorange',d_name,'','color:darkorange',d_type);
-			if(d_type=='ETH'){
-				httpGet('/call/device/device_port_list?device='+d_name+'&fresh='+Math.random(), true).then(function(data_p){
-					console.log('device_in_list: %c%s%c ports_count: %c%i%c %O','color:darkorange',data_p[0].device_name,'','color:darkblue',data_p.length,'',data_p);
-					var ports=data_p.map(function(item_p, index_p, array_p){
-						var stata_counter_eth = document.getElementById(item_p.device_name).getElementsByClassName('s_'+item_p.state.replace(' ','_'))[0];
-						stata_counter_eth.setAttribute('counter',(+stata_counter_eth.getAttribute('counter')+1));
-						stata_counter_eth.innerHTML=stata_counter_eth.getAttribute('counter');
-						stata_counter_eth.setAttribute('style','width:'+stata_counter_eth.getAttribute('counter')+'rem;');
-					});
-				});
-			};
-		};
-		document.getElementsByClassName('myDevices')[0].classList.add('ok');
-	};
-	
-	function testDevices(){
-		function isEmpty(object){for(var key in object){return false}return true};/*used in testDevice(d_name)*/
-		var racks=document.getElementById('collapseRacks').getElementsByClassName('list-group-item');
-		console.log('racks_in_site_count: %c%i','color:darkblue',racks.length);
-		for(var r=0; r<racks.length; r++){
-			var devices=racks[r].getElementsByClassName('device_in_rack');
-			console.log('rack: %c%s%c devices_in_rack_count: %c%i','color:darkorange',racks[r].getAttribute('name'),'','color:darkblue',devices.length);
-			for(var d=0; d<devices.length; d++){
-				var d_name=devices[d].getAttribute('name');
-				var d_type=devices[d].getAttribute('name').split('_')[0];
-				devices[d].addEventListener('click', function(event){document.getElementById(event.target.attributes.name.value).click();});
-				console.log('device_in_rack: %c%s%c type: %c%s','color:darkorange',d_name,'','color:darkorange',d_type);
-				if(d_type!='PP'&&d_type!='CR'){
-					document.getElementsByName(d_name)[0].classList.add('nomon');
-					httpGet('/call/device/device_info?device='+d_name+'&fresh='+Math.random(), true).then(function(data_d){
-						if(!isEmpty(data_d[0])){
-							console.log('device_info: %c%s %c%O','color:darkorange',data_d[0].DEVICE_NAME,'',data_d[0]);
-							httpPost('/call/dnm/device_ping', {'device':data_d[0]}, true).then(function(data_pi){
-								if(data_pi.code=='200'){
-									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.remove('nomon');
-									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('online');
-									console.log('device_ping: %c%s%c status:%c online!','color:darkorange',data_d[0].DEVICE_NAME,'','color:darkgreen;font-weight:600;');
-								}else if(data_pi.code=='400'){
-									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.remove('nomon');
-									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('offline');
-									console.log('device_ping: %c%s%c status:%c offline!','color:darkorange',data_d[0].DEVICE_NAME,'','color:darkred;font-weight:600;');
-								}else{
-									document.getElementsByName(data_d[0].DEVICE_NAME)[0].classList.add('nomon');
-									console.log('device_ping: %c%s%c status:%c nomon!','color:darkorange',data_d[0].DEVICE_NAME,'','');
-								};
-								document.getElementsByName(data_d[0].DEVICE_NAME)[0].innerHTML='['+data_d[0].DEVICE_NAME.split('_')[0]+'] '+data_d[0].IP_ADDRESS;
-							});
-							if(data_d[0].DEVICE_NAME.split('_')[0]=='ETH'){
-								httpGet('/call/device/device_port_list?device='+data_d[0].DEVICE_NAME+'&fresh='+Math.random(), true).then(function(data_p){
-									console.log('device_in_rack: %c%s%c ports_count: %c%i%c %O','color:darkorange',data_p[0].device_name,'','color:darkblue',data_p.length,'',data_p);
-									var ports=data_p.map(function(item_p, index_p, array_p){
-										var stata_counter = document.getElementsByName(item_p.device_name)[0].parentElement.parentElement.parentElement.getElementsByClassName('s_'+item_p.state.replace(' ','_'))[0];
-										stata_counter.setAttribute('counter',(+stata_counter.getAttribute('counter')+1));
-										stata_counter.innerHTML=stata_counter.getAttribute('counter');
-										stata_counter.setAttribute('style','width:'+stata_counter.getAttribute('counter')+'rem;');
-									});
-								});
-							};
-						};
-					});
-				};
-			};
-		};
-		document.getElementsByClassName('myRacks')[0].classList.add('ok');
-	};
-	
+		
 }else{console.log(document.title)};
 
 }());
