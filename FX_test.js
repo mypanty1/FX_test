@@ -48,7 +48,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v161');
+		window.AppInventor.setWebViewString('version_:FX_test_v161.1');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -290,7 +290,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 											<div style="grid-area:4/3/5/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairb">{{ port.port_status.metr_2 }}</div></div>
 											<div style="grid-area:5/3/6/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairc">{{ port.port_status.metr_3 }}</div></div>
 											<div style="grid-area:6/3/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaird">{{ port.port_status.metr_4 }}</div></div>
-											<div style="grid-area:3/1/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="myportok":class="portMetrStatusClass(index)"></div></div>
+											<!--<div style="grid-area:3/1/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="myportok":class="portMetrStatusClass(index)"></div></div>-->
 											<div style="grid-area:7/1/8/5;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
 											<div style="grid-area:8/1/9/5;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
 										</div>
