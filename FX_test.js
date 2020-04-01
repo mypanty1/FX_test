@@ -861,6 +861,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  <template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
 					  <template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
 					</screen-header-el>
+					<div v-if="account" class="name">
+					  <i class="fas fa-user mr-1 icon user" style="height: 16px; width: 16px;"></i>
+					  {{ account.name }}
+					  <a :href="'tel:' + account.phone">
+						<i class="fas fa-phone-alt icon phone"></i>
+					  </a>
+					</div>
 					<div v-show="data.PORT_NAME">
 					  <div @click="toPort">
 						<i class="fas fa-ethernet faded mr-1"></i>
@@ -880,7 +887,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  </div>
 					</div>
 				  </div>
-				  <div class="info-block account-info">
+				  <div v-if="hasSessions" class="info-block account-info">
 					<div class="clearfix">
 					  <span class="card-title">Сессии</span>
 					  <button @click="refreshSessions" :disabled="loading.session > 0" class="btn btn-title float-right">
@@ -944,7 +951,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							  {{ vgroup.serviceclassname }}
 							  <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
 							</div>
+							<!--add this fragment-->
 							<div>ID: {{ vgroup.vgid }}</div>
+							<!--add this fragment-->
 							<div>{{ vgroup.tarif }}</div>
 							<passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
 							<button v-if="vgroup.available_for_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
@@ -967,9 +976,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  <ul v-if="data.locks" class="list-group list-group-flush">
 						<li v-for="row in data.locks.rows" class="list-group-item">
 						  <div class="link">
+						    <!--add this fragment-->
+						    <div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
+							<!--add this fragment-->
 							<div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
 							<div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
-							<div>{{ row["type"] }}<span class="inscription"></span></div>
+						    <div>{{ row["type"] }} (тип: {{row["blocktype"]}})<span class="inscription"></span></div>
 						  </div>
 						</li>
 					  </ul>
@@ -986,7 +998,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div class="collapse" id="collapse-equipment">
 					  <ul v-if="data && data.equipments" class="list-group list-group-flush">
 						<li v-for="equipment in data.equipments" class="list-group-item">
-						  <equipment-el :equipment="equipment"></equipment-el>
+						  <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
 						</li>
 					  </ul>
 					  <div v-if="!data.equipments || data.equipments.length == 0" class="text-muted">не найдено</div>
