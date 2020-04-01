@@ -1,6 +1,6 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix#/')>=0)||(window.location.href.indexOf('http://release-20-4.test.inetcore.mts.ru/fix#/')>=0))){
+if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-5.test.inetcore.mts.ru/fix')>=0))){
 	document.title = 'Inetcore+';
 	
 	function start(){
@@ -27,6 +27,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.mypstatus{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
 			.mypnumber{height:30px;border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
 			.mylegend{width:40px;height:16px;text-align:center;line-height:16px;font-size:12px;display:inline-block;padding:0px 4px;margin:0px 10px 0px 0px;}
+			.mylegendport{height:20px;line-height:10px;width:30px;padding:5px 5px;display:inline-block;margin-right:15px;}
 			.myspeed{border-radius:2px;background-color:gray;}
 			.myspeed10{background-color:#ffc107;}
 			.myspeed100{background-color:#28a745;}
@@ -48,7 +49,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v161.2');
+		window.AppInventor.setWebViewString('version_:FX_test_v162');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -67,7 +68,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPortComparerEl_template();
 				myPortsEl_template();
 				myPort_template();
-				/*mySetPort_modal();*/
+				mySetPort_modal();
 				myAccount_template();
 			};
 		};
@@ -318,13 +319,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</a>
 							<div class="collapse legend-body" id="collapseLegend">
 								<ul class="list-group">
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-busy">0</div>занятые</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-expired">0</div>можно освободить</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-new">0</div>новый MAC</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-free">0</div>cвободные</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-bad">0</div>битые</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-trunk busy">0</div>тех. занятые</li>
-									<li class="list-group-item"><div class="mylegend myspeed legend-port port-trunk free">0</div>тех. свободные</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-busy">0</div>занятые</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-expired">0</div>можно освободить</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-new">0</div>новый MAC</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-free">0</div>cвободные</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-bad">0</div>битые</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-trunk busy">0</div>тех. занятые</li>
+									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-trunk free">0</div>тех. свободные</li>
 									<div class="w-100 py-1">Статусы порта:</div>
 									<li class="list-group-item"><div class="mylegend myspeed port-new">NEW</div>новый MAC</li>
 									<li class="list-group-item"><div class="mylegend myspeed port-hub">HUB</div>hub (возможно)</li>
@@ -729,120 +730,123 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
 				<div class="container-fluid">
-					<div class="search-ctrl box-shadow-none search-account-modal">
-						<div class="input-group">
-							<input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="Найти">
-							<div class="input-group-append">
-								<button v-on:click="erace" class="btn btn-erase" type="button"><i class="fas fa-times"></i></button>
-								<button v-on:click="searchAccount" class="btn btn-search" type="button"><i class="fas fa-search"></i></button>
-							</div>
-						</div>
-					</div>
-					<div v-if="account">
-						<p class="small-text">Результат поиска:</p>
-						<div v-if="account.isError" v-html="account.text" class="alert alert-warning" role="alert"></div>
-						<div v-else>
-							<div class="account-block account-info" v-for="acc in account.data">
-								<span class="account-header">
-									<i class="fa fa-user"></i> {{ acc.agreements.account }}
-								</span>
-								<div>
-									<span class="small-text">{{ acc.address }}</span>
-								</div>
-								<div v-show="acc.phone" class="small-text">
-									{{ acc.phone }}
-									<span class="inscription">Телефон</span>
-								</div>
-								<div class="small-text">
-									{{ getBalance(acc.agreements) }} &#8381;
-									<span class="inscription">Баланс</span>
-								</div>
-								<div class="small-text">
-									{{ acc.agreements.lastsum }} ₽ {{ acc.agreements.lastpaydate }}
-									<span class="inscription">Последний платеж</span>
-								</div>
-								<div v-if="acc.vgroups.length > 0">
-									<div class="form-row">
-										<span class="mt-2">Учетная запись для связи:</span>
-										<div class="form-group custom-control-radio" v-for="vg in acc.vgroups">
-											<label>
-												<div class="custom-control custom-checkbox my-1 mr-sm-2">
-													<input type="radio" class="custom-control-input" 
-															v-bind:disabled="loading"
-															v-bind:id="vg.vgid" 
-															v-bind:name="acc.userid" 
-															@change="getMacList"
-															v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
-															v-model="resource">
-													<span class="custom-control-label custom-control-empty">{{ vg.login }}<br/>ID: {{ vg.vgid }}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/><span class="small-text">{{ vg.tardescr }}</span></span>
-													</input>
-												</div>
-											</label>
-										</div>
-									</div>
-									<div v-if="typeOfBind == 0" class="form-row">
-										<div class="alert alert-warning mt-2" role="alert">Выбраная учетная запись не нуждается в привязке</div>
-									</div>
-									<div v-else-if="typeOfBind == 1" class="form-row">
-										<button @click="setupPortForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
-									</div>
-									<div v-else-if="typeOfBind == 2" class="form-row">
-										<input list="macs" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23">
-										<datalist id="macs">
-											<option v-for="mc in mac.list">{{ mc }}</option>
-										</datalist>
-										<button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
-									</div>
-									<div v-else-if="typeOfBind == 3 || typeOfBind == 6" class="form-row">
-										<input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
-										<button @click="insPort()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
-									</div>
-									<div v-else-if="typeOfBind == 5" class="form-row">
-										<button @click="insPort()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
-										<input list="macs" class="form-control form-control-sm mt-3" v-filter="'[0-9a-fA-F\:\.]'" v-model="mac.selected" maxlength="23">
-										<datalist id="macs">
-											<option v-for="mc in mac.list">{{ mc }}</option>
-										</datalist>
-										<button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
-									</div>
-									<div v-else>
-										<!--div class="alert alert-warning mt-2" role="alert"></div!-->
-									</div>
-									<!--div v-if="loading" class="progress">
-										<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-10"></div>
-									</div!-->
+        <div class="search-ctrl box-shadow-none search-account-modal">
+            <div class="input-group">
+                <input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="Найти">
+                <div class="input-group-append">
+                    <button v-on:click="audio" v-if="audioShow" class="btn btn-audio btn-erase" type="button"><i class="fas fa-microphone"></i></button>
+                    <button v-on:click="erace" class="btn btn-erase" type="button"><i class="fas fa-times"></i></button>
+                    <button v-on:click="searchAccount" class="btn btn-search" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+        <div v-if="account">
+            <p class="small-text">Результат поиска:</p>
+            <div v-if="account.isError" v-html="account.text" class="alert alert-warning" role="alert"></div>
+            <div v-else>
+                <div class="account-block account-info" v-for="acc in account.data">
+                    <span class="account-header">
+                        <i class="fa fa-user"></i> {{ acc.agreements.account }}
+                    </span>
+                    <div>
+                        <span class="small-text">{{ acc.address }}</span>
+                    </div>
+                    <div v-show="acc.phone" class="small-text">
+                        {{ acc.phone }}
+                        <span class="inscription">Телефон</span>
+                    </div>
+                    <div class="small-text">
+                        {{ getBalance(acc.agreements) }} &#8381;
+                        <span class="inscription">Баланс</span>
+                    </div>
+                    <div class="small-text">
+                        {{ acc.agreements.lastsum }} ₽ {{ acc.agreements.lastpaydate }}
+                        <span class="inscription">Последний платеж</span>
+                    </div>
+                    <div v-if="acc.vgids.length > 0">
+                        <div class="form-row">
+                            <div class="mt-2 full-fill">Учетная запись для связи:</div>
+                            <div class="form-group full-fill custom-control-radio" v-for="vg in acc.vgids">
+                                <label>
+                                    <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                                        <input type="radio" class="custom-control-input" 
+                                                v-bind:disabled="loading"
+                                                v-bind:id="vg.vgid" 
+                                                v-bind:name="acc.userid" 
+                                                @change="getMacList"
+                                                v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
+                                                v-model="resource">
+											<!--replaced this fragment-->
+                                        <span class="custom-control-label custom-control-empty">{{ vg.login }}<br/>ID: {{ vg.vgid }}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/><span class="small-text">{{ vg.tardescr }}</span></span>
+											<!--replaced this fragment-->
+										</input>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div v-if="typeOfBind == 2" class="form-row">
+                            <input list="macs" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23">
+                            <datalist id="macs">
+                                <option v-for="mc in mac.list">{{ mc }}</option>
+                            </datalist>
+                            <button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
+                        </div>
+                        <div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
+                            <input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
+                            <button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
+                            <button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">Выделить IP</button>
+                        </div>
+                        <div v-else-if="typeOfBind == 5" class="form-row">
+                            <button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
+                            <input list="macs" class="form-control form-control-sm mt-3" v-filter="'[0-9a-fA-F\:\.]'" v-model="mac.selected" maxlength="23">
+                            <datalist id="macs">
+                                <option v-for="mc in mac.list">{{ mc }}</option>
+                            </datalist>
+                            <button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+                        </div>
+                        <div v-else-if="typeOfBind == 7 || typeOfBind == 9" class="form-row">
+                            <input list="macs" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23">
+                            <datalist id="macs">
+                                <option v-for="mc in mac.list">{{ mc }}</option>
+                            </datalist>
+                            <button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Перепривязать mac</button>
+                            <button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+                        </div>
+                        <div v-else-if="typeOfBind == null"></div>
+                        <div v-else>
+                            <div class="alert alert-warning mt-2" role="alert">Выбраная учетная запись не нуждается в привязке</div>
+                        </div>
 
-							  </div>
-							  <div v-else>
-									<div class="alert alert-warning mt-2" role="alert">
-										Не найдено не одной учетной записи, доступной для привязки.
-									</div>
-							  </div>
-							</div>
-							<div v-if="result" class="mt-3 response-block">
-								<div v-if="result.isError">
-									<div v-if="result.code == 412 || result.code == 413">
-										<div v-html="result.message" class="alert alert-warning" role="alert"></div>
-										<button @click="setupPortForUser(result.code)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Подтвердить связь</button>
-									</div>
-									<div v-else>
-										<div v-html="result.text.slice(0,120)" class="alert alert-danger" role="alert"></div>
-									</div>
-								</div>
-								<div v-else>
-									<div v-if="typeOfBind == 1 && result.code == 200 " class="alert alert-success" role="alert">
-									Счет {{ sample }} успешно привязан к порту {{ data.portNumber}} ({{ data.deviceParams.IP_ADDRESS }})
-									</div>
-									<div v-if="(typeOfBind == 2 || typeOfBind == 3 || typeOfBind == 5 || typeOfBind == 6 ) && result.InfoMessage" class="alert alert-success" role="alert" v-html="result.InfoMessage"></div>
-								</div>
-							</div>
-						</div>
+                  </div>
+                  <div v-else>
+                        <div class="alert alert-warning mt-2" role="alert">
+                            Не найдено не одной учетной записи, доступной для привязки.
+                        </div>
+                  </div>
+                </div>
+                <div v-if="result" class="mt-3 response-block">
+                    <div v-if="result.isError">
+                        <div v-html="result.text.slice(0,120)" class="alert alert-danger" role="alert"></div>
+                    </div>
+                    <div v-else>
+                        <div v-if="typeOfBind == 1 && result.code == 200 " class="alert alert-success" role="alert">
+                        Счет {{ sample }} успешно привязан к порту {{ data.portNumber}} ({{ data.deviceParams.IP_ADDRESS }})
+                        </div>
+                        <div v-if="typeOfBind != 1 && result.InfoMessage" class="alert alert-success" role="alert" v-html="result.InfoMessage"></div>
+                        <div v-if="typeOfBind != 1 && result.Data">
+                            <div v-if="result.Data.ip" class="small-text">{{ result.Data.ip }}<span class="inscription"> Ip</span></div>
+                            <div v-if="result.Data.gateway" class="small-text">{{ result.Data.gateway }}<span class="inscription"> Шлюз</span></div>
+                            <div v-if="result.Data.mask" class="small-text">{{ result.Data.mask }}<span class="inscription"> Маска</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-					</div>
-					<div v-if="loading" class="progress mt-2">
-						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-				</div>
+        </div>
+        <div v-if="loading" class="progress mt-2">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+    </div>
 			`;
 		};
 		
