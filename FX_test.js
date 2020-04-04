@@ -1,6 +1,6 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://octopus.test.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-5.test.inetcore.mts.ru/fix')>=0))){
+if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://pre.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-6.test.inetcore.mts.ru/fix')>=0))){
 	document.title = 'Inetcore+';
 	
 	function start(){
@@ -37,11 +37,21 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.myoperstatedown{background-color:gray;}
 			.myadmstateup{}
 			.myadmstatedown{background-color:red;}
-			.mypair{text-align:left;padding-left:2px;color:#000;}
-			.mypaira{background-color:#eacf9c;}
-			.mypairb{background-color:#b4f3b4;}
-			.mypairc{background-color:#c5e3ec;}
-			.mypaird{background-color:#c78e65;}
+			.mypair{text-align:left;padding-left:2px;color:#000;font-family:monospace;line-height:12px;}
+			.mypair.pairend-default{background-color:#fff;}
+			.mypair.pairend-error{background-color:#faac5d;}
+			.mypair.pairend-impedance_error{background-color:#faac5d;}
+			.mypair.pairend-open{background-color:#fff;}
+			.mypair.pairend-ok{background-color:#fff;}
+			.mypair.pairend-no_cable{background-color:#dee2e6;}
+			.mypair.pairend-close{background-color:#dee2e6;}
+			.mypair.pairend-short{background-color:#faac5d;}
+			
+			.mypaira-default{background-color:#eacf9c;}
+			.mypairb-default{background-color:#b4f3b4;}
+			.mypairc-default{background-color:#c5e3ec;}
+			.mypaird-default{background-color:#c78e65;}
+			
 			.myportok{width:100%;height:100%;}
 			.myportwarn{border:1px dashed #000;}
 		`;
@@ -49,11 +59,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v162');
+		window.AppInventor.setWebViewString('version_:FX_test_v163');
 		
 		document.body.addEventListener("click", updateHTML);
 		
-		var usertext='';
+		var templates_need_replace=true;
 		function updateHTML(){
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='Домовой узел'){
@@ -62,7 +72,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*this is sw*/
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='оптический приемник'){
 				/*this is op*/
-			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')){
+			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				myOrders_template();
 				myPortComparerEl_template();
@@ -70,6 +80,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPort_template();
 				mySetPort_modal();
 				myAccount_template();
+				templates_need_replace=false;
 			};
 		};
 		
@@ -130,15 +141,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
 									<span class="number">{{ item.iface.replace('1/','порт ') }}</span>
 									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
-									<div class="minor-text" style="text-align-last: left;">
-										<div>
-											<span v-if="item.pair_1" class="mypair mypaira">pair 1: {{ item.pair_1 }} {{ item.metr_1 }}</span>
-											<span v-if="item.pair_2" class="mypair mypairb">pair 2: {{ item.pair_2 }} {{ item.metr_2 }}</span>
-										</div>
-										<div>
-											<span v-if="item.pair_3" class="mypair mypairc">pair 3: {{ item.pair_3 }} {{ item.metr_3 }}</span>
-											<span v-if="item.pair_4" class="mypair mypaird">pair 4: {{ item.pair_4 }} {{ item.metr_4 }}</span>
-										</div>
+									<div class="minor-text" style="text-align-last:left;">
+										<div v-if="item.pair_1" class="mypair">pair 1: {{ item.pair_1 }} {{ item.metr_1 }}</div>
+										<div v-if="item.pair_2" class="mypair">pair 2: {{ item.pair_2 }} {{ item.metr_2 }}</div>
+										<div v-if="item.pair_3" class="mypair">pair 3: {{ item.pair_3 }} {{ item.metr_3 }}</div>
+										<div v-if="item.pair_4" class="mypair">pair 4: {{ item.pair_4 }} {{ item.metr_4 }}</div>
 									</div>
 								</div>
 							</div>
@@ -279,18 +286,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{ port.number }}</div></div>
 											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{ port.flat }}</div></div>
 											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="'myspeed'+portSpeed(index)+' myoperstate'+port.port_status.oper_state+' myadmstate'+port.port_status.admin_state">{{ (port.port_status.admin_state=='up')?((port.port_status.oper_state=='up')?portSpeed(index):port.port_status.oper_state):"off" }}</div></div>
-											<div style="grid-area:3/1/4/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_1||port.port_status.metr_1)" class="mypair mypaira">-</div></div>
-											<div style="grid-area:4/1/5/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_2||port.port_status.metr_2)" class="mypair mypairb">-</div></div>
-											<div style="grid-area:5/1/6/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_3||port.port_status.metr_3)" class="mypair mypairc">-</div></div>
-											<div style="grid-area:6/1/7/5;"><div v-if="loaded.portStatuses && !error.empty && (port.port_status.pair_4||port.port_status.metr_4)" class="mypair mypaird">-</div></div>
-											<div style="grid-area:3/1/4/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaira">{{ port.port_status.pair_1 }}</div></div>
-											<div style="grid-area:4/1/5/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairb">{{ port.port_status.pair_2 }}</div></div>
-											<div style="grid-area:5/1/6/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairc">{{ port.port_status.pair_3 }}</div></div>
-											<div style="grid-area:6/1/7/3;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaird">{{ port.port_status.pair_4 }}</div></div>
-											<div style="grid-area:3/3/4/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaira">{{ port.port_status.metr_1 }}</div></div>
-											<div style="grid-area:4/3/5/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairb">{{ port.port_status.metr_2 }}</div></div>
-											<div style="grid-area:5/3/6/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypairc">{{ port.port_status.metr_3 }}</div></div>
-											<div style="grid-area:6/3/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="mypair mypaird">{{ port.port_status.metr_4 }}</div></div>
+											
+											<template v-if="loaded.portStatuses && !error.empty && port.port_status">
+												<template v-for="(pair, i) in pairs(index)">
+													<div v-bind:style="pair.position">
+														<div v-if="pair.pair && loaded.portStatuses && !error.empty" class="mypair":class="pair.pairclass">{{pair.number}}:{{pair.pair}} {{pair.metr}}</div>
+													</div>
+												</template>
+											</template>
+											
 											<!--<div style="grid-area:3/1/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="myportok":class="portMetrStatusClass(index)"></div></div>-->
 											<div style="grid-area:7/1/8/5;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
 											<div style="grid-area:8/1/9/5;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
@@ -497,40 +501,42 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						});
 					},
 					pairs:function(index){
-						var allowStatuses=['close','open','short'];
+						var allow_statuses_arr=['close','open','short','ok','no_cable'];
 						var pairs=[];
 						var show=false;
 						if(this.ports[index].port_status){
 							var pair=this.ports[index].port_status;
 							for(var i=1;i<=4;i++){
-								show=show||pair["metr_" + i];
-								var metr=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'-';
-								metr=isNaN(metr)?'-':metr+"M";
-								var status=null;
+								show=show||pair["pair_" + i];
+								var pair_len=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'-';
+								pair_len=isNaN(pair_len)?'-':pair_len+"M";
+								var pair_end=null;
 								var cssClass="default";
 								if(pair["pair_"+i]){
-									status=pair["pair_"+i].toLowerCase();
-									if(allowStatuses.includes(status)){
-										cssClass=status;
-										status=status[0].toUpperCase();
+									pair_end=pair["pair_"+i].toLowerCase();
+									if(allow_statuses_arr.includes(pair_end)){
+										cssClass=pair_end;
+										pair_end=pair_end;
 									}else{
 										cssClass="error";
-										status="E";
+										pair_end="error";
 									};
 								};
-								var info={
-									metr: metr,
-									pair:status,
-									class:"port-pair-"+cssClass
+								var pair_info={
+									pairclass:"pairend-"+cssClass,
+									position:"grid-area:"+(i+2)+"/1/"+(i+3)+"/5;",
+									number:i,
+									pair:pair_end,
+									metr:pair_len
 								};
-								pairs.push(info);
+								pairs.push(pair_info);
 							};
 						}else{
 							return [];
 						};
 						return show ? pairs : [];
 					},
-					portMetrStatusClass(index){
+					portMetrStatusClass(index){/*неиспользуется, переделать на подсветку ошибок на порту*/
 						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status){
 							var arr=[];
 							var pair=this.ports[index].port_status;
