@@ -54,6 +54,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			
 			.myportok{width:100%;height:100%;}
 			.myportwarn{border:1px dashed #000;}
+			
+			.myportcrc{}
+			.iscrc{color:#ff0000;font-weight:900;font-size:11px;}
+			.nocrc{}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
@@ -81,6 +85,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				mySetPort_modal();
 				myAccount_template();
 				templates_need_replace=false;
+				window.AppInventor.setWebViewString('string_5:templates added '+Date());
 			};
 		};
 		
@@ -246,25 +251,37 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<center>Не поддерживается устройством</center>
 							</div>
 							<div v-else class="ports-request-info-buttons d-flex">
-								<div class="col-5 col-status">
+								<div class="col-3 col-status">
 									<button class="btn-status d-flex justify-content-center align-items-center" @click="getPortsErrors" :disabled="!loaded.portsErrors">
 										<template v-if="loaded.portsErrors">Ошибки</template>
 										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>Проверяем...
+											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div><!--Проверяем...-->
 										</template>
 									</button>          
 								</div>
-								<div class="col-5 col-loops">
+								<div class="col-3 col-loops">
 									<button class="btn-loops d-flex justify-content-center align-items-center" @click="detectLoop" :disabled="!loaded.portsLoop">
 										<template v-if="loaded.portsLoop">Петли</template>
 										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>Проверяем...
+											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div><!--Проверяем...-->
 										</template>
 									</button>
 								</div>
-								<div class="col-2 col-loops btn-update-all">
+								<div class="col-3 col-loops btn-update-links">
+									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateLinks" :disabled="!loaded.portStatuses">
+										<template v-if="loaded.portStatuses">Линки</template>
+										<template v-else>
+											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
+										</template>
+									</button>
+								</div>
+								<div class="col-3 col-loops btn-update-all">
 									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateAll" :disabled="!loaded.portStatuses">
-										<img src="/f/i/icons/icon_refresh.svg" class="cursor-pointer icon-20 float-right mt5 rotate_360">
+										<!--<img src="/f/i/icons/icon_refresh.svg" class="cursor-pointer icon-20 float-right mt5 rotate_360">-->
+										<template v-if="loaded.portStatuses">Кабели</template>
+										<template v-else>
+											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
+										</template>
 									</button>
 								</div>
 							</div>
@@ -295,8 +312,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 												</template>
 											</template>
 											
-											<!--<div style="grid-area:3/1/7/5;"><div v-if="loaded.portStatuses && !error.empty" class="myportok":class="portMetrStatusClass(index)"></div></div>-->
-											<div style="grid-area:7/1/8/5;"><div v-if="port.port_errors">{{ port.port_errors}}</div></div>
+											<div style="grid-area:7/1/8/3;"><div v-if="port.port_crc_in" class="myportcrc":class="port.port_iscrc">{{port.port_crc_in}}</div></div>
+											<div style="grid-area:7/3/8/5;"><div v-if="port.port_crc_out" class="myportcrc">/ {{port.port_crc_out}}</div></div>
 											<div style="grid-area:8/1/9/5;"><template v-if="port.port_loop && !port.port_loop.loop_status"><div class="port-loop">Петля!</div></template></div>
 										</div>
 									</div>
@@ -438,6 +455,48 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							}
 						}
 					},
+					/*Ports map only links*/
+					updateLinks:function(){
+						if(this.ports){
+							for(var i=0;i<this.ports.length;i++){
+								if(this.ports[i].port_status){
+									delete this.ports[i].port_status;
+								}
+							}
+							this.loadPortsInfoSpeed();
+						}
+					},
+					/*Ports speed, status*/
+					loadPortsInfoSpeed:function(){
+						this.loaded.portStatuses=false;
+						this.error.empty=false;
+						if(this.ports&&this.ports.length){
+							var self=this;
+							var device=this.ports[0].device_name;
+							if(!this.ports[0].port_status){/*.port_status - кэш информации о портах*/
+								httpPost('/call/dnm/port_statuses',{devices:[{DEVICE_NAME: device}],add:'speed'}).then(function(data){
+									if(!data[device])throw new Error("Не удалось получить данные с сервера");
+									if(!data[device].ports)throw new Error("Не удалось получить информацию о портах");
+									var ports=data[device].ports;
+									for(var i=0;i<self.ports.length;i++){
+										if(ports[i]){
+											ports[i].status=ports[i].oper_state.includes('up')?'up':'down';
+										}else{
+											console.warn('UNDEFINED',i);
+										}
+										Vue.set(self.ports[i],'port_status',ports[i]);
+									}
+									self.loaded.portStatuses=true;
+								}).catch(function(e){
+									self.errorsHandler(e);
+									self.error.empty=true;
+									self.loaded.portStatuses=true;
+								});
+							}else{
+								self.loaded.portStatuses=true;
+							}
+						}
+					},
 					portSpeed:function(index){
 						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
 						if(this.ports[index].port_status){
@@ -459,8 +518,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									port:port.snmp_number
 								};
 								httpGet(buildUrl('port_status', params),false).then(function(data){
-									var errors=self.numShow(data.IF_IN_ERRORS)+' / '+self.numShow(data.IF_OUT_ERRORS);
-									Vue.set(port,'port_errors',errors);
+									var crc_in=self.numShow(data.IF_IN_ERRORS);
+									var crc_out=self.numShow(data.IF_OUT_ERRORS);
+									var iscrc=(data.IF_IN_ERRORS>0)?'iscrc':'nocrc';
+									Vue.set(port,'port_crc_in',crc_in);
+									Vue.set(port,'port_iscrc',iscrc);
+									Vue.set(port,'port_crc_out',crc_out);
 									self.loaded.portsErrors=requestsCount==++statusCount;
 								}).catch(function(e){
 									self.errorsHandler(e);
@@ -508,8 +571,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							var pair=this.ports[index].port_status;
 							for(var i=1;i<=4;i++){
 								show=show||pair["pair_" + i];
-								var pair_len=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'-';
-								pair_len=isNaN(pair_len)?'-':pair_len+"M";
+								var pair_len=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'';
+								pair_len=isNaN(pair_len)?'':pair_len/*+"M"*/;
 								var pair_end=null;
 								var cssClass="default";
 								if(pair["pair_"+i]){
