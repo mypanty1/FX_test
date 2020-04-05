@@ -85,7 +85,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				mySetPort_modal();
 				myAccount_template();
 				templates_need_replace=false;
-				window.AppInventor.setWebViewString('string_5:templates added '+Date());
 			};
 		};
 		
@@ -325,7 +324,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<div class="list-group port-list">
 									<div @click="selectPort(port)" v-for="(port, index) in ports" class="list-group-item port font-weight-bold d-flex justify-content-center align-items-center compactly-port-number" :class="portClass(port)" style="border:1px solid #000;width:24%;height:50px;border-radius:4px;margin:2px 0px 0px 2px;">
 										<div class="col port-basic-info-row" style="margin:0px 2px 0px 2px;display:grid;grid-template-columns:30% 70%;">
-											<div style="grid-area:1/1/2/2;"><div class="led"></div></div>
+											<div style="grid-area:1/1/2/2;"><div style="opacity:0;" class="led"></div></div>
 											<div style="grid-area:1/2/2/3;"><div>{{ port.number }}</div></div>
 											<div style="grid-area:2/1/3/3;"><div class="port-desc" style="width:80%"><span>{{ port.flat }}</span></div></div>
 										</div>
