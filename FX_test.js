@@ -267,7 +267,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									</button>
 								</div>
 								<div class="col-3 col-loops btn-update-links">
-									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateLinks" :disabled="!loaded.portStatuses">
+									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateLinks" disabled="disabled">
 										<template v-if="loaded.portStatuses">Линки</template>
 										<template v-else>
 											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
