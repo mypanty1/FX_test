@@ -63,7 +63,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v163.1');
+		window.AppInventor.setWebViewString('version_:FX_test_v163.2');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -81,9 +81,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*myOrders_template();*/
 				myPortComparerEl_template();
 				myPortsEl_template();
-				myPort_template();
+				/*myPort_template();*/
 				mySetPort_modal();
-				myAccount_template();
+				/*myAccount_template();*/
 				templates_need_replace=false;
 			};
 		};
