@@ -63,7 +63,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v163.2');
+		window.AppInventor.setWebViewString('version_:FX_test_v163.3');
 		
 		document.body.addEventListener("click", updateHTML);
 		
@@ -78,12 +78,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*this is op*/
 			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				/*myOrders_template();*/
+				/*myOrders_template();*//*need delete me*/
 				myPortComparerEl_template();
 				myPortsEl_template();
-				/*myPort_template();*/
-				mySetPort_modal();
-				/*myAccount_template();*/
+				/*myPort_template();*//*need delete me*/
+				/*mySetPort_modal();*//*need re add id*/
+				/*myAccount_template();*//*need re add id*/
 				templates_need_replace=false;
 			};
 		};
