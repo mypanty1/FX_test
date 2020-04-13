@@ -63,27 +63,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v163.3');
-		
+		window.AppInventor.setWebViewString('version_:FX_test_v164.b');
+	
 		document.body.addEventListener("click", updateHTML);
 		
 		var templates_need_replace=true;
 		function updateHTML(){
 			/*console.log('click! date:'+Date());*/
-			if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='Домовой узел'){
-				/*this is du*/
-			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='коммутатор'){
-				/*this is sw*/
-			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent=='оптический приемник'){
-				/*this is op*/
-			}else if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
+			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				/*myOrders_template();*//*need delete me*/
 				myPortComparerEl_template();
 				myPortsEl_template();
-				/*myPort_template();*//*need delete me*/
-				/*mySetPort_modal();*//*need re add id*/
-				/*myAccount_template();*//*need re add id*/
+				mySetPort_modal();
+				myAccount_template();
 				templates_need_replace=false;
 			};
 		};
@@ -157,78 +149,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 				</div>
 			`;
-		};
-		
-		function myOrders_template(){
-			Vue.component('orders-view', {
-			  template: '#orders-template',
-			  props: ['data'],
-			  data: function () {
-				return {
-				  date: new Date(),
-				  orderList: [],
-				  
-				  statusList: {
-					assigned: {text: 'Назначен', check: false},
-					sent: {text: 'Отправлен', check: true},
-					transit: {text: 'В пути', check: true},
-					inProgress: {text: 'В работе', check: true},
-					done: {text: 'Выполнен', check: true},
-					none: {text: 'Не выполнен', check: false},
-					canceled: {text: 'Отменен', check: false},
-					preSent: {text: 'Предв. Отправлен', check: true},
-					resolved: {text: 'Завершен', check: false}
-				  },
-
-				  loading: false
-				}
-			  },
-			  created: function () {
-				/*this.showSetting();*/
-			  },
-			  computed: {
-				filterOrder: function () {
-				  var self = this;
-				  return this.orderList.filter(function (order) {
-					for ( var key in self.statusList ) {
-					  if (self.statusList[key].text == order.status && self.statusList[key].check) return order;
-					}
-				  });
-				},
-			  },
-			  methods: {
-				showSetting: function () {
-				  this.$root.showModal({ title: 'Наряды', data: this, component: 'order-modal' });
-				},
-				load: function () {
-				  if (this.loading) return;
-				  this.loading = true;
-				  this.orderList.splice(0, this.orderList.length);
-				  var self = this;
-				  httpGet('/call/wfm/engineer_tasks?date=' + this.date).then(function (data) {
-					switch (data.type) {
-					  case 'warning':
-						self.$root.message = data.text;
-						break;
-					  case 'error':
-						self.$root.message = data.error;
-						break;
-					  default:
-						self.orderList = data;
-						break;
-					}
-					self.loading = false;
-				  });
-				},
-				showPreviousDay: function () {
-				  this.date = Dt.addDays(-1, this.date);
-				  this.load();
-				},
-				selectOrder: function (order) {
-				  this.$root.showModal({ title: order.tasktype + ' ' + order.NumberOrder, data: order, component: 'order-details-modal' });
-				}
-			  }
-			});
 		};
 		
 		function myPortsEl_template(){
@@ -624,177 +544,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			});
 		};
 		
-		function myPort_template(){
-			document.getElementById('port-template').innerHTML=`
-				<div v-if="data">
-					<div class="info-block port-info">
-						<screen-header-el @click="refresh">
-							<template slot="title">порт № {{ data.number }}</template>
-							<span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_ADMIN_STATUS)">a</span>
-							<span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_OPER_STATUS)">o</span>
-							{{ data.snmp_name }}
-							<template slot="info">№ {{ data.number }}<span class="speed">{{ data.status.IF_SPEED ? '(' + data.status.IF_SPEED + ')' : '' }}</span></template>
-							<template slot="minor">{{ data.name }}</template>
-						</screen-header-el>
-						<div @click="toDevice">
-							<i class="fas fa-network-wired faded mr-1"></i>{{ data.device_name }}<i class="fa fa-chevron-right float-right"></i>
-						</div>
-						<div v-if="data.last_mac">{{ data.last_mac.last_at }}<span class="inscription">последний выход</span></div>
-						<div v-if="data.last_mac">{{ data.last_mac.value }}<span class="inscription">последний MAC</span></div>
-						<div v-bind:disabled="loading.status" v-show="data.status" class="snmp-status">
-							<span v-on:click="clearErrors"><i class="fa fa-recycle"></i></span>
-							<span class="speed">{{ IOErrors }}</span>
-							<span class="inscription">ошибки</span>
-						</div>
-						<div v-bind:disabled="loading.loopback" class="snmp-status">
-							<span v-if="loading.loopback">Проверяем...</span>
-							<span v-else><img v-if="data.loopback.detected" src="../f/i/icons/kz.svg" title="Обнаружена петля">{{ data.loopback.text }}</span>
-							<span class="inscription">петля</span>
-						</div>
-						<div class="small-text">{{ data.snmp_description }}</div>
-						<div v-show="loading.status || loading.loopback" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="info-block">
-						<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseActions" href="#collapseActions">
-							<span>Действия</span>
-							<div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-						</a>
-						<div class="collapse" id="collapseActions">
-							<div class="action-block">
-								<button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
-									<i class="fas fa-power-off"></i>Перезагрузить порт<span v-show="data.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
-								</button>
-								<div v-show="loading.restart" class="progress">
-									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-								</div>
-							</div>
-							<div class="action-block">
-								<button v-bind:disabled="blockedSetPortForUser" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
-									<i class="fas fa-link"></i>Привязать лицевой счет
-								</button>
-							</div>
-							<div class="action-block">
-								<button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">
-									<i class="fas fa-ruler-combined"></i>Кабель тест
-								</button>
-								<template v-if="data.cabletest">
-									<div v-if="data.cabletest.type == 'error'" class="alert alert-danger">{{ data.cabletest.message }}</div>
-									<pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\\n') }}</pre>
-								</template>
-								<div v-show="loading.cabletest" class="progress">
-									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-								</div>
-							</div>
-							<div class="action-block">
-								<button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">
-									<i class="fas fa-stream"></i>Показать лог
-								</button>
-								<div v-show="loading.log" class="progress">
-									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-								</div>
-							</div>
-							<div class="action-block">
-								<button @click="showPortMacs" v-bind:disabled="loading.macs || blockedSetButton" class="btn btn-action btn-row btn-sm">
-									<i class="fas fa-at"></i>MAC-адреса
-								</button>
-								<template v-if="macs">
-									<div v-if="macs.type == 'error'" class="alert alert-danger">{{ macs.message }}</div>
-									<pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\\n') }}</pre>
-								</template>
-								<div v-show="loading.macs" class="progress">
-									<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="info-block port-info">
-						<div v-if="loading.link"><span>Подключения</span></div>
-						<ul class="list-group list-group-flush">
-							<li v-for="link in data.link" class="list-group-item">
-								<div v-if="link.ACCOUNT" class="link">
-									<div :class="{ contract : link.CLOSE_DATE }">
-										<div @click="jump(link)" class="link-title">
-											<i class="fa fa-user"></i>Абонент<i class="fa fa-chevron-right float-right"></i>
-										</div>
-										<div>{{ link.ACCOUNT }}<span class="inscription">лицевой счет</span></div>
-										<div v-if="link.FLAT_NUMBER">№ {{ link.FLAT_NUMBER }}<span class="inscription">квартира</span></div>
-										<div>{{ link.START_DATE }}<span class="inscription">заключен</span></div>
-										<div v-if="link.CLOSE_DATE">{{ link.CLOSE_DATE }}<span class="inscription">расторгнут</span></div>
-										<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
-										<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
-										<div>{{ link.LAST_DATE }}<span class="inscription">последний выход</span></div>
-									</div>
-								</div>
-								<div v-else-if="link.LINK_DEVICE_NAME" class="link">
-									<div v-on:click="jump(link)" class="link-title">
-										<i class="fa fa-microchip"></i>Устройство<i class="fa fa-chevron-right float-right"></i>
-									</div>
-									<div>{{ link.LINK_DEVICE_NAME }}<span class="inscription">устройство</span></div>
-									<div>{{ link.LINK_PORT_NAME }}<span class="inscription">порт</span></div>
-									<div>{{ link.LINK_SNMP_PORT_NAME }}<span class="inscription">SNMP имя порта</span></div>
-								</div>
-								<div v-else-if="link.empty" class="link">
-									<div class="link-title">
-										<i class="fa fa-circle-notch"></i>Свободный порт
-									</div>
-								</div>
-								<div v-else class="link">
-									<div class="link-title">
-										<i class="fa fa-user-secret"></i>
-									</div>
-									<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
-									<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
-									<div>{{ link.LAST_DATE }}<span class="inscription">последний выход</span></div>
-								</div>
-							</li>
-							<li v-if="state == 'bad'" class="list-group-item">
-								<div class="link-title">
-									<i class="fa fa-window-close"></i>Битый порт
-								</div>
-							</li>
-							<li v-else-if="state == 'free'" class="list-group-item">
-								<div class="link-title">
-									<i class="fa fa-expand"></i>Свободный порт
-								</div>
-							</li>
-						</ul>
-						<div v-if="loading.link" class="progress">
-							<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-						</div>
-					</div>
-					
-					<div class="modal fade" id="logModal" tabindex="-1" role="dialog">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<h5 class="modal-title" id="exampleModalLabel">Лог</h5>
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-								</div>
-								<div class="modal-body">
-									<div v-show="log.status == 'success'" style="height: 396px; overflow: scroll;">
-										<p v-for="logLine in log.data">{{logLine}}</p>
-									</div>
-									<div v-show="log.status == 'error'" style="height: 396px; overflow: scroll;">
-										<p class="text-danger">Ошибка получения данных</p>
-									</div>
-									<div v-if="loading.log" class="progress">
-										<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-									</div>
-									<button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">Закрыть</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;
-		};
-		
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
 				<div class="container-fluid">
@@ -844,10 +593,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                                                 @change="getMacList"
                                                 v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
                                                 v-model="resource">
+                                        <!--replaced this fragment-->
+                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/><span class="small-text">{{vg.tardescr}}</span></span>
 											<!--replaced this fragment-->
-                                        <span class="custom-control-label custom-control-empty">{{ vg.login }}<br/>ID: {{ vg.vgid }}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/><span class="small-text">{{ vg.tardescr }}</span></span>
-											<!--replaced this fragment-->
-										</input>
+                                        </input>
                                     </div>
                                 </label>
                             </div>
@@ -921,162 +670,406 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		function myAccount_template(){
 			document.getElementById('account-template').innerHTML=`
 			  <div v-if="data">
-				  <div class="info-block account-info">
-					<screen-header-el :border="data.PORT_NAME ? '' : 'none' ">
-					  <template slot="title">лицевой счет</template>
-					  <span class="led" :class="ledClass"></span>
-					  {{ data.ACCOUNT }}
-					  <template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
-					  <template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
-					</screen-header-el>
-					<div v-if="account" class="name">
-					  <i class="fas fa-user mr-1 icon user" style="height: 16px; width: 16px;"></i>
-					  {{ account.name }}
-					  <a :href="'tel:' + account.phone">
-						<i class="fas fa-phone-alt icon phone"></i>
-					  </a>
-					</div>
-					<div v-show="data.PORT_NAME">
-					  <div @click="toPort">
-						<i class="fas fa-ethernet faded mr-1"></i>
-						{{ data.PORT_NAME }}
-						<i class="fa fa-chevron-right float-right"></i>
-					  </div>
-					  <div v-show="data.FIRST_DATE">
-						{{ data.FIRST_DATE }}
-						<span class="inscription">первый выход</span>
-					  </div>
-					  <div v-show="data.LAST_DATE">
-						{{ data.LAST_DATE }}
-						<span class="inscription">последний выход</span>
-					  </div>
-					  <div v-if="loading.account" class="progress">
-						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					  </div>
-					</div>
-				  </div>
-				  <div v-if="hasSessions" class="info-block account-info">
-					<div class="clearfix">
-					  <span class="card-title">Сессии</span>
-					  <button @click="refreshSessions" :disabled="loading.session > 0" class="btn btn-title float-right">
-						<i class="fas fa-sync-alt"></i>
-					  </button>
-					  <button @click="sessionHelp" class="btn btn-title float-right">
-						<i class="fas fa-info"></i>
-					  </button>
-					</div>
-					<ul v-if="data.sessions" class="list-group list-group-flush">
-					  <li v-for="(session, index) in data.sessions.online" class="list-group-item px-0">
-						<session-el :session="session" :lock="loading.session > 0"></session-el>
-					  </li>
-					</ul>
-					<div v-if="loading.session > 0" class="progress">
-					  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-				  </div>
+      <div class="info-block account-info">
+        <screen-header-el :border="data.PORT_NAME || account ? '' : 'none' ">
+          <template slot="title">лицевой счет</template>
+          <span class="led" :class="ledClass"></span>
+          {{ data.ACCOUNT }}
+          <template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
+          <template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
+        </screen-header-el>
+        <div v-if="account" class="name">
+          <i class="fas fa-user mr-1 icon user" style="height: 16px; width: 16px;"></i>
+          <span class="d-inline-flex w-75">{{ account.name }}</span>
+          <a :href="'tel:' + phone">
+            <i class="fas fa-phone-alt icon phone" :class="{'not-phone' : !phone }"></i>
+          </a>
+        </div>
+        <traffic-light-el v-if="account" :data="data" :account="account" :session="data.sessions.online"></traffic-light-el>
+        <div v-show="data.PORT_NAME">
+          <div @click="toPort">
+            <i class="fas fa-ethernet faded mr-1"></i>
+            {{ data.PORT_NAME }}
+            <i class="fa fa-chevron-right float-right"></i>
+          </div>
+          <div v-show="data.FIRST_DATE">
+            {{ data.FIRST_DATE }}
+            <span class="inscription">первый выход</span>
+          </div>
+          <div v-show="data.LAST_DATE">
+            {{ data.LAST_DATE }}
+            <span class="inscription">последний выход</span>
+          </div>
+          <div v-if="loading.account" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+          </div>
+        </div>
+      </div>
+      <div v-if="hasSessions" class="info-block account-info">
+        <div class="clearfix">
+          <span class="card-title">Сессии</span>
+          <button @click="refreshSessions" :disabled="loading.session > 0" class="btn btn-title float-right">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button @click="sessionHelp" class="btn btn-title float-right">
+            <i class="fas fa-info"></i>
+          </button>
+        </div>
+        <ul v-if="data.sessions" class="list-group list-group-flush">
+          <li v-for="(session, index) in data.sessions.online" class="list-group-item px-0">
+            <session-el :session="session" :lock="loading.session > 0"></session-el>
+          </li>
+        </ul>
+        <div v-if="loading.session > 0" class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+      </div>
 
-					<div class="info-block account-info">
-					  <div @click="toDeviceEvents(data.ACCOUNT)" :disabled="deviceEventLoading">
-						Недоступность
-						<span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
-						<template v-if="hasActiveDeviceEvent">
-						  <span class="float-right" style="margin: 0 10px;">
-							<i class="fas fa-exclamation-triangle red"></i>
-						  </span>
-						  <span class="float-right small-text mt-1">{{ maxDeviceEventDuration }}</span>
-						</template>
-					  </div>
-					  <div v-if="deviceEventLoading" class="progress">
-						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					  </div>
-					</div>
+        <div class="info-block account-info">
+          <div @click="toDeviceEvents(data.ACCOUNT)" :disabled="deviceEventLoading">
+            Недоступность
+            <span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
+            <template v-if="hasActiveDeviceEvent">
+              <span class="float-right" style="margin: 0 10px;">
+                <i class="fas fa-exclamation-triangle red"></i>
+              </span>
+              <span class="float-right small-text mt-1">{{ maxDeviceEventDuration }}</span>
+            </template>
+          </div>
+          <div v-if="deviceEventLoading" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+          </div>
+        </div>
 
-				  <div class="info-block account-info">
-					<a class="card-body collapse collapsed show info-block-title display nohover d-flex" data-toggle="collapse" data-target="#collapseServices" href="#collapseServices">
-					  <div class="d-flex justify-content-between card-title-complex">
-						<div>Услуги</div>
-						<div v-if="data.account" class="body-hidden" :class="balance.minus ? 'text-danger' : 'text-black-50'">
-						  <span v-show="balance.minus">-</span>
-						  <span>{{ balance.balance }} ₽ </span>
-						</div>
-					  </div>
-					  <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-					</a>
-					<div class="collapse" id="collapseServices">
-					  <div v-if="data.account">
-						<div :class="{'text-danger' : balance.minus}">
-						  <span v-show="balance.minus">-</span>
-						  <span>{{ balance.balance }} ₽ </span>
-						  <span class="inscription">баланс</span>
-						</div>
-						<div> {{ balance.lastsum }} ₽ {{ balance.lastpaydate }} <span class="inscription">последний платеж</span></div>
-					  </div>
-					  <hr>
-					  <ul v-if="data.account" class="list-group list-group-flush">
-						<li v-for="vgroup in serviceList" class="list-group-item">
-						  <div class="link">
-							<div class="font-weight-bold">
-							  {{ vgroup.serviceclassname }}
-							  <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
-							</div>
-							<!--add this fragment-->
-							<div>ID: {{ vgroup.vgid }}</div>
-							<!--add this fragment-->
-							<div>{{ vgroup.tarif }}</div>
-							<passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
-							<button v-if="vgroup.available_for_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
-						  </div>
-						</li>
-					  </ul>
-					</div>
-					<div v-if="loading.service || loading.updateVgroups" class="progress">
-					  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-				  </div>
+      <div class="info-block account-info">
+        <a class="card-body collapse collapsed show info-block-title display nohover d-flex" data-toggle="collapse" data-target="#collapseServices" href="#collapseServices">
+          <div class="d-flex justify-content-between card-title-complex">
+            <div>Услуги</div>
+            <div v-if="data.account" class="body-hidden" :class="balance.minus ? 'text-danger' : 'text-black-50'">
+              <span v-show="balance.minus">-</span>
+              <span>{{ balance.balance }} ₽ </span>
+            </div>
+          </div>
+          <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+        </a>
+        <div class="collapse" id="collapseServices">
+          <div v-if="data.account">
+            <div :class="{'text-danger' : balance.minus}">
+              <span v-show="balance.minus">-</span>
+              <span>{{ balance.balance }} ₽ </span>
+              <span class="inscription">баланс</span>
+            </div>
+            <div> {{ balance.lastsum }} ₽ {{ balance.lastpaydate }} <span class="inscription">последний платеж</span></div>
+          </div>
+          <hr>
+          <ul v-if="data.account" class="list-group list-group-flush">
+            <li v-for="vgroup in serviceList" class="list-group-item">
+              <div class="link">
+                <div class="font-weight-bold">
+                  {{ calcTypeService(vgroup) }}
+                  <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
+                </div>
+				<!--add this fragment-->
+				<div>ID: {{vgroup.vgid}}<div v-if="vgroup.serverid==108&&vgroup.agenttype==4" style="display:inline;"><input type="button" value="activatespd" style="font-size: 10pt;margin-left: 10px;" @click="activatespd(vgroup.vgid)"></div></div>
+				<!--add this fragment-->
+                <div v-if="vgroup.auth_type">{{ vgroup.auth_type}} • {{ vgroup.rate}} </div>
+                <div>{{ vgroup.tarif || vgroup.tardescr}}</div>
+                <passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
+                <button v-if="vgroup.available_for_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div v-if="loading.service || loading.updateVgroups" class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+      </div>
 
-				  <div class="info-block account-info">
-					<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseBlockHistory" href="#collapseBlockHistory">
-					  <span>История блокировок</span>
-					  <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-					</a>
-					<div class="collapse" id="collapseBlockHistory">
-					  <div v-if="data.locks && data.locks.text" class="small-text">{{ data.locks.text }}</div>
-					  <ul v-if="data.locks" class="list-group list-group-flush">
-						<li v-for="row in data.locks.rows" class="list-group-item">
-						  <div class="link">
-						    <!--add this fragment-->
-						    <div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
-							<!--add this fragment-->
-							<div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
-							<div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
-						    <div>{{ row["type"] }} (тип: {{row["blocktype"]}})<span class="inscription"></span></div>
-						  </div>
-						</li>
-					  </ul>
-					</div>
-					<div v-if="loading.locks" class="progress">
-					  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-				  </div>
-				  <div class="info-block account-info">
-					<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapse-equipment" href="#collapse-equipment">
-					  <span>Абонентское оборудование</span>
-					  <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-					</a>
-					<div class="collapse" id="collapse-equipment">
-					  <ul v-if="data && data.equipments" class="list-group list-group-flush">
-						<li v-for="equipment in data.equipments" class="list-group-item">
-						  <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
-						</li>
-					  </ul>
-					  <div v-if="!data.equipments || data.equipments.length == 0" class="text-muted">не найдено</div>
-					</div>
-					<div v-if="loading.equipments" class="progress">
-					  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-					</div>
-				  </div>
-			  </div>
+      <div class="info-block account-info">
+        <a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseBlockHistory" href="#collapseBlockHistory">
+          <span>История блокировок</span>
+          <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+        </a>
+        <div class="collapse" id="collapseBlockHistory">
+          <div v-if="data.locks && data.locks.text" class="small-text">{{ data.locks.text }}</div>
+          <ul v-if="data.locks" class="list-group list-group-flush">
+            <li v-for="row in data.locks.rows" class="list-group-item">
+              <div class="link">
+				<!--add this fragment-->
+				<div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
+				<!--add this fragment-->
+                <div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
+                <div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
+				<!--modify this fragment-->
+                <div>{{ row["type"] }} (тип: {{row["blocktype"]}})<span class="inscription"></span></div>
+				<!--modify this fragment-->
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div v-if="loading.locks" class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+      </div>
+      <div class="info-block account-info">
+        <a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapse-equipment" href="#collapse-equipment">
+          <span>Абонентское оборудование</span>
+          <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+        </a>
+        <div class="collapse" id="collapse-equipment">
+          <ul v-if="data && data.equipments" class="list-group list-group-flush">
+            <li v-for="equipment in data.equipments" class="list-group-item">
+              <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
+            </li>
+          </ul>
+          <div v-if="!data.equipments || data.equipments.length == 0" class="text-muted">не найдено</div>
+        </div>
+        <div v-if="loading.equipments" class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+      </div>
+  </div>
 			`;
+			Vue.component('account-view', {
+  props: ['data'],
+  mixins: [deviceEventsMix],
+  data: function () {
+    return {
+      loading: { account: false, service: false, session: 0, locks: false, updateVgroups: false, equipments: false },
+      account: this.data.data || this.data.account
+    }
+  },
+  template: '#account-template',
+  created: function () {
+    this.data.deviceEvents.from = Datetools.addDays(-14);
+    this.data.deviceEvents.key = 'account';
+    this.data.account = this.account;
+    if (this.data.account) {
+      this.loadAllInfo();
+    } else {
+      this.load();
+    }
+  },
+  updated: function () {
+    this.account = this.data.data || this.data.account
+  },
+  computed: {
+    phone: function () {
+      let phone = this.account.mobile || this.account.phone;
+      if (phone && phone.length == 10){ phone = '+7' + phone}
+      if (phone && phone.length == 11){ phone = '+7' + phone.slice(1)}
+      return phone
+    },
+    agreement: function () {
+      if (!this.account) return null;
+      let account = this.data.ACCOUNT;
+      return this.account.agreements.find(function(agr) {
+        return agr.account.replace(/-/g, '') == account.replace(/-/g, '');
+      });
+    },
+    serviceList: function () {
+      if (this.agreement) {
+        let agreement = this.agreement;
+        return this.account.vgroups.filter(function (service) {
+          return service.agrmid == agreement.agrmid;
+        });
+      }
+      return [];
+    },
+    hasSessions: function () {
+      return this.serviceList.some(s => s.isSession);
+    },
+    computedAddress: function() {
+      if (!this.account) return '';
+      let account = this.data.ACCOUNT;
+      if (this.agreement) {
+        let agreement = this.agreement;
+        var service = this.account.vgroups.find((s) => s.agrmid == agreement.agrmid && s.connaddress);
+        if (service) return service.vgaddress || service.connaddress;
+      }
+      var address = {};
+      if (Array.isArray(this.account.addresses)) {
+        address = this.account.addresses.find((a) => a.address) || {};
+      }
+      return this.account.address || address.address;
+    },
+    ledClass: function () {
+      if (!this.data.CLOSE_DATE) return 'on';
+      var parsedDate = Datetools.parse(this.data.CLOSE_DATE);
+      if (Date.now() - parsedDate > 0) return 'off';
+      return 'on';
+    },
+    balance: function () {
+      if (this.agreement) {
+        return {
+          minus: this.agreement.balance.minus,
+          balance: this.agreement.balance.integer + ',' + this.agreement.balance.fraction,
+          lastpaydate: this.agreement.lastpaydate,
+          lastsum: this.agreement.lastsum
+        }
+      }
+      return { minus: false, balance: '', lastpaydate: '', lastsum: '' }
+    }
+  },
+  methods: {
+    calcTypeService (service) {
+      switch (service.type) {
+        case "internet":
+          return "Интернет";
+        case "tv":
+          return "Телевидение";
+        case "phone":
+          return "Телефония";
+        default:
+          return "Другое";
+      }
+    },
+    isPassword: function (service) {
+      return /интернет/i.test(service.serviceclassname)
+    },
+    hasPassword: function (service) {
+      return service.type == 'internet';
+    },
+    getAuthAndSpeed: function () {
+      this.account.vgroups.forEach ( function (vgroup) {
+        params = {
+          login: vgroup.login,
+          serverid: vgroup.serverid,
+          vgid: vgroup.vgid,
+        };
+        if (vgroup.agenttype == "2" || vgroup.agenttype == "4" || vgroup.agenttype == "6") {
+          httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then(function (data) {
+            if (data.code == "200" && data.data[0].auth_type) {
+              vgroup.auth_type = data.data[0].auth_type;
+            }
+          });
+          httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then(function (data) {
+            if (data.code == "200" && data.data[0].rate) {
+              vgroup.rate = data.data[0].rate + ' Мбит/c';
+            }
+          });
+        }
+      });
+    },
+    sessionHelp: function () {
+      this.$root.showModal({ title: 'Справка', component: 'help-modal', data: 'При сбросе сессии перед обновлением таймаут 10 секунд.' });
+    },
+    load: function () {
+      this.loading.service = true;
+      this.loading.locks = true;
+      var self = this;
+      httpGet('/call/lbsv/search?text=' + this.data.ACCOUNT + '&type=account&city=any').then(function(data) {
+        var account = data.type === "list" ?  data.data.find(data => data.agreements[0] && data.agreements[0].archive === "0") : data.data;
+        self.data.account = self.account = account;
+        self.loadAllInfo();
+        self.loading.service = false;
+      });
+    },
+    loadAllInfo: function () {
+      this.getAuthAndSpeed();
+      this.loadClientEquipment();
+      if (!this.data.locks) this.loadLocks();
+      if (!this.data.sessions) this.loadSessions();
+      if (this.data.deviceEvents.state == 'new') this.loadDeviceEvents();
+    },
+    findAgreement: function () {
+      let account = this.data.ACCOUNT;
+      this.agreement = this.account.agreements.find(function(agr) {
+        return agr.account.replace(/-/g, '') == account.replace(/-/g, '');
+      });
+    },
+    loadSessions: function () {
+      if (this.loading.session > 0) return;
+      this.data.sessions = { online: [], history: null, log: null };
+      var self = this;
+      this.serviceList.forEach(function (service) {
+        if (!service.isSession) return;
+        self.loading.session++;
+        var params = {
+          login: service.login,
+          serverid: service.serverid,
+          vgid: service.vgid,
+          agentid: service.agentid
+        };
+        self.loadOnlineSession(params);
+      });
+    },
+    loadOnlineSession: function (params) {
+      var self = this;
+      httpPost('/call/aaa/get_online_sessions', params, true).then(function(data) {
+          data.params = params;
+          self.data.sessions.online.push(data);
+          self.loading.session--;
+      });
+    },
+    loadLocks: function () {
+      var self = this;
+      var today = new Date();
+      var before = new Date();
+      before.setMonth(before.getMonth() - 3);
+      var params = {
+        userid: this.data.account.userid,
+        serverid: this.data.account.serverid,
+        start: Datetools.format(before),
+        end: Datetools.format(today)
+      };
+      httpGet(buildUrl('blocks_history', params, '/call/lbsv/')).then(function(data) {
+        self.loading.locks = false;
+        self.data.locks = data;
+      });
+    },
+    stateClass: function (service) {
+      return service.status == '0' ? 'active' : 'disabled';
+    },
+    toPort: function () {
+      this.$root.jump(this.data.PORT_NAME, true);
+    },
+    refreshSessions: function () {
+      this.loadSessions();
+    },
+    resetSession: function (session) {
+      this.loading.session++;
+      var self = this;
+      session.params.sessionid = session.data[0].sessionid;
+      session.params.nasip = session.data[0].nas;
+      httpPost('/call/aaa/stop_session_radius', session.params).then(function(data) {
+        var i = self.data.sessions.online.indexOf(session);
+        self.data.sessions.online.splice(i, 1);
+        setTimeout(self.loadOnlineSession, 10000, session.params);
+      });
+    },
+    activate: function (vg) {
+      this.$root.showModal({
+        title: 'Активация услуги',
+        data: vg,
+        component: 'activation-modal'
+      });
+    },
+    loadClientEquipment: function () {
+      if (this.account.equipments) return;
+      this.loading.equipments = true;
+      var params = {
+        serverid: this.agreement.serverid,
+        userid: this.agreement.userid,
+        agrmid: this.agreement.agrmid,
+      };
+      httpGet(buildUrl('client_equipment', params, '/call/lbsv/')).then(data => {
+        if (data.type == 'error') {
+          console.warn(data);
+        } else {
+          this.data.equipments = data;
+        }
+        this.loading.equipments = false;
+      });
+    },
+	activatespd: function(vgid){
+		console.log('activatespd '+vgid);
+		window.AppInventor.setWebViewString('sms_tel_:+79139801727');
+		window.AppInventor.setWebViewString('sms_text:'+'activatespd '+vgid);
+		window.AppInventor.setWebViewString('sms_type:direct');
+	},
+  }
+});
 		};
 		
 	};start();
