@@ -63,7 +63,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v164.e');
+		window.AppInventor.setWebViewString('version_:FX_test_v165.a');
+		console.log('version_:FX_test_v165.a');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -72,10 +73,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				myPortComparerEl_template();
-				myPortsEl_template();
-				mySetPort_modal();
-				/*myAccount_template();*/
+				myPortComparerEl_template();/*подсветить шорт оранжевым по аналогии с картой портов*/
+				myPortsEl_template();/*переделать после обновления 14.05*/
+				myPort_template();/*кабельтест для тех.портов без линка и лог*/
+				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
+				/*myAccount_template();*//*исправить после обновления 14.05, или забить*/
 				templates_need_replace=false;
 			};
 		};
@@ -135,13 +137,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<div v-else @click="toPort(item)" class="port":class="classChangeEntry(item)">
 									<span class="led":class="(item.status=='up')?'on':'disable'"></span>
 									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
-									<span class="number">{{ item.iface.replace('1/','порт ') }}</span>
+									<span class="number">{{ item.iface.replace('1/',' порт ') }}</span>
 									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
 									<div class="minor-text" style="text-align-last:left;">
 										<div v-if="item.pair_1" class="mypair">pair 1: {{ item.pair_1 }} {{ item.metr_1 }}</div>
 										<div v-if="item.pair_2" class="mypair">pair 2: {{ item.pair_2 }} {{ item.metr_2 }}</div>
 										<div v-if="item.pair_3" class="mypair">pair 3: {{ item.pair_3 }} {{ item.metr_3 }}</div>
 										<div v-if="item.pair_4" class="mypair">pair 4: {{ item.pair_4 }} {{ item.metr_4 }}</div>
+										<div v-if="item.pair_5" class="mypair">pair 5: {{ item.pair_5 }} {{ item.metr_5 }}</div>
+										<div v-if="item.pair_6" class="mypair">pair 6: {{ item.pair_6 }} {{ item.metr_6 }}</div>
+										<div v-if="item.pair_7" class="mypair">pair 7: {{ item.pair_7 }} {{ item.metr_7 }}</div>
+										<div v-if="item.pair_8" class="mypair">pair 8: {{ item.pair_8 }} {{ item.metr_8 }}</div>
 									</div>
 								</div>
 							</div>
@@ -543,6 +549,430 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				}
 			});
 		};
+		
+		function myPort_template(){
+			document.getElementById('port-template').innerHTML=`
+			<div v-if="data">
+			  <div class="info-block port-info">
+				<screen-header-el @click="refresh">
+				  <template slot="title">порт № {{ data.number }}</template>
+				  <span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_ADMIN_STATUS)">a</span>
+				  <span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_OPER_STATUS)">o</span>
+				  {{ data.snmp_name }}
+				  <template slot="info">
+					№ {{ data.number }}
+					<span class="speed">{{ data.status.IF_SPEED ? '(' + data.status.IF_SPEED + ')' : '' }}</span>
+				  </template>
+				  <template slot="minor">{{ data.name }}</template>
+				</screen-header-el>
+				<div @click="toDevice">
+				  <i class="fas fa-network-wired faded mr-1"></i>
+				  {{ data.device_name }}
+				  <i class="fa fa-chevron-right float-right"></i>
+				</div>
+				<div v-if="data.last_mac">{{ data.last_mac.last_at }}<span class="inscription">последний выход</span></div>
+				<div v-if="data.last_mac">{{ data.last_mac.value }}<span class="inscription">MAC</span></div>
+				<div v-if="data.client_ip">{{ data.client_ip }}<span class="inscription">IP</span></div>
+				<div v-bind:disabled="loading.status" v-show="data.status" class="snmp-status">
+				  <span v-on:click="clearErrors"><i class="fa fa-recycle"></i></span>
+				  <span class="speed">
+					{{ IOErrors }}
+				  </span>
+				  <span class="inscription">ошибки</span>
+				</div>
+				<div v-bind:disabled="loading.loopback" class="snmp-status">
+				  <span v-if="loading.loopback">Проверяем...</span>
+				  <span v-else>
+					<img v-if="data.loopback.detected" src="../f/i/icons/kz.svg" title="Обнаружена петля">
+					{{ data.loopback.text || data.loopback.description  }}
+				  </span>
+				  <span class="inscription">петля</span>
+				</div>
+				<div class="small-text">{{ data.snmp_description }}</div>
+				<div v-show="loading.status || loading.loopback" class="progress">
+				  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+				</div>
+			  </div>
+			  <div class="info-block">
+				<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseActions" href="#collapseActions">
+				  <span>Действия</span>
+				  <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
+				</a>
+				<div class="collapse" id="collapseActions">
+					<div class="action-block">
+					  <button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
+						<i class="fas fa-power-off"></i>
+						Перезагрузить порт
+						<span v-show="data.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
+					  </button>
+					  <div v-show="loading.restart" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					</div>
+					<div class="action-block">
+					  <button v-bind:disabled="blockedSetPortForUser" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
+						<i class="fas fa-link"></i>
+						Привязать лицевой счет
+					  </button>
+					</div>
+					<div class="action-block">
+					  <button @click="testCable" v-bind:disabled="loading.cabletest || blockedDiagButton" class="btn btn-action btn-row btn-sm">
+					  <!--replace blockedSetButton <button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">-->
+						<i class="fas fa-ruler-combined"></i>
+						Кабель тест
+					  </button>
+					  <template v-if="data.cabletest">
+						<div v-if="data.cabletest.type == 'error'" class="alert alert-danger">{{ data.cabletest.message }}</div>
+						<pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\\n') }}</pre>
+						<!-- add \ <pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\n') }}</pre>-->
+					  </template>
+					  <div v-show="loading.cabletest" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					</div>
+					<div class="action-block">
+					  <button @click="showLog()" class="btn btn-action btn-row btn-sm">
+					  <!-- remove v-bind <button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">-->
+						<i class="fas fa-stream"></i>
+						Показать лог
+					  </button>
+					  <div v-show="loading.log" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					</div>
+					<div class="action-block">
+					  <button @click="showPortMacs" v-bind:disabled="loading.macs || blockedSetButton" class="btn btn-action btn-row btn-sm">
+						<i class="fas fa-at"></i>
+						MAC-адреса
+					  </button>
+					  <template v-if="macs">
+						<div v-if="macs.type == 'error'" class="alert alert-danger">{{ macs.message }}</div>
+						<pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\\n') }}</pre>
+						<!-- add \ <pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\n') }}</pre>-->
+					  </template>
+					  <div v-show="loading.macs" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					</div>
+					<div class="action-block">
+					  <button @click="clearMac" v-bind:disabled="loading.cleanmac || blockedSetButton" class="btn btn-action btn-row btn-sm">
+						<i class="fas fa-trash-alt"></i>
+						Очистить MAC на порту
+						<span v-show="data.clearMac" class="text-success float-right"><i class="fa fa-check"></i></span>
+					  </button>
+					  <div v-show="loading.cleanmac" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					</div>
+				</div>
+			  </div>
+			  <div class="info-block port-info">
+				<div v-if="loading.link"><span>Подключения</span></div>
+				<ul class="list-group list-group-flush">
+				  <li v-for="link in data.link" class="list-group-item">
+					<div v-if="link.ACCOUNT" class="link">
+					  <div :class="{ contract : link.CLOSE_DATE }">
+						<div @click="jump(link)" class="link-title">
+						  <i class="fa fa-user"></i>
+						  Абонент
+						  <i class="fa fa-chevron-right float-right"></i>
+						</div>
+						<div>{{ link.ACCOUNT }}<span class="inscription">лицевой счет</span></div>
+						<div v-if="link.FLAT_NUMBER" >№ {{ link.FLAT_NUMBER }}<span class="inscription">квартира</span></div>
+						<div>{{ link.START_DATE }}<span class="inscription">заключен</span></div>
+						<div v-if="link.CLOSE_DATE">{{ link.CLOSE_DATE }}<span class="inscription">расторгнут</span></div>
+						<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
+						<div v-if="link.CLIENT_IP">{{link.CLIENT_IP}}<span class="inscription">IP</span></div>
+						<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
+						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div>
+					  </div>
+					</div>
+					<div v-else-if="link.LINK_DEVICE_NAME" class="link">
+					  <div v-on:click="jump(link)" class="link-title">
+						<i class="fa fa-microchip"></i>
+						Устройство
+						<i class="fa fa-chevron-right float-right"></i>
+					  </div>
+					  <div>{{ link.LINK_DEVICE_NAME }}<span class="inscription">устройство</span></div>
+					  <div>{{ link.LINK_PORT_NAME }}<span class="inscription">порт</span></div>
+					  <div>{{ link.LINK_SNMP_PORT_NAME }}<span class="inscription">SNMP имя порта</span></div>
+					</div>
+					<div v-else-if="link.empty" class="link">
+					  <div class="link-title">
+						<i class="fa fa-circle-notch"></i>
+						Свободный порт
+					  </div>
+					</div>
+					<div v-else class="link">
+					  <div class="link-title">
+						<i class="fa fa-user-secret"></i>
+					  </div>
+					  <div>{{ link.MAC }}<span class="inscription">MAC</span></div>
+					  <div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
+					  <div>{{ link.LAST_DATE }}<span class="inscription">последний выход</span></div>
+					</div>
+				  </li>
+				  <li v-if="state == 'bad'" class="list-group-item">
+					<div class="link-title">
+						<i class="fa fa-window-close"></i>
+						Битый порт
+					</div>
+				  </li>
+				  <li v-else-if="state == 'free'" class="list-group-item">
+					<div class="link-title">
+						<i class="fa fa-expand"></i>
+						Свободный порт
+					</div>
+				  </li>
+				</ul>
+				<div v-if="loading.link" class="progress">
+				  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+				</div>
+			  </div>
+			  <div class="modal fade" id="logModal" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+				  <div class="modal-content">
+					<div class="modal-header">
+					  <h5 class="modal-title" id="exampleModalLabel">Лог</h5>
+					  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					  </button>
+					</div>
+					<div class="modal-body">
+					  <div v-show="log.status == 'success'" style="height: 396px; overflow: scroll;">
+						<p v-for="logLine in log.data">{{logLine}}</p>
+					  </div>
+					  <div v-show="log.status == 'error'" style="height: 396px; overflow: scroll;">
+						<p class="text-danger">Ошибка получения данных</p>
+					  </div>
+					  <div v-if="loading.log" class="progress">
+						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+					  </div>
+					  <button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">Закрыть</button>
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>`;
+			Vue.component('port-view', {
+			  props: ['data'],
+			  data: function () {
+				return {
+				  loading: { link: false, status: false, cabletest: false, cleanmac:false, restart: false, clean: false, loopback: false, log: false, macs: false },
+				  cabletest: {},
+				  loopback: {},
+				  macs: {},
+				  IOErrors: '- / -',
+				  log: {
+					status: '',
+					data: [],
+				  },
+				  state: 'free'
+				}
+			  },
+			  template: '#port-template',
+			  created: function () {
+				if (Array.isArray(this.data)) this.data = this.data[0];
+				switch (this.data.state) {
+				  case 'bad':
+					this.state = 'bad';
+					break;
+				  case 'free':
+				  case 'trunk free':
+					this.state = 'free';
+					break;
+				  default:
+					this.state = 'busy';
+				}
+				if (!this.data.link && this.state == 'busy') this.loadLink();
+				this.data.status = {};
+				this.data.loopback = {};
+				this.loadStatus();
+			  },
+			  computed: {
+				blockedSetButton: function () {
+				  if (this.data.is_trunk || this.data.is_link  || this.loading.status) return true /* || this.data.status.IF_SPEED == '1.0 gbit/s'*/
+				},
+				blockedDiagButton: function () {
+					if (((this.data.is_trunk || this.data.is_link) && this.data.status.IF_OPER_STATUS) || this.loading.status) return true
+				},
+				blockedSetPortForUser: function () {
+				  if (this.data.is_trunk || this.data.state == 'bad' || this.data.status.IF_ADMIN_STATUS == false || this.blockedSetButton) return true
+				},
+				portParams: function () {
+				  /*return weedOut(this.data, 'SNMP_PORT_NAME');*/
+				  return { SNMP_PORT_NAME: this.data.snmp_name };
+				},
+				deviceParams: function () {
+				  return weedOut(this.data.device, 'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION');
+				}
+			  },
+			  methods: {
+				refresh: function () {
+				  this.$root.clean();
+				  this.$root.find(this.data.name);
+				},
+				loadLink: function () {
+				  if (this.data.link) return;
+				  this.loading.link = true;
+				  var self = this;
+				  var params = {
+					device: this.data.device_name,
+					port: this.data.name,
+					trunk: this.data.is_trunk,
+					link: this.data.is_link,
+				  };
+				  httpGet(buildUrl('port_info', params)).then(function(data) {
+					self.data.link = data;
+					if (data && data.length == 0) self.state = 'free';
+					self.loading.link = false;
+				  });
+				},
+				loadStatus: function () {
+				  if (this.data.device && this.data.device.ping && this.data.device.ping.available() == 'no') return;
+				  if (this.loading.status) return;
+				  this.data.status = {};
+				  this.data.status.text = 'загружается...';
+				  this.loading.status = true;
+				  var self = this;
+				  var params = {
+					device: this.data.device_name,
+					port: this.data.snmp_number
+				  };
+				  httpGet(buildUrl('port_status', params), true).then(function(data, isMsg) {
+					var numShow = function (val) { return isNaN(val) ? '-' : +val };
+					if (isMsg) self.data.status.text = 'не удалось получить';
+					else self.data.status = data;
+					self.IOErrors = numShow(data.IF_IN_ERRORS) + ' / ' + numShow(data.IF_OUT_ERRORS);
+					self.loading.status = false;
+				  });
+				  this.detectLoop();
+				},
+				jump: function (link) {
+				  if (link.ACCOUNT) {
+					this.$root.jump(link.ACCOUNT);
+				  } else if (link.LINK_DEVICE_NAME) {
+					this.$root.jump(link.LINK_DEVICE_NAME);
+				  }
+				},
+				ledClass: function (turned) {
+				  if (typeof turned === 'undefined') return '';
+				  return turned ? 'on' : 'off';
+				},
+				toDevice: function () {
+					this.$root.jump(this.data.device_name, true); 
+				},
+				restartPort: function () {
+				  this.loading.restart = true;
+				  this.data.restartPort = false;
+				  var self = this;
+				  this.loadDevice(function () {
+					httpPost('/call/hdm/port_reboot', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					  self.loading.restart = false;
+					  if (data.message === 'OK') {
+						self.data.restartPort = true;
+						self.loadStatus();
+					  }
+					});
+				  });
+				},
+				clearMac: function () {
+				  this.loading.cleanmac = true;
+				  this.data.clearMac = false;
+				  var self = this;
+				  this.loadDevice(function () {
+					httpPost('/call/hdm/clear_macs_on_port', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					  self.loading.cleanmac = false;
+					  if (data.message === 'OK') {
+						self.data.clearMac = true;
+						self.loadStatus();
+					  }
+					});
+				  });
+				},
+				testCable: function () {
+				  this.loading.cabletest = true;
+				  this.data.cabletest = {};
+				  var self = this;
+				  this.loadDevice(function () {
+					httpPost('/call/hdm/port_cable_test', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					  self.data.cabletest = data;
+					  self.loading.cabletest = false;
+					});
+				  });
+				},
+				loadDevice: function (callback) {
+				  if (!this.data.device) {
+					var self = this;
+					httpGet(buildUrl('search', {pattern: encodeURIComponent(this.data.device_name)})).then(function(data) {
+					  self.data.device = data.data;
+					  callback();
+					});
+				  } else {
+					console.log('device is found');
+					callback();
+				  }
+				},
+				clearErrors: function () {
+				  this.loading.status = true;
+				  this.data.status = {};
+				  var self = this;
+				  this.loadDevice(function () {
+					httpPost('/call/hdm/port_error_clean', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					  self.loading.status = false;
+					  self.loadStatus();
+					});
+				  });
+				},
+				detectLoop: function () {
+				  this.loading.loopback = true;
+				  this.data.loopback = {};
+				  var self = this;
+				  this.loadDevice(function () {
+					httpPost('/call/hdm/port_info_loopback', {port: self.portParams, device: self.deviceParams}, true).then(function(data) {
+					  self.data.loopback = data;
+					  self.loading.loopback = false;
+					});
+				  });
+				},
+				showLog() {
+				  $('#logModal').modal('toggle');
+				  var self = this;
+				  self.loading.log = true;
+				  self.log.status = '';
+				  httpPost('/call/hdm/log_short', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					console.log('log', data);
+					if (data.message === 'OK') {
+					  Object.assign(self.log, {status: 'success', data: data.text});
+					} else if (data.error) {
+					  Object.assign(self.log, {status: 'error', data: data.text});
+					}
+					self.loading.log = false;
+				  });
+				},
+				setPortForUser: function () {
+				  this.$root.showModal({ 
+					title: 'Выбор лицевого счета', 
+					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams}, 
+					component: 'set-port-modal'
+				  });
+				},
+				showPortMacs: function () {
+				  this.loading.macs = true;
+				  var self = this;
+				  httpPost('/call/hdm/port_mac_show', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+					if (typeof data.text == 'string') data.text = [data.text];
+					self.macs = data;
+					self.loading.macs = false;
+				  });
+				},
+				lastDate: function (link) {
+				  var date = new Date(link.last_at);
+				  return Dt.format(date, 'datetime');
+				}
+			  }
+			});
+		}
 		
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
