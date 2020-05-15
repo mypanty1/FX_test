@@ -74,8 +74,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				myPortComparerEl_template();/*подсветить шорт оранжевым по аналогии с картой портов*/
-				myPortsEl_template();/*переделать после обновления 14.05*/
-				myPort_template();/*кабельтест для тех.портов без линка и лог*/
+				myPortsEl_template();
+				myPort_template();
 				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
 				/*myAccount_template();*//*исправить после обновления 14.05, или забить*/
 				templates_need_replace=false;
@@ -177,36 +177,35 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</div>
 							<div v-else class="ports-request-info-buttons d-flex">
 								<div class="col-3 col-status">
-									<button class="btn-status d-flex justify-content-center align-items-center" @click="getPortsErrors" :disabled="!loaded.portsErrors">
-										<template v-if="loaded.portsErrors">Ошибки</template>
-										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div><!--Проверяем...-->
-										</template>
-									</button>          
+								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="getPortsErrors" :disabled="disableButton">
+									<template v-if="loaded.portsErrors">Ошибки</template>
+									<template v-else>
+									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
+									  <!--Проверяем...-->
+									</template>
+								  </button>          
 								</div>
 								<div class="col-3 col-loops">
-									<button class="btn-loops d-flex justify-content-center align-items-center" @click="detectLoop" :disabled="!loaded.portsLoop">
-										<template v-if="loaded.portsLoop">Петли</template>
-										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div><!--Проверяем...-->
-										</template>
-									</button>
+								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="detectLoop" :disabled="disableButton">
+									<template v-if="loaded.portsLoop">Петли</template>
+									<template v-else>
+									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
+									  <!--Проверяем...-->
+									</template>
+								  </button>
 								</div>
-								<div class="col-3 col-loops btn-update-links">
-									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateLinks" disabled="disabled">
-										<template v-if="loaded.portStatuses">Линки</template>
-										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
-										</template>
-									</button>
+								<div class="col-3 col-status">
+								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="loadPortsInfo('cable')" :disabled="disableButton">
+									<template v-if="loaded.portsCableTest">Кабели</template>
+									<template v-else>
+									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
+									  <!--Проверяем...-->
+									</template>
+								  </button>
 								</div>
-								<div class="col-3 col-loops btn-update-all">
-									<button class="btn-loops d-flex justify-content-center align-items-center" @click="updateAll" :disabled="!loaded.portStatuses">
-										<!--<img src="/f/i/icons/icon_refresh.svg" class="cursor-pointer icon-20 float-right mt5 rotate_360">-->
-										<template v-if="loaded.portStatuses">Кабели</template>
-										<template v-else>
-											<div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
-										</template>
+								<div class="col-2 col-update-all" style="margin-left:auto;">
+									<button class="btn-send-request d-flex justify-content-center align-items-center" @click="updateAll" :disabled="disableButton">
+										<div class="fa fa-redo-alt icon-20"></div>
 									</button>
 								</div>
 							</div>
@@ -225,10 +224,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									<div class="myportsflex">
 										<div @click="selectPort(port)" v-for="(port, index) in ports" class="myportinflex">
 											<div style="grid-area:1/1/2/5;"><div class="mypstline" :class="portClass(port)"></div></div>
-											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{ port.number }}</div></div>
-											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{ port.flat }}</div></div>
-											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="'myspeed'+portSpeed(index)+' myoperstate'+port.port_status.oper_state+' myadmstate'+port.port_status.admin_state">{{ (port.port_status.admin_state=='up')?((port.port_status.oper_state=='up')?portSpeed(index):port.port_status.oper_state):"off" }}</div></div>
-											
+											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{port.number}}</div></div>
+											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{port.flat}}</div></div>
+											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="linkStatusClass(index)">{{portSpeed(index)}}</div></div>
+											<!---->
 											<template v-if="loaded.portStatuses && !error.empty && port.port_status">
 												<template v-for="(pair, i) in pairs(index)">
 													<div v-bind:style="pair.position">
@@ -299,32 +298,38 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			Vue.component('ports-el',{
 				template:'#ports-el-template',
 				props:['ports','loading','showdetails','isoptical'],
-				data:function(){
-					return{
-						portsLoop:[],
-						loaded:{
-							portStatuses:false,
-							portsLoop:true,
-							portsErrors:true,
-						},
-					error:{
-						empty:false,
-						emptyMessage:'',
+				data: function () {
+				  return {
+					portsLoop: [],
+					loaded: {
+					  portStatuses: false,
+					  portsLoop: true,
+					  portsErrors: true,
+					  portsCableTest: true
 					},
-					showShadow:true,
-					}
+					portStatusesRequested: false,
+					error: {
+					  empty: false,
+					  emptyMessage: '',
+					},
+					showShadow: true,
+				   }
 				},
-				computed:{
-					btnShadowClass:function(){
-						return this.showShadow?"btn-shadow":"";
-					},
-					isPortsLoaded:function(){
-						if(this.ports){
-							this.loadPortsInfo();
-							return true;
-						}
-						return false;
-					},
+				computed: {
+				  disableButton: function() {
+					return !(this.loaded.portStatuses && this.loaded.portsLoop && this.loaded.portsErrors && this.loaded.portsCableTest);
+				  },
+
+				  btnShadowClass: function() {
+					return this.showShadow ? "btn-shadow" : "";
+				  },
+
+				  isPortsLoaded: function() {
+					if (!this.loading && this.ports.length && !this.loaded.portStatuses) { 
+					  this.loadPortsInfo();
+					}
+					return !this.loading && this.ports.length;
+				  },
 				},
 				methods:{
 					/*EMITS*/
@@ -334,7 +339,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					selectPort:function(port){
 						this.$emit('select-port',port);
 					},
-					/*Ports map*/
 					updateAll:function(){
 						if(this.ports){
 							for(var i=0;i<this.ports.length;i++){
@@ -349,86 +353,79 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						console.warn(e);
 						this.error.emptyMessage="Неизвестная ошибка. Попробуйте обновить порты.";
 					},
-					/*Ports speed, status, cable test*/
-					loadPortsInfo:function(){
-						this.loaded.portStatuses=false;
-						this.error.empty=false;
-						if(this.ports&&this.ports.length){
-							var self=this;
-							var device=this.ports[0].device_name;
-							if(!this.ports[0].port_status){/*.port_status - кэш информации о портах*/
-								httpPost('/call/dnm/port_statuses',{devices:[{DEVICE_NAME: device}],add:'cable'}).then(function(data){
-									if(!data[device])throw new Error("Не удалось получить данные с сервера");
-									if(!data[device].ports)throw new Error("Не удалось получить информацию о портах");
-									var ports=data[device].ports;
-									for(var i=0;i<self.ports.length;i++){
-										if(ports[i]){
-											ports[i].status=ports[i].oper_state.includes('up')?'up':'down';
-										}else{
-											console.warn('UNDEFINED',i);
-										}
-										Vue.set(self.ports[i],'port_status',ports[i]);
-									}
-									self.loaded.portStatuses=true;
-								}).catch(function(e){
-									self.errorsHandler(e);
-									self.error.empty=true;
-									self.loaded.portStatuses=true;
-								});
-							}else{
-								self.loaded.portStatuses=true;
-							}
+					loadPortsInfo: function(param_add = 'speed') {
+						if (this.portStatusesRequested) return;
+						this.portStatusesRequested = true;
+						this.loaded.portStatuses = false;
+						this.error.empty = false;
+						if (param_add == 'cable') {
+						  this.loaded.portsCableTest = false;
 						}
-					},
-					/*Ports map only links*/
-					updateLinks:function(){
-						if(this.ports){
-							for(var i=0;i<this.ports.length;i++){
-								if(this.ports[i].port_status){
-									delete this.ports[i].port_status;
+						if(this.ports && this.ports.length) {
+						  var self = this;
+						  var device = this.ports[0].device_name;
+
+						  if (!this.ports[0].port_status || param_add == 'cable') {
+							if (param_add == 'speed') {
+							  var request = httpPost('/call/hdm/port_statuses', { devices: [{DEVICE_NAME: device}]});
+							} else {
+							  var request = httpPost('/call/hdm/port_statuses', { devices: [{DEVICE_NAME: device}], add: 'cable' });
+							}
+							request.then(function(data) {
+							  if (data[device]) {
+								if (data[device].ports) {
+								  var ports = data[device].ports;
+								  ports.map( p => {
+									let port = self.ports.find(sp => sp.snmp_number == p.index_iface);
+									p.status = p.oper_state.includes('up') ? 'up' : 'down';
+									if (port) Vue.set(port, 'port_status', p);
+								  })
+								} else {
+								  self.error.empty = true;
+								  self.error.emptyMessage = "Не удалось получить информацию о портах";
 								}
-							}
-							this.loadPortsInfoSpeed();
+							  } else { 
+								self.error.empty = true;
+								self.error.emptyMessage = "Не удалось получить данные с сервера";
+							  }
+							})
+							.catch(function(e) {
+							  self.errorsHandler(e);
+							  self.error.empty = true;
+							})
+							.then(function() {
+							  self.loaded.portStatuses = true;
+							  self.loaded.portsCableTest = true;
+							  self.portStatusesRequested = false;
+							});
+						  } else {
+							this.loaded.portStatuses = true;
+							this.portStatusesRequested = false;
+						  }
+						} else {
+						  this.portStatusesRequested = false;
 						}
-					},
-					/*Ports speed, status*/
-					loadPortsInfoSpeed:function(){
-						this.loaded.portStatuses=false;
-						this.error.empty=false;
-						if(this.ports&&this.ports.length){
-							var self=this;
-							var device=this.ports[0].device_name;
-							if(!this.ports[0].port_status){/*.port_status - кэш информации о портах*/
-								httpPost('/call/dnm/port_statuses',{devices:[{DEVICE_NAME: device}],add:'speed'}).then(function(data){
-									if(!data[device])throw new Error("Не удалось получить данные с сервера");
-									if(!data[device].ports)throw new Error("Не удалось получить информацию о портах");
-									var ports=data[device].ports;
-									for(var i=0;i<self.ports.length;i++){
-										if(ports[i]){
-											ports[i].status=ports[i].oper_state.includes('up')?'up':'down';
-										}else{
-											console.warn('UNDEFINED',i);
-										}
-										Vue.set(self.ports[i],'port_status',ports[i]);
-									}
-									self.loaded.portStatuses=true;
-								}).catch(function(e){
-									self.errorsHandler(e);
-									self.error.empty=true;
-									self.loaded.portStatuses=true;
-								});
-							}else{
-								self.loaded.portStatuses=true;
-							}
-						}
-					},
+					  },
 					portSpeed:function(index){
+						var port=this.ports[index].port_status;
 						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
-						if(this.ports[index].port_status){
-							return replace[this.ports[index].port_status.high_speed];
+						if(port){
+							if(port.high_speed&&port.oper_state&&port.admin_state){
+								if(port.admin_state=='up'){
+									if(port.oper_state=='up'){
+										return replace[port.high_speed];
+									}else{
+										return port.oper_state;
+									};
+								}else{
+									return 'off'
+								};
+							}else{
+								return '-';
+							}
 						}else{
-							return '-';
-						}
+							return '?';
+						};
 					},
 					getPortsErrors:function(){
 						this.error.emptyMessage='';
@@ -442,7 +439,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									device:port.device_name,
 									port:port.snmp_number
 								};
-								httpGet(buildUrl('port_status', params),false).then(function(data){
+								httpGet(buildUrl('port_status', params, '/call/hdm/'),false).then(function(data){
 									var crc_in=self.numShow(data.IF_IN_ERRORS);
 									var crc_out=self.numShow(data.IF_OUT_ERRORS);
 									var iscrc=(data.IF_IN_ERRORS>0)?'iscrc':'nocrc';
@@ -457,18 +454,20 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							}(port));
 						});
 					},
-					numShow:function(errorsCount){
-						var order={1:'',2:'т',3:'м',4:'м'};
-						if(typeof(errorsCount)=='string'){errorsCount=+errorsCount};
-						var value=errorsCount.toLocaleString('ru-RU').split(/\s/g);
-						return isNaN(value[0])?'-':+value[0]+order[value.length];
-					},
+					numShow: function(errorsCount) {
+						var order = { 1: '', 2: 'т', 3: 'м', 4: 'м' };
+
+						if (typeof(errorsCount) == 'string') errorsCount = +errorsCount;
+						var value = (errorsCount) ? errorsCount.toLocaleString('ru-RU').split(/\s/g) : [null];
+
+						return isNaN(value[0]) ? '-' : +value[0] + order[value.length];
+					  },
 					detectLoop:function(){
 						this.loaded.portsLoop=false;
 						this.error.emptyMessage='';
 						var self=this;
 						var deviceParams=weedOut(this.ports[0].device,'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION');
-						httpPost('/call/dnm/ports_info_loopback',{device:deviceParams}).then(function(data){
+						httpPost('/call/hdm/ports_info_loopback',{device:deviceParams}).then(function(data){
 							var dataIndex=0;
 							if(data){
 								for(var i=0;i<self.ports.length;i++){
@@ -476,17 +475,29 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 										Vue.set(self.ports[i],'port_loop',data[dataIndex]);
 										dataIndex++;
 									}else{
-										Vue.set(self.ports[i],'port_loop',null); /*FIX Тут на самом деле функция определения петли отключена*/
+										Vue.set(self.ports[i],'port_loop',null);
 									}
 								}
-							}else{
-								/*Если null, то устройство вообще не поддерживает такую функцию*/
 							}
 							self.loaded.portsLoop=true;
 						}).catch(function(e){
 							self.errorsHandler(e);
 							self.loaded.portsLoop=true;
 						});
+					},
+					linkStatusClass:function(portNumber){
+						var port=this.ports[portNumber].port_status;
+						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
+						if(port){
+							if(port.high_speed&&port.oper_state&&port.admin_state){
+								return 'myspeed'+replace[port.high_speed]+' myoperstate'+port.oper_state+' myadmstate'+port.admin_state;
+							}else{
+								return '';
+							};
+						}else{
+							return '';
+						};
+						
 					},
 					pairs:function(index){
 						var allow_statuses_arr=['close','open','short','ok','no_cable'];
@@ -523,25 +534,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							return [];
 						};
 						return show ? pairs : [];
-					},
-					portMetrStatusClass(index){/*неиспользуется, переделать на подсветку ошибок на порту*/
-						if(this.loaded.portStatuses&&!this.error.empty&&this.ports[index].port_status){
-							var arr=[];
-							var pair=this.ports[index].port_status;
-							for(var i=1;i<=4;i++){
-								if (pair["metr_"+i]){
-									arr.push(parseInt(pair["metr_"+i],10));
-								};
-							};
-							if(arr.length>1){
-								arr=arr.sort();
-								return Math.abs(arr[0]-arr[arr.length-1])>5?"port-pairs-info-warn":"port-pairs-info-ok";
-							}else{
-								return "port-pairs-info-ok";
-							};
-						}else{
-							return "port-pairs-info-ok";
-						};
 					},
 					portClass:function(port){
 						return 'port-'+port.state;
@@ -837,9 +829,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  var self = this;
 				  var params = {
 					device: this.data.device_name,
-					port: this.data.snmp_number
+					port: this.data.snmp_name
 				  };
-				  httpGet(buildUrl('port_status', params), true).then(function(data, isMsg) {
+				  httpGet(buildUrl('port_status', params, '/call/hdm/'), true).then(function(data, isMsg) {
 					var numShow = function (val) { return isNaN(val) ? '-' : +val };
 					if (isMsg) self.data.status.text = 'не удалось получить';
 					else self.data.status = data;
@@ -972,7 +964,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				}
 			  }
 			});
-		}
+		};
 		
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
