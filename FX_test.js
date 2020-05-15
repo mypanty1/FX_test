@@ -74,7 +74,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				myPortComparerEl_template();/*подсветить шорт оранжевым по аналогии с картой портов*/
-				myPortsEl_template();
+				/*myPortsEl_template();*/
 				myPort_template();
 				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
 				/*myAccount_template();*//*исправить после обновления 14.05, или забить*/
