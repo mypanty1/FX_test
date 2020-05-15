@@ -63,8 +63,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v165.a');
-		console.log('version_:FX_test_v165.a');
+		window.AppInventor.setWebViewString('version_:FX_test_v165.b');
+		console.log('version_:FX_test_v165.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -73,8 +73,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				myPortComparerEl_template();/*подсветить шорт оранжевым по аналогии с картой портов*/
-				/*myPortsEl_template();*/
+				/*myPortComparerEl_template();*//*обработать ошибки!*//*подсветить шорт оранжевым по аналогии с картой портов*/
+				myDevice_template();
+				myPortsEl_template();
 				myPort_template();
 				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
 				/*myAccount_template();*//*исправить после обновления 14.05, или забить*/
@@ -1496,6 +1497,139 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 });
 		};
 		
+		function myDevice_template(){
+			document.getElementById('device-template').innerHTML=`
+				
+  <div v-if="data">
+      <div class="info-block device-info">
+        <screen-header-el @click="refresh" :border="hasError ? 'none' : ''">
+          <template slot="title">{{ data.DEVICE_TITLE }}</template>
+          <ping-el :device="data"></ping-el>{{ data.IP_ADDRESS }}
+          <template slot="info">{{ data.VENDOR }} {{ data.MODEL }}</template>
+          <template slot="minor">{{ data.DEVICE_NAME }}</template>
+        </screen-header-el>
+
+        <device-discovery-status
+            v-if="hasError"
+            :dateString="discoveryStatus.DSCV_DATE"
+            :errorType="discoveryStatus.ERROR_TYPE"
+            :status="discoveryStatus.STATUS"
+            :withBorder="true">
+        </device-discovery-status>
+
+        <div @click="toBuilding">
+          <i class="far fa-building faded mr-1"></i>
+          <template v-if="!loading.info">
+            <template v-if="data.info[0].UZEL_NAME && data.info[0].UZEL_NAME.length">
+              {{  data.info[0].UZEL_NAME }}
+              <i class="fa fa-chevron-right float-right"></i>
+            </template>
+            <template v-else>
+              <span>Нет данных по домовому узлу</span>
+            </template>
+          </template>
+        </div>
+
+        <div class="small-text _ptvtb-device-location">{{ data.LOCATION }}</div>
+
+        <template v-if="data.DEVICE_IS_OPTICAL">
+          <template v-if="data.UPSTREAM_NE && data.UPSTREAM_NE">
+            <div class="row devider"></div>
+            <div class="row">
+                <div class="col small-text">вышестоящее устройство</div>
+            </div>
+            <div class="row">
+                <div class="col">{{ data.UPSTREAM_NE }}</div>
+            </div>
+          </template>
+
+          <template v-if="data.opticalInfo && data.opticalInfo.StaticSubnetMask && data.opticalInfo.StaticSubnetMask[0] && data.opticalInfo.StaticSubnetMask[0].length">
+            <div class="row devider"></div>
+            <div class="row">
+                <div class="col-6">{{ clearValue(data.opticalInfo.StaticSubnetMask[0]) }}</div>
+                <div class="col-6 small-text small-text-right">маска</div>
+            </div>
+          </template>
+
+          <template v-if="data.opticalInfo && data.opticalInfo.GatewayAddress && data.opticalInfo.GatewayAddress[0] && data.opticalInfo.GatewayAddress[0].length">
+            <div class="row devider"></div>
+            <div class="row">
+                <div class="col-6">{{ clearValue(data.opticalInfo.GatewayAddress[0]) }}</div>
+                <div class="col-6 small-text small-text-right">шлюз</div>
+            </div>
+          </template>
+          <template v-if="data.DEVICE_IS_OPTICAL && data.info && data.info.length && data.info[0].SNMP_COMMUNITY">
+            <div class="row devider"></div>
+			<div class="row">
+				<div class="col-6">{{ data.info[0].SNMP_COMMUNITY }}</div>
+				<div class="col-6 small-text small-text-right">snmp community</div>
+			</div>
+          </template>
+			<div class="row devider"></div>
+			<div class="small-text">{{ data.DISPLAY_NAME }}</div>
+        </template>
+		<template v-else>
+			<div class="row devider"></div>
+			<div class="small-text">{{ data.DISPLAY_NAME }}</div>
+			<div class="small-text">{{ data.DESCRIPTION }}</div>
+        </template>
+
+        <div v-if="loading.info || loading.opticalInfo" class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+      </div>
+
+      <template v-if="data.DEVICE_IS_OPTICAL">
+        <div class="info-block device-info">
+          <optical-receiver-info :data="data" @info-loading="opticalDeviceLoading"></optical-receiver-info>
+          <div v-if="loading.info || loading.opticalInfo" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+          </div>
+        </div>
+      </template>
+
+        <div class="info-block device-info">
+          <div @click="toDeviceEvents(data.DEVICE_NAME)" :disabled="deviceEventLoading">
+            Недоступность
+            <span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
+            <template v-if="hasActiveDeviceEvent">
+              <span class="float-right" style="margin: 0 10px;">
+                <i class="fas fa-exclamation-triangle red"></i>
+              </span>
+              <span class="float-right small-text mt-1">{{ maxDeviceEventDuration }}</span>
+            </template>
+          </div>
+          <div v-if="deviceEventLoading" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+          </div>
+        </div>
+
+      <template v-if="!data.DEVICE_IS_OPTICAL">
+        <div class="info-block device-info">
+          <template v-if="data.ports && data.ports.length">
+            <ports-el :ports="data.ports" :loading="loading.ports" :showdetails="showdetails" :isoptical="data.DEVICE_IS_OPTICAL" @select-port="selectPort" @change-tab="changePotsMapTab"></ports-el>
+          </template>
+          <template v-else>
+            <div>Порты</div>
+          </template>
+          <div v-if="loading.ports" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+          </div>
+        </div>
+      </template>
+
+      <device-actions
+          @deviceDiscovery='deviceDiscovery'
+          :hasError="hasError"
+          :discoveryStatus="discoveryStatus"
+          :loading="loading">
+      </device-actions>
+    </div>
+  </div>
+
+			`;
+		};
+	
 	};start();
 		
 }else{console.log(document.title)};
