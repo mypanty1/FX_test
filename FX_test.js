@@ -1541,10 +1541,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div class="row">
                 <div class="col">{{ data.UPSTREAM_NE }}</div>
             </div>
+			<div class="row devider"></div>
           </template>
 
           <template v-if="data.opticalInfo && data.opticalInfo.StaticSubnetMask && data.opticalInfo.StaticSubnetMask[0] && data.opticalInfo.StaticSubnetMask[0].length">
-            <div class="row devider"></div>
             <div class="row">
                 <div class="col-6">{{ clearValue(data.opticalInfo.StaticSubnetMask[0]) }}</div>
                 <div class="col-6 small-text small-text-right">маска</div>
@@ -1552,20 +1552,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           </template>
 
           <template v-if="data.opticalInfo && data.opticalInfo.GatewayAddress && data.opticalInfo.GatewayAddress[0] && data.opticalInfo.GatewayAddress[0].length">
-            <!--<div class="row devider"></div>-->
             <div class="row">
                 <div class="col-6">{{ clearValue(data.opticalInfo.GatewayAddress[0]) }}</div>
                 <div class="col-6 small-text small-text-right">шлюз</div>
             </div>
           </template>
+		  
           <template v-if="data.DEVICE_IS_OPTICAL && data.info && data.info.length && data.info[0].SNMP_COMMUNITY">
-            <!--<div class="row devider"></div>-->
-			<div class="row">
+            <div class="row">
 				<div class="col-6">{{ data.info[0].SNMP_COMMUNITY }}</div>
 				<div class="col-6 small-text small-text-right">snmp community</div>
 			</div>
           </template>
-			<div class="row devider"></div>
+		  
 			<div class="small-text">{{ data.DISPLAY_NAME }}</div>
         </template>
 		<template v-else>
