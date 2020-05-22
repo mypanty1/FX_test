@@ -63,8 +63,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v165.b');
-		console.log('version_:FX_test_v165.b');
+		window.AppInventor.setWebViewString('version_:FX_test_v165.c');
+		console.log('version_:FX_test_v165.c');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -438,7 +438,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							(function(port){
 								var params={
 									device:port.device_name,
-									port:port.snmp_number
+									port:port.snmp_name
 								};
 								httpGet(buildUrl('port_status', params, '/call/hdm/'),false).then(function(data){
 									var crc_in=self.numShow(data.IF_IN_ERRORS);
