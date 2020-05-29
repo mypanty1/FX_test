@@ -63,8 +63,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v165.c');
-		console.log('version_:FX_test_v165.c');
+		window.AppInventor.setWebViewString('version_:FX_test_v165.d');
+		console.log('version_:FX_test_v165.d');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -74,7 +74,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				/*myPortComparerEl_template();*//*обработать ошибки!*//*подсветить шорт оранжевым по аналогии с картой портов*/
-				myDevice_template();
+				/*myDevice_template();*//*fix upd*/
 				myPortsEl_template();
 				myPort_template();
 				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
