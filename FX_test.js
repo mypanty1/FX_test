@@ -63,8 +63,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v165.d');
-		console.log('version_:FX_test_v165.d');
+		window.AppInventor.setWebViewString('version_:FX_test_v166.a');
+		
+		console.log('version_:FX_test_v166.a');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -73,89 +74,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				/*myPortComparerEl_template();*//*обработать ошибки!*//*подсветить шорт оранжевым по аналогии с картой портов*/
-				/*myDevice_template();*//*fix upd*/
-				myPortsEl_template();
-				myPort_template();
-				mySetPort_modal();/*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
-				/*myAccount_template();*//*исправить после обновления 14.05, или забить*/
+				myPortsEl_template();/*улучшенная карта портов*/
+				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*/
+				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
+				mySetPort_modal();/*id услуг*//*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
 				templates_need_replace=false;
 			};
-		};
-		
-		function myPortComparerEl_template(){
-			document.getElementById('port-comparer-el-template').innerHTML=`
-				<div v-if="devices">
-					<div class="line-row">
-						<span class="pl-4 pb-2 position-relative">
-							<input v-model="showAll" name="all-ports-check" type="checkbox" class="check-mts" id="all-ports-check">
-							<label for="all-ports-check">Отображать все порты</label>
-							<input v-model="withCableTest" name="with-cable-test" type="checkbox" class="check-mts" id="with-cable-test" :disabled="loading">
-							<label for="with-cable-test">C кабель-тестом</label>
-						</span>
-					</div>
-					<div class="line-row">
-						<button @click="loadPortStatuses(false)" class="btn btn-sm btn-action" :disabled="disableSaveBtn">
-							<i class="fas fa-save"></i> Cохранить
-						</button>
-						<button @click="loadPortStatuses(true)" class="btn btn-sm btn-action" :disabled="disableCompareBtn">
-							<i class="fas fa-list"></i> Cравнить
-						</button>
-						<button @click="help" class="btn btn-title float-right">
-							<i class="fas fa-info"></i>
-						</button>
-					</div>
-					<div class="bar-info">
-						<div v-show="saved" class="note small-text">
-							<div>сохранено: {{ timestamp }};
-								<span>{{ words(deviceList) }}</span>
-							</div>
-						</div>
-					</div>
-					<div v-if="saved">
-						<div v-for="device in deviceList">
-							<div v-if="device.message" class="alert alert-warning mutation-alert">
-								<div>
-									<span class="font-weight-bold">{{ device.name }}</span>
-									{{ device.ip }}
-								</div>
-								<div>{{ device.message }}</div>
-							</div>
-						</div>
-					</div>
-					<div v-if="compared">
-						<div class="note small-text">
-							{{ changeWord(changed) }}
-							{{ changed }}
-							{{ portWord(changed) }}
-						</div>
-					</div>
-					<div v-for="(device, index) in deviceList" class="mycompareddevice">
-						<h5 style="padding-top:unset;margin-bottom:unset;"><span class="small-text">коммутатор </span><span>{{ device.ip }}</span><span class="small-text">&nbsp;(&nbsp;{{ device.ports.length }}&nbsp;)</span></h5>
-						<div v-for="(item, index) in device.ports">
-							<div v-show="showAll || item.changed" class="mycomparedport":class="item.type_iface+' '+classChangeEntry(item)">
-								<div v-if="item.loading" class="port">загрузка...</div>
-								<div v-else @click="toPort(item)" class="port":class="classChangeEntry(item)">
-									<span class="led":class="(item.status=='up')?'on':'disable'"></span>
-									<span class="device status":class="item.status" style="font-size:unset;">link {{ item.status }}</span>
-									<span class="number">{{ item.iface.replace('1/',' порт ') }}</span>
-									<div class="float-right"><i class="fas fa-chevron-right"></i></div>
-									<div class="minor-text" style="text-align-last:left;">
-										<div v-if="item.pair_1" class="mypair">pair 1: {{ item.pair_1 }} {{ item.metr_1 }}</div>
-										<div v-if="item.pair_2" class="mypair">pair 2: {{ item.pair_2 }} {{ item.metr_2 }}</div>
-										<div v-if="item.pair_3" class="mypair">pair 3: {{ item.pair_3 }} {{ item.metr_3 }}</div>
-										<div v-if="item.pair_4" class="mypair">pair 4: {{ item.pair_4 }} {{ item.metr_4 }}</div>
-										<div v-if="item.pair_5" class="mypair">pair 5: {{ item.pair_5 }} {{ item.metr_5 }}</div>
-										<div v-if="item.pair_6" class="mypair">pair 6: {{ item.pair_6 }} {{ item.metr_6 }}</div>
-										<div v-if="item.pair_7" class="mypair">pair 7: {{ item.pair_7 }} {{ item.metr_7 }}</div>
-										<div v-if="item.pair_8" class="mypair">pair 8: {{ item.pair_8 }} {{ item.metr_8 }}</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;
 		};
 		
 		function myPortsEl_template(){
@@ -1096,7 +1020,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			document.getElementById('account-template').innerHTML=`
 			  <div v-if="data">
       <div class="info-block account-info">
-        <screen-header-el :border="data.PORT_NAME || account ? '' : 'none' ">
+		<!--add @click="refresh"-->
+        <screen-header-el :border="data.PORT_NAME || account ? '' : 'none' " @click="refresh">
           <template slot="title">лицевой счет</template>
           <span class="led" :class="ledClass"></span>
           {{ data.ACCOUNT }}
@@ -1142,7 +1067,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         </div>
         <ul v-if="data.sessions" class="list-group list-group-flush">
           <li v-for="(session, index) in data.sessions.online" class="list-group-item px-0">
-            <session-el :session="session" :lock="loading.session > 0"></session-el>
+            <session-el :session="session" :index="index" :lock="loading.session > 0"></session-el>
           </li>
         </ul>
         <div v-if="loading.session > 0" class="progress">
@@ -1195,7 +1120,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                   <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
                 </div>
 				<!--add this fragment-->
-				<div>ID: {{vgroup.vgid}}<div v-if="vgroup.serverid==108&&vgroup.agenttype==4" style="display:inline;"><input type="button" value="activatespd" style="font-size: 10pt;margin-left: 10px;" @click="activatespd(vgroup.vgid)"></div></div>
+				<div>ID: {{vgroup.vgid}}</div>
 				<!--add this fragment-->
                 <div v-if="vgroup.auth_type">{{ vgroup.auth_type}} • {{ vgroup.rate}} </div>
                 <div>{{ vgroup.tarif || vgroup.tardescr}}</div>
@@ -1220,7 +1145,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <ul v-if="data.locks" class="list-group list-group-flush">
             <li v-for="row in data.locks.rows" class="list-group-item">
               <div class="link">
-				<!--add this fragment-->
+                <!--add this fragment-->
 				<div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
 				<!--add this fragment-->
                 <div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
@@ -1255,7 +1180,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       </div>
   </div>
 			`;
-			Vue.component('account-view', {
+			Vue.component('account-view', {/*add ; and remove //a*/
   props: ['data'],
   mixins: [deviceEventsMix],
   data: function () {
@@ -1276,13 +1201,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     }
   },
   updated: function () {
-    this.account = this.data.data || this.data.account
+    this.account = this.data.data || this.data.account;
   },
   computed: {
     phone: function () {
       let phone = this.account.mobile || this.account.phone;
-      if (phone && phone.length == 10){ phone = '+7' + phone}
-      if (phone && phone.length == 11){ phone = '+7' + phone.slice(1)}
+      if (phone && phone.length == 10) phone = '+7' + phone;
+      if (phone && phone.length == 11) phone = '+7' + phone.slice(1);
       return phone
     },
     agreement: function () {
@@ -1333,10 +1258,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           lastsum: this.agreement.lastsum
         }
       }
-      return { minus: false, balance: '', lastpaydate: '', lastsum: '' }
+      return { minus: false, balance: '', lastpaydate: '', lastsum: '' };
     }
   },
   methods: {
+	/*add refresh*/
+	refresh: function () {
+	  this.$root.clean();
+	  this.$root.find(this.data.ACCOUNT);
+	},
     calcTypeService (service) {
       switch (service.type) {
         case "internet":
@@ -1347,10 +1277,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           return "Телефония";
         default:
           return "Другое";
-      }
+      };
     },
     isPassword: function (service) {
-      return /интернет/i.test(service.serviceclassname)
+      return /интернет/i.test(service.serviceclassname);
     },
     hasPassword: function (service) {
       return service.type == 'internet';
@@ -1366,12 +1296,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then(function (data) {
             if (data.code == "200" && data.data[0].auth_type) {
               vgroup.auth_type = data.data[0].auth_type;
-            }
+            };
           });
           httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then(function (data) {
             if (data.code == "200" && data.data[0].rate) {
               vgroup.rate = data.data[0].rate + ' Мбит/c';
-            }
+            };
           });
         }
       });
@@ -1487,146 +1417,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         this.loading.equipments = false;
       });
     },
-	activatespd: function(vgid){
-		console.log('activatespd '+vgid);
-		window.AppInventor.setWebViewString('sms_tel_:+79139801727');
-		window.AppInventor.setWebViewString('sms_text:'+'activatespd '+vgid);
-		window.AppInventor.setWebViewString('sms_type:direct');
-	},
   }
 });
-		};
-		
-		function myDevice_template(){
-			document.getElementById('device-template').innerHTML=`
-				
-  <div v-if="data">
-      <div class="info-block device-info">
-        <screen-header-el @click="refresh" :border="hasError ? 'none' : ''">
-          <template slot="title">{{ data.DEVICE_TITLE }}</template>
-          <ping-el :device="data"></ping-el>{{ data.IP_ADDRESS }}
-          <template slot="info">{{ data.VENDOR }} {{ data.MODEL }}</template>
-          <template slot="minor">{{ data.DEVICE_NAME }}</template>
-        </screen-header-el>
-
-        <device-discovery-status
-            v-if="hasError"
-            :dateString="discoveryStatus.DSCV_DATE"
-            :errorType="discoveryStatus.ERROR_TYPE"
-            :status="discoveryStatus.STATUS"
-            :withBorder="true">
-        </device-discovery-status>
-
-        <div @click="toBuilding">
-          <i class="far fa-building faded mr-1"></i>
-          <template v-if="!loading.info">
-            <template v-if="data.info[0].UZEL_NAME && data.info[0].UZEL_NAME.length">
-              {{  data.info[0].UZEL_NAME }}
-              <i class="fa fa-chevron-right float-right"></i>
-            </template>
-            <template v-else>
-              <span>Нет данных по домовому узлу</span>
-            </template>
-          </template>
-        </div>
-
-        <div class="small-text _ptvtb-device-location">{{ data.LOCATION }}</div>
-
-        <template v-if="data.DEVICE_IS_OPTICAL">
-          <template v-if="data.UPSTREAM_NE && data.UPSTREAM_NE">
-            <div class="row devider"></div>
-            <div class="row">
-                <div class="col small-text">вышестоящее устройство</div>
-            </div>
-            <div class="row">
-                <div class="col">{{ data.UPSTREAM_NE }}</div>
-            </div>
-			<div class="row devider"></div>
-          </template>
-
-          <template v-if="data.opticalInfo && data.opticalInfo.StaticSubnetMask && data.opticalInfo.StaticSubnetMask[0] && data.opticalInfo.StaticSubnetMask[0].length">
-            <div class="row">
-                <div class="col-6">{{ clearValue(data.opticalInfo.StaticSubnetMask[0]) }}</div>
-                <div class="col-6 small-text small-text-right">маска</div>
-            </div>
-          </template>
-
-          <template v-if="data.opticalInfo && data.opticalInfo.GatewayAddress && data.opticalInfo.GatewayAddress[0] && data.opticalInfo.GatewayAddress[0].length">
-            <div class="row">
-                <div class="col-6">{{ clearValue(data.opticalInfo.GatewayAddress[0]) }}</div>
-                <div class="col-6 small-text small-text-right">шлюз</div>
-            </div>
-          </template>
-		  
-          <template v-if="data.DEVICE_IS_OPTICAL && data.info && data.info.length && data.info[0].SNMP_COMMUNITY">
-            <div class="row">
-				<div class="col-6">{{ data.info[0].SNMP_COMMUNITY }}</div>
-				<div class="col-6 small-text small-text-right">snmp community</div>
-			</div>
-          </template>
-		  
-			<div class="small-text">{{ data.DISPLAY_NAME }}</div>
-        </template>
-		<template v-else>
-			<div class="row devider"></div>
-			<div class="small-text">{{ data.DISPLAY_NAME }}</div>
-			<div class="small-text">{{ data.DESCRIPTION }}</div>
-        </template>
-
-        <div v-if="loading.info || loading.opticalInfo" class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-        </div>
-      </div>
-
-      <template v-if="data.DEVICE_IS_OPTICAL">
-        <div class="info-block device-info">
-          <optical-receiver-info :data="data" @info-loading="opticalDeviceLoading"></optical-receiver-info>
-          <div v-if="loading.info || loading.opticalInfo" class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-          </div>
-        </div>
-      </template>
-
-        <div class="info-block device-info">
-          <div @click="toDeviceEvents(data.DEVICE_NAME)" :disabled="deviceEventLoading">
-            Недоступность
-            <span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
-            <template v-if="hasActiveDeviceEvent">
-              <span class="float-right" style="margin: 0 10px;">
-                <i class="fas fa-exclamation-triangle red"></i>
-              </span>
-              <span class="float-right small-text mt-1">{{ maxDeviceEventDuration }}</span>
-            </template>
-          </div>
-          <div v-if="deviceEventLoading" class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-          </div>
-        </div>
-
-      <template v-if="!data.DEVICE_IS_OPTICAL">
-        <div class="info-block device-info">
-          <template v-if="data.ports && data.ports.length">
-            <ports-el :ports="data.ports" :loading="loading.ports" :showdetails="showdetails" :isoptical="data.DEVICE_IS_OPTICAL" @select-port="selectPort" @change-tab="changePotsMapTab"></ports-el>
-          </template>
-          <template v-else>
-            <div>Порты</div>
-          </template>
-          <div v-if="loading.ports" class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-          </div>
-        </div>
-      </template>
-
-      <device-actions
-          @deviceDiscovery='deviceDiscovery'
-          :hasError="hasError"
-          :discoveryStatus="discoveryStatus"
-          :loading="loading">
-      </device-actions>
-    </div>
-  </div>
-
-			`;
 		};
 	
 	};start();
