@@ -64,7 +64,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*console.log('addCSS!');*/
 				
 		/*window.AppInventor.setWebViewString('version_:FX_test_v166.a');*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v166.b');*//*fix add sms modal*/
+		window.AppInventor.setWebViewString('version_:FX_test_v166.b');/*fix add sms modal*/
 		
 		console.log('version_:FX_test_v166.b');
 	
