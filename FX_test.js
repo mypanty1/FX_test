@@ -63,9 +63,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v166.a');
+		/*window.AppInventor.setWebViewString('version_:FX_test_v166.a');*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v166.b');*//*fix add sms modal*/
 		
-		console.log('version_:FX_test_v166.a');
+		console.log('version_:FX_test_v166.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -1018,13 +1019,20 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		
 		function myAccount_template(){
 			document.getElementById('account-template').innerHTML=`
-			  <div v-if="data">
+    <div v-if="data">
       <div class="info-block account-info">
-		<!--add @click="refresh"-->
+        <!--add @click="refresh"-->
         <screen-header-el :border="data.PORT_NAME || account ? '' : 'none' " @click="refresh">
-          <template slot="title">лицевой счет</template>
-          <span class="led" :class="ledClass"></span>
-          {{ data.ACCOUNT }}
+          <template slot="title">
+            <span>лицевой счет</span>
+          </template>
+          <div class="account-info-title">
+            <span class="led" :class="ledClass"></span>
+            <span>{{ data.ACCOUNT }}</span>
+            <button @click="showSmsModal" class="btn btn-sm send-sms-btn-action" :disabled="!account">
+              <i class="fas fa-envelope"></i>
+            </button>
+          </div>
           <template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
           <template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
         </screen-header-el>
@@ -1267,6 +1275,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	  this.$root.clean();
 	  this.$root.find(this.data.ACCOUNT);
 	},
+	showSmsModal: function () {
+      const account = this.data.ACCOUNT;      
+      this.$root.showStaticModal({
+        component: 'send-sms-el',
+        data: { account },
+      });
+    },
     calcTypeService (service) {
       switch (service.type) {
         case "internet":
