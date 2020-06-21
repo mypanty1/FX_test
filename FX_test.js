@@ -63,10 +63,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		/*window.AppInventor.setWebViewString('version_:FX_test_v166.a');*/
-		window.AppInventor.setWebViewString('version_:FX_test_v166.b');/*fix add sms modal*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.a');
 		
-		console.log('version_:FX_test_v166.b');
+		console.log('version_:FX_test_v167.a');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -78,7 +77,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPortsEl_template();/*улучшенная карта портов*/
 				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
-				mySetPort_modal();/*id услуг*//*чтонибудь придумать с маком для питера*//*придумать освобождение портов для serverid 108*/
+				mySetPort_modal();/*id услуг*//*придумать освобождение портов для serverid 108*//*чтонибудь придумать с маком для питера*/
 				templates_need_replace=false;
 			};
 		};
@@ -300,12 +299,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							request.then(function(data) {
 							  if (data[device]) {
 								if (data[device].ports) {
-								  var ports = data[device].ports;
-								  ports.map( p => {
-									let port = self.ports.find(sp => sp.snmp_number == p.index_iface);
-									p.status = p.oper_state.includes('up') ? 'up' : 'down';
-									if (port) Vue.set(port, 'port_status', p);
-								  })
+									var ports = data[device].ports;
+									ports.map( p => {
+										let port = self.ports.find(sp => sp.snmp_number == p.index_iface);
+										p.status = p.oper_state.includes('up') ? 'up' : 'down';
+										if(port){ Vue.set(port, 'port_status', p) };
+									});								  
 								} else {
 								  self.error.empty = true;
 								  self.error.emptyMessage = "Не удалось получить информацию о портах";
@@ -1021,7 +1020,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			document.getElementById('account-template').innerHTML=`
     <div v-if="data">
       <div class="info-block account-info">
-        <!--add @click="refresh"-->
+		<!--add @click="refresh", add method to Vue-->
         <screen-header-el :border="data.PORT_NAME || account ? '' : 'none' " @click="refresh">
           <template slot="title">
             <span>лицевой счет</span>
@@ -1102,7 +1101,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       <div class="info-block account-info">
         <a class="card-body collapse collapsed show info-block-title display nohover d-flex" data-toggle="collapse" data-target="#collapseServices" href="#collapseServices">
           <div class="d-flex justify-content-between card-title-complex">
-            <div>Услуги</div>
+            <div>Услуги и оборудование</div>
             <div v-if="data.account" class="body-hidden" :class="balance.minus ? 'text-danger' : 'text-black-50'">
               <span v-show="balance.minus">-</span>
               <span>{{ balance.balance }} ₽ </span>
@@ -1120,23 +1119,46 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div> {{ balance.lastsum }} ₽ {{ balance.lastpaydate }} <span class="inscription">последний платеж</span></div>
           </div>
           <hr>
-          <ul v-if="data.account" class="list-group list-group-flush">
-            <li v-for="vgroup in serviceList" class="list-group-item">
-              <div class="link">
-                <div class="font-weight-bold">
-                  {{ calcTypeService(vgroup) }}
-                  <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
+          <template v-if="data.account">
+            <template v-for='group in groupServiceList'>
+              <ul v-if='group.services.length > 0' class="list-group list-group-flush">
+                <div class="d-flex align-item-center my-2">
+                  <div style="font-size: 18px; font-weight: 700">{{group.name}} Услуги</div>
+                  <button v-if='(group.name == "ТВ" || group.name == "Интернет") && account.sms_activation' @click="toActivation(group, group.name)" class="btn btn-primary ml-auto">
+                    Активировать
+                  </button>
                 </div>
-				<!--add this fragment-->
-				<div>ID: {{vgroup.vgid}}</div>
-				<!--add this fragment-->
-                <div v-if="vgroup.auth_type">{{ vgroup.auth_type}} • {{ vgroup.rate}} </div>
-                <div>{{ vgroup.tarif || vgroup.tardescr}}</div>
-                <passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
-                <button v-if="vgroup.available_for_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
-              </div>
-            </li>
-          </ul>
+                <template v-for="vgroup in group.services">
+                  <li style="background-color: #F5F6FA;
+                              padding: 8px;
+                              border-radius: 5px;
+                              margin: 4px 0;">
+                    <div class="link">
+                      <div class="font-weight-bold">
+                        {{ calcTypeService(vgroup) }}
+						<!--add this fragment-->
+						<span>ID: {{vgroup.vgid}}</span<span style="font-weight:normal;"> ID: {{vgroup.vgid}}</span>>
+						<!--add this fragment-->
+                        <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
+                      </div>
+                      <div v-if="vgroup.auth_type">{{ vgroup.auth_type}} • {{ vgroup.rate}} </div>
+                      <div>{{ vgroup.tarif || vgroup.tardescr}}</div>
+                      <passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
+                      <button v-if="vgroup.available_for_activation && !account.sms_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
+                    </div>
+                  </li>
+                  
+                </template>
+                <li v-for="equipment in group.equipments" style="background-color: #F5F6FA;
+                                                                padding: 8px;
+                                                                border-radius: 5px;
+                                                                margin: 4px 0;">
+                  <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
+                </li>
+              </ul>
+            </template>
+          </template>
+
         </div>
         <div v-if="loading.service || loading.updateVgroups" class="progress">
           <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -1153,12 +1175,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <ul v-if="data.locks" class="list-group list-group-flush">
             <li v-for="row in data.locks.rows" class="list-group-item">
               <div class="link">
-                <!--add this fragment-->
+				<!--add this fragment-->
 				<div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
 				<!--add this fragment-->
                 <div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
                 <div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
-				<!--modify this fragment-->
+                <!--modify this fragment-->
                 <div>{{ row["type"] }} (тип: {{row["blocktype"]}})<span class="inscription"></span></div>
 				<!--modify this fragment-->
               </div>
@@ -1169,35 +1191,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
         </div>
       </div>
-      <div class="info-block account-info">
-        <a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapse-equipment" href="#collapse-equipment">
-          <span>Абонентское оборудование</span>
-          <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
-        </a>
-        <div class="collapse" id="collapse-equipment">
-          <ul v-if="data && data.equipments" class="list-group list-group-flush">
-            <li v-for="equipment in data.equipments" class="list-group-item">
-              <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
-            </li>
-          </ul>
-          <div v-if="!data.equipments || data.equipments.length == 0" class="text-muted">не найдено</div>
-        </div>
-        <div v-if="loading.equipments" class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
-        </div>
-      </div>
   </div>
 			`;
-			Vue.component('account-view', {/*add ; and remove //a*/
+			Vue.component('account-view', {/*add refresh*/
+  template: '#account-template',
   props: ['data'],
   mixins: [deviceEventsMix],
   data: function () {
     return {
+      equipments: this.data.equipments || [],
       loading: { account: false, service: false, session: 0, locks: false, updateVgroups: false, equipments: false },
       account: this.data.data || this.data.account
     }
   },
-  template: '#account-template',
   created: function () {
     this.data.deviceEvents.from = Datetools.addDays(-14);
     this.data.deviceEvents.key = 'account';
@@ -1216,7 +1222,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       let phone = this.account.mobile || this.account.phone;
       if (phone && phone.length == 10) phone = '+7' + phone;
       if (phone && phone.length == 11) phone = '+7' + phone.slice(1);
-      return phone
+      return phone;
     },
     agreement: function () {
       if (!this.account) return null;
@@ -1234,6 +1240,48 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       }
       return [];
     },
+    internetEq: function () {
+      return this.equipments.filter(e => e.type_id == 4);
+    },
+    tvEq: function () {
+      return this.equipments.filter(e => [1, 2, 3, 5, 7].includes(e.type_id));
+    },
+    phoneEq: function () {
+      return this.equipments.filter(e => e.type_id == 6);
+    },
+    otherEq: function () {
+      return this.equipments.filter(e => e.type_id == 0);
+    },
+
+    groupServiceList: function () {
+      let services = {
+        internet: {
+          name: 'Интернет',
+          equipments: this.internetEq,
+          services: []
+        },
+        tv: {
+          name: 'ТВ',
+          equipments: this.tvEq,
+          services: []
+        },
+        phone: {
+          name: 'Телефония',
+          equipments: this.phoneEq,
+          services: []
+        },
+        other: {
+          name: 'Другие',
+          equipments: this.otherEq,
+          services: []
+        }
+      };
+      this.serviceList.forEach(s => {
+        services[s.type].services.push(s);
+      });
+      return services;
+    },
+
     hasSessions: function () {
       return this.serviceList.some(s => s.isSession);
     },
@@ -1252,9 +1300,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return this.account.address || address.address;
     },
     ledClass: function () {
-      if (!this.data.CLOSE_DATE) return 'on';
-      var parsedDate = Datetools.parse(this.data.CLOSE_DATE);
-      if (Date.now() - parsedDate > 0) return 'off';
+      if (!this.agreement) return '';
+      if (this.agreement.closedon) return 'off';
+      if (!this.serviceList) return '';
+      let blockedServices = this.serviceList.filter(s => s.status == 10 && new Date(s.accondate) < Date.now());
+      if (this.serviceList.length == blockedServices.length && this.serviceList.length != 0) return 'off';
       return 'on';
     },
     balance: function () {
@@ -1264,8 +1314,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           balance: this.agreement.balance.integer + ',' + this.agreement.balance.fraction,
           lastpaydate: this.agreement.lastpaydate,
           lastsum: this.agreement.lastsum
-        }
-      }
+        };
+      };
       return { minus: false, balance: '', lastpaydate: '', lastsum: '' };
     }
   },
@@ -1275,7 +1325,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	  this.$root.clean();
 	  this.$root.find(this.data.ACCOUNT);
 	},
-	showSmsModal: function () {
+    showSmsModal: function () {
       const account = this.data.ACCOUNT;      
       this.$root.showStaticModal({
         component: 'send-sms-el',
@@ -1292,10 +1342,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           return "Телефония";
         default:
           return "Другое";
-      };
+      }
     },
     isPassword: function (service) {
-      return /интернет/i.test(service.serviceclassname);
+      return /internet/i.test(service.type);
     },
     hasPassword: function (service) {
       return service.type == 'internet';
@@ -1408,6 +1458,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         setTimeout(self.loadOnlineSession, 10000, session.params);
       });
     },
+    toActivation(services, type) {
+      this.$emit('change-screen', {
+        screen: 'activation',
+        source: {type: type, services: services, account: this.data.ACCOUNT},
+        id: 'activation/' + this.data.ACCOUNT
+      });
+    },
     activate: function (vg) {
       this.$root.showModal({
         title: 'Активация услуги',
@@ -1427,8 +1484,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         if (data.type == 'error') {
           console.warn(data);
         } else {
+          this.equipments = data;
           this.data.equipments = data;
-        }
+        };
         this.loading.equipments = false;
       });
     },
