@@ -63,9 +63,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v167.a');
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.a');*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.b');/*fix vgid*/
 		
-		console.log('version_:FX_test_v167.a');
+		console.log('version_:FX_test_v167.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -1137,7 +1138,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                       <div class="font-weight-bold">
                         {{ calcTypeService(vgroup) }}
 						<!--add this fragment-->
-						<span>ID: {{vgroup.vgid}}</span<span style="font-weight:normal;"> ID: {{vgroup.vgid}}</span>>
+						<span style="font-weight:normal;"> ID: {{vgroup.vgid}}</span>
 						<!--add this fragment-->
                         <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
                       </div>
