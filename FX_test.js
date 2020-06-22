@@ -64,9 +64,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*console.log('addCSS!');*/
 				
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.a');*/
-		window.AppInventor.setWebViewString('version_:FX_test_v167.b');/*fix vgid*/
-		
-		console.log('version_:FX_test_v167.b');
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.b');/*/*fix vgid*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.c');/*fix mac region78*/
+		console.log('version_:FX_test_v167.c');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -951,10 +951,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                             </div>
                         </div>
                         <div v-if="typeOfBind == 2" class="form-row">
-                            <!--<input list="macs" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23">-->
-                            <select id="macs" class="form-control form-control-sm" v-model="mac.selected" >
-                                <option v-for="mc in mac.list">{{ mc }}</option>
-                            </select>
+                            <!--replace this fragment-->
+<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+<!--replace this fragment-->
+<!--modify this fragment-->
+<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+<option v-for="mc in mac.list">{{ mc }}</option>
+</select>
+<!--modify this fragment-->
                             <button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
                         </div>
                         <div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
@@ -964,17 +968,25 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                         </div>
                         <div v-else-if="typeOfBind == 5" class="form-row">
                             <button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
-                            <!--<input list="macs" class="form-control form-control-sm mt-3" v-filter="'[0-9a-fA-F\:\.]'" v-model="mac.selected" maxlength="23">-->
-                            <select id="macs" class="form-control form-control-sm mt-3" v-model="mac.selected">
-                                <option v-for="mc in mac.list">{{ mc }}</option>
-                            </select>
+                            <!--replace this fragment-->
+<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+<!--replace this fragment-->
+<!--modify this fragment-->
+<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+<option v-for="mc in mac.list">{{ mc }}</option>
+</select>
+<!--modify this fragment-->
                             <button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
                         </div>
                         <div v-else-if="typeOfBind == 7 || typeOfBind == 9" class="form-row">
-                            <!--<input list="macs" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23">-->
-                            <select id="macs" class="form-control form-control-sm" v-model="mac.selected">
-                                <option v-for="mc in mac.list">{{ mc }}</option>
-                            </select>
+                            <!--replace this fragment-->
+<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+<!--replace this fragment-->
+<!--modify this fragment-->
+<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+<option v-for="mc in mac.list">{{ mc }}</option>
+</select>
+<!--modify this fragment-->
                             <button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Перепривязать mac</button>
                             <button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
                         </div>
