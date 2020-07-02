@@ -65,8 +65,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.a');*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.b');*//*fix vgid*/
-		window.AppInventor.setWebViewString('version_:FX_test_v167.c');/*fix mac region78*/
-		console.log('version_:FX_test_v167.c');
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.d');/*rebind port for region54*/
+		
+		console.log('version_:FX_test_v167.d');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -78,7 +80,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPortsEl_template();/*улучшенная карта портов*/
 				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
-				mySetPort_modal();/*id услуг*//*придумать освобождение портов для serverid 108*//*чтонибудь придумать с маком для питера*/
+				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*/
 				templates_need_replace=false;
 			};
 		};
@@ -709,8 +711,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			  },
 			  computed: {
 				blockedSetButton: function () {
-				  if (this.data.is_trunk || this.data.is_link  || this.loading.status) return true /* || this.data.status.IF_SPEED == '1.0 gbit/s'*/
+				  if (this.data.is_trunk || this.data.is_link  || this.loading.status) return true /*|| this.data.status.IF_SPEED == '1.0 gbit/s'*/
 				},
+				/*add blockedDiagButton*/
 				blockedDiagButton: function () {
 					if (((this.data.is_trunk || this.data.is_link) && this.data.status.IF_OPER_STATUS) || this.loading.status) return true
 				},
@@ -718,11 +721,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  if (this.data.is_trunk || this.data.state == 'bad' || this.data.status.IF_ADMIN_STATUS == false || this.blockedSetButton) return true
 				},
 				portParams: function () {
-				  /*return weedOut(this.data, 'SNMP_PORT_NAME');*/
 				  return { SNMP_PORT_NAME: this.data.snmp_name };
 				},
 				deviceParams: function () {
 				  return weedOut(this.data.device, 'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION');
+				},
+				/*add portReBindData, for set-port-modal*/
+				portReBindData: function(){
+					console.log(this.data);
+					return {
+						region:this.data.device.REGION_ID,
+						state:this.data.state,
+						subscriber_list:this.data.subscriber_list
+					};
 				}
 			  },
 			  methods: {
@@ -870,8 +881,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				},
 				setPortForUser: function () {
 				  this.$root.showModal({ 
-					title: 'Выбор лицевого счета', 
-					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams}, 
+					title: 'Выбор лицевого счета',
+					/*add portReBindData:this.portReBindData*/
+					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams, portReBindData:this.portReBindData}, 
 					component: 'set-port-modal'
 				  });
 				},
@@ -894,9 +906,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
-				
     <div class="container-fluid">
-        <div class="search-ctrl box-shadow-none search-account-modal">
+		<div class="search-ctrl box-shadow-none search-account-modal">
             <div class="input-group">
                 <input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="Найти">
                 <div class="input-group-append">
@@ -933,7 +944,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                         <div class="form-row">
                             <div class="mt-2 full-fill">Учетная запись для связи:</div>
                             <div class="form-group full-fill custom-control-radio" v-for="vg in acc.vgids">
-                                <label>
+								<label>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                                         <input type="radio" class="custom-control-input" 
                                                 v-bind:disabled="loading"
@@ -951,45 +962,45 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                             </div>
                         </div>
                         <div v-if="typeOfBind == 2" class="form-row">
-                            <!--replace this fragment-->
-<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
-<!--replace this fragment-->
-<!--modify this fragment-->
-<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
-<option v-for="mc in mac.list">{{ mc }}</option>
-</select>
-<!--modify this fragment-->
-                            <button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
-                        </div>
-                        <div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
-                            <input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
-                            <button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
-                            <button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">Выделить IP</button>
-                        </div>
-                        <div v-else-if="typeOfBind == 5" class="form-row">
-                            <button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
-                            <!--replace this fragment-->
-<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
-<!--replace this fragment-->
-<!--modify this fragment-->
-<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
-<option v-for="mc in mac.list">{{ mc }}</option>
-</select>
-<!--modify this fragment-->
-                            <button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
-                        </div>
-                        <div v-else-if="typeOfBind == 7 || typeOfBind == 9" class="form-row">
-                            <!--replace this fragment-->
-<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
-<!--replace this fragment-->
-<!--modify this fragment-->
-<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
-<option v-for="mc in mac.list">{{ mc }}</option>
-</select>
-<!--modify this fragment-->
-                            <button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Перепривязать mac</button>
-                            <button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
-                        </div>
+							<!--replace this fragment-->
+							<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+							<!--replace this fragment-->
+							<!--modify this fragment-->
+							<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+								<option v-for="mc in mac.list">{{ mc }}</option>
+							</select>
+							<!--modify this fragment-->
+							<button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
+						</div>
+						<div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
+							<input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
+							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
+							<button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">Выделить IP</button>
+						</div>
+						<div v-else-if="typeOfBind == 5" class="form-row">
+							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
+							<!--replace this fragment-->
+							<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+							<!--replace this fragment-->
+							<!--modify this fragment-->
+							<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+								<option v-for="mc in mac.list">{{ mc }}</option>
+							</select>
+							<!--modify this fragment-->
+							<button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+						</div>
+						<div v-else-if="typeOfBind == 7 || typeOfBind == 9" class="form-row"><!--region78, type 9-->
+							<!--replace this fragment-->
+							<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
+							<!--replace this fragment-->
+							<!--modify this fragment-->
+							<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
+								<option v-for="mc in mac.list">{{ mc }}</option>
+							</select>
+							<!--modify this fragment-->
+							<button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Перепривязать mac</button>
+							<button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+						</div>
                         <div v-else-if="typeOfBind == null"></div>
                         <div v-else>
                             <div class="alert alert-warning mt-2" role="alert">Выбраная учетная запись не нуждается в привязке</div>
@@ -1005,6 +1016,24 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                 <div v-if="result" class="mt-3 response-block">
                     <div v-if="result.isError">
                         <div v-html="result.text.slice(0,120)" class="alert alert-danger" role="alert"></div>
+						<!--add this fragment-->
+						<div v-if="result.reBindMe" class="rebindme alert":class="result.alertClass" role="alert">
+							<div v-if="!result.isAnonimus && result.p_account">порт занят лс {{ result.p_account }}<span v-if="result.p_flat"> кв {{ result.p_flat }}</span></div>
+							<div>{{ result.alertText }}</div>
+							<div v-if="result.btnText" style="text-align:right;">
+								<input type="button" v-model="result.btnText" @click="reBind_108(result.reBindMe)">
+							</div>
+						</div>
+						<div v-if="resultReBind">
+							<div v-if="resultReBind.isError" class="rebinderr alert":class="resultReBind.alertClass" role="alert">
+								<div>{{ resultReBind.alertText }}</div>
+								<div>{{ resultReBind.message }}</div>
+							</div>
+							<div v-else-if="resultReBind.InfoMessage" class="rebindok alert":class="resultReBind.alertClass" role="alert">
+								<div>{{ resultReBind.alertText }}</div>
+							</div>
+						</div>
+						<!--add this fragment-->
                     </div>
                     <div v-else>
                         <div v-if="typeOfBind == 1 && result.code == 200 " class="alert alert-success" role="alert">
@@ -1027,6 +1056,256 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     </div>
 
 			`;
+			Vue.component('set-port-modal', {
+			  props: ['data'],
+			  data: function () {
+				return {
+				  loading: false,
+				  sample: '',
+				  account: null,
+				  resource: null,
+				  client_ip: null,
+				  mac: {list: [], selected: ''},
+				  result: {},
+				  resultReBind: {},/*add this*/
+				  recognizer: {},
+				  audioShow: false
+				};
+			  },
+			  created: function () {
+				this.erace();
+				this.audioSetting();
+			  },
+			  template: '#set-port-modal',
+			  computed: {
+				typeOfBind: function () {
+				  if (this.resource && this.resource.type_of_bind) return this.resource.type_of_bind
+				}
+			  },
+			  methods: {
+				clear: function () {
+				  this.account = null;
+				  this.resource = null;
+				  this.result = {};
+				  this.resultReBind = {};/*add this*/
+				  this.mac = {list: [], loading: false, selected: ''};
+				},
+				erace: function () {
+				  this.sample = '';
+				  this.clear();
+				},
+				searchAccount: function () {
+				  this.clear();
+				  self = this;
+				  self.loading = true;
+				  httpGet('/call/lbsv/search?text=' + this.sample + '&type=account&city=any').then(function(data) {
+					if (data.type == "single") data.data = [data.data];
+					var searched = [];
+					if (!data.isError) {
+					  data.data.forEach(function (acc) {
+						for (var i in acc.agreements) {
+						  if (acc.agreements[i].account.replace(/-/g,'') == self.sample.replace(/-|\s/g,'')) {
+							acc.agreements = acc.agreements[i];
+							acc.vgids = self.getInternetResources(acc.vgroups);
+							searched.push(acc);
+							break;
+						  }
+						}
+					  });
+					  data.data = searched;
+					}
+					self.account = (!data.isError && data.data.length == 0) ? {isError: true, type: "warning", text: "ЛС не найден"} : data;
+					self.loading = false;
+				  }, function (err) {
+					self.loading = false;
+				  });
+				},
+				getBalance: function (agreements) {
+				  var minus = (agreements.balance.minus) ? '-' : '';
+				  return minus + String(agreements.balance.integer) + '.' + agreements.balance.fraction;
+				},
+				getInternetResources: function (vgroups) {
+				  var result = [];
+				  vgroups.forEach(function (vg) {
+					if (vg.type_of_bind != 0)
+					  result.push(vg);
+				  });
+				  return result;
+				},
+				setupMacForUser: function () {
+				  var params = {mac: this.mac.selected, port: this.data.portNumber, ip: this.data.deviceParams.IP_ADDRESS, account: this.sample};
+				  Object.assign(params, this.resource);
+				  this.serviceMixQuery('ins_mac', params);
+				},
+				getMacList: function () {
+				  if ([2, 5, 7, 9, 10].indexOf(this.resource.type_of_bind) >= 0) {
+					this.loading = true; 
+					var self = this;
+					var params = {port: this.data.portParams, device: this.data.deviceParams, type: 'array'};
+					httpPost('/call/hdm/port_mac_show', params).then(function(data) {
+					  self.mac.list = data.text;
+					  self.loading = false;
+					}, function(err) {
+					  self.loading = false;
+					});
+				  };
+				},
+				insOnlyMac: function () {
+				  var params = {mac: this.mac.selected, account: this.sample};
+				  Object.assign(params, this.resource);
+				  this.serviceMixQuery('ins_only_mac', params);
+				},
+				setBind: function (type_of_bind) {
+				  var params = { ip: this.data.deviceParams.IP_ADDRESS, 
+					port: this.data.portNumber,
+					client_ip: this.client_ip,
+					mac: this.mac.selected,
+					account: this.sample };
+				  Object.assign(params, this.resource);
+				  if (type_of_bind && params.type_of_bind != 10) params.type_of_bind = type_of_bind;
+				  this.serviceMixQuery('set_bind', params, this.data.portReBindData);/*add this.data.portReBindData*/
+				},
+				serviceMixQuery: function(method, params, p_info) {/*add p_info*/
+				  this.loading = true;
+				  this.result = {};
+				  this.resultReBind = {};/*add this*/
+				  var self = this;
+				  httpPost('/call/service_mix/' + method, params, true).then(function(data) {
+					self.result = data;
+					if (data.Data && typeof data.Data == 'string' && data.Data.split('|').length == 3 ) {
+					  var connect = data.Data.split('|');
+					  data.Data = { ip: connect[0], gateway: connect[1], mask: connect[2] };
+					};
+					/*add data.reBindMe*//*only serverid=='108'*/
+					console.log(p_info);
+					if(params.serverid=='108'&&p_info){
+						if(data.isError&&data.message&&data.message.length>0&&data.message.indexOf('Мы не можем отобрать порт у контракта ')>=0){
+							data.reBindMe=parseInt(data.message.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
+							console.log(data.reBindMe);
+							var p_state=p_info.state;
+							var anonimus=(p_info.subscriber_list[0])?false:true;
+							
+							data.isAnonimus=anonimus;
+							if(!anonimus){
+								data.p_account=p_info.subscriber_list[0].account;
+								data.p_flat=p_info.subscriber_list[0].flat;
+							}
+								
+							var d_now=Date.now();/*1593533461000*/
+							var d_last=(!anonimus)?Date.parse(p_info.subscriber_list[0].last_at):d_now;
+							var div6m=((d_now-d_last)>=15724800000)?true:false;
+							var date_now_text=new Date(d_now).toISOString().slice(0,10);
+							var date_last_text=new Date(d_last).toISOString().slice(0,10);
+								
+							if(p_state=='busy'||p_state=='hub'){
+								data.alertText='последняя активность '+date_last_text;
+								data.alertClass='alert-warning';
+								data.btnText='все равно освободить';
+							}else if(p_state=='closed'){
+								data.alertText='договор расторгнут, порт можно освободить';
+								data.alertClass='alert-info';
+								data.btnText='освободить';
+							}else if(p_state=='expired'){
+								data.alertText='неактивен более 6 мес, порт можно освободить';
+								data.alertClass='alert-info';
+								data.btnText='освободить';
+							}else if(p_state=='double'){
+								data.alertText='абонент "переехал", порт можно освободить';
+								data.alertClass='alert-info';
+								data.btnText='освободить';
+							}else if(p_state=='new'){
+								data.alertText='на порту новый мак, порт можно освободить';
+								data.alertClass='alert-info';
+								data.btnText='освободить';
+							}else if(p_state=='free'){
+								data.alertText='на порту небыло активности, порт можно освободить';
+								data.alertClass='alert-info';
+								data.btnText='освободить';
+							}else{
+								data.alertText='статус порта: '+p_state;
+								data.alertClass='alert-dark';
+								data.btnText='';
+							};
+							console.log(data.alertText);
+							console.log(data.alertClass);
+							console.log(data.btnText);
+						};
+					};
+					self.loading = false;
+				  }, function() { 
+					self.loading = false;
+					self.result = {text: "Возникла ошибка при обращении к серверу Inetcore", isError: true};
+				  });
+				},
+				/*add reBind_108*/
+				reBind_108: function (vgid) {
+					var reBind_108_params={
+						ip: '10.221.153.168', 
+						port: vgid,
+						vgid: vgid,
+						serverid: '108',
+						type_of_bind:3
+					};
+					this.loading = true;
+					this.resultReBind = {};
+					var self = this;
+					httpPost('/call/service_mix/set_bind', reBind_108_params, true).then(function(data) {
+						self.resultReBind = data;
+						if(data.isError){
+							data.alertClass='alert-warning';
+							data.alertText='освободить неудалось';
+						}else if(data.InfoMessage){
+							data.alertClass='alert-success';
+							data.alertText='порт освобожден!';
+						};
+						self.loading = false;
+					},function(){ 
+						self.loading = false;
+						self.resultReBind = {alertText:'ошибка при обращении к серверу Inetcore', alertClass:'alert-danger'};
+					});
+				},
+				audioSetting: function () {
+				  try {
+					this.recognizer = new webkitSpeechRecognition();
+					this.recognizer.interimResults = true;
+					this.recognizer.lang = 'ru-RU';
+					httpGet('/call/main/setup?act=audio').then((data) => {
+					  if (data.data == true) this.audioShow = true;
+					},
+					(err) => {
+					  this.audioShow = false;
+					});
+				  }
+				  catch (e) { console.log(e) }
+				},
+				audio: function () {
+				  document.querySelector('.btn-audio .fa-microphone').style.animation = 'bounce-in 2s infinite ease-in-out alternate';
+				  var self = this;
+				  this.recognizer.onresult = function (event) {
+					var result = event.results[event.resultIndex];
+					self.sample = result[0].transcript;
+					self.sample = self.sample.replace(/[^\d|-]/g, '');
+					if (result.isFinal) {
+					  try {
+						if (self.sample.length < 11 ) 
+						  return self.account = {isError: true, type: "warning", text: "ЛС не найден"};
+						else { self.searchAccount() }
+					  }
+					  catch (err) {
+						console.log('error',err);
+					  }
+					  finally {
+						document.querySelector('.btn-audio .fa-microphone').style.animation = 'none';
+					  }
+					  document.querySelector('.btn-audio .fa-microphone').style.animation = 'none';
+					} else {
+					  document.querySelector('.btn-audio .fa-microphone').style.animation = 'none';
+					}
+				  };
+				  this.recognizer.start();
+				},
+			  },
+			});
 		};
 		
 		function myAccount_template(){
