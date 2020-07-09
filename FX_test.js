@@ -35,6 +35,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.myspeed10G{background-color:#007bff;}
 			.myoperstateup{}
 			.myoperstatedown{background-color:gray;}
+			.myoperstatelowerLayerDown{background-color:gray;}/*Edge-Core FE L2 Switch ES3528M ETH_16KR_00551_1*/
 			.myadmstateup{}
 			.myadmstatedown{background-color:red;}
 			.mypair{text-align:left;padding-left:2px;color:#000;font-family:monospace;line-height:12px;}
