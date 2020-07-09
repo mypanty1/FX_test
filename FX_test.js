@@ -66,9 +66,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.a');*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.b');*//*fix vgid*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
-		window.AppInventor.setWebViewString('version_:FX_test_v167.d');/*rebind port for region54*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.d');*//*rebind port for region54*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.e');/*add operstate lowerLayerDown*/
 		
-		console.log('version_:FX_test_v167.d');
+		console.log('version_:FX_test_v167.e');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -342,6 +343,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								if(port.admin_state=='up'){
 									if(port.oper_state=='up'){
 										return replace[port.high_speed];
+									}else if(port.oper_state=='lowerLayerDown'){/*Edge-Core FE L2 Switch ES3528M ETH_16KR_00551_1*/
+										return 'LLD'
 									}else{
 										return port.oper_state;
 									};
@@ -604,7 +607,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
 						<div v-if="link.CLIENT_IP">{{link.CLIENT_IP}}<span class="inscription">IP</span></div>
 						<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
-						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div>
+						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div><input type="button" value="отвязат" disabled="disabled">
 					  </div>
 					</div>
 					<div v-else-if="link.LINK_DEVICE_NAME" class="link">
