@@ -68,9 +68,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.b');*//*fix vgid*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.d');*//*rebind port for region54*/
-		window.AppInventor.setWebViewString('version_:FX_test_v167.e');/*add operstate lowerLayerDown*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.e');*//*add operstate lowerLayerDown*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.f');*//*add addresses[1].address*//*add address to ID*/
 		
-		console.log('version_:FX_test_v167.e');
+		console.log('version_:FX_test_v167.f');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -82,7 +83,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPortsEl_template();/*улучшенная карта портов*/
 				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
-				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*/
+				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*/
 				templates_need_replace=false;
 			};
 		};
@@ -608,7 +609,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
 						<div v-if="link.CLIENT_IP">{{link.CLIENT_IP}}<span class="inscription">IP</span></div>
 						<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
-						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div><input type="button" value="undefined">
+						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div>
 					  </div>
 					</div>
 					<div v-else-if="link.LINK_DEVICE_NAME" class="link">
@@ -932,6 +933,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                     <div>
                         <span class="small-text">{{ acc.address }}</span>
                     </div>
+					<!--add this fragment-->
+					<div v-if="!acc.address&&acc.addresses&&acc.addresses[1]&&acc.addresses[1].address">
+                        <span class="small-text">{{acc.addresses[1].address}}</span>
+                    </div>
+					<!--add this fragment-->
                     <div v-show="acc.phone" class="small-text">
                         {{ acc.phone }}
                         <span class="inscription">Телефон</span>
@@ -958,8 +964,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                                                 v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
                                                 v-model="resource">
                                         <!--replaced this fragment-->
-                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/><span class="small-text">{{vg.tardescr}}</span></span>
-											<!--replaced this fragment-->
+                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/>
+											<div class="small-text">{{vg.tardescr}}</div>
+											<div v-if="vg.addresses&&vg.addresses[0]&&(vg.addresses[0].address!=acc.address)" class="small-text">{{vg.addresses[0].address}}</div>
+										</span>
+										<!--replaced this fragment-->
                                         </input>
                                     </div>
                                 </label>
