@@ -69,7 +69,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.d');*//*rebind port for region54*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.e');*//*add operstate lowerLayerDown*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.f');*//*add addresses[1].address*//*add address to ID*/
+		window.AppInventor.setWebViewString('version_:FX_test_v167.f');/*add addresses[1].address*//*add address to ID*/
 		
 		console.log('version_:FX_test_v167.f');
 	
