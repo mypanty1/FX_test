@@ -608,7 +608,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<div>{{ link.MAC }}<span class="inscription">MAC</span></div>
 						<div v-if="link.CLIENT_IP">{{link.CLIENT_IP}}<span class="inscription">IP</span></div>
 						<div>{{ link.FIRST_DATE }}<span class="inscription">первый выход</span></div>
-						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div><input type="button" value="отвязат" disabled="disabled">
+						<div>{{ lastDate(link) }}<span class="inscription">последний выход</span></div><input type="button" value="undefined">
 					  </div>
 					</div>
 					<div v-else-if="link.LINK_DEVICE_NAME" class="link">
