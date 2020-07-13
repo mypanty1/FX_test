@@ -912,7 +912,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		function mySetPort_modal(){
 			document.getElementById('set-port-modal').innerHTML=`
     <div class="container-fluid">
-		<div class="search-ctrl box-shadow-none search-account-modal">
+		<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
             <div class="input-group">
                 <input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="Найти">
                 <div class="input-group-append">
@@ -964,12 +964,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                                                 v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
                                                 v-model="resource">
                                         <!--replaced this fragment-->
-                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/>
-											<div class="small-text">{{vg.tardescr}}</div>
-											<div v-if="vg.addresses&&vg.addresses[0]&&(vg.addresses[0].address!=acc.address)" class="small-text">{{vg.addresses[0].address}}</div>
-										</span>
+                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/></span>
+										<div class="small-text">{{vg.tardescr}}</div>
+										<div v-if="vg.addresses&&vg.addresses[0]&&(vg.addresses[0].address!=acc.address)" class="small-text">{{vg.addresses[0].address}}</div>
 										<!--replaced this fragment-->
-                                        </input>
                                     </div>
                                 </label>
                             </div>
