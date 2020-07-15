@@ -1217,7 +1217,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='expired'){
-								data.alertText='неактивен более 6 мес, порт можно освободить';
+								data.alertText='неактивен более 90 дней, порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='double'){
