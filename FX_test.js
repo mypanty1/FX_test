@@ -69,9 +69,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.d');*//*rebind port for region54*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v167.e');*//*add operstate lowerLayerDown*/
-		window.AppInventor.setWebViewString('version_:FX_test_v167.f');/*add addresses[1].address*//*add address to ID*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v167.f');*//*add addresses[1].address*//*add address to ID*/
+		window.AppInventor.setWebViewString('version_:FX_test_v168.a');
 		
-		console.log('version_:FX_test_v167.f');
+		console.log('version_:FX_test_v168.a');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -81,7 +82,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				myPortsEl_template();/*улучшенная карта портов*/
-				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*/
+				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*заменены буквы*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
 				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*/
 				templates_need_replace=false;
@@ -477,47 +478,84 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		
 		function myPort_template(){
 			document.getElementById('port-template').innerHTML=`
-			<div v-if="data">
-			  <div class="info-block port-info">
-				<screen-header-el @click="refresh">
-				  <template slot="title">порт № {{ data.number }}</template>
-				  <span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_ADMIN_STATUS)">a</span>
-				  <span @click="loadStatus" class="led big" :class="ledClass(data.status.IF_OPER_STATUS)">o</span>
-				  {{ data.snmp_name }}
-				  <template slot="info">
-					№ {{ data.number }}
-					<span class="speed">{{ data.status.IF_SPEED ? '(' + data.status.IF_SPEED + ')' : '' }}</span>
-				  </template>
-				  <template slot="minor">{{ data.name }}</template>
-				</screen-header-el>
-				<div @click="toDevice">
-				  <i class="fas fa-network-wired faded mr-1"></i>
-				  {{ data.device_name }}
+			<div v-if="port">
+			  <div class="info-block port-info port-view">
+				<header class='port-view__header' @click='refresh'>
+				  <div class="d-flex align-content-center justify-content-between">
+				  <!--modify this-->
+					<div class="port-view__title">порт</div>
+				<!--modify this-->
+					<div>
+					  <i class="fas fa-redo-alt port-view__refresh-icon"></i>
+					</div>
+				  </div>
+				  <div class='d-flex align-content-center port-view__number-row'>
+					<!--modify this-->
+					<span @click="loadStatus" class="port-view__led":class="ledClass(port.status.IF_ADMIN_STATUS)">A</span>
+					<span @click="loadStatus" class="port-view__led":class="ledClass(port.status.IF_OPER_STATUS)">O</span>
+					<div class='port-view__number'>порт {{port.number}}</div>
+					<!--modify this-->
+				  </div>
+				  <div class='port-view__snmp-name'>
+					{{ port.snmp_name }}
+					<template v-if='port.status.IF_SPEED'>
+					  <span>• {{port.status.IF_SPEED}}</span>
+					</template>
+				  </div>
+				  <div class='port-view__name'>{{port.name}}</div>
+				</header>
+
+				<div class='port-view__to-device' @click="toDevice">
+				  <i class="fas fa-network-wired faded mr-3"></i>
+				  {{ port.device_name }}
 				  <i class="fa fa-chevron-right float-right"></i>
 				</div>
-				<div v-if="data.last_mac">{{ data.last_mac.last_at }}<span class="inscription">последний выход</span></div>
-				<div v-if="data.last_mac">{{ data.last_mac.value }}<span class="inscription">MAC</span></div>
-				<div v-if="data.client_ip">{{ data.client_ip }}<span class="inscription">IP</span></div>
-				<div v-bind:disabled="loading.status" v-show="data.status" class="snmp-status">
-				  <span v-on:click="clearErrors"><i class="fa fa-recycle"></i></span>
-				  <span class="speed">
-					{{ IOErrors }}
-				  </span>
-				  <span class="inscription">ошибки</span>
+				<div class="port-view__info">
+				  <div v-if="port.last_mac || port.link">
+					{{ lastEnry }}
+					<span class="inscription">последний выход</span>
+				  </div>
+				  <div v-if="port.last_mac">
+					{{ port.last_mac.value }}
+					<span class="inscription">MAC</span>
+				  </div>
+				  <div v-if="port.client_ip">
+					{{ port.client_ip }}
+					<span class="inscription">IP</span>
+				  </div>
 				</div>
-				<div v-bind:disabled="loading.loopback" class="snmp-status">
-				  <span v-if="loading.loopback">Проверяем...</span>
-				  <span v-else>
-					<img v-if="data.loopback.detected" src="../f/i/icons/kz.svg" title="Обнаружена петля">
-					{{ data.loopback.text || data.loopback.description  }}
-				  </span>
-				  <span class="inscription">петля</span>
+				<!--modify this-->
+				<port-vlan class="port-view__row-info" v-if='portInfoForVlan' :port='portInfoForVlan' />
+				<!--modify this-->
+				<div v-if="port.status" class="port-view__row-info" @click="clearErrors">
+				  <div>
+					<span>
+					  <i class="fa fa-recycle"></i>&nbsp;
+					</span>
+					<span>
+					  {{ IOErrors }}
+					</span>
+				  </div>
+				  <span class="port-view__inscription">ошибки</span>
 				</div>
-				<div class="small-text">{{ data.snmp_description }}</div>
-				<div v-show="loading.status || loading.loopback" class="progress">
+				<div v-bind:disabled="loading.loopback" class="port-view__row-info">
+				  <div>
+					<span v-if="loading.loopback">Проверяем...</span>
+					<span v-else>
+					  <img v-if="port.loopback.detected" 
+					  src="../f/i/icons/kz.svg"
+					  title="Обнаружена петля">
+					  {{ port.loopback.text || port.loopback.description  }}
+					</span>
+				  </div>
+				  <span class="port-view__inscription">петля</span>
+				</div>
+				<div class="port-view__description">{{ port.snmp_description }}</div>
+				<div v-show="loading.status || loading.loopback"  class="progress">
 				  <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
 				</div>
 			  </div>
+
 			  <div class="info-block">
 				<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseActions" href="#collapseActions">
 				  <span>Действия</span>
@@ -528,7 +566,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  <button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						<i class="fas fa-power-off"></i>
 						Перезагрузить порт
-						<span v-show="data.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
+						<span v-show="port.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
 					  </button>
 					  <div v-show="loading.restart" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -541,15 +579,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  </button>
 					</div>
 					<div class="action-block">
-					  <button @click="testCable" v-bind:disabled="loading.cabletest || blockedDiagButton" class="btn btn-action btn-row btn-sm">
-					  <!--replace blockedSetButton <button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">-->
+						<button @click="testCable" v-bind:disabled="loading.cabletest || blockedDiagButton" class="btn btn-action btn-row btn-sm">
+						<!--replace this
+						<button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">
+						-->
 						<i class="fas fa-ruler-combined"></i>
 						Кабель тест
 					  </button>
-					  <template v-if="data.cabletest">
-						<div v-if="data.cabletest.type == 'error'" class="alert alert-danger">{{ data.cabletest.message }}</div>
+					  <template v-if="port.cabletest">
+						<div v-if="port.cabletest.type == 'error'" class="alert alert-danger">{{ port.cabletest.message }}</div>
 						<pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\\n') }}</pre>
-						<!-- add \ <pre v-if="data.cabletest.type == 'info'" class="text-block">{{ data.cabletest.text.join('\n') }}</pre>-->
+						<!--replace this
+						<pre v-if="port.cabletest.type == 'info'" class="text-block">{{ port.cabletest.text.join('\n') }}</pre>
+						-->
 					  </template>
 					  <div v-show="loading.cabletest" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -557,7 +599,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 					<div class="action-block">
 					  <button @click="showLog()" class="btn btn-action btn-row btn-sm">
-					  <!-- remove v-bind <button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">-->
+					  <!--replace this
+						<button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">
+						-->
 						<i class="fas fa-stream"></i>
 						Показать лог
 					  </button>
@@ -572,8 +616,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  </button>
 					  <template v-if="macs">
 						<div v-if="macs.type == 'error'" class="alert alert-danger">{{ macs.message }}</div>
+						<!--replace this
+						<pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\n') }}</pre>
+						-->
 						<pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\\n') }}</pre>
-						<!-- add \ <pre v-if="macs.type == 'info'" class="text-block">{{ macs.text.join('\n') }}</pre>-->
 					  </template>
 					  <div v-show="loading.macs" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -583,7 +629,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  <button @click="clearMac" v-bind:disabled="loading.cleanmac || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						<i class="fas fa-trash-alt"></i>
 						Очистить MAC на порту
-						<span v-show="data.clearMac" class="text-success float-right"><i class="fa fa-check"></i></span>
+						<span v-show="port.clearMac" class="text-success float-right"><i class="fa fa-check"></i></span>
 					  </button>
 					  <div v-show="loading.cleanmac" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -591,10 +637,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					</div>
 				</div>
 			  </div>
+
 			  <div class="info-block port-info">
 				<div v-if="loading.link"><span>Подключения</span></div>
 				<ul class="list-group list-group-flush">
-				  <li v-for="link in data.link" class="list-group-item">
+				  <li v-for="link in port.link" class="list-group-item">
 					<div v-if="link.ACCOUNT" class="link">
 					  <div :class="{ contract : link.CLOSE_DATE }">
 						<div @click="jump(link)" class="link-title">
@@ -678,12 +725,23 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  </div>
 				</div>
 			  </div>
-			</div>`;
+		  </div>`;
 			Vue.component('port-view', {
+			  template: '#port-template',
 			  props: ['data'],
 			  data: function () {
 				return {
-				  loading: { link: false, status: false, cabletest: false, cleanmac:false, restart: false, clean: false, loopback: false, log: false, macs: false },
+				  loading: {
+					link: false,
+					status: false,
+					cabletest: false,
+					cleanmac: false,
+					restart: false,
+					clean: false,
+					loopback: false,
+					log: false,
+					macs: false
+				  },
 				  cabletest: {},
 				  loopback: {},
 				  macs: {},
@@ -692,12 +750,24 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					status: '',
 					data: [],
 				  },
-				  state: 'free'
+				  state: 'free',
+				  device: {},
+				  port: {}
 				}
 			  },
-			  template: '#port-template',
 			  created: function () {
-				if (Array.isArray(this.data)) this.data = this.data[0];
+				if (this.data) {
+				  const data = Array.isArray(this.data) ? this.data[0] : this.data;
+				  this.port = data;
+				  if (data.device) {
+					this.device = data.device;
+					this.loadStatus();
+				  } else {
+					this.loadDevice(() => {
+					  this.loadStatus();
+					})
+				  }
+				}
 				switch (this.data.state) {
 				  case 'bad':
 					this.state = 'bad';
@@ -709,27 +779,31 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  default:
 					this.state = 'busy';
 				}
+
 				if (!this.data.link && this.state == 'busy') this.loadLink();
-				this.data.status = {};
-				this.data.loopback = {};
-				this.loadStatus();
+				this.port.status = {};
+				this.port.loopback = {};
+
 			  },
 			  computed: {
 				blockedSetButton: function () {
-				  if (this.data.is_trunk || this.data.is_link  || this.loading.status) return true /*|| this.data.status.IF_SPEED == '1.0 gbit/s'*/
+				  return this.port.is_trunk || this.port.is_link || this.loading.status
 				},
 				/*add blockedDiagButton*/
 				blockedDiagButton: function () {
 					if (((this.data.is_trunk || this.data.is_link) && this.data.status.IF_OPER_STATUS) || this.loading.status) return true
 				},
 				blockedSetPortForUser: function () {
-				  if (this.data.is_trunk || this.data.state == 'bad' || this.data.status.IF_ADMIN_STATUS == false || this.blockedSetButton) return true
+				  return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || this.blockedSetButton
 				},
 				portParams: function () {
-				  return { SNMP_PORT_NAME: this.data.snmp_name };
+				  return {
+					SNMP_PORT_NAME: this.port.snmp_name
+				  };
 				},
 				deviceParams: function () {
-				  return weedOut(this.data.device, 'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION');
+				  const keys = 'MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION';
+				  return weedOut(this.device, keys);
 				},
 				/*add portReBindData, for set-port-modal*/
 				portReBindData: function(){
@@ -739,46 +813,66 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						state:this.data.state,
 						subscriber_list:this.data.subscriber_list
 					};
+				},
+				lastEnry: function () {
+				  if (this.port.link && this.port.link.length) {
+					let lastEntry = this.port.link.sort((a, b) => new Date(b.last_at) - new Date(a.last_at))[0].last_at;
+					return Dt.formatLocalTime(new Date(lastEntry));
+				  };
+				  return this.port.last_mac.last_at;
+				},
+				portInfoForVlan() {
+				  if (Object.keys(this.device).length == 0) return false;
+				  const data = this.port;
+				  const device = this.device;
+				  return {
+					mr_id: device.MR_ID,
+					ip_address: device.IP_ADDRESS,
+					system_object_id: device.SYSTEM_OBJECT_ID,
+					vendor: device.VENDOR,
+					port: data.snmp_name,
+					name: data.name
+				  };
 				}
 			  },
 			  methods: {
 				refresh: function () {
 				  this.$root.clean();
-				  this.$root.find(this.data.name);
+				  this.$root.find(this.port.name);
 				},
 				loadLink: function () {
-				  if (this.data.link) return;
+				  if (this.port.link) return;
 				  this.loading.link = true;
-				  var self = this;
-				  var params = {
-					device: this.data.device_name,
-					port: this.data.name,
-					trunk: this.data.is_trunk,
-					link: this.data.is_link,
+				  const params = {
+					device: this.port.device_name,
+					port: this.port.name,
+					trunk: this.port.is_trunk,
+					link: this.port.is_link,
 				  };
-				  httpGet(buildUrl('port_info', params)).then(function(data) {
-					self.data.link = data;
-					if (data && data.length == 0) self.state = 'free';
-					self.loading.link = false;
+
+				  httpGet(buildUrl('port_info', params)).then((data) => {
+					this.port.link = data;
+					if (data && data.length == 0) this.state = 'free';
+					this.loading.link = false;
 				  });
 				},
 				loadStatus: function () {
-				  if (this.data.device && this.data.device.ping && this.data.device.ping.available() == 'no') return;
 				  if (this.loading.status) return;
-				  this.data.status = {};
-				  this.data.status.text = 'загружается...';
+				  this.port.status = {};
+				  this.port.status.text = 'загружается...';
 				  this.loading.status = true;
-				  var self = this;
-				  var params = {
-					device: this.data.device_name,
-					port: this.data.snmp_name
+				  const params = {
+					device: this.port.device_name,
+					port: this.port.snmp_name
 				  };
-				  httpGet(buildUrl('port_status', params, '/call/hdm/'), true).then(function(data, isMsg) {
-					var numShow = function (val) { return isNaN(val) ? '-' : +val };
-					if (isMsg) self.data.status.text = 'не удалось получить';
-					else self.data.status = data;
-					self.IOErrors = numShow(data.IF_IN_ERRORS) + ' / ' + numShow(data.IF_OUT_ERRORS);
-					self.loading.status = false;
+				  httpGet(buildUrl('port_status', params, '/call/hdm/'), true).then((data, isMsg) => {
+					var numShow = function (val) {
+					  return isNaN(val) ? '-' : +val
+					};
+					if (isMsg) this.port.status.text = 'не удалось получить';
+					else this.port.status = data;
+					this.IOErrors = numShow(data.IF_IN_ERRORS) + ' / ' + numShow(data.IF_OUT_ERRORS);
+					this.loading.status = false;
 				  });
 				  this.detectLoop();
 				},
@@ -791,114 +885,145 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				},
 				ledClass: function (turned) {
 				  if (typeof turned === 'undefined') return '';
-				  return turned ? 'on' : 'off';
+				  return turned ? 'on port-view__led--on' : 'off port-view__led--off';
 				},
 				toDevice: function () {
-					this.$root.jump(this.data.device_name, true); 
+				  this.$root.jump(this.port.device_name, true);
 				},
 				restartPort: function () {
 				  this.loading.restart = true;
-				  this.data.restartPort = false;
-				  var self = this;
-				  this.loadDevice(function () {
-					httpPost('/call/hdm/port_reboot', {port: self.portParams, device: self.deviceParams}).then(function(data) {
-					  self.loading.restart = false;
+				  this.port.restartPort = false;
+				  this.loadDevice(() => {
+					const params = {
+					  port: this.portParams,
+					  device: this.deviceParams
+					};
+					httpPost('/call/hdm/port_reboot', params).then((data) => {
+					  this.loading.restart = false;
 					  if (data.message === 'OK') {
-						self.data.restartPort = true;
-						self.loadStatus();
-					  }
+						this.data.restartPort = true;
+						this.loadStatus();
+					  };
 					});
 				  });
 				},
 				clearMac: function () {
 				  this.loading.cleanmac = true;
-				  this.data.clearMac = false;
-				  var self = this;
-				  this.loadDevice(function () {
-					httpPost('/call/hdm/clear_macs_on_port', {port: self.portParams, device: self.deviceParams}).then(function(data) {
-					  self.loading.cleanmac = false;
+				  this.port.clearMac = false;
+				  this.loadDevice(() => {
+					const params = {
+					  port: this.portParams,
+					  device: this.deviceParams
+					};
+					httpPost('/call/hdm/clear_macs_on_port', params).then((data) => {
+					  this.loading.cleanmac = false;
 					  if (data.message === 'OK') {
-						self.data.clearMac = true;
-						self.loadStatus();
-					  }
+						this.port.clearMac = true;
+						this.loadStatus();
+					  };
 					});
 				  });
 				},
 				testCable: function () {
 				  this.loading.cabletest = true;
-				  this.data.cabletest = {};
-				  var self = this;
-				  this.loadDevice(function () {
-					httpPost('/call/hdm/port_cable_test', {port: self.portParams, device: self.deviceParams}).then(function(data) {
-					  self.data.cabletest = data;
-					  self.loading.cabletest = false;
+				  this.port.cabletest = {};
+				  this.loadDevice(() => {
+					const params = {
+					  port: this.portParams,
+					  device: this.deviceParams
+					};
+					httpPost('/call/hdm/port_cable_test', params).then((data) => {
+					  this.port.cabletest = data;
+					  this.loading.cabletest = false;
 					});
 				  });
 				},
 				loadDevice: function (callback) {
-				  if (!this.data.device) {
-					var self = this;
-					httpGet(buildUrl('search', {pattern: encodeURIComponent(this.data.device_name)})).then(function(data) {
-					  self.data.device = data.data;
-					  callback();
+				  const is_device = !(Object.keys(this.device).length > 0);
+				  if (is_device) {
+					const params = {
+					  pattern: encodeURIComponent(this.port.device_name)
+					};
+					httpGet(buildUrl('search', params)).then((response) => {
+					  this.device = response.data;
+					  this.$nextTick(() => {
+						callback();
+					  })
 					});
 				  } else {
 					console.log('device is found');
 					callback();
-				  }
+				  };
 				},
 				clearErrors: function () {
 				  this.loading.status = true;
-				  this.data.status = {};
-				  var self = this;
-				  this.loadDevice(function () {
-					httpPost('/call/hdm/port_error_clean', {port: self.portParams, device: self.deviceParams}).then(function(data) {
-					  self.loading.status = false;
-					  self.loadStatus();
+				  this.port.status = {};
+				  this.loadDevice(() => {
+					const params = {
+					  port: this.portParams,
+					  device: this.deviceParams
+					};
+					httpPost('/call/hdm/port_error_clean', params).then(() => {
+					  this.loading.status = false;
+					  this.loadStatus();
 					});
 				  });
 				},
 				detectLoop: function () {
 				  this.loading.loopback = true;
-				  this.data.loopback = {};
-				  var self = this;
-				  this.loadDevice(function () {
-					httpPost('/call/hdm/port_info_loopback', {port: self.portParams, device: self.deviceParams}, true).then(function(data) {
-					  self.data.loopback = data;
-					  self.loading.loopback = false;
+				  this.port.loopback = {};
+				  this.loadDevice(() => {
+					const params = {
+					  port: this.portParams,
+					  device: this.deviceParams
+					};
+					httpPost('/call/hdm/port_info_loopback', params, true).then((data) => {
+					  this.data.loopback = data;
+					  this.loading.loopback = false;
 					});
 				  });
 				},
 				showLog() {
 				  $('#logModal').modal('toggle');
-				  var self = this;
-				  self.loading.log = true;
-				  self.log.status = '';
-				  httpPost('/call/hdm/log_short', {port: self.portParams, device: self.deviceParams}).then(function(data) {
-					console.log('log', data);
+				  this.loading.log = true;
+				  this.log.status = '';
+				  const params = {
+					port: this.portParams,
+					device: this.deviceParams
+				  };
+				  httpPost('/call/hdm/log_short', params).then((data) => {
 					if (data.message === 'OK') {
-					  Object.assign(self.log, {status: 'success', data: data.text});
+					  Object.assign(this.log, {
+						status: 'success',
+						data: data.text
+					  });
 					} else if (data.error) {
-					  Object.assign(self.log, {status: 'error', data: data.text});
-					}
-					self.loading.log = false;
+					  Object.assign(this.log, {
+						status: 'error',
+						data: data.text
+					  });
+					};
+					this.loading.log = false;
 				  });
 				},
 				setPortForUser: function () {
-				  this.$root.showModal({ 
+				  this.$root.showModal({
 					title: 'Выбор лицевого счета',
 					/*add portReBindData:this.portReBindData*/
-					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams, portReBindData:this.portReBindData}, 
+					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams, portReBindData:this.portReBindData},
 					component: 'set-port-modal'
 				  });
 				},
 				showPortMacs: function () {
 				  this.loading.macs = true;
-				  var self = this;
-				  httpPost('/call/hdm/port_mac_show', {port: self.portParams, device: self.deviceParams}).then(function(data) {
+				  const params = {
+					port: this.portParams,
+					device: this.deviceParams
+				  };
+				  httpPost('/call/hdm/port_mac_show', params).then((data) => {
 					if (typeof data.text == 'string') data.text = [data.text];
-					self.macs = data;
-					self.loading.macs = false;
+					this.macs = data;
+					this.loading.macs = false;
 				  });
 				},
 				lastDate: function (link) {
@@ -1217,7 +1342,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='expired'){
-								data.alertText='неактивен более 90 дней, порт можно освободить';
+								data.alertText='неактивен более 3 мес, порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='double'){
