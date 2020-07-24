@@ -1310,7 +1310,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						if(data.isError&&data.message&&data.message.length>0&&data.message.indexOf('Мы не можем отобрать порт у контракта ')>=0){
 							data.reBindMe=parseInt(data.message.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
 							console.log(data.reBindMe);
-							var p_state=p_info.state;
+							/*var p_state=p_info.state;*/
 							var anonimus=(p_info.subscriber_list[0])?false:true;
 							
 							data.isAnonimus=anonimus;
@@ -1325,44 +1325,47 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							var date_now_text=new Date(d_now).toISOString().slice(0,10);
 							var date_last_text=new Date(d_last).toISOString().slice(0,10);
 								
-							if(p_state=='busy'||p_state=='hub'){
+							if(p_info.state=='busy'||p_info.state=='hub'){
 								data.alertText='последняя активность '+date_last_text;
 								data.alertClass='alert-warning';
 								data.btnText='все равно освободить';
-							}else if(p_state=='closed'){
+							}else if(p_info.state=='closed'){
 								data.alertText='договор расторгнут, порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
-							}else if(p_state=='expired'){
+							}else if(p_info.state=='expired'){
 								data.alertText='неактивен более 3 мес, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
-							}else if(p_state=='double'){
+							}else if(p_info.state=='double'){
 								data.alertText='мак "переехал" на другой порт, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
-							}else if(p_state=='new'){
+							}else if(p_info.state=='new'){
 								data.alertText='на порту новый мак, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
-							}else if(p_state=='free'){
+							}else if(p_info.state=='free'){
 								data.alertText='на порту никогда небыло активности, порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else{
-								data.alertText='статус порта: '+p_state;
+								data.alertText='статус порта: '+p_info.state;
 								data.alertClass='alert-dark';
 								data.btnText='';
 							};
 							console.log(data.alertText);
 							console.log(data.alertClass);
 							console.log(data.btnText);
-							window.AppInventor.setWebViewString('string_1:(warning) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' contract:'+data.reBindMe+' text:'+data.alertText);
+							console.log('string_1:(warning) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText);
+							window.AppInventor.setWebViewString('string_1:(warning) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText);
 						}else{
-							window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' text:'+data.InfoMessage);
+							console.log('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
+							window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
 						};
 					}else{
-						window.AppInventor.setWebViewString('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' mac:'+params.mac+' clien_ip:'+params.clien_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
+						console.log('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
+						window.AppInventor.setWebViewString('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
 					};
 					self.loading = false;
 				  }, function() { 
@@ -1389,7 +1392,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							data.alertText='освободить неудалось';
 						}else if(data.InfoMessage){
 							data.alertClass='alert-success';
-							data.alertText='порт освобожден!'+((data.Data.IP)?('это был абонент с ip:'+data.Data.IP):'');
+							data.alertText='порт освобожден!'+((data.Data.IP)?(' это был абонент с ip:'+data.Data.IP):'');
+							console.log('string_2:(rebind) sw:'+reBind_108_params.ip+' p:'+reBind_108_params.port+' id:'+vgid+' ip:'+data.Data.IP);
 							window.AppInventor.setWebViewString('string_2:(rebind) sw:'+reBind_108_params.ip+' p:'+reBind_108_params.port+' id:'+vgid+' ip:'+data.Data.IP);
 						};
 						self.loading = false;
