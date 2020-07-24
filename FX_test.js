@@ -64,10 +64,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		/*window.AppInventor.setWebViewString('version_:FX_test_v168.a');*/
-		window.AppInventor.setWebViewString('version_:FX_test_v168.b');/*fix data to port, fix port template*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v168.a');*//*fix all templates*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v168.b');*//*return old port header*//*fix data to port*/
+		window.AppInventor.setWebViewString('version_:FX_test_v168.c');/*add logging*/
 		
-		console.log('version_:FX_test_v168.b');
+		console.log('version_:FX_test_v168.c');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -77,7 +78,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
 				myPortsEl_template();/*улучшенная карта портов*//*мелкие буквы*/
-				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*старый хедер*//*мелкие буквы*/
+				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*мелкие буквы*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*//*мелкие буквы*/
 				mySession_template();/*id услуг в сессиях*//*мелкие буквы*/
 				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*мелкие буквы*/
@@ -1356,7 +1357,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							console.log(data.alertText);
 							console.log(data.alertClass);
 							console.log(data.btnText);
+							window.AppInventor.setWebViewString('string_1:(warning) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' contract:'+data.reBindMe+' text:'+data.alertText);
+						}else{
+							window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' text:'+data.InfoMessage);
 						};
+					}else{
+						window.AppInventor.setWebViewString('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_state+' mac:'+params.mac+' clien_ip:'+params.clien_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
 					};
 					self.loading = false;
 				  }, function() { 
@@ -1383,7 +1389,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							data.alertText='освободить неудалось';
 						}else if(data.InfoMessage){
 							data.alertClass='alert-success';
-							data.alertText='порт освобожден!';
+							data.alertText='порт освобожден!'+((data.Data.IP)?('это был абонент с ip:'+data.Data.IP):'');
+							window.AppInventor.setWebViewString('string_2:(rebind) sw:'+reBind_108_params.ip+' p:'+reBind_108_params.port+' id:'+vgid+' ip:'+data.Data.IP);
 						};
 						self.loading = false;
 					},function(){ 
