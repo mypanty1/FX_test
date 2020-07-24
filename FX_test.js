@@ -64,15 +64,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.a');*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.b');*//*fix vgid*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.c');*//*fix mac to region78*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.d');*//*rebind port for region54*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.e');*//*add operstate lowerLayerDown*/
-		/*window.AppInventor.setWebViewString('version_:FX_test_v167.f');*//*add addresses[1].address*//*add address to ID*/
-		window.AppInventor.setWebViewString('version_:FX_test_v168.a');
+		/*window.AppInventor.setWebViewString('version_:FX_test_v168.a');*/
+		window.AppInventor.setWebViewString('version_:FX_test_v168.b');/*fix data to port, fix port template*/
 		
-		console.log('version_:FX_test_v168.a');
+		console.log('version_:FX_test_v168.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -81,10 +76,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				myPortsEl_template();/*улучшенная карта портов*/
-				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*заменены буквы*/
-				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*/
-				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*/
+				myPortsEl_template();/*улучшенная карта портов*//*мелкие буквы*/
+				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*старый хедер*//*мелкие буквы*/
+				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*//*мелкие буквы*/
+				mySession_template();/*id услуг в сессиях*//*мелкие буквы*/
+				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*мелкие буквы*/
 				templates_need_replace=false;
 			};
 		};
@@ -92,49 +88,60 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		function myPortsEl_template(){
 			document.getElementById('ports-el-template').innerHTML=`
 				<div class="ports-el myPorts">
-					<div v-if="loading">Порты</div>
+					<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
 					<template v-else>
 						<div class="device-ports-view-toggle">
 							<input @change="changeTab" name="ports-view-toggle" type="checkbox" class="view-toggle" id="ports-view-toggle" :checked="showdetails">
 							<label for="ports-view-toggle">
 								<div class="ports-view-toggle-background d-flex">
-									<div class="col-6 d-flex d-flex justify-content-center align-items-center">Компактно</div>
-									<div class="col-6 d-flex d-flex justify-content-center align-items-center">Подробно</div>
+									<div class="col-6 d-flex d-flex justify-content-center align-items-center">компактно</div><!--modify this, мелкие буквы-->
+									<div class="col-6 d-flex d-flex justify-content-center align-items-center">подробно</div><!--modify this, мелкие буквы-->
 								</div>
 							</label>
 						</div>
 						<template v-if="showdetails">
 							<div v-if="isoptical">
-								<center>Не поддерживается устройством</center>
+								<center>не поддерживается устройством</center><!--modify this, мелкие буквы-->
 							</div>
 							<div v-else class="ports-request-info-buttons d-flex">
+								<!--replace col-5-->
 								<div class="col-3 col-status">
 								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="getPortsErrors" :disabled="disableButton">
-									<template v-if="loaded.portsErrors">Ошибки</template>
+									<template v-if="loaded.portsErrors">ошибки</template><!--modify this, мелкие буквы-->
 									<template v-else>
 									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
-									  <!--Проверяем...-->
+									  <!--delete this
+									  Проверяем...
+									  -->
 									</template>
 								  </button>          
 								</div>
+								<!--replace col-5-->
 								<div class="col-3 col-loops">
 								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="detectLoop" :disabled="disableButton">
-									<template v-if="loaded.portsLoop">Петли</template>
+									<template v-if="loaded.portsLoop">петли</template><!--modify this, мелкие буквы-->
 									<template v-else>
 									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
-									  <!--Проверяем...-->
+									  <!--delete this
+									  Проверяем...
+									  -->
 									</template>
 								  </button>
 								</div>
+								<!--move updateAll to after cabletest-->
+								<!--replace col-12 col-cable-test-->
 								<div class="col-3 col-status">
 								  <button class="btn-send-request d-flex justify-content-center align-items-center" @click="loadPortsInfo('cable')" :disabled="disableButton">
-									<template v-if="loaded.portsCableTest">Кабели</template>
+									<template v-if="loaded.portsCableTest">кабели</template><!--modify this, мелкие буквы-->
 									<template v-else>
 									  <div class="spinner-border spinner-border-sm text-secondary mr-1" role="status"></div>
-									  <!--Проверяем...-->
+									  <!--delete this
+									  Проверяем...
+									  -->
 									</template>
 								  </button>
 								</div>
+								<!--move this after cabletest-->
 								<div class="col-2 col-update-all" style="margin-left:auto;">
 									<button class="btn-send-request d-flex justify-content-center align-items-center" @click="updateAll" :disabled="disableButton">
 										<div class="fa fa-redo-alt icon-20"></div>
@@ -480,30 +487,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			document.getElementById('port-template').innerHTML=`
 			<div v-if="port">
 			  <div class="info-block port-info port-view">
-				<header class='port-view__header' @click='refresh'>
-				  <div class="d-flex align-content-center justify-content-between">
-				  <!--modify this-->
-					<div class="port-view__title">порт</div>
-				<!--modify this-->
-					<div>
-					  <i class="fas fa-redo-alt port-view__refresh-icon"></i>
-					</div>
-				  </div>
-				  <div class='d-flex align-content-center port-view__number-row'>
-					<!--modify this-->
-					<span @click="loadStatus" class="port-view__led":class="ledClass(port.status.IF_ADMIN_STATUS)">A</span>
-					<span @click="loadStatus" class="port-view__led":class="ledClass(port.status.IF_OPER_STATUS)">O</span>
-					<div class='port-view__number'>порт {{port.number}}</div>
-					<!--modify this-->
-				  </div>
-				  <div class='port-view__snmp-name'>
-					{{ port.snmp_name }}
-					<template v-if='port.status.IF_SPEED'>
-					  <span>• {{port.status.IF_SPEED}}</span>
-					</template>
-				  </div>
-				  <div class='port-view__name'>{{port.name}}</div>
-				</header>
+			<!--replace header-->
+				<screen-header-el @click="refresh">
+				  <template slot="title">порт № {{ port.number }}</template>
+				  <span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)">A</span>
+				  <span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_OPER_STATUS)">O</span>
+				  {{ port.snmp_name }}
+				  <template slot="info">
+					№ {{ port.number }}
+					<span class="speed">{{ port.status.IF_SPEED ? '(' + port.status.IF_SPEED + ')' : '' }}</span>
+				  </template>
+				  <template slot="minor">{{ port.name }}</template>
+				</screen-header-el>
+			<!--replace header-->
 
 				<div class='port-view__to-device' @click="toDevice">
 				  <i class="fas fa-network-wired faded mr-3"></i>
@@ -524,9 +520,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<span class="inscription">IP</span>
 				  </div>
 				</div>
-				<!--modify this-->
 				<port-vlan class="port-view__row-info" v-if='portInfoForVlan' :port='portInfoForVlan' />
-				<!--modify this-->
 				<div v-if="port.status" class="port-view__row-info" @click="clearErrors">
 				  <div>
 					<span>
@@ -540,11 +534,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				</div>
 				<div v-bind:disabled="loading.loopback" class="port-view__row-info">
 				  <div>
-					<span v-if="loading.loopback">Проверяем...</span>
+					<span v-if="loading.loopback">проверка...</span><!--modify this, мелк буквы-->
 					<span v-else>
-					  <img v-if="port.loopback.detected" 
-					  src="../f/i/icons/kz.svg"
-					  title="Обнаружена петля">
+					  <img v-if="port.loopback.detected" src="../f/i/icons/kz.svg" title="обнаружена петля"><!--modify this, мелк буквы-->
 					  {{ port.loopback.text || port.loopback.description  }}
 					</span>
 				  </div>
@@ -558,14 +550,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 
 			  <div class="info-block">
 				<a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseActions" href="#collapseActions">
-				  <span>Действия</span>
+				  <span>действия</span><!--modify this, мелк буквы-->
 				  <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
 				</a>
 				<div class="collapse" id="collapseActions">
 					<div class="action-block">
 					  <button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						<i class="fas fa-power-off"></i>
-						Перезагрузить порт
+						перезагрузить порт<!--modify this, мелк буквы-->
 						<span v-show="port.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
 					  </button>
 					  <div v-show="loading.restart" class="progress">
@@ -575,7 +567,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div class="action-block">
 					  <button v-bind:disabled="blockedSetPortForUser" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
 						<i class="fas fa-link"></i>
-						Привязать лицевой счет
+						привязать лицевой счет<!--modify this, мелк буквы-->
 					  </button>
 					</div>
 					<div class="action-block">
@@ -584,7 +576,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						-->
 						<i class="fas fa-ruler-combined"></i>
-						Кабель тест
+						кабель тест<!--modify this, мелк буквы-->
 					  </button>
 					  <template v-if="port.cabletest">
 						<div v-if="port.cabletest.type == 'error'" class="alert alert-danger">{{ port.cabletest.message }}</div>
@@ -598,12 +590,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  </div>
 					</div>
 					<div class="action-block">
-					  <button @click="showLog()" class="btn btn-action btn-row btn-sm">
-					  <!--replace this
+						<button @click="showLog()" class="btn btn-action btn-row btn-sm">
+						<!--replace this
 						<button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">
 						-->
 						<i class="fas fa-stream"></i>
-						Показать лог
+						показать лог<!--modify this, мелк буквы-->
 					  </button>
 					  <div v-show="loading.log" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
@@ -612,7 +604,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div class="action-block">
 					  <button @click="showPortMacs" v-bind:disabled="loading.macs || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						<i class="fas fa-at"></i>
-						MAC-адреса
+						MAC-адреса<!--modify this, мелк буквы-->
 					  </button>
 					  <template v-if="macs">
 						<div v-if="macs.type == 'error'" class="alert alert-danger">{{ macs.message }}</div>
@@ -628,7 +620,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div class="action-block">
 					  <button @click="clearMac" v-bind:disabled="loading.cleanmac || blockedSetButton" class="btn btn-action btn-row btn-sm">
 						<i class="fas fa-trash-alt"></i>
-						Очистить MAC на порту
+						очистить MAC на порту<!--modify this, мелк буквы-->
 						<span v-show="port.clearMac" class="text-success float-right"><i class="fa fa-check"></i></span>
 					  </button>
 					  <div v-show="loading.cleanmac" class="progress">
@@ -639,14 +631,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			  </div>
 
 			  <div class="info-block port-info">
-				<div v-if="loading.link"><span>Подключения</span></div>
+				<div v-if="loading.link"><span>подключения</span></div><!--modify this, мелк буквы-->
 				<ul class="list-group list-group-flush">
 				  <li v-for="link in port.link" class="list-group-item">
 					<div v-if="link.ACCOUNT" class="link">
 					  <div :class="{ contract : link.CLOSE_DATE }">
 						<div @click="jump(link)" class="link-title">
 						  <i class="fa fa-user"></i>
-						  Абонент
+						  абонент<!--modify this, мелк буквы-->
 						  <i class="fa fa-chevron-right float-right"></i>
 						</div>
 						<div>{{ link.ACCOUNT }}<span class="inscription">лицевой счет</span></div>
@@ -662,7 +654,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div v-else-if="link.LINK_DEVICE_NAME" class="link">
 					  <div v-on:click="jump(link)" class="link-title">
 						<i class="fa fa-microchip"></i>
-						Устройство
+						устройство<!--modify this, мелк буквы-->
 						<i class="fa fa-chevron-right float-right"></i>
 					  </div>
 					  <div>{{ link.LINK_DEVICE_NAME }}<span class="inscription">устройство</span></div>
@@ -672,7 +664,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					<div v-else-if="link.empty" class="link">
 					  <div class="link-title">
 						<i class="fa fa-circle-notch"></i>
-						Свободный порт
+						свободный порт<!--modify this, мелк буквы-->
 					  </div>
 					</div>
 					<div v-else class="link">
@@ -687,13 +679,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  <li v-if="state == 'bad'" class="list-group-item">
 					<div class="link-title">
 						<i class="fa fa-window-close"></i>
-						Битый порт
+						битый порт<!--modify this, мелк буквы-->
 					</div>
 				  </li>
 				  <li v-else-if="state == 'free'" class="list-group-item">
 					<div class="link-title">
 						<i class="fa fa-expand"></i>
-						Свободный порт
+						свободный порт<!--modify this, мелк буквы-->
 					</div>
 				  </li>
 				</ul>
@@ -715,12 +707,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<p v-for="logLine in log.data">{{logLine}}</p>
 					  </div>
 					  <div v-show="log.status == 'error'" style="height: 396px; overflow: scroll;">
-						<p class="text-danger">Ошибка получения данных</p>
+						<p class="text-danger">ошибка получения данных</p><!--modify this, мелк буквы-->
 					  </div>
 					  <div v-if="loading.log" class="progress">
 						<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
 					  </div>
-					  <button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">Закрыть</button>
+					  <button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">закрыть</button><!--modify this, мелк буквы-->
 					</div>
 				  </div>
 				</div>
@@ -791,7 +783,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				},
 				/*add blockedDiagButton*/
 				blockedDiagButton: function () {
-					if (((this.data.is_trunk || this.data.is_link) && this.data.status.IF_OPER_STATUS) || this.loading.status) return true
+					if (((this.port.is_trunk || this.port.is_link) && this.port.status.IF_OPER_STATUS) || this.loading.status) return true
 				},
 				blockedSetPortForUser: function () {
 				  return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || this.blockedSetButton
@@ -807,11 +799,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				},
 				/*add portReBindData, for set-port-modal*/
 				portReBindData: function(){
-					console.log(this.data);
+					console.log(this.port);
 					return {
-						region:this.data.device.REGION_ID,
-						state:this.data.state,
-						subscriber_list:this.data.subscriber_list
+						region:this.device.REGION_ID,
+						state:this.port.state,
+						subscriber_list:this.port.subscriber_list
 					};
 				},
 				lastEnry: function () {
@@ -1008,7 +1000,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				},
 				setPortForUser: function () {
 				  this.$root.showModal({
-					title: 'Выбор лицевого счета',
+					title: 'выбор ЛС',/*мелк буквы*/
 					/*add portReBindData:this.portReBindData*/
 					data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams, portReBindData:this.portReBindData},
 					component: 'set-port-modal'
@@ -1039,7 +1031,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     <div class="container-fluid">
 		<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
             <div class="input-group">
-                <input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="Найти">
+				<!--modify this, мелкие буквы-->
+                <input id="searchPanelAccount" v-filter="'[0-9-]'" v-model.lazy="sample" @keyup.enter="searchAccount" type="text" class="form-control" placeholder="найти">
                 <div class="input-group-append">
                     <button v-on:click="audio" v-if="audioShow" class="btn btn-audio btn-erase" type="button"><i class="fas fa-microphone"></i></button>
                     <button v-on:click="erace" class="btn btn-erase" type="button"><i class="fas fa-times"></i></button>
@@ -1048,7 +1041,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             </div>
         </div>
         <div v-if="account">
-            <p class="small-text">Результат поиска:</p>
+            <p class="small-text">результат поиска:</p><!--modify this, мелкие буквы-->
             <div v-if="account.isError" v-html="account.text" class="alert alert-warning" role="alert"></div>
             <div v-else>
                 <div class="account-block account-info" v-for="acc in account.data">
@@ -1077,7 +1070,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                     </div>
                     <div v-if="acc.vgids.length > 0">
                         <div class="form-row">
-                            <div class="mt-2 full-fill">Учетная запись для связи:</div>
+                            <div class="mt-2 full-fill">учетная запись для связи:</div><!--modify this, мелкие буквы-->
                             <div class="form-group full-fill custom-control-radio" v-for="vg in acc.vgids">
 								<label>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
@@ -1106,15 +1099,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<option v-for="mc in mac.list">{{ mc }}</option>
 							</select>
 							<!--modify this fragment-->
-							<button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">Связать mac</button>
+							<button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">связать mac</button><!--modify this, мелкие буквы-->
 						</div>
 						<div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
 							<input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
-							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">Связать счет</button>
-							<button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">Выделить IP</button>
+							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">связать счет</button><!--modify this, мелкие буквы-->
+							<button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">выделить IP</button><!--modify this, мелкие буквы-->
 						</div>
 						<div v-else-if="typeOfBind == 5" class="form-row">
-							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">Связать счет</button>
+							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">связать счет</button><!--modify this, мелкие буквы-->
 							<!--replace this fragment-->
 							<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
 							<!--replace this fragment-->
@@ -1123,7 +1116,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<option v-for="mc in mac.list">{{ mc }}</option>
 							</select>
 							<!--modify this fragment-->
-							<button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+							<button @click="insOnlyMac()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">связать mac</button><!--modify this, мелкие буквы-->
 						</div>
 						<div v-else-if="typeOfBind == 7 || typeOfBind == 9" class="form-row"><!--region78, type 9-->
 							<!--replace this fragment-->
@@ -1134,19 +1127,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								<option v-for="mc in mac.list">{{ mc }}</option>
 							</select>
 							<!--modify this fragment-->
-							<button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Перепривязать mac</button>
-							<button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">Связать mac</button>
+							<button v-if="typeOfBind == 7" @click="setBind(7)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">перепривязать mac</button><!--modify this, мелкие буквы-->
+							<button v-if="typeOfBind == 9" @click="setBind(9)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-2" type="submit">связать mac</button><!--modify this, мелкие буквы-->
 						</div>
                         <div v-else-if="typeOfBind == null"></div>
                         <div v-else>
-                            <div class="alert alert-warning mt-2" role="alert">Выбраная учетная запись не нуждается в привязке</div>
+                            <div class="alert alert-warning mt-2" role="alert">выбраная учетная запись не нуждается в привязке</div><!--modify this, мелкие буквы-->
                         </div>
 
                   </div>
                   <div v-else>
-                        <div class="alert alert-warning mt-2" role="alert">
-                            Не найдено не одной учетной записи, доступной для привязки.
-                        </div>
+                        <div class="alert alert-warning mt-2" role="alert">не найдено не одной учетной записи, доступной для привязки</div><!--modify this, мелкие буквы-->
                   </div>
                 </div>
                 <div v-if="result" class="mt-3 response-block">
@@ -1177,9 +1168,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                         </div>
                         <div v-if="typeOfBind != 1 && result.InfoMessage" class="alert alert-success" role="alert" v-html="result.InfoMessage"></div>
                         <div v-if="typeOfBind != 1 && result.Data">
-                            <div v-if="result.Data.ip" class="small-text">{{ result.Data.ip }}<span class="inscription"> Ip</span></div>
-                            <div v-if="result.Data.gateway" class="small-text">{{ result.Data.gateway }}<span class="inscription"> Шлюз</span></div>
-                            <div v-if="result.Data.mask" class="small-text">{{ result.Data.mask }}<span class="inscription"> Маска</span></div>
+                            <div v-if="result.Data.ip" class="small-text">{{ result.Data.ip }}<span class="inscription"> ip</span></div><!--modify this, мелкие буквы-->
+                            <div v-if="result.Data.gateway" class="small-text">{{ result.Data.gateway }}<span class="inscription"> шлюз</span></div><!--modify this, мелкие буквы-->
+                            <div v-if="result.Data.mask" class="small-text">{{ result.Data.mask }}<span class="inscription"> маска</span></div><!--modify this, мелкие буквы-->
                         </div>
                     </div>
                 </div>
@@ -1342,19 +1333,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='expired'){
-								data.alertText='неактивен более 3 мес, порт можно освободить';
+								data.alertText='неактивен более 3 мес, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='double'){
-								data.alertText='абонент "переехал", порт можно освободить';
+								data.alertText='мак "переехал" на другой порт, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='new'){
-								data.alertText='на порту новый мак, порт можно освободить';
+								data.alertText='на порту новый мак, возможно порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else if(p_state=='free'){
-								data.alertText='на порту небыло активности, порт можно освободить';
+								data.alertText='на порту никогда небыло активности, порт можно освободить';
 								data.alertClass='alert-info';
 								data.btnText='освободить';
 							}else{
@@ -1463,6 +1454,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <template v-if="!isNaN(data.FLAT_NUMBER)" slot="info">кв. № {{ +data.FLAT_NUMBER }}</template>
           <template slot="minor">{{ data.PORT_NAME ? data.MAC : computedAddress }}</template>
         </screen-header-el>
+
         <div v-if="account" class="name">
           <i class="fas fa-user mr-1 icon user" style="height: 16px; width: 16px;"></i>
           <span class="d-inline-flex w-75">{{ account.name }}</span>
@@ -1470,29 +1462,42 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <i class="fas fa-phone-alt icon phone" :class="{'not-phone' : !phone }"></i>
           </a>
         </div>
-        <traffic-light-el v-if="account" :data="data" :account="account" :session="data.sessions.online"></traffic-light-el>
+
+        <traffic-light-el v-if="account" :data="data" :account="account" :sessions="data.sessions.online"></traffic-light-el>
+
         <div v-show="data.PORT_NAME">
-          <div @click="toPort">
+          <div @click="toPort" class="my-1">
             <i class="fas fa-ethernet faded mr-1"></i>
-            {{ data.PORT_NAME }}
+            <span>{{ data.PORT_NAME }}</span>
             <i class="fa fa-chevron-right float-right"></i>
           </div>
+          <div v-show="isClosed">
+            <span> {{ data.CLOSE_DATE }}</span>
+            <span class="inscription">услуга заблокирована</span>
+          </div>
           <div v-show="data.FIRST_DATE">
-            {{ data.FIRST_DATE }}
+            <span>{{ data.FIRST_DATE }}</span>
             <span class="inscription">первый выход</span>
           </div>
           <div v-show="data.LAST_DATE">
-            {{ data.LAST_DATE }}
-            <span class="inscription">последний выход</span>
+            <span> {{ data.LAST_DATE }}</span>
+            <span class="inscription">последний опрос MAC</span>
           </div>
           <div v-if="loading.account" class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
           </div>
         </div>
+
+        <div v-if="!(this.loading.service || this.loading.updateVgroups)" @click="openBillingInfo" class="border-top py-3 mt-2">
+          <i class="fa fa-server faded mr-2"></i>
+          <span>информация в биллинге</span><!--modify this, мелкие буквы-->
+          <i class="fa fa-chevron-right float-right mt-1"></i>
+        </div>
       </div>
+
       <div v-if="hasSessions" class="info-block account-info">
         <div class="clearfix">
-          <span class="card-title">Сессии</span>
+          <span class="card-title">сессии</span><!--modify this, мелкие буквы-->
           <button @click="refreshSessions" :disabled="loading.session > 0" class="btn btn-title float-right">
             <i class="fas fa-sync-alt"></i>
           </button>
@@ -1511,8 +1516,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       </div>
 
         <div class="info-block account-info">
-          <div @click="toDeviceEvents(data.ACCOUNT)" :disabled="deviceEventLoading">
-            Недоступность
+          <div @click="toDeviceEvents(data.ACCOUNT)" :disabled="deviceEventLoading"><!--modify this, мелкие буквы-->
+            недоступность
             <span class="float-right"><i class="fa fa-chevron-right media-middle"></i></span>
             <template v-if="hasActiveDeviceEvent">
               <span class="float-right" style="margin: 0 10px;">
@@ -1529,7 +1534,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       <div class="info-block account-info">
         <a class="card-body collapse collapsed show info-block-title display nohover d-flex" data-toggle="collapse" data-target="#collapseServices" href="#collapseServices">
           <div class="d-flex justify-content-between card-title-complex">
-            <div>Услуги и оборудование</div>
+            <div>услуги и оборудование</div><!--modify this, мелкие буквы-->
             <div v-if="data.account" class="body-hidden" :class="balance.minus ? 'text-danger' : 'text-black-50'">
               <span v-show="balance.minus">-</span>
               <span>{{ balance.balance }} ₽ </span>
@@ -1551,36 +1556,28 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <template v-for='group in groupServiceList'>
               <ul v-if='group.services.length > 0' class="list-group list-group-flush">
                 <div class="d-flex align-item-center my-2">
-                  <div style="font-size: 18px; font-weight: 700">{{group.name}} Услуги</div>
-                  <button v-if='(group.name == "ТВ" || group.name == "Интернет") && account.sms_activation' @click="toActivation(group, group.name)" class="btn btn-primary ml-auto">
-                    Активировать
-                  </button>
+                  <div style="font-size: 18px; font-weight: 700">{{group.name}} услуги</div><!--modify this, мелкие буквы-->
+				  <!--modify this, мелкие буквы-->
+                  <button v-if='(group.name == "ТВ" || group.name == "Интернет") && account.sms_activation' @click="toActivation(group, group.name)" class="btn btn-primary ml-auto">активировать</button>
                 </div>
                 <template v-for="vgroup in group.services">
-                  <li style="background-color: #F5F6FA;
-                              padding: 8px;
-                              border-radius: 5px;
-                              margin: 4px 0;">
+                  <li style="background-color: #F5F6FA;padding: 8px;border-radius: 5px;margin: 4px 0;">
                     <div class="link">
                       <div class="font-weight-bold">
                         {{ calcTypeService(vgroup) }}
-						<!--add this fragment-->
+						<!--add this ID-->
 						<span style="font-weight:normal;"> ID: {{vgroup.vgid}}</span>
-						<!--add this fragment-->
                         <span class="state" :class="stateClass(vgroup)">{{ vgroup.statusname }}</span>
                       </div>
                       <div v-if="vgroup.auth_type">{{ vgroup.auth_type}} • {{ vgroup.rate}} </div>
                       <div>{{ vgroup.tarif || vgroup.tardescr}}</div>
                       <passwd-el v-if="hasPassword(vgroup)" :service="vgroup" :billingid="account.billingid"></passwd-el>
-                      <button v-if="vgroup.available_for_activation && !account.sms_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">Активировать</button>
+					  <!--modify this, мелкие буквы-->
+                      <button v-if="vgroup.available_for_activation && !account.sms_activation" @click="activate(vgroup)" class="btn btn-primary btn-fill mt-2" type="submit">активировать</button>
                     </div>
                   </li>
-                  
                 </template>
-                <li v-for="equipment in group.equipments" style="background-color: #F5F6FA;
-                                                                padding: 8px;
-                                                                border-radius: 5px;
-                                                                margin: 4px 0;">
+                <li v-for="equipment in group.equipments" style="background-color: #F5F6FA;padding: 8px;border-radius: 5px;margin: 4px 0;">
                   <equipment-el :equipment="equipment" :key="equipment.id"></equipment-el>
                 </li>
               </ul>
@@ -1595,7 +1592,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 
       <div class="info-block account-info">
         <a class="card-body collapse collapsed show info-block-title display nohover" data-toggle="collapse" data-target="#collapseBlockHistory" href="#collapseBlockHistory">
-          <span>История блокировок</span>
+          <span>история блокировок</span><!--modify this, мелкие буквы-->
           <div class="float-right chevron"><i class="fa fa-chevron-up"></i></div>
         </a>
         <div class="collapse" id="collapseBlockHistory">
@@ -1603,14 +1600,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <ul v-if="data.locks" class="list-group list-group-flush">
             <li v-for="row in data.locks.rows" class="list-group-item">
               <div class="link">
-				<!--add this fragment-->
+				<!--add this ID-->
 				<div>ID: {{ row["vgid"] }}<span class="inscription"></span></div>
-				<!--add this fragment-->
                 <div>{{ row["timefrom"] }} - {{ row["timeto"] }}<span class="inscription"></span></div>
                 <div>{{ row["vglogin"] }} ({{ row["agrmnum"] }})<span class="inscription"></span></div>
-                <!--modify this fragment-->
+				<!--add this blocktype-->
                 <div>{{ row["type"] }} (тип: {{row["blocktype"]}})<span class="inscription"></span></div>
-				<!--modify this fragment-->
               </div>
             </li>
           </ul>
@@ -1619,20 +1614,28 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
         </div>
       </div>
+
   </div>
 			`;
-			Vue.component('account-view', {/*add refresh*/
+			Vue.component('account-view', {
   template: '#account-template',
   props: ['data'],
   mixins: [deviceEventsMix],
-  data: function () {
+  data() {
     return {
       equipments: this.data.equipments || [],
-      loading: { account: false, service: false, session: 0, locks: false, updateVgroups: false, equipments: false },
-      account: this.data.data || this.data.account
-    }
+      loading: {
+        account: false,
+        service: false,
+        session: 0,
+        locks: false,
+        updateVgroups: false,
+        equipments: false,
+      },
+      account: this.data.data || this.data.account,
+    };
   },
-  created: function () {
+  created() {
     this.data.deviceEvents.from = Datetools.addDays(-14);
     this.data.deviceEvents.key = 'account';
     this.data.account = this.account;
@@ -1642,24 +1645,24 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       this.load();
     }
   },
-  updated: function () {
+  updated() {
     this.account = this.data.data || this.data.account;
   },
   computed: {
-    phone: function () {
+    phone() {
       let phone = this.account.mobile || this.account.phone;
       if (phone && phone.length == 10) phone = '+7' + phone;
       if (phone && phone.length == 11) phone = '+7' + phone.slice(1);
       return phone;
     },
-    agreement: function () {
+    agreement() {
       if (!this.account) return null;
       let account = this.data.ACCOUNT;
-      return this.account.agreements.find(function(agr) {
+      return this.account.agreements.find(function (agr) {
         return agr.account.replace(/-/g, '') == account.replace(/-/g, '');
       });
     },
-    serviceList: function () {
+    serviceList() {
       if (this.agreement) {
         let agreement = this.agreement;
         return this.account.vgroups.filter(function (service) {
@@ -1668,260 +1671,384 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       }
       return [];
     },
-    internetEq: function () {
-      return this.equipments.filter(e => e.type_id == 4);
+    internetEq() {
+      return this.equipments.filter((e) => e.type_id == 4);
     },
-    tvEq: function () {
-      return this.equipments.filter(e => [1, 2, 3, 5, 7].includes(e.type_id));
+    tvEq() {
+      return this.equipments.filter((e) => [1, 2, 3, 5, 7].includes(e.type_id));
     },
-    phoneEq: function () {
-      return this.equipments.filter(e => e.type_id == 6);
+    phoneEq() {
+      return this.equipments.filter((e) => e.type_id == 6);
     },
-    otherEq: function () {
-      return this.equipments.filter(e => e.type_id == 0);
+    otherEq() {
+      return this.equipments.filter((e) => e.type_id == 0);
     },
-
-    groupServiceList: function () {
+    groupServiceList() {
       let services = {
         internet: {
           name: 'Интернет',
           equipments: this.internetEq,
-          services: []
+          services: [],
         },
         tv: {
           name: 'ТВ',
           equipments: this.tvEq,
-          services: []
+          services: [],
         },
         phone: {
           name: 'Телефония',
           equipments: this.phoneEq,
-          services: []
+          services: [],
         },
         other: {
           name: 'Другие',
           equipments: this.otherEq,
-          services: []
-        }
+          services: [],
+        },
       };
-      this.serviceList.forEach(s => {
+      this.serviceList.forEach((s) => {
         services[s.type].services.push(s);
       });
       return services;
     },
-
-    hasSessions: function () {
-      return this.serviceList.some(s => s.isSession);
+    hasSessions() {
+      return this.serviceList.some((s) => s.isSession);
     },
-    computedAddress: function() {
+    computedAddress() {
       if (!this.account) return '';
-      let account = this.data.ACCOUNT;
       if (this.agreement) {
-        let agreement = this.agreement;
-        var service = this.account.vgroups.find((s) => s.agrmid == agreement.agrmid && s.connaddress);
+        const service = this.account.vgroups.find(
+          (s) => s.agrmid == this.agreement.agrmid && s.connaddress
+        );
         if (service) return service.vgaddress || service.connaddress;
       }
-      var address = {};
+      let address = {};
       if (Array.isArray(this.account.addresses)) {
         address = this.account.addresses.find((a) => a.address) || {};
       }
       return this.account.address || address.address;
     },
-    ledClass: function () {
+    ledClass() {
       if (!this.agreement) return '';
       if (this.agreement.closedon) return 'off';
       if (!this.serviceList) return '';
-      let blockedServices = this.serviceList.filter(s => s.status == 10 && new Date(s.accondate) < Date.now());
-      if (this.serviceList.length == blockedServices.length && this.serviceList.length != 0) return 'off';
+      const blockedServices = this.serviceList.filter(
+        (s) => s.status == 10 && new Date(s.accondate) < Date.now()
+      );
+      if (
+        this.serviceList.length == blockedServices.length &&
+        this.serviceList.length != 0
+      )
+        return 'off';
       return 'on';
     },
-    balance: function () {
+    balance() {
       if (this.agreement) {
         return {
           minus: this.agreement.balance.minus,
-          balance: this.agreement.balance.integer + ',' + this.agreement.balance.fraction,
+          balance:
+            this.agreement.balance.integer +
+            ',' +
+            this.agreement.balance.fraction,
           lastpaydate: this.agreement.lastpaydate,
-          lastsum: this.agreement.lastsum
+          lastsum: this.agreement.lastsum,
         };
-      };
+      }
       return { minus: false, balance: '', lastpaydate: '', lastsum: '' };
-    }
+    },
+    isClosed() {
+      const { CLOSE_DATE } = this.data;
+      if (!CLOSE_DATE) return false;
+      const [dateStr, time] = CLOSE_DATE.split(' ');
+      const date = dateStr.split('.').reverse().join('-');
+      return new Date(`${date} ${time}`) < new Date();
+    },
   },
   methods: {
-	/*add refresh*/
+	 /*add refresh*/
 	refresh: function () {
 	  this.$root.clean();
 	  this.$root.find(this.data.ACCOUNT);
 	},
-    showSmsModal: function () {
-      const account = this.data.ACCOUNT;      
+    showSmsModal() {
+      const account = this.data.ACCOUNT;
       this.$root.showStaticModal({
         component: 'send-sms-el',
         data: { account },
       });
     },
-    calcTypeService (service) {
+    calcTypeService(service) {
       switch (service.type) {
-        case "internet":
-          return "Интернет";
-        case "tv":
-          return "Телевидение";
-        case "phone":
-          return "Телефония";
+        case 'internet':
+          return 'интернет';/*мелк буквы*/
+        case 'tv':
+          return 'телевидение';/*мелк буквы*/
+        case 'phone':
+          return 'телефония';/*мелк буквы*/
         default:
-          return "Другое";
+          return 'другое';/*мелк буквы*/
       }
     },
-    isPassword: function (service) {
+    isPassword(service) {
       return /internet/i.test(service.type);
     },
-    hasPassword: function (service) {
+    hasPassword(service) {
       return service.type == 'internet';
     },
-    getAuthAndSpeed: function () {
-      this.account.vgroups.forEach ( function (vgroup) {
-        params = {
+    getAuthAndSpeed() {
+      this.loading.updateVgroups = this.account.vgroups.length;
+      this.account.vgroups.forEach((vgroup) => {
+        const params = {
           login: vgroup.login,
           serverid: vgroup.serverid,
           vgid: vgroup.vgid,
         };
-        if (vgroup.agenttype == "2" || vgroup.agenttype == "4" || vgroup.agenttype == "6") {
-          httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then(function (data) {
-            if (data.code == "200" && data.data[0].auth_type) {
-              vgroup.auth_type = data.data[0].auth_type;
-            };
-          });
-          httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then(function (data) {
-            if (data.code == "200" && data.data[0].rate) {
-              vgroup.rate = data.data[0].rate + ' Мбит/c';
-            };
-          });
+        if (
+          vgroup.agenttype == '2' ||
+          vgroup.agenttype == '4' ||
+          vgroup.agenttype == '6'
+        ) {
+          httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then(
+            (data) => {
+              if (data.code == '200' && data.data[0].auth_type) {
+                vgroup.auth_type = data.data[0].auth_type;
+              }
+            }
+          );
+          httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then(
+            (data) => {
+              if (data.code == '200' && data.data[0].rate) {
+                this.data.billingInfo = data.data;
+                vgroup.rate = data.data[0].rate + ' Мбит/c';
+              }
+              this.loading.updateVgroups--;
+            }
+          );
+        } else {
+          this.loading.updateVgroups--;
         }
       });
     },
-    sessionHelp: function () {
-      this.$root.showModal({ title: 'Справка', component: 'help-modal', data: 'При сбросе сессии перед обновлением таймаут 10 секунд.' });
+    sessionHelp() {
+      this.$root.showModal({
+        title: 'справка',/*мелк буквы*/
+        component: 'help-modal',
+        data: 'при сбросе сессии перед обновлением таймаут 10 секунд.',/*мелк буквы*/
+      });
     },
-    load: function () {
+    load() {
       this.loading.service = true;
       this.loading.locks = true;
       var self = this;
-      httpGet('/call/lbsv/search?text=' + this.data.ACCOUNT + '&type=account&city=any').then(function(data) {
-        var account = data.type === "list" ?  data.data.find(data => data.agreements[0] && data.agreements[0].archive === "0") : data.data;
+      httpGet(
+        '/call/lbsv/search?text=' + this.data.ACCOUNT + '&type=account&city=any'
+      ).then(function (data) {
+        var account =
+          data.type === 'list'
+            ? data.data.find(
+                (data) =>
+                  data.agreements[0] && data.agreements[0].archive === '0'
+              )
+            : data.data;
         self.data.account = self.account = account;
         self.loadAllInfo();
         self.loading.service = false;
       });
     },
-    loadAllInfo: function () {
+    loadAllInfo() {
       this.getAuthAndSpeed();
       this.loadClientEquipment();
       if (!this.data.locks) this.loadLocks();
       if (!this.data.sessions) this.loadSessions();
       if (this.data.deviceEvents.state == 'new') this.loadDeviceEvents();
     },
-    findAgreement: function () {
+    findAgreement() {
       let account = this.data.ACCOUNT;
-      this.agreement = this.account.agreements.find(function(agr) {
+      this.agreement = this.account.agreements.find(function (agr) {
         return agr.account.replace(/-/g, '') == account.replace(/-/g, '');
       });
     },
-    loadSessions: function () {
+    loadSessions() {
       if (this.loading.session > 0) return;
       this.data.sessions = { online: [], history: null, log: null };
-      var self = this;
-      this.serviceList.forEach(function (service) {
+      this.serviceList.forEach((service) => {
         if (!service.isSession) return;
-        self.loading.session++;
-        var params = {
+        this.loading.session++;
+        const params = {
           login: service.login,
           serverid: service.serverid,
           vgid: service.vgid,
-          agentid: service.agentid
+          agentid: service.agentid,
         };
-        self.loadOnlineSession(params);
+        this.loadOnlineSession(params);
       });
     },
-    loadOnlineSession: function (params) {
-      var self = this;
-      httpPost('/call/aaa/get_online_sessions', params, true).then(function(data) {
-          data.params = params;
-          self.data.sessions.online.push(data);
-          self.loading.session--;
+    loadOnlineSession(params) {
+      httpPost('/call/aaa/get_online_sessions', params, true).then((data) => {
+        data.params = params;
+        this.data.sessions.online.push(data);
+        this.loading.session--;
       });
     },
-    loadLocks: function () {
-      var self = this;
-      var today = new Date();
-      var before = new Date();
+    loadLocks() {
+      const today = new Date();
+      let before = new Date();
       before.setMonth(before.getMonth() - 3);
-      var params = {
+      const params = {
         userid: this.data.account.userid,
         serverid: this.data.account.serverid,
         start: Datetools.format(before),
-        end: Datetools.format(today)
+        end: Datetools.format(today),
       };
-      httpGet(buildUrl('blocks_history', params, '/call/lbsv/')).then(function(data) {
-        self.loading.locks = false;
-        self.data.locks = data;
-      });
+      httpGet(buildUrl('blocks_history', params, '/call/lbsv/')).then(
+        (data) => {
+          this.loading.locks = false;
+          this.data.locks = data;
+        }
+      );
     },
-    stateClass: function (service) {
+    stateClass(service) {
       return service.status == '0' ? 'active' : 'disabled';
     },
-    toPort: function () {
+    toPort() {
       this.$root.jump(this.data.PORT_NAME, true);
     },
-    refreshSessions: function () {
+    refreshSessions() {
       this.loadSessions();
     },
-    resetSession: function (session) {
+    resetSession(session) {
       this.loading.session++;
-      var self = this;
       session.params.sessionid = session.data[0].sessionid;
       session.params.nasip = session.data[0].nas;
-      httpPost('/call/aaa/stop_session_radius', session.params).then(function(data) {
-        var i = self.data.sessions.online.indexOf(session);
-        self.data.sessions.online.splice(i, 1);
-        setTimeout(self.loadOnlineSession, 10000, session.params);
+      httpPost('/call/aaa/stop_session_radius', session.params).then((data) => {
+        const i = this.data.sessions.online.indexOf(session);
+        this.data.sessions.online.splice(i, 1);
+        setTimeout(this.loadOnlineSession, 10000, session.params);
       });
     },
     toActivation(services, type) {
       this.$emit('change-screen', {
         screen: 'activation',
-        source: {type: type, services: services, account: this.data.ACCOUNT},
-        id: 'activation/' + this.data.ACCOUNT
+        source: { type: type, services: services, account: this.data.ACCOUNT },
+        id: 'activation/' + this.data.ACCOUNT,
       });
     },
-    activate: function (vg) {
+    activate(vg) {
       this.$root.showModal({
-        title: 'Активация услуги',
+        title: 'активация услуги',/*мелк буквы*/
         data: vg,
-        component: 'activation-modal'
+        component: 'activation-modal',
       });
     },
-    loadClientEquipment: function () {
+    loadClientEquipment() {
       if (this.account.equipments) return;
       this.loading.equipments = true;
-      var params = {
+      const params = {
         serverid: this.agreement.serverid,
         userid: this.agreement.userid,
         agrmid: this.agreement.agrmid,
       };
-      httpGet(buildUrl('client_equipment', params, '/call/lbsv/')).then(data => {
-        if (data.type == 'error') {
-          console.warn(data);
-        } else {
-          this.equipments = data;
-          this.data.equipments = data;
-        };
-        this.loading.equipments = false;
+      httpGet(buildUrl('client_equipment', params, '/call/lbsv/')).then(
+        (data) => {
+          if (data.type == 'error') {
+            console.warn(data);
+          } else {
+            this.equipments = data;
+            this.data.equipments = data;
+          }
+          this.loading.equipments = false;
+        }
+      );
+    },
+    openBillingInfo() {
+      this.$root.showModal({
+        title: 'настройки профиля абонента',/*мелк буквы*/
+        component: 'account-billing-modal',
+        data: {
+          billingInfo: this.data.billingInfo,
+          loading: this.loading.updateVgroups,
+        },
       });
     },
-  }
+  },
 });
 		};
-	
+		
+		function mySession_template(){
+			document.getElementById('session-el-template').innerHTML=`
+			<div>
+    <a class="line-row info-block-title display nohover collapsed show" data-toggle="collapse" :href="'#' + blockId">
+		<!--add ID, replase fragment-->
+      <div class="line-row">{{session.params.login}} • {{session.params.vgid}}<span class="inscription">логин • ID</span></div>
+      <div class="line-row">
+        <div v-if="session.isError" class="session">
+          <span class="text-danger float-left"><i class="fas fa-exclamation-circle"></i></span>
+          <span class="after-icon">ошибка загрузки</span><!--modify this, мелкие буквы-->
+        </div>
+        <div v-else-if="session.data[0]" class="session">
+          <span class="text-success float-left"><i class="fas fa-check-circle"></i></span>
+          <span class="after-icon">онлайн с {{ session.data[0].start }}</span><!--modify this, мелкие буквы-->
+        </div>
+        <div v-else class="session">
+          <span class="text-warning float-left"><i class="fas fa-minus-circle"></i></span>
+          <span class="after-icon">отсутствует</span><!--modify this, мелкие буквы-->
+        </div>
+        <div class="float-right"><i class="fa fa-chevron-up chevron"></i></div>
+      </div>
+    </a>
+    <div :id="blockId" class="collapse">
+      <div v-if="!session.isError && session.data[0]" class="additional-block session">
+        <div class="line-row">{{ session.data[0].ip }}<span class="inscription">IP</span></div>
+        <div class="line-row">{{ session.data[0].mac }}<span class="inscription">MAC адрес</span></div>
+        <div class="line-row" v-show="session.data[0].device">{{ session.data[0].device }}<span class="inscription">устройство</span></div><!--modify this, мелкие буквы-->
+        <div class="line-row" v-show="session.data[0].port">{{ session.data[0].port }}<span class="inscription">порт</span></div><!--modify this, мелкие буквы-->
+        <div class="line-row">{{ session.data[0].nas }}<span class="inscription">NAS</span></div>
+      </div>
+      <div class="line-row mt-2">
+			<!--modify this, мелкие буквы-->
+			<button @click="historySession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-history"></i>история</button>
+			<button @click="logSession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-stream"></i>логи</button>
+			<button @click="resetSession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-redo"></i>сбросить</button>
+      </div>
+    </div>
+  </div>
+			`;
+			Vue.component('session-el', {
+			  props: ['session', 'lock', 'index'],
+			  data: function () {
+				return {}
+			  },
+			  template: '#session-el-template',
+			  created: function () {
+				
+			  },
+			  computed: {
+				blockId: function () {
+				  return 'session-block-' + this.index;
+				}
+			  },
+			  methods: {
+				resetSession: function () {
+				  this.$parent.resetSession(this.session);
+				},
+				historySession: function () {
+				  this.$root.showModal({
+					title: 'история сессий',/*мелк буквы*/
+					data: this.session,
+					component: 'session-history-modal'
+				  });
+				},
+				logSession: function () {
+				  this.$root.showModal({
+					title: 'логи авторизации',/*мелк буквы*/
+					data: this.session,
+					component: 'session-logs-modal'
+				  });
+				}
+			  }
+			});
+		};
+		
 	};start();
 		
 }else{console.log(document.title)};
