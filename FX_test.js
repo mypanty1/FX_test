@@ -80,7 +80,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				myPortsEl_template();/*улучшенная карта портов*//*мелкие буквы*/
 				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*мелкие буквы*/
 				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*//*мелкие буквы*/
-				mySession_template();/*id услуг в сессиях*//*мелкие буквы*/
+				mySession_template();/*id услуг в сессиях*//*блокировка сброса несуществующих сессий*//*мелкие буквы*/
 				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*мелкие буквы*/
 				templates_need_replace=false;
 			};
@@ -680,7 +680,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				  <li v-if="state == 'bad'" class="list-group-item">
 					<div class="link-title">
 						<i class="fa fa-window-close"></i>
-						битый порт<!--modify this, мелк буквы-->
+						неисправный порт<!--modify this, мелк буквы-->
 					</div>
 				  </li>
 				  <li v-else-if="state == 'free'" class="list-group-item">
@@ -2019,7 +2019,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			<!--modify this, мелкие буквы-->
 			<button @click="historySession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-history"></i>история</button>
 			<button @click="logSession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-stream"></i>логи</button>
+			<!--replace this
 			<button @click="resetSession" :disabled="lock" class="btn btn-sm btn-action"><i class="fas fa-redo"></i>сбросить</button>
+			-->
+			<button @click="resetSession" :disabled="!session.data[0]||lock" class="btn btn-sm btn-action"><i class="fas fa-redo"></i>сбросить</button>
       </div>
     </div>
   </div>
