@@ -22,7 +22,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.led.myadown{background-color:red;}
 			
 			.myportsflex{display:flex;flex-direction:row;flex-wrap:wrap;font-size:10px;line-height:14px;text-align:center;}
-			.myportinflex{margin:1px;padding:2px 5px 2px 2px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
+			.myportinflex{margin:1px;padding:1px 5px 1px 1px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
 			.mypstline{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
 			.mypstatus{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
 			.mypnumber{height:30px;border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
@@ -66,9 +66,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				
 		/*window.AppInventor.setWebViewString('version_:FX_test_v168.a');*//*fix all templates*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v168.b');*//*return old port header*//*fix data to port*/
-		window.AppInventor.setWebViewString('version_:FX_test_v168.c');/*add logging*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v168.c');*//*add logging*/
+		window.AppInventor.setWebViewString('version_:FX_test_v168.d');/*remake show id*/
 		
-		console.log('version_:FX_test_v168.c');
+		console.log('version_:FX_test_v168.d');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -79,9 +80,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*this is Start page*/
 				myPortsEl_template();/*улучшенная карта портов*//*мелкие буквы*/
 				myPort_template();/*разблокированы действия при link down на транковых портах, и лог*//*мелкие буквы*/
-				myAccount_template();/*id в услугах, id в блокировках*//*кнопка обновить*//*мелкие буквы*/
+				myAccount_template();/*id в услугах, id в блокировках(нах?)*//*кнопка обновить*//*мелкие буквы*/
 				mySession_template();/*id услуг в сессиях*//*блокировка сброса несуществующих сессий*//*мелкие буквы*/
-				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*мелкие буквы*/
+				myPasswd_template();/*id в услуге new*/
+				mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*дата заведения id*/
 				templates_need_replace=false;
 			};
 		};
@@ -1083,7 +1085,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                                                 v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
                                                 v-model="resource">
                                         <!--replaced this fragment-->
-                                        <span class="custom-control-label custom-control-empty">{{vg.login}}<br/>ID: {{vg.vgid}}<span v-bind:class="(vg.status==0)?'status0':((vg.status==10)?'status10':'status5')">{{ vg.statusname }}</span><br/></span>
+                                        <span class="custom-control-label custom-control-empty">{{vg.login}} • {{vg.vgid}}</span>
+										<div class="small-text">{{vg.accondate}}<span class="inscription"> создан</span></div>
+										<div v-if="vg.accoffdate" class="small-text">{{vg.accoffdate}}<span class="inscription"> отключен</span></div>
 										<div class="small-text">{{vg.tardescr}}</div>
 										<div v-if="vg.addresses&&vg.addresses[0]&&(vg.addresses[0].address!=acc.address)" class="small-text">{{vg.addresses[0].address}}</div>
 										<!--replaced this fragment-->
@@ -1358,7 +1362,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							console.log(data.alertClass);
 							console.log(data.btnText);
 							console.log('string_1:(error_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText);
-							window.AppInventor.setWebViewString('string_1:(error_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText);
+							window.AppInventor.setWebViewString('string_1:(warning) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText);
 						}else{
 							console.log('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
 							window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
@@ -2067,6 +2071,115 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			  }
 			});
 		};
+		
+		function myPasswd_template(){
+			document.getElementById('passwd-el-template').innerHTML=`	
+  <div>
+    <template v-if="isSamatlor">
+      <div v-if="service.blkdate" class="line-row pl-3">
+        {{ service.blkdate }}
+        <span class="inscription">Дата блокировки</span>
+      </div>
+      <div class="line-row pl-3" >
+        <div v-show="!loading">{{ service.login }}</div>
+        <div v-show="loading" class="progress ml-0 mt-1 mb-2 w-75">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+        </div>
+        <span class="inscription">Логин</span>
+      </div>
+      <div class="line-row pl-3">
+        <div class="w-75">
+          <a href="" v-show="!show && !loading && !resetting" class="text-danger font-weight-bold"  @click.prevent="reset">сбросить пароль</a>
+          <div v-show="show">{{ passwd }}</div>
+          <div v-show="resetting">
+            <div class="progress w-100 ml-0 mt-1 mb-2" >
+              <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+            </div>
+          </div>
+        </div>
+        <span class="inscription">Пароль</span>
+      </div>
+    </template>
+
+    <template v-else>
+		<!--add id, replace fragment-->
+      <div class="line-row pl-3">{{service.login}} • {{service.vgid}}<span class="inscription">логин • ID</span></div>
+	  <!--add id, replace fragment-->
+      <div class="line-row pl-3">
+        <div class="w-75">
+          <a href="" v-show="!show && !loading" @click.prevent="load"> Запросить </a>
+          <span v-show="show">{{ passwd || 'нет пароля' }}</span>
+          <div v-show="loading">
+            <div class="progress w-100 ml-0 mt-1 mb-2">
+              <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+            </div>
+          </div>
+        </div>
+        <span class="inscription">Пароль</span>
+      </div>
+    </template>
+  </div>
+			`;
+			Vue.component('passwd-el', {
+			  template: '#passwd-el-template',
+			  props: ['service', 'billingid'],
+			  data: function () {
+				return {
+				  loading: false,
+				  show: false,
+				  passwd: null,
+				  resetting: false
+				}
+			  },
+			  created: function  () {
+				if (this.isSamatlor) this.getSamatlorLogin();
+			  },
+			  computed: {
+				isSamatlor: function () {
+				  return this.billingid == 6014;
+				},
+			  },
+			  methods: {
+				load: function () {
+				  this.passwd = this.service.pass;
+				  this.loading = true;
+				  this.show = true;
+				  this.loading = false;
+				},
+				getSamatlorLogin: function () {
+				  this.service.login = '';
+				  this.loading = true;
+				  let self = this;
+				  let params = { serverid: this.service.serverid, vgid: this.service.vgid };
+				  httpGet(buildUrl('samatlor_equip_login', params, '/call/lbsv/')).then(function (data) {
+					self.passwd = data.password;
+					self.service.login = data.login;
+					self.show = false;
+					if (data.status == '5') {
+					  self.service.status = 5;
+					  self.service.status_name = 'Заблокирован (Трафик)';
+					  self.service.statusname = 'Заблокирован (Трафик)';
+					  self.service.blkdate = data.blkdate;
+					}
+					self.loading = false;
+				  });
+				},
+				reset: function () {
+				  this.resetting = true;
+				  let self = this;
+				  let params = {
+					serverid: this.service.serverid,
+					vgid: this.service.vgid,
+					update: { pass: this.passwd }
+				  };
+				  httpPost('/call/lbsv/extend_service', params).then(function (data) {
+					self.show = true;
+					self.resetting = false;
+				  });
+				}
+			  }
+			});
+		}
 		
 	};start();
 		
