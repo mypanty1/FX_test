@@ -64,9 +64,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v169.a');/*fix all templates*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v169.a');*//*fix all templates*/
+		window.AppInventor.setWebViewString('version_:FX_test_v169.b');/*fix iptv*/
 		
-		console.log('version_:FX_test_v169.a');
+		console.log('version_:FX_test_v169.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -1708,7 +1709,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           </div>
           <hr>
           <template v-if="data.account">
-            <div v-if="serviceError" class="pb-2">
+			<div v-if="serviceError" class="pb-2">
               <span>{{ serviceError }}</span>
             </div>
             <template v-else v-for='group in groupServiceList'>
@@ -1846,8 +1847,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     internetEq() {
       return this.equipments.filter((e) => e.type_id == 4);
     },
+	/*add iptv, remove type 7*/
     tvEq() {
-      return this.equipments.filter((e) => [1, 2, 3, 5, 7].includes(e.type_id));
+      return this.equipments.filter((e) => [1, 2, 3, 5/*, 7*/].includes(e.type_id));
+    },
+	/*add iptv*/
+	iptvEq() {
+      return this.equipments.filter((e) => e.type_id == 7);
     },
     phoneEq() {
       return this.equipments.filter((e) => e.type_id == 6);
@@ -1858,7 +1864,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     groupServiceList() {
       let services = {
         internet: {
-          name: 'интернет',
+          name: 'Интернет',
           equipments: this.internetEq,
           services: [],
         },
@@ -1867,19 +1873,25 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           equipments: this.tvEq,
           services: [],
         },
+		/*add iptv*/
+		iptv: {
+          name: 'IPTV',
+          equipments: this.iptvEq,
+          services: [],
+        },
         phone: {
-          name: 'телефония',
+          name: 'Телефония',
           equipments: this.phoneEq,
           services: [],
         },
         other: {
-          name: 'иные',
+          name: 'Другие',
           equipments: this.otherEq,
           services: [],
         },
       };
       this.serviceList.forEach((s) => {
-        services[s.type].services.push(s);
+		services[s.type].services.push(s);
       });
       return services;
     },
@@ -1946,10 +1958,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           return 'интернет';
         case 'tv':
           return 'телевидение';
+		/*add iptv*/
+		case 'iptv':
+          return 'ip тв';
         case 'phone':
           return 'телефония';
         default:
-          return 'иное';
+          return 'другое';
       }
     },
     isPassword(service) {
