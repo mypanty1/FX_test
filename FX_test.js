@@ -90,7 +90,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<div class="ports-el myPorts">
 					<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
 					<template v-else>
-						<div class="device-ports-view-toggle">
+						<div class="device-ports-view-toggle" style="font-variant-caps:unicase;">
 							<input @change="changeTab" name="ports-view-toggle" type="checkbox" class="view-toggle" id="ports-view-toggle" :checked="showdetails">
 							<label for="ports-view-toggle">
 								<div class="ports-view-toggle-background d-flex">
