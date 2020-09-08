@@ -2405,7 +2405,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	},
 	/*test bind*/
 	testBind:function(){
-		/*alert('testBind');*/
 		var testBind_params={
 			ip:this.params.sw, 
 			port:this.params.port,
