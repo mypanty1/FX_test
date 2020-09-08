@@ -1,4 +1,9 @@
-javascript:(function(){
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>тестовый</title>
+		<script>
+			javascript:(function(){
 	
 if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://pre.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-6.test.inetcore.mts.ru/fix')>=0))){
 	document.title = 'Inetcore+';
@@ -2257,11 +2262,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<div class="form-row">
 					<div class="form-group col-9 control">
 						<span>коммутатро</span>
-						<input class="form-control form-control-sm" v-model="getValue(billing['deviceIP'])" v-filter="'[0-9\.]'" maxlength="14" placeholder="коммутатор">
+						<input class="form-control form-control-sm" v-model="params.sw" v-filter="'[0-9\.]'" maxlength="14" placeholder="коммутатор">
 					</div>
 					<div class="form-group col-3 control">
 						<span>порт</span>
-						<input class="form-control form-control-sm" v-model="getValue(billing['portNumber'])" v-filter="'[0-9]'" maxlength="2" placeholder="порт">
+						<input class="form-control form-control-sm" v-model="params.port" v-filter="'[0-9]'" maxlength="2" placeholder="порт">
 					</div>
 				</div>
 				<div class="form-row">
@@ -2278,7 +2283,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				</div>
 				<div class="form-row">
 					<div class="form-group col-6 control">
-						<input class="form-control form-control-sm" v-model="getValue(billing['macCPE'])" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="MAC-адрес СРЕ">
+						<input class="form-control form-control-sm" v-model="params.mac" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="MAC-адрес СРЕ">
 					</div>
 					<div class="form-group col-6 control">
 						<input type="button" class="btn btn-primary btn-sm btn-fill" value="привязать" @click="testBind">
@@ -2340,11 +2345,19 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       ],
 	  resultBind: {},/*add this*/
 	  loading: false,/*add this*/
+	  params:{/*add this*/
+		  sw:'',
+		  port:'',
+		  mac:''
+	  }
     };
   },
   computed: {
     billingInfo() {
-		this.clear();/*clear*/
+		this.clear();/*add clear*/
+		this.params.sw=this.data.billingInfo[0].deviceIP;
+		this.params.port=this.data.billingInfo[0].portNumber;
+		this.params.mac=this.data.billingInfo[0].macCPE[0];
 		return this.data.billingInfo;
     },
 	vgForBind(){/*newest vg for rebind*/
@@ -2361,7 +2374,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
   },
   methods: {
     showItem(key, value) {
-      if (!value) return false;
+		if (!value) return false;
       const filters = ['rate', 'deviceId'];
       if (filters.includes(key)) return false;
       if (Array.isArray(value)) return !!value.length;
@@ -2383,13 +2396,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return name;
     },
     getValue(value) {
-      if (Array.isArray(value) && value.length > 0) {
-        const firstItem = value[0];
-        if (typeof firstItem === 'object') return firstItem.IP;
-        return firstItem;
-      }
-      if (typeof value === 'object') return String(value);
-      return value;
+		if (Array.isArray(value) && value.length > 0) {
+			const firstItem = value[0];
+			if (typeof firstItem === 'object') return firstItem.IP;
+			return firstItem;
+		};
+		if (typeof value === 'object') return String(value);
+		return value;
     },
 	/*clear*/
 	clear: function () {
@@ -2399,12 +2412,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	testBind:function(){
 		/*alert('testBind');*/
 		var testBind_params={
-			ip:this.billingInfo[0].deviceIP, 
-			port:this.billingInfo[0].portNumber,
+			ip:this.params.sw, 
+			port:this.params.port,
 			vgid:this.vgForBind.vgid,
 			serverid:this.vgForBind.serverid,
 			type_of_bind:this.vgForBind.type_of_bind,
-			mac:this.billingInfo[0].macCPE[0],
+			mac:this.params.mac,
 			login:this.vgForBind.login,/*for logging only*/
 			account:this.data.abonInfo.agreements[0].account/*for logging only*/
 		};
@@ -2415,10 +2428,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			self.resultBind = data;
 			if(data.isError){
 				data.alertClass='alert-warning';
-				data.alertText=/*'fail!'*/data.message;
+				data.alertText=data.message;
 			}else if(data.InfoMessage){
 				data.alertClass='alert-success';
-				data.alertText=/*'success!'*/data.InfoMessage;
+				data.alertText=data.InfoMessage;
 			};
 			self.loading = false;
 		},function(){ 
@@ -2435,3 +2448,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 }else{console.log(document.title)};
 
 }());
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
