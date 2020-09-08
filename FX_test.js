@@ -64,9 +64,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v170.a');/*fix all templates*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v170.a');*//*fix all templates*/
+		window.AppInventor.setWebViewString('version_:FX_test_v170.b');/*test bind myBillingInfo_modal*/
 		
-		console.log('version_:FX_test_v170.a');
+		console.log('version_:FX_test_v170.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -75,12 +76,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			/*console.log('click! date:'+Date());*/
 			if(document.body.getElementsByClassName('screen-header-title').length>0&&document.body.getElementsByClassName('screen-header-title')[0].textContent.includes('Наряды')&&templates_need_replace){
 				/*this is Start page*/
-				/*ok*/myPortsEl_template();/*улучшенная карта портов*/
-				/*ok*/myPort_template();/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок улучшенный*/
+				/*ok*/myPortsEl_template();/*улучшенная карта портов*//*сделать подсветку разной длинны, с регулятором дельты*/
+				/*ok*/myPort_template();/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок улучшенный*//*доработать заголовок*/
 				/*ok*/myAccount_template();/*id в услугах*//*кнопка обновить*/
 				/*ok*/mySession_template();/*id услуг в сессиях*/
 				/*ok*/mySetPort_modal();/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*дата заведения id*/
-				/*myBillingInfo_modal();*//*тест перепривязка мака с карточки абонента для питера serverid 75*/
+				/*test*/myBillingInfo_modal();/*тест перепривязка с карточки абонента, только set_bind*/
 				templates_need_replace=false;
 			};
 		};
@@ -2157,6 +2158,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         data: {
           billingInfo: this.data.billingInfo,
           loading: this.loading.updateVgroups,
+		  abonInfo: this.account,/*add this for myBillingInfo_modal*/
         },
       });
     },
@@ -2247,29 +2249,80 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		
 		function myBillingInfo_modal(){
 			document.getElementById('account-billing-modal-template').innerHTML=`
-			<div class="account-billing-modal">
+<div class="account-billing-modal">
     <p v-if="data.loading">Данные еще на загружены</p>
-
     <template v-else-if="billingInfo">
         <div v-for="billing in billingInfo">
-            <div v-for="item in items" v-if="showItem(item, billing[item])" class="d-flex justify-content-between py-2 border-bottom billing-item" >
-                <template v-if="getTitle(item)=='MAC-адрес СРЕ'">
-					<div>
-						<input class="form-control form-control-sm" v-model="getValue(billing[item])" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="MAC-адрес СРЕ">
-						<input type="button" value="перепривязать" @click="testReBind">
+            <div class="container-fluid">
+				<div class="form-row">
+					<div class="form-group col-9 control">
+						<span>коммутатро</span>
+						<input class="form-control form-control-sm" v-model="getValue(billing['deviceIP'])" v-filter="'[0-9\.]'" maxlength="14" placeholder="коммутатор">
 					</div>
-					<span>{{ getTitle(item) }}</span>
+					<div class="form-group col-3 control">
+						<span>порт</span>
+						<input class="form-control form-control-sm" v-model="getValue(billing['portNumber'])" v-filter="'[0-9]'" maxlength="2" placeholder="порт">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-12 control">
+						<input type="button" class="btn btn-primary btn-sm btn-fill" value="привязать" @click="testBind">
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="form-row">
+					<div class="form-group col-12 control">
+						<span>MAC-адрес абонента</span>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-6 control">
+						<input class="form-control form-control-sm" v-model="getValue(billing['macCPE'])" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="MAC-адрес СРЕ">
+					</div>
+					<div class="form-group col-6 control">
+						<input type="button" class="btn btn-primary btn-sm btn-fill" value="привязать" @click="testBind">
+					</div>
+				</div>
+			</div>
+			<div v-if="loading" class="progress mt-2">
+				<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
+			</div>
+			<div v-if="resultBind">
+				<div v-if="resultBind.isError" class="rebinderr alert":class="resultBind.alertClass" role="alert">
+					<div>{{ resultBind.alertText }}</div>
+				</div>
+				<div v-else-if="resultBind.InfoMessage" class="rebindok alert":class="resultBind.alertClass" role="alert">
+					<div>{{ resultBind.alertText }}</div>
+				</div>
+			</div>
+			<div v-for="item in items" v-if="showItem(item, billing[item])">
+				<template v-if="getTitle(item)=='MAC-адрес СРЕ'">
+					<!--not show this-->
+				</template>
+				<template v-else-if="getTitle(item)=='Номер порта'">
+					<!--not show this-->
+				</template>
+				<template v-else-if="getTitle(item)=='IP коммутатора'">
+					<!--not show this-->
 				</template>
 				<template v-else>
-					<span :class="{ 'billing-port': item === 'portNumber' }">{{ getValue(billing[item]) }}</span>
-					<span>{{ getTitle(item) }}</span>
+					<div class="container-fluid">
+						<div class="form-row">
+							<div class="form-group col-12 control">
+								<div class="d-flex justify-content-between py-2 border-bottom billing-item">
+									<span :class="{ 'billing-port': item === 'portNumber' }">{{ getValue(billing[item]) }}</span>
+									<span>{{ getTitle(item) }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
 				</template>
             </div>
         </div>
     </template>
-
     <p v-else>Данные отсутствуют</p>
-  </div>`;
+</div>`;
 			Vue.component('account-billing-modal', {
   template: '#account-billing-modal-template',
   props: ['data'],
@@ -2285,12 +2338,26 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         'outerVLan',
         'maxSessions',
       ],
+	  resultBind: {},/*add this*/
+	  loading: false,/*add this*/
     };
   },
   computed: {
     billingInfo() {
-      return this.data.billingInfo;
+		this.clear();/*clear*/
+		return this.data.billingInfo;
     },
+	vgForBind(){/*newest vg for rebind*/
+		var vgid_max=0;
+		var fresh_vg={};
+		this.data.abonInfo.vgroups.forEach(function(vg){
+			if(vg.type_of_bind!=0&&+vg.vgid>vgid_max){
+				vgid_max=+vg.vgid;
+				fresh_vg=vg;
+			};
+		});
+		return fresh_vg;
+	},
   },
   methods: {
     showItem(key, value) {
@@ -2324,9 +2391,40 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       if (typeof value === 'object') return String(value);
       return value;
     },
-	/*test mac rebind*/
-	testReBind(){
-		alert('testReBind');
+	/*clear*/
+	clear: function () {
+	  this.resultBind = {};
+	},
+	/*test bind*/
+	testBind:function(){
+		/*alert('testBind');*/
+		var testBind_params={
+			ip:this.billingInfo[0].deviceIP, 
+			port:this.billingInfo[0].portNumber,
+			vgid:this.vgForBind.vgid,
+			serverid:this.vgForBind.serverid,
+			type_of_bind:this.vgForBind.type_of_bind,
+			mac:this.billingInfo[0].macCPE[0],
+			login:this.vgForBind.login,/*for logging only*/
+			account:this.data.abonInfo.agreements[0].account/*for logging only*/
+		};
+		this.loading = true;
+		this.resultBind = {};
+		var self = this;
+		httpPost('/call/service_mix/set_bind', testBind_params, true).then(function(data) {
+			self.resultBind = data;
+			if(data.isError){
+				data.alertClass='alert-warning';
+				data.alertText=/*'fail!'*/data.message;
+			}else if(data.InfoMessage){
+				data.alertClass='alert-success';
+				data.alertText=/*'success!'*/data.InfoMessage;
+			};
+			self.loading = false;
+		},function(){ 
+			self.loading = false;
+			self.resultBind = {alertText:'ошибка при обращении к серверу Inetcore', alertClass:'alert-danger'};
+		});
 	},
   },
 });
