@@ -1864,7 +1864,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     groupServiceList() {
       let services = {
         internet: {
-          name: 'ШПД',
+          name: 'Интернет',
           equipments: this.internetEq,
           services: [],
         },
@@ -1879,12 +1879,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           services: [],
         },
         phone: {
-          name: 'ТЛФ',
+          name: 'Телефония',
           equipments: this.phoneEq,
           services: [],
         },
         other: {
-          name: 'другие',
+          name: 'Другие',
           equipments: this.otherEq,
           services: [],
         },
