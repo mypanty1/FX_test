@@ -2256,7 +2256,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div class="container-fluid">
 				<div class="form-row">
 					<div class="form-group col-9 control">
-						<span>коммутатро</span>
+						<span>коммутатор</span>
 						<input class="form-control form-control-sm" v-model="params.sw" v-filter="'[0-9\.]'" maxlength="14" placeholder="коммутатор">
 					</div>
 					<div class="form-group col-3 control">
