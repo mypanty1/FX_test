@@ -910,6 +910,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 
   },
   computed: {
+	  /*add portReBindData, for set-port-modal*/
+	portReBindData: function(){
+		console.log(this.port);
+		return {
+			region:this.device.REGION_ID,
+			state:this.port.state,
+			subscriber_list:this.port.subscriber_list
+		};
+	},
     blockedSetButton: function () {
       return this.port.is_trunk || this.port.is_link || this.loading.status
     },
@@ -1187,20 +1196,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         data: {
           portNumber: this.port.number,
           portParams: this.portParams,
-          deviceParams: this.deviceParams
+          deviceParams: this.deviceParams,
+		portReBindData:this.portReBindData
         },
         component: 'set-port-modal'
       });
     },
-	/*add portReBindData, for set-port-modal*/
-	portReBindData: function(){
-		console.log(this.port);
-		return {
-			region:this.device.REGION_ID,
-			state:this.port.state,
-			subscriber_list:this.port.subscriber_list
-		};
-	},
     showPortMacs: function () {
       this.loading.macs = true;
       const params = {
