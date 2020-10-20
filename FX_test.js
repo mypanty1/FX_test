@@ -64,9 +64,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v171.a');/*fix all templates*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.b');/*fix all templates*/
 		
-		console.log('version_:FX_test_v171.a');
+		console.log('version_:FX_test_v171.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -524,10 +524,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<screen-header-el @refresh="refresh">
 				  <template slot="title">порт № {{ port.number }}</template>
 				  <template v-if='port.status.IF_ADMIN_STATUS'>
-					<span @click="loadStatus" class="led big" :class="ledClassO(port.status.IF_OPER_STATUS)" style="width:unset;line-height:24px;padding: 0px 3px 0px 3px;"><span v-if="port.status.IF_OPER_STATUS">up</span><span v-else>down</span></span>
+					<span @click="loadStatus" class="led big" :class="ledClassO(port.status.IF_OPER_STATUS)" style="height:20px;"></span>
 				  </template>
 				  <template v-else>
-					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="width:unset;line-height:24px;padding: 0px 3px 0px 3px;"><span v-if="port.status.IF_ADMIN_STATUS">вкл</span><span v-else>откл</span></span>
+					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="height:20px;"></span>
 				  </template>
 				  {{ port.snmp_name }}
 				  <template slot="info">
