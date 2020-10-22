@@ -1,4 +1,9 @@
-javascript:(function(){
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>тестовый</title>
+		<script>
+			javascript:(function(){
 	
 if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://pre.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-6.test.inetcore.mts.ru/fix')>=0))){
 	document.title = 'Inetcore+';
@@ -28,9 +33,25 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.mypnumber{height:30px;border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
 			.mylegend{width:40px;height:16px;text-align:center;line-height:16px;font-size:12px;display:inline-block;padding:0px 4px;margin:0px 10px 0px 0px;}
 			.mylegendport{height:20px;line-height:10px;width:30px;padding:5px 5px;display:inline-block;margin-right:15px;}
+			@keyframes link-act-10{/*#ffc107,#8A6804*/
+				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#ffc107;}
+				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#8A6804;}
+			}
+			@keyframes link-act-100{/*#30BA30,#144A14*/
+				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#30BA30;}
+				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#144A14;}
+			}
+			@keyframes link-act-1G{/*#42b9cc,#256771*/
+				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#42b9cc;}
+				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#256771;}
+			}
+			@keyframes link-act-10G{/*#007bff,#023A77*/
+				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#007bff;}
+				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#023A77;}
+			}
 			.myspeed{border-radius:2px;background-color:gray;}
 			.myspeed10{background-color:#ffc107;}
-			.myspeed100{background-color:#28a745;}
+			.myspeed100{background-color:#30BA30;/*#28a745*/}
 			.myspeed1G{background-color:#42b9cc;}
 			.myspeed10G{background-color:#007bff;}
 			.myoperstateup{}
@@ -59,14 +80,24 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.myportcrc{}
 			.iscrc{color:#ff0000;font-weight:900;font-size:11px;}
 			.nocrc{}
+			
+			@keyframes link-act-on{/*#30BA30,#144A14*/
+				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#30BA30;}
+				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#144A14;}
+			}
+			.link-act{
+				animation: link-act-on 6s infinite;
+			}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
 		/*console.log('addCSS!');*/
 				
-		window.AppInventor.setWebViewString('version_:FX_test_v171.b');/*fix all templates*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.a');*//*fix all templates*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.b');*//*fix link led*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.с');/*link blink*/
 		
-		console.log('version_:FX_test_v171.b');
+		console.log('version_:FX_test_v171.c');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -85,7 +116,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			};
 		};
 		
-		function myPortsEl_template(){/*улучшенная карта портов*//*сделать подсветку разной длинны, с регулятором дельты*/
+		function myPortsEl_template(){/*улучшенная карта портов*//*мигание линков*//*сделать подсветку разной длинны, с регулятором дельты*/
 			document.getElementById('ports-el-template').innerHTML=`
 				<div class="ports-el myPorts">
 					<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
@@ -165,7 +196,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 											<div style="grid-area:1/1/2/5;"><div class="mypstline" :class="portClass(port)"></div></div>
 											<div style="grid-area:1/1/3/3;"><div class="mypnumber" :class="portClass(port)">{{port.number}}</div></div>
 											<div style="grid-area:1/3/2/5;"><div v-if="port.flat" class="mypstatus" :class="portClass(port)">{{port.flat}}</div></div>
-											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="linkStatusClass(index)">{{portSpeed(index)}}</div></div>
+											<div style="grid-area:2/3/3/5;"><div v-if="loaded.portStatuses && !error.empty" class="myspeed":class="linkStatusClass(index)" :style="ledActStyle(index)">{{portSpeed(index)}}</div></div>
 											<!---->
 											<template v-if="loaded.portStatuses && !error.empty && port.port_status">
 												<template v-for="(pair, i) in pairs(index)">
@@ -346,17 +377,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						}
 					  },
 					portSpeed:function(index){
-						var port=this.ports[index].port_status;
+						var portS=this.ports[index].port_status;
 						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
-						if(port){
-							if(port.high_speed&&port.oper_state&&port.admin_state){
-								if(port.admin_state=='up'){
-									if(port.oper_state=='up'){
-										return replace[port.high_speed];
-									}else if(port.oper_state=='lowerLayerDown'){/*Edge-Core FE L2 Switch ES3528M ETH_16KR_00551_1*/
+						if(portS){
+							if(portS.high_speed&&portS.oper_state&&portS.admin_state){
+								if(portS.admin_state=='up'){
+									if(portS.oper_state=='up'){
+										return replace[portS.high_speed];
+									}else if(portS.oper_state=='lowerLayerDown'){/*Edge-Core FE L2 Switch ES3528M ETH_16KR_00551_1*/
 										return 'LLD'
 									}else{
-										return port.oper_state;
+										return portS.oper_state;
 									};
 								}else{
 									return 'off'
@@ -426,17 +457,37 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							self.loaded.portsLoop=true;
 						});
 					},
-					linkStatusClass:function(portNumber){
-						var port=this.ports[portNumber].port_status;
+					linkStatusClass:function(index){
+						var portS=this.ports[index].port_status;
 						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
-						if(port){
-							if(port.high_speed&&port.oper_state&&port.admin_state){
-								return 'myspeed'+replace[port.high_speed]+' myoperstate'+port.oper_state+' myadmstate'+port.admin_state;
+						if(portS){
+							if(portS.high_speed&&portS.oper_state&&portS.admin_state){
+								return 'myspeed'+replace[portS.high_speed]+' myoperstate'+portS.oper_state+' myadmstate'+portS.admin_state;
 							}else{
 								return '';
 							};
 						}else{
 							return '';
+						};
+						
+					},
+					ledActStyle:function(index){/*мигание линков*/
+						var port=this.ports[index];
+						var portS=this.ports[index].port_status;
+						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
+						if(portS&&portS.admin_state=='up'&&portS.oper_state=='up'&&portS.high_speed){/*HUAWEI S2328P-EI-AC ETH_54KR_00585_3*/
+							/*console.log(port);*/
+							if(port.state=='trunk free'||port.state=='bad'){/*[BAD],[CABLE_MON]*/
+								return '';
+							}else if(replace[portS.high_speed]==10){/*D-Link DES-3526 ETH_54KR_01997_1*/
+								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+replace[portS.high_speed]+port.number/10)+'s infinite;';
+							}else if(port.number<3){
+								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+port.number*10/2)+'s infinite;';
+							}else if(port.number>13){
+								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+port.number/10)+'s infinite;';
+							}else{
+								return 'animation: link-act-'+replace[portS.high_speed]+' '+port.number+'s infinite;';
+							};
 						};
 						
 					},
@@ -483,7 +534,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			});
 		};
 		
-		function myPort_template(){/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок улучшенный*//*доработать заголовок еще*/
+		function myPort_template(){/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок улучшенный*//*мигание линка*//*доработать заголовок еще*/
 			document.getElementById('port-template').innerHTML=`
 	<div v-if="port ">
       <div class="info-block port-info port-view">
@@ -524,10 +575,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<screen-header-el @refresh="refresh">
 				  <template slot="title">порт № {{ port.number }}</template>
 				  <template v-if='port.status.IF_ADMIN_STATUS'>
-					<span @click="loadStatus" class="led big" :class="ledClassO(port.status.IF_OPER_STATUS)" style="height:20px;"></span>
+					<span @click="loadStatus" class="led big" :class="ledClassOper(port.status.IF_OPER_STATUS)" style="height:20px;width:20px;"></span>
 				  </template>
 				  <template v-else>
-					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="height:20px;"></span>
+					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="height:20px;width:20px;"></span>
 				  </template>
 				  {{ port.snmp_name }}
 				  <template slot="info">
@@ -910,15 +961,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 
   },
   computed: {
-	  /*add portReBindData, for set-port-modal*/
-	portReBindData: function(){
-		console.log(this.port);
-		return {
-			region:this.device.REGION_ID,
-			state:this.port.state,
-			subscriber_list:this.port.subscriber_list
-		};
-	},
     blockedSetButton: function () {
       return this.port.is_trunk || this.port.is_link || this.loading.status
     },
@@ -959,7 +1001,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         port: data.snmp_name,
         name: data.name
       }
-    }
+    },
+	/*add portReBindData, for set-port-modal*/
+	portReBindData: function(){
+		console.log(this.port);
+		console.log(this.device);
+		return {
+			region:this.device.REGION_ID,
+			state:this.port.state,
+			subscriber_list:this.port.subscriber_list
+		};
+	},
   },
   methods: {
     refresh: function () {
@@ -1014,9 +1066,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return turned ? 'on port-view__led--on' : 'off port-view__led--off';
     },
 	/*времянка для header oper*/
-	ledClassO: function (turned) {
+	ledClassOper: function (turned) {
       if (typeof turned === 'undefined') return '';
-      return turned ? 'on port-view__led--on' : '';
+      return turned ? 'on port-view__led--on link-act' : '';
     },
     toDevice: function () {
       this.$root.jump(this.port.device_name, true);
@@ -1193,12 +1245,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     setPortForUser: function () {
       this.$root.showModal({
         title: 'выбор ЛС',
-        data: {
-          portNumber: this.port.number,
-          portParams: this.portParams,
-          deviceParams: this.deviceParams,
-		portReBindData:this.portReBindData
-        },
+		/*add portReBindData:this.portReBindData*/
+		data: {portNumber: this.data.number, portParams: this.portParams, deviceParams: this.deviceParams, portReBindData:this.portReBindData},
         component: 'set-port-modal'
       });
     },
@@ -2633,3 +2681,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 }else{console.log(document.title)};
 
 }());
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
