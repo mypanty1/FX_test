@@ -474,14 +474,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							/*console.log(port);*/
 							if(port.state=='trunk free'||port.state=='bad'){/*[BAD],[CABLE_MON]*/
 								return '';
-							}else if(replace[portS.high_speed]==10){/*D-Link DES-3526 ETH_54KR_01997_1*/
-								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+replace[portS.high_speed]+port.number/10)+'s infinite;';
-							}else if(port.number<3){
-								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+port.number*10/2)+'s infinite;';
-							}else if(port.number>13){
-								return 'animation: link-act-'+replace[portS.high_speed]+' '+(+port.number/10)+'s infinite;';
 							}else{
-								return 'animation: link-act-'+replace[portS.high_speed]+' '+port.number+'s infinite;';
+								return 'animation: link-act-'+replace[portS.high_speed]+' '+(Math.random()*10+1)+'s infinite;';
 							};
 						};
 						
