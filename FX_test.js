@@ -1,9 +1,4 @@
-<!DOCTYPE HTML>
-<html>
-	<head>
-		<title>тестовый</title>
-		<script>
-			javascript:(function(){
+javascript:(function(){
 	
 if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://pre.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-6.test.inetcore.mts.ru/fix')>=0))){
 	document.title = 'Inetcore+';
@@ -2681,8 +2676,3 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 }else{console.log(document.title)};
 
 }());
-		</script>
-	</head>
-	<body>
-	</body>
-</html>
