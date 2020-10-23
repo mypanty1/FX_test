@@ -380,7 +380,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 									if(portS.oper_state=='up'){
 										return replace[portS.high_speed];
 									}else if(portS.oper_state=='lowerLayerDown'){/*Edge-Core FE L2 Switch ES3528M ETH_16KR_00551_1*/
-										return 'LLD'
+										return 'down';/*'LLD'*/
 									}else{
 										return portS.oper_state;
 									};
