@@ -64,6 +64,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.mypair.pairend-close{background-color:#dee2e6;}
 			.mypair.pairend-short{background-color:#faac5d;}
 			
+			.mypair.xz{}
+			.mypair.eq{}
+			.mypair.noteq{background-color:#faac5d;}
+			
 			.mypaira-default{background-color:#eacf9c;}
 			.mypairb-default{background-color:#b4f3b4;}
 			.mypairc-default{background-color:#c5e3ec;}
@@ -90,9 +94,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.a');*//*fix all templates*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.b');*//*fix link led*/
-		window.AppInventor.setWebViewString('version_:FX_test_v171.с');/*link blink*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.с');*//*link blink*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.d');/*eq pairs*/
 		
-		console.log('version_:FX_test_v171.c');
+		console.log('version_:FX_test_v171.d');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -111,7 +116,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			};
 		};
 		
-		function myPortsEl_template(){/*улучшенная карта портов*//*мигание линков*//*сделать подсветку разной длинны, с регулятором дельты*/
+		function myPortsEl_template(){/*улучшенная карта портов*//*мигание линков*//*подсветку разной длинны с регулятором дельты*/
 			document.getElementById('ports-el-template').innerHTML=`
 				<div class="ports-el myPorts">
 					<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
@@ -229,6 +234,17 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							</a>
 							<div class="collapse legend-body" id="collapseLegend">
 								<ul class="list-group">
+									<template v-if="showdetails">
+										<div class="w-100 py-1">length difference threshold (m):</div>
+										<li class="list-group-item">
+											<div class="form-row">
+												<div class="form-group col-3 control">
+													<input class="form-control form-control-sm" v-model="pairdelta" v-filter="'[0-9]'" maxlength="3" placeholder="m" type="number">
+												</div>
+											</div>
+										</li>
+										<div class="w-100 py-1">Статусы порта:</div>
+									</template>
 									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-busy">0</div>занятые</li>
 									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-expired">0</div>можно освободить</li>
 									<li class="list-group-item"><div class="mylegend myspeed mylegendport port-new">0</div>новый MAC</li>
@@ -249,10 +265,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 										<li class="list-group-item"><div class="mylegend myspeed myoperstatedown">down</div>Link down</li>
 										<li class="list-group-item"><div class="mylegend myspeed myadmstatedown">off</div>Port disabled</li>
 										<div class="w-100 py-1">Ошибки:</div>
-										<li class="list-group-item"><div class="legend-port legend-port-state">- / -</div>Тест ошибок не запускался</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state">0 / 0</div>Прием / Передача</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state">999Т</div>999 тысяч ошибок</li>
-										<li class="list-group-item"><div class="legend-port legend-port-state">999М</div>999 миллионов ошибок</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state">- / -</div>тест ошибок не запускался</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state">0 / 0</div>RX / TX</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state">999Т</div>ошибок x10³</li>
+										<li class="list-group-item"><div class="legend-port legend-port-state">999М</div>ошибок x100³</li>
 									</template>
 								</ul>
 							</div>
@@ -277,6 +293,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  empty: false,
 					  emptyMessage: '',
 					},
+					pairdelta:4,/*для разницы пар*/
 					showShadow: true,
 				   }
 				},
@@ -467,12 +484,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						
 					},
 					ledActStyle:function(index){/*мигание линков*/
-						var port=this.ports[index];
+						var portSt=this.ports[index].state;
 						var portS=this.ports[index].port_status;
 						var replace={'':"",'0':"",'10':"10",'100':"100",'1000':"1G",'10000':"10G"};
 						if(portS&&portS.admin_state=='up'&&portS.oper_state=='up'&&portS.high_speed){/*HUAWEI S2328P-EI-AC ETH_54KR_00585_3*/
-							/*console.log(port);*/
-							if(port.state=='trunk free'||port.state=='bad'){/*[BAD],[CABLE_MON]*/
+							if(portSt=='trunk free'||portSt=='bad'){/*[BAD],[CABLE_MON]*/
 								return '';
 							}else{
 								return 'animation: link-act-'+replace[portS.high_speed]+' '+(Math.random()*10+1)+'s infinite;';
@@ -486,25 +502,28 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						var show=false;
 						if(this.ports[index].port_status){
 							var pair=this.ports[index].port_status;
+							var paireqv=9999;/*эталон для подсветки разности длин*//*ETH_54KR_00340_8 п22*/
 							for(var i=1;i<=4;i++){
-								show=show||pair["pair_" + i];
-								var pair_len=pair["metr_" + i]?parseInt(pair["metr_" + i],10):'';
-								pair_len=isNaN(pair_len)?'':pair_len/*+"M"*/;
+								show=show||pair['pair_' + i];
+								var pair_len=pair['metr_' + i]?parseInt(pair['metr_' + i],10):'';
+								pair_len=isNaN(pair_len)?'':pair_len/*+'M'*/;
+								if(paireqv==9999&&pair_len){paireqv=pair_len};/*задание эталона*/
 								var pair_end=null;
-								var cssClass="default";
-								if(pair["pair_"+i]){
-									pair_end=pair["pair_"+i].toLowerCase();
+								var pairClass='default';
+								if(pair['pair_'+i]){
+									pair_end=pair['pair_'+i].toLowerCase();
 									if(allow_statuses_arr.includes(pair_end)){
-										cssClass=pair_end;
+										pairClass=pair_end;
 										pair_end=pair_end;
 									}else{
-										cssClass="error";
-										pair_end="error";
+										pairClass='error';
+										pair_end='error';
 									};
 								};
+								var pairsEqClass=(paireqv!=9999&&!isNaN(pair_len))?((Math.abs(paireqv-pair_len)>=this.pairdelta)?'noteq':'eq'):'xz';/*определения раздницы в парах*/
 								var pair_info={
-									pairclass:"pairend-"+cssClass,
-									position:"grid-area:"+(i+2)+"/1/"+(i+3)+"/5;",
+									pairclass:('pairend-'+pairClass)+' '+pairsEqClass,
+									position:'grid-area:'+(i+2)+'/1/'+(i+3)+'/5;',
 									number:i,
 									pair:pair_end,
 									metr:pair_len
