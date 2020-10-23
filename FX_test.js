@@ -66,7 +66,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			
 			.mypair.xz{}
 			.mypair.eq{}
-			.mypair.noteq{background-color:#faac5d;}
+			.mypair.noteq{background-color:#fa8072;}
 			
 			.mypaira-default{background-color:#eacf9c;}
 			.mypairb-default{background-color:#b4f3b4;}
