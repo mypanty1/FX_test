@@ -2520,11 +2520,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
   },
   computed: {
     billingInfo() {
-		this.clear();/*add clear*/
-		this.params.sw=this.data.billingInfo[0].deviceIP;/*add parameter*/
-		this.params.port=this.data.billingInfo[0].portNumber;/*add parameter*/
-		this.params.mac=this.data.billingInfo[0].macCPE[0];/*add parameter*/
-		this.params.ip=this.data.billingInfo[0].ip[0].IP;/*add parameter*/
+this.clear();/*add clear*/
+if(this.data.billingInfo[0]){
+this.params.sw=this.data.billingInfo[0].deviceIP;/*add parameter*/
+this.params.port=this.data.billingInfo[0].portNumber;/*add parameter*/
+this.params.mac=(this.data.billingInfo[0].macCPE[0])?(this.data.billingInfo[0].macCPE[0]):'';/*add parameter*/
+this.params.ip=(this.data.billingInfo[0].ip&&this.data.billingInfo[0].ip.length>0)?(this.data.billingInfo[0].ip[0].IP):'';/*add parameter*/
+};
       return this.data.billingInfo;
     },
 	vgForBind(){/*newest vg for rebind*/
