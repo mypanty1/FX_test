@@ -1076,7 +1076,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	/*времянка для header oper*/
 	ledClassOper: function (turned) {
       if (typeof turned === 'undefined') return '';
-      return turned ? 'on port-view__led--on/* link-act*/' : '';
+      return turned ? 'on port-view__led--on'/*link-act*/ : '';
     },
     toDevice: function () {
       this.$root.jump(this.port.device_name, true);
