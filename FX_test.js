@@ -583,10 +583,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<screen-header-el @refresh="refresh">
 				  <template slot="title">порт № {{ port.number }}</template>
 				  <template v-if='port.status.IF_ADMIN_STATUS'>
-					<span @click="loadStatus" class="led big" :class="ledClassOper(port.status.IF_OPER_STATUS)" style="height:20px;width:20px;"></span>
+					<span @click="loadStatus" class="led big" :class="ledClassOper(port.status.IF_OPER_STATUS)" style="height:20px;width:40px;"></span>
 				  </template>
 				  <template v-else>
-					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="height:20px;width:20px;"></span>
+					<span @click="loadStatus" class="led big" :class="ledClass(port.status.IF_ADMIN_STATUS)" style="height:20px;width:40px;"></span>
 				  </template>
 				  {{ port.snmp_name }}
 				  <template slot="info">
