@@ -827,7 +827,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			  <!--replace this-->
               <div class="d-flex mt-1">{{ link.LINK_DEVICE_IP_ADDRESS }}<span v-if='link.LINK_PORT_NUMBER'> • </span><span v-if='link.LINK_PORT_NUMBER' class="trunk-port-link text-center">{{ Number(link.LINK_PORT_NUMBER) }}</span> <span class="inscription">IP • порт</span></div>
               <!--replace this-->
-			  <div class="d-flex mt-1"><span class="w-75">{{ link.LINK_DEVICE_LOCATION }}</span><span class="inscription">адрес</span></div>
+			  <div class="d-flex mt-1"><span class="w-75">{{ link.LINK_DEVICE_LOCATION.split(', ').reverse()[1].replace(/\s/g,'')+' '+link.LINK_DEVICE_LOCATION.split(', ').reverse()[0].replace(/\s/g,'') }}</span><span class="inscription">адрес</span></div>
               <div class="mt-1">
                 <div class="d-flex">
                   <div v-if="link.LINK_RACK_TYPE" class="rackBox-type">
