@@ -28,22 +28,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.mypnumber{height:30px;border-radius:2px;font-size:20px;line-height:30px;border-top-left-radius:4px;}
 			.mylegend{width:40px;height:16px;text-align:center;line-height:16px;font-size:12px;display:inline-block;padding:0px 4px;margin:0px 10px 0px 0px;}
 			.mylegendport{height:20px;line-height:10px;width:30px;padding:5px 5px;display:inline-block;margin-right:15px;}
-			@keyframes link-act-10{/*#ffc107,#8A6804*/
-				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#ffc107;}
-				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#8A6804;}
-			}
-			@keyframes link-act-100{/*#30BA30,#144A14*/
-				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#30BA30;}
-				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#144A14;}
-			}
-			@keyframes link-act-1G{/*#42b9cc,#256771*/
-				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#42b9cc;}
-				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#256771;}
-			}
-			@keyframes link-act-10G{/*#007bff,#023A77*/
-				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#007bff;}
-				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#023A77;}
-			}
 			.myspeed{border-radius:2px;background-color:gray;}
 			.myspeed10{background-color:#ffc107;}
 			.myspeed100{background-color:#30BA30;/*#28a745*/}
@@ -79,14 +63,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			.myportcrc{}
 			.iscrc{color:#ff0000;font-weight:900;font-size:11px;}
 			.nocrc{}
-			
-			@keyframes link-act-on{/*#30BA30,#144A14*/
-				1%,3%,5%,7%,9%,10%,11%,12%,14%,15%,16%,17%,19%,20%,21%,22%,23%,25%,26%,27%,28%,30%,31%,32%,33%,35%,36%,37%,38%,39%,41%,42%,43%,44%,45%,47%,48%,49%,50%,52%,53%,54%,55%,56%,58%,59%,60%,61%,63%,64%,65%,66%,67%,69%,70%,71%,72%,73%,75%,76%,77%,78%,79%,81%,82%,83%,84%,86%,87%,88%,89%,90%,92%,93%,94%,95%,97%,98%,99%,100%{background-color:#30BA30;}
-				2%,4%,6%,8%,13%,18%,24%,29%,34%,40%,46%,51%,57%,62%,68%,74%,80%,85%,91%,96%{background-color:#144A14;}
-			}
-			.link-act{
-				animation: link-act-on 6s infinite;
-			}
 		`;
 		addCSS.appendChild(document.createTextNode(myCSS));
 		document.head.appendChild(addCSS);
@@ -95,9 +71,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.a');*//*fix all templates*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.b');*//*fix link led*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.с');*//*link blink*/
-		window.AppInventor.setWebViewString('version_:FX_test_v171.d');/*eq pairs*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.d');*//*eq pairs*//*disable link blink*//*short addres in link*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.e');/*fix rebind (message -> text) and (isError -> result.type=='error')*/
 		
-		console.log('version_:FX_test_v171.d');
+		console.log('version_:FX_test_v171.e');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -116,7 +93,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			};
 		};
 		
-		function myPortsEl_template(){/*улучшенная карта портов*//*мигание линков*//*подсветку разной длинны с регулятором дельты*/
+		function myPortsEl_template(){/*улучшенная карта портов*//*мигание линков*//*disable link blink*//*подсветка разной длинны с регулятором дельты*/
 			document.getElementById('ports-el-template').innerHTML=`
 				<div class="ports-el myPorts">
 					<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
@@ -293,7 +270,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					  empty: false,
 					  emptyMessage: '',
 					},
-					pairdelta:4,/*для разницы пар*/
+					pairdelta:4,/*length difference threshold*/
 					showShadow: true,
 				   }
 				},
@@ -481,7 +458,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						}else{
 							return '';
 						};
-						
 					},
 					ledActStyle:function(index){/*мигание линков*/
 						var portSt=this.ports[index].state;
@@ -491,10 +467,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							if(portSt=='trunk free'||portSt=='bad'){/*[BAD],[CABLE_MON]*/
 								return '';
 							}else{
-								return '';/*'animation: link-act-'+replace[portS.high_speed]+' '+(Math.random()*10+1)+'s infinite;';*/
+								return ''/*'animation: link-act-'+replace[portS.high_speed]+' '+(Math.random()*10+1)+'s infinite;';*/
 							};
 						};
-						
 					},
 					pairs:function(index){
 						var allow_statuses_arr=['close','open','short','ok','no_cable'];
@@ -520,7 +495,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 										pair_end='error';
 									};
 								};
-								var pairsEqClass=(paireqv!=9999&&!isNaN(pair_len))?((Math.abs(paireqv-pair_len)>=this.pairdelta)?'noteq':'eq'):'xz';/*определения раздницы в парах*/
+								var pairsEqClass=(paireqv!=9999&&!isNaN(pair_len))?((Math.abs(paireqv-pair_len)>=this.pairdelta)?'noteq':'eq'):'xz';/*определения разницы в парах*/
 								var pair_info={
 									pairclass:('pairend-'+pairClass)+' '+pairsEqClass,
 									position:'grid-area:'+(i+2)+'/1/'+(i+3)+'/5;',
@@ -542,7 +517,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			});
 		};
 		
-		function myPort_template(){/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок улучшенный*//*мигание линка*//*доработать заголовок еще*/
+		function myPort_template(){/*cabletest при link down на trunk*//*данные для SetPort*//*старый заголовок*//*сокращенный адрес в линке+исправления*/
 			document.getElementById('port-template').innerHTML=`
 	<div v-if="port ">
       <div class="info-block port-info port-view">
@@ -826,9 +801,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
               <div class="mt-2">{{ link.LINK_DEVICE_NAME }}<span class="inscription">устройство</span></div>
 			  <!--replace this-->
               <div class="d-flex mt-1">{{ link.LINK_DEVICE_IP_ADDRESS }}<span v-if='link.LINK_PORT_NUMBER'> • </span><span v-if='link.LINK_PORT_NUMBER' class="trunk-port-link text-center">{{ Number(link.LINK_PORT_NUMBER) }}</span> <span class="inscription">IP • порт</span></div>
+              <div class="d-flex mt-1"><span class="w-75">{{ link.LINK_DEVICE_LOCATION.split(', ').reverse()[1].replace(/\s/g,'')+' '+link.LINK_DEVICE_LOCATION.split(', ').reverse()[0].replace(/\s/g,'') }}</span><span class="inscription">адрес</span></div>
               <!--replace this-->
-			  <div class="d-flex mt-1"><span class="w-75">{{ link.LINK_DEVICE_LOCATION.split(', ').reverse()[1].replace(/\s/g,'')+' '+link.LINK_DEVICE_LOCATION.split(', ').reverse()[0].replace(/\s/g,'') }}</span><span class="inscription">адрес</span></div>
-              <div class="mt-1">
+			  <div class="mt-1">
                 <div class="d-flex">
                   <div v-if="link.LINK_RACK_TYPE" class="rackBox-type">
                     <i v-if="link.LINK_RACK_TYPE == 'Антивандальный'" class="fas fa-lock"></i>
@@ -1400,7 +1375,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                   </div>
                 </div>
                 <div v-if="result" class="mt-3 response-block">
-                    <div v-if="result.isError">
+					<!--modify this-->
+                    <div v-if="result.type=='error'">
                         <div v-html="result.text.slice(0,120)" class="alert alert-danger" role="alert"></div>
 						<!--add this fragment-->
 						<div v-if="result.reBindMe" class="rebindme alert":class="result.alertClass" role="alert">
@@ -1565,8 +1541,8 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					/*add data.reBindMe*//*only serverid=='108'*/
 					console.log(p_info);
 					if(params.serverid=='108'&&p_info){
-						if(data.isError&&data.message&&data.message.length>0&&data.message.indexOf('Мы не можем отобрать порт у контракта ')>=0){
-							data.reBindMe=parseInt(data.message.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
+						if(data.type=='error'&&data.text&&data.text.length>0&&data.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){/*Мы не можем отобрать порт у контракта 2495985 так-как он активен.*/
+							data.reBindMe=parseInt(data.text.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
 							console.log(data.reBindMe);
 							/*var p_state=p_info.state;*/
 							var anonimus=(p_info.subscriber_list[0])?false:true;
@@ -1622,9 +1598,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
 						};
 					}else{
-						if(data.isError&&data.message){
-							console.log('string_4:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.message);
-							window.AppInventor.setWebViewString('string_4:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.message);
+						if(data.type=='error'&&data.text){
+							console.log('string_4:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.text);
+							window.AppInventor.setWebViewString('string_4:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.text);
 						}else{
 							console.log('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
 							window.AppInventor.setWebViewString('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
@@ -1650,7 +1626,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					var self = this;
 					httpPost('/call/service_mix/set_bind', reBind_108_params, true).then(function(data) {
 						self.resultReBind = data;
-						if(data.isError){
+						if(data.type=='error'){
 							data.alertClass='alert-warning';
 							data.alertText='освободить неудалось';
 						}else if(data.InfoMessage){
@@ -2520,13 +2496,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
   },
   computed: {
     billingInfo() {
-this.clear();/*add clear*/
-if(this.data.billingInfo[0]){
-this.params.sw=this.data.billingInfo[0].deviceIP;/*add parameter*/
-this.params.port=this.data.billingInfo[0].portNumber;/*add parameter*/
-this.params.mac=(this.data.billingInfo[0].macCPE[0])?(this.data.billingInfo[0].macCPE[0]):'';/*add parameter*/
-this.params.ip=(this.data.billingInfo[0].ip&&this.data.billingInfo[0].ip.length>0)?(this.data.billingInfo[0].ip[0].IP):'';/*add parameter*/
-};
+		this.clear();/*add clear*/
+		if(this.data.billingInfo[0]){
+			this.params.sw=this.data.billingInfo[0].deviceIP;/*add parameter*/
+			this.params.port=this.data.billingInfo[0].portNumber;/*add parameter*/
+			this.params.mac=(this.data.billingInfo[0].macCPE[0])?(this.data.billingInfo[0].macCPE[0]):'';/*add parameter*/
+			this.params.ip=(this.data.billingInfo[0].ip&&this.data.billingInfo[0].ip.length>0)?(this.data.billingInfo[0].ip[0].IP):'';/*add parameter*/
+		};
       return this.data.billingInfo;
     },
 	vgForBind(){/*newest vg for rebind*/
