@@ -2404,7 +2404,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger w-100"></div>
 			</div>
 			<div v-if="resultBind">
-				<div v-if="resultBind.isError" class="rebinderr alert":class="resultBind.alertClass" role="alert">
+				<div v-if="resultBind.type=='error'" class="rebinderr alert":class="resultBind.alertClass" role="alert">
 					<div>{{ resultBind.alertText }}</div>
 				</div>
 				<div v-else-if="resultBind.InfoMessage" class="rebindok alert":class="resultBind.alertClass" role="alert">
@@ -2645,9 +2645,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		var self = this;
 		httpPost('/call/service_mix/'+mode, prm, true).then(function(data) {
 			self.resultBind = data;
-			if(data.isError){
+			if(data.type=='error'){
 				data.alertClass='alert-warning';
-				data.alertText=data.message;
+				data.alertText=data.text;
 			}else if(data.InfoMessage){
 				data.alertClass='alert-success';
 				data.alertText=data.InfoMessage;
