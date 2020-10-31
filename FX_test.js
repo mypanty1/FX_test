@@ -72,7 +72,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.b');*//*fix link led*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.с');*//*link blink*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.d');*//*eq pairs*//*disable link blink*//*short addres in link*/
-		window.AppInventor.setWebViewString('version_:FX_test_v171.e.phone test');/*fix rebind (message -> text) and (isError -> result.type=='error')*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.e');/*fix rebind (message -> text) and (isError -> result.type=='error')*/
 		
 		console.log('version_:FX_test_v171.e');
 	
