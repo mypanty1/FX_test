@@ -2183,7 +2183,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           serverid: service.serverid,
           vgid: service.vgid,
           agentid: service.agentid,
-          descr: service.descr,
+          /*descr: service.descr,*/
         };
         this.loadOnlineSession(params);
       });
