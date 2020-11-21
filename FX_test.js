@@ -1338,7 +1338,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 						<div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" class="form-row">
 							<input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
 							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill" type="submit">связать счет</button><!--modify this, мелкие буквы-->
-							<button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">выделить IP</button><!--modify this, мелкие буквы-->
+							<!--<button v-if="typeOfBind == 8" @click="setBind(8)" v-bind:disabled="loading" class="btn mt-2 btn-primary btn-sm btn-fill" type="submit">выделить IP</button>--><!--modify this, мелкие буквы-->
 						</div>
 						<div v-else-if="typeOfBind == 5" class="form-row">
 							<button @click="setBind(3)" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-1" type="submit">связать счет</button><!--modify this, мелкие буквы-->
