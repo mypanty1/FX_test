@@ -72,9 +72,11 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.b');*//*fix link led*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.с');*//*link blink*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.d');*//*eq pairs*//*disable link blink*//*short addres in link*/
-		window.AppInventor.setWebViewString('version_:FX_test_v171.e');/*fix rebind (message -> text) and (isError -> result.type=='error')*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.e');*//*fix rebind (message -> text) and (isError -> result.type=='error')*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v171.f');*//*fix card activ 6-091-0427560*/
+		window.AppInventor.setWebViewString('version_:FX_test_v171.g');/*fix descr:xrad*//*add link to account from setPort*/
 		
-		console.log('version_:FX_test_v171.e');
+		console.log('version_:FX_test_v171.g');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -89,6 +91,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				/*ok*/myAccount_template();
 				/*ok*/mySession_template();
 				/*ok*/myBillingInfo_modal();
+				/*myCardActivation_template();*/
 				templates_need_replace=false;
 			};
 		};
@@ -1259,7 +1262,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 });
 		};
 		
-		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*дата заведения id*/
+		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*адрес при привязке*//*дата заведения id*//*переход на лс*/
 			document.getElementById('set-port-modal').innerHTML=`
     <div class="container-fluid">
 		<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
@@ -1278,9 +1281,16 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div v-if="account.isError" v-html="account.text" class="alert alert-warning" role="alert"></div>
             <div v-else>
                 <div class="account-block account-info" v-for="acc in account.data">
+					<!--replace this
                     <span class="account-header">
                         <i class="fa fa-user"></i> {{ acc.agreements.account }}
                     </span>
+					-->
+					<router-link class="cursor-pointer" tag="div" :to="'/'+acc.agreements.account"> 
+						<div class="link-title">
+							<i class="fa fa-user"></i> {{acc.agreements.account}}<i class="fa fa-chevron-right float-right"></i>
+						</div>
+					</router-link>
                     <div>
                         <span class="small-text">{{ acc.address }}</span>
                     </div>
@@ -1685,7 +1695,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			});
 		};
 		
-		function myAccount_template(){/*id в услугах*//*кнопка обновить*/
+		function myAccount_template(){/*id в услугах*//*кнопка обновить*//*пароль воип для питера*//*костыль для питера, сессии с descr:xrad*/
 			document.getElementById('account-template').innerHTML=`
     <div v-if="data">
       <div class="info-block account-info">
@@ -2103,7 +2113,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return /internet/i.test(service.type);
     },
     hasPassword(service) {
-      return service.type == 'internet'||service.type == 'phone';
+      return service.type == 'internet'||service.type == 'phone';/*тест для питера, пароль от воип 2-041-0025544*/
     },
     getAuthAndSpeed() {
       this.loading.updateVgroups = this.account.vgroups.length;
@@ -2183,7 +2193,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
           serverid: service.serverid,
           vgid: service.vgid,
           agentid: service.agentid,
-          /*descr: service.descr,*/
+          /*descr: service.descr,*//*для питера абоненты с xrad*/
         };
         this.loadOnlineSession(params);
       });
@@ -2221,7 +2231,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     refreshSessions() {
       this.loadSessions();
     },
-    resetSession(session) {
+	resetSession(session) {
       this.loading.session++;
       session.params.sessionid = session.data[0].sessionid;
       session.params.nasip = session.data[0].nas;
@@ -2233,7 +2243,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         setTimeout(this.loadOnlineSession, 10000, session.params);
       });
     },
-    toActivation(services, type) {
+	toActivation(services, type) {
       this.$emit('change-screen', {
         screen: 'activation',
         source: { type: type, services: services, account: this.data.ACCOUNT },
@@ -2456,7 +2466,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       items: [
         /*'portNumber',*//*exclude this*/
         /*'deviceIP',*//*exclude this*/
-        'deviceMac',
+        /*'deviceMac',*//*exclude this*/
         /*'macCPE',*//*exclude this*/
         /*'ip',*//*exclude this*/
         'innerVLan',
@@ -2652,6 +2662,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				data.alertClass='alert-success';
 				data.alertText=data.InfoMessage;
 			};
+			if(data.type=='error'&&data.text){/*логирование*/
+				console.log('string_4:(error_CardInfo) account:'+prm.account+' login:'+prm.login+' id:'+prm.vgid+' sw:'+prm.ip+' p:'+prm.port+' mac:'+prm.mac+' client_ip:'+prm.client_ip+' serverid:'+prm.serverid+' agentid:'+prm.agentid+' type_of_bind:'+prm.type_of_bind+' text:'+data.text);
+				window.AppInventor.setWebViewString('string_4:(error_CardInfo) account:'+prm.account+' login:'+prm.login+' id:'+prm.vgid+' sw:'+prm.ip+' p:'+prm.port+' mac:'+prm.mac+' client_ip:'+prm.client_ip+' serverid:'+prm.serverid+' agentid:'+prm.agentid+' type_of_bind:'+prm.type_of_bind+' text:'+data.text);
+			}else{
+				console.log('string_4:(success_CardInfo) account:'+prm.account+' login:'+prm.login+' id:'+prm.vgid+' sw:'+prm.ip+' p:'+prm.port+' mac:'+prm.mac+' client_ip:'+prm.client_ip+' serverid:'+prm.serverid+' agentid:'+prm.agentid+' type_of_bind:'+prm.type_of_bind+' text:'+data.InfoMessage);
+				window.AppInventor.setWebViewString('string_4:(success_CardInfo) account:'+prm.account+' login:'+prm.login+' id:'+prm.vgid+' sw:'+prm.ip+' p:'+prm.port+' mac:'+prm.mac+' client_ip:'+prm.client_ip+' serverid:'+prm.serverid+' agentid:'+prm.agentid+' type_of_bind:'+prm.type_of_bind+' text:'+data.InfoMessage);
+			};
 			self.loading = false;
 		},function(){ 
 			self.loading = false;
@@ -2660,6 +2677,180 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	},
   },
 });
+		};
+		
+		function myCardActivation_template(){/*костыль, при нескольких номерах карт 6-091-0427560*/
+			document.getElementById('equipment-el-template').innerHTML=`
+			
+  <div>
+    <div class="info-card">
+      <div class="icon">
+        <i class="fas" :class="eq.icon"></i>
+      </div>
+      <div class="info">
+        <div class="title">{{ eq.type }} <span class="text-black-50" v-if="eq.type_desc">({{ eq.type_desc }})</span></div>
+        <div class="sub-title">{{ eq.model }}</div>
+        <div class="second">
+          <div v-if="eq.sn" class='dotted-row'>
+            <div class="dotted-row__value">{{ eq.sn }}</div>
+            <div class="dotted-row__space"></div>
+            <div class="dotted-row__title">S/N</div>
+          </div>
+          <div v-if="eq.mac && eq.mac != eq.sn" class='dotted-row'>
+            <div class="dotted-row__value">{{ eq.mac }}</div>
+            <div class="dotted-row__space"></div>
+            <div class="dotted-row__title">MAC</div>
+          </div>
+          <div v-if="eq.chipId" class='dotted-row'>
+            <div class="dotted-row__value">{{ eq.chipId }}</div>
+            <div class="dotted-row__space"></div>
+            <div class="dotted-row__title">Chip ID</div>
+          </div>
+        </div>
+        <!-- ToDo Ждем доп. аналитику. -->
+        <!-- <template v-if='equipment.rented'>
+          <equipments-rent :rent='equipment.rented' />
+        </template> -->
+      </div>
+      <div v-if="dmsStatus" class="status" :class="dmsStatusClass"></div>
+    </div>
+    <!-- SmartCard -->
+    <div class="card p-3 mt-2" v-if="eq.smartCard">
+      <a class="collapse collapsed show info-block-title nohover d-flex" data-toggle="collapse" :data-target="'#collapse-' + eq.smartCard" :href="'#collapse-' + eq.smartCard">
+        <div class="d-flex justify-content-between w-100 pr-3"><div class="description">№ карты</div><div class="title">{{ eq.smartCard }}</div></div>
+        <div class="align-self-center" v-if="!loading"><i class="fa fa-chevron-up chevron float-right"></i></div>
+        <div class="spinner-border spinner-border-sm" role="status" v-else>
+          <span class="sr-only"></span>
+        </div>
+      </a>
+      <div class="collapse second" :id="'collapse-' + eq.smartCard" v-if="cardInfo">
+        <div>
+          <div class="d-flex justify-content-between">
+            <span class="description">Привязка к Chip ID</span> <div :class="{'text-danger': cardInfo.pairing_info_property.length > 1}"> {{ 'найдено '+cardInfo.pairing_info_property+', будет использован '+cardInfo.pairing_info_property[0] }}</div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="description">Статус карты</span> <div> {{ cardInfo.card_status }}</div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <div class="description">Активирована</div> <div> {{ isActivation }}</div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <div class="description">Пакеты</div> <div class="text-right"> {{ cardInfo.products.positive }} </div>
+          </div>
+            <div class="mt-3">
+              <button class="btn mt-1 mb-1 w-100" :class="'btn-' + activation.status" @click="recovery" :disabled="!!time.activation">
+                <i v-if="activation.icon" class="fa" :class="activation.icon"></i> Повторная активация <span v-if="time.activation" class="text-muted">{{ time.activation | prettyTime }}</span>
+              </button>
+              <button class="btn mt-1 mb-1 w-100" :class="'btn-' + rescan.status" @click="rescanAll" :disabled="!!time.rescan">
+                <i v-if="rescan.icon" class="fa" :class="rescan.icon"></i> Автопоиск каналов ЦТВ <span v-if="!!time.rescan" class="text-muted">{{ time.rescan | prettyTime }}</span>
+              </button>
+              <button class="btn mt-1 mb-1 w-100" :class="'btn-' + reset.status" @click="resetPincode" :disabled="!!time.reset">
+                <i v-if="reset.icon" class="fa" :class="reset.icon"></i> Сброс PIN кода <span v-if="time.reset" class="text-muted">{{ time.reset | prettyTime }}</span>
+              </button>
+            </div>
+        </div>
+      </div>
+    </div>
+    <!-- IPTV -->
+    <div class="card p-3 mt-2" v-if="dmsStatus">
+      <a class="collapse collapsed show info-block-title nohover d-flex" data-toggle="collapse" :data-target="'#collapse-' + equipment.serial" :href="'#collapse-' + equipment.serial">
+        <div class="d-flex justify-content-between w-100 pr-3">
+          <div class="description">Статус</div>
+          <div class="title">{{ status.text }}</div>
+        </div>
+        <div class="align-self-center"><i class="fa fa-chevron-up chevron float-right"></i></div>
+      </a>
+      <div class="collapse second" :id="'collapse-' + equipment.serial">
+        <div class="pt-1">
+          <template v-if="iptvData">
+            <div class="d-flex justify-content-between">
+              <span class="description">Подключение</span>
+              <div class="text-right">{{ checkValue(iptvData.connection_type) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="description">Открытый интерфейс</span>
+              <div class="text-right">{{ checkValue(iptvData.open_ui_page) }}</div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">ID контента</div>
+              <div class="text-right">{{ checkValue(iptvData.watched_content_id) }}</div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">Битрейт контента</div>
+              <div class="text-right">{{ checkValue(iptvData.content_bitrate, 'кбит/с') }}</div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">Скорость (вх/исх)</div>
+              <div class="text-right">{{ checkValue(iptvData.down_bandwidth_number) }} / {{ checkValue(iptvData.up_bandwidth_number) }}</div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">Мультикаст группа</div>
+              <div class="text-right">{{ checkValue(iptvData.multicast_group) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="description">IP адрес</div> <div class="text-right">{{ checkValue(iptvData.ip) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="description">IP шлюз</div> <div class="text-right">{{ checkValue(iptvData.ip_gateway) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="description">Маска подсети</div> <div class="text-right">{{ checkValue(iptvData.ip_mask) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="description">DNS1 сервер</div> <div class="text-right">{{ checkValue(iptvData.dns1) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="description">Версия прошивки</div> <div class="text-right">{{ checkValue(iptvData.firmware_version) }}</div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">ОЗУ занято</div>
+              <div class="text-right">
+                <span>{{ checkValue(iptvData.ram_usage) }} из {{ checkValue(iptvData.ram_size) }} Мб</span>
+              </div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">ПЗУ занято</div>
+              <div class="text-right">
+                <span>{{ checkValue(iptvData.storage_usage) }} из {{ checkValue(iptvData.storage_size) }} Мб</span>
+              </div>
+            </div>
+            <div v-if="isAndroid" class="d-flex justify-content-between">
+              <div class="description">ЦПУ использовано</div>
+              <div class="text-right">{{ checkValue(iptvData.cpu_usage, '%') }}</div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="text-center pt-4">
+              <span class="description">Нет данных об устройстве</span>
+            </div>
+          </template>
+
+            <div class="mt-3">
+              <button class="btn mt-1 mb-1 w-100 btn-refresh" @click="refreshData" :disabled="iptvSomeLoading">
+                <span><i class="fa fa-sync" :class="{ rotating: iptvStatus.status.loading }"></i> Обновить</span>
+              </button>
+              <!-- <button class="btn mt-1 mb-1 w-100" :class="'btn-' + iptvStatus.code.btn" @click="showActivationCode" :disabled="iptvSomeLoading">
+                <span><i v-if="iptvStatus.code.icon" class="fa" :class="[iptvStatus.code.icon, { rotating: iptvStatus.code.loading }]"></i> Получить код активации</span>
+              </button> -->
+              <template v-if="status.isOn">
+                <button class="btn mt-1 mb-1 w-100" :class="'btn-' + iptvStatus.pinreset.btn" @click="sendCommand(commands.pinreset)" :disabled="iptvSomeLoading">
+                  <span><i v-if="iptvStatus.pinreset.icon" class="fa" :class="[iptvStatus.pinreset.icon, { rotating: iptvStatus.pinreset.loading }]"></i> Сброс PIN-кода</span>
+                </button>
+                <button class="btn mt-1 mb-1 w-100" :class="'btn-' + iptvStatus.reconfig.btn" @click="sendCommand(commands.reconfig)" :disabled="iptvSomeLoading">
+                  <span><i v-if="iptvStatus.reconfig.icon" class="fa" :class="[iptvStatus.reconfig.icon, { rotating: iptvStatus.reconfig.loading }]"></i> Перезапрос конфигурации</span>
+                </button>
+                <button class="btn mt-1 mb-1 w-100" :class="'btn-' + iptvStatus.upgrade.btn" @click="sendCommand(commands.upgrade)" :disabled="iptvSomeLoading">
+                  <span><i v-if="iptvStatus.upgrade.icon" class="fa" :class="[iptvStatus.upgrade.icon, { rotating: iptvStatus.upgrade.loading }]"></i> Обновить ПО</span>
+                </button>
+              </template>
+            </div>
+
+          <div class="text-center mt-1" :class="isError ? 'red' : 'green'">{{ message }}</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>`;
 		};
 		
 	};start();
