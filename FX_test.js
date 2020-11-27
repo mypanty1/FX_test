@@ -2542,13 +2542,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return !!value;
     },
     getTitle(name) {
-      if (/portNumber/i.test(name)) return 'Номер порта';
-      if (/deviceIP/i.test(name)) return 'IP коммутатора';
-      if (/deviceMac/i.test(name)) return 'MAC коммутатора';
+      if (/portNumber/i.test(name)) return 'порт';
+      if (/deviceIP/i.test(name)) return 'коммутатор';
+      if (/deviceMac/i.test(name)) return 'коммутатор';
       if (/ip/i.test(name)) return 'IP-адрес';
-      if (/macCPE/i.test(name)) return 'MAC-адрес СРЕ';
-      if (/innerVLan/i.test(name)) return 'Пара vlan (inner)';
-      if (/outerVLan/i.test(name)) return 'Пара vlan (outer)';
+      if (/macCPE/i.test(name)) return 'MAC-адрес';
+      if (/innerVLan/i.test(name)) return 'vlan_inner';
+      if (/outerVLan/i.test(name)) return 'vlan_outer';
       return name;
     },
     getValue(value) {
