@@ -594,7 +594,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <span class="inscription">IP</span>
           </div>
         </div>
-        <port-vlan
+        <port-vlan-old
           class="port-view__row-info"
           v-if='portInfoForVlan'
           :port='portInfoForVlan' />
