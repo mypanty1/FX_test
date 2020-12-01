@@ -64,7 +64,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*console.log('addCSS!');*/
 		
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.g');*//*fix descr:xrad*//*add link to account from setPort*/
-		window.AppInventor.setWebViewString('version_:FX_test_v172.a');/*fix vlan-old*//*short addr*/
+		window.AppInventor.setWebViewString('version_:FX_test_v172.a');/*fix vlan-old*//*short addr*//*isconvergent 6-080-4032996*/
 		
 		console.log('version_:FX_test_v172.a');
 	
@@ -1282,11 +1282,15 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 							<i class="fa fa-user"></i> {{acc.agreements.account}}<i class="fa fa-chevron-right float-right"></i>
 						</div>
 					</router-link>
-                    <div style="border: 1px solid #a2a2a2;border-radius:5px;padding:0.2em;">
+                    <div v-if="acc.address" style="border: 1px solid #a2a2a2;border-radius:5px;padding:0.2em;">
                         <span class="small-text">{{ shortAddress(acc.address) }}</span>
                     </div>
-					<div v-show="acc.phone" class="small-text">
+					<div v-if="acc.phone" class="small-text">
                         {{ acc.phone }}
+                        <span class="inscription">Телефон</span>
+                    </div>
+					<div v-if="acc.mobile" class="small-text">
+                        {{ acc.mobile }}
                         <span class="inscription">Телефон</span>
                     </div>
                     <div class="small-text">
@@ -1297,9 +1301,13 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                         {{ acc.agreements.lastsum }} ₽ {{ acc.agreements.lastpaydate }}
                         <span class="inscription">Последний платеж</span>
                     </div>
+					<div v-if="acc.agreements.isconvergent&&acc.agreements.convergentmsisdn" class="small-text">
+                        {{ acc.agreements.convergentmsisdn }}
+                        <span class="inscription">Конвергент</span>
+                    </div>
                     <div v-if="acc.vgids.length > 0">
                         <div class="form-row">
-                            <div class="mt-2 full-fill">учетная запись для связи:</div><!--modify this, мелкие буквы-->
+                            <div class="mt-2 full-fill">учетная запись для связи:</div>
                             <div class="form-group full-fill custom-control-radio" v-for="vg in acc.vgids">
 								<label>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
@@ -1441,8 +1449,12 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 				}
 			  },
 			  methods: {
-				/*сжатие адреса для account*//*Россия, обл.Новосибирская, г.Новосибирск, ул.Виктора.Уса, дом.7, кв.515*/
-				shortAddress:function(addr){if(addr){return addr.replace(/\d\d\d\d\d\d$/,'').replace(/[\s]/g,'.').match(/[^\s,]+/g).join(', ')}},
+				shortAddress:function(addr){/*сжатие адреса для account*/
+					if(addr){
+						/*Россия, обл.Новосибирская, г.Новосибирск, ул.Виктора.Уса, дом.7, кв.515*/
+						return addr.replace(/\d\d\d\d\d\d$/,'').replace(/[\s]/g,'.').match(/[^\s,]+/g).join(', ')
+					};
+				},
 				clear: function () {
 				  this.account = null;
 				  this.resource = null;
@@ -1792,11 +1804,16 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
               <span class="fw-500">{{ balance.balance }} ₽ </span>
               <span class="inscription">баланс</span>
             </div>
-            <div> <i class="far fa-clock"></i> <span class="fw-500"> {{ balance.lastsum }} ₽ 
-              <template v-if='balance.lastpaydate'>
-                • {{ balance.lastpaydate }} 
-              </template>
-            </span> <span class="inscription">последний платеж</span></div>
+            <div>
+				<i class="far fa-clock"></i>
+				<span class="fw-500"> {{ balance.lastsum }} ₽ <template v-if='balance.lastpaydate'> • {{ balance.lastpaydate }} </template></span>
+				<span class="inscription">последний платеж</span>
+			</div>
+			<div v-if="agreement.isconvergent">
+				<i class="fas fa-wallet"></i>
+				<span v-show="agreement.convergentmsisdn" class="fw-500"> {{ agreement.convergentmsisdn }} </span>
+				<span class="inscription">конвергент</span>
+			</div>
           </div>
           <hr>
           <template v-if="data.account">
