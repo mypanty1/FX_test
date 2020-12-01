@@ -1442,7 +1442,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			  },
 			  methods: {
 				/*сжатие адреса для account*//*Россия, обл.Новосибирская, г.Новосибирск, ул.Виктора.Уса, дом.7, кв.515*/
-				shortAddress:function(addr){return addr.replace(/\d\d\d\d\d\d$/,'').replace(/[\s]/g,'.').match(/[^\s,]+/g).join(', ')},
+				shortAddress:function(addr){if(addr){return addr.replace(/\d\d\d\d\d\d$/,'').replace(/[\s]/g,'.').match(/[^\s,]+/g).join(', ')}},
 				clear: function () {
 				  this.account = null;
 				  this.resource = null;
