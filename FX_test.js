@@ -939,7 +939,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
       return this.port.is_trunk || this.port.is_link || this.loading.status
     },
     blockedSetPortForUser: function () {
-      return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || this.blockedSetButton
+      return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || /*this.blockedSetButton*/this.loading.status
     },
 	/*add blockedDiagButton*/
 	blockedDiagButton: function () {
