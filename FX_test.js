@@ -1,7 +1,7 @@
 javascript:(function(){
 	
-if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.mts.ru/fix')>=0)||(window.location.href.indexOf('http://inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://pre.inetcore.mts.ru/fix')>=0)||(window.location.href.indexOf('http://release-20-6.test.inetcore.mts.ru/fix')>=0))){
-	document.title = 'Inetcore+';
+if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
+	document.title='Inetcore+';
 	
 	var dev=false;
 	var input='';
@@ -13,9 +13,9 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 	};
 	
 	function start(){
-		var addCSS = document.createElement('style');
-		addCSS.type = 'text/css';
-		const myCSS = `			
+		var addCSS=document.createElement('style');
+		addCSS.type='text/css';
+		const myCSS=`			
 			.myportsflex{display:flex;flex-direction:row;flex-wrap:wrap;font-size:10px;line-height:14px;text-align:center;}
 			.myportinflex{margin:1px;padding:1px 5px 1px 1px;border:1px solid #000;border-radius:4px;display:grid;grid-gap:2px 2px;width:24%;grid-template-columns:24% 24% 24% 24%;grid-template-rows:min-content min-content auto auto auto auto min-content min-content;}
 			.mypstline{height:14px;border-radius:2px;border-top-right-radius:4px;border-top-left-radius:4px;}
@@ -64,9 +64,10 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 		/*console.log('addCSS!');*/
 		
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.g');*//*fix descr:xrad*//*add link to account from setPort*/
-		window.AppInventor.setWebViewString('version_:FX_test_v172.a');/*fix vlan-old*//*short addr*//*isconvergent 6-080-4032996*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v172.a');*//*fix vlan-old*//*short addr*//*isconvergent 6-080-4032996*/
+		window.AppInventor.setWebViewString('version_:FX_test_v172.b');/*действия на trunk*//*fix? set-port-modal*/
 		
-		console.log('version_:FX_test_v172.a');
+		console.log('version_:FX_test_v172.b');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -508,7 +509,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 			});
 		};
 		
-		function myPort_template(){/*cabletest при link down на trunk*//*данные для SetPort*//*title*//*short addr*/
+		function myPort_template(){/*действия на trunk*//*данные для SetPort*//*title*//*short addr*/
 			document.getElementById('port-template').innerHTML=`
 	<div v-if="port ">
       <div class="info-block port-info port-view">
@@ -603,7 +604,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <span v-else>
               <img v-if="port.loopback.detected" 
               src="../f/i/icons/kz.svg"
-              title="Обнаружена петля">
+              title="обнаружена петля">
               {{ port.loopback.text || port.loopback.description  }}
             </span>
           </div>
@@ -621,7 +622,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
         </a>
         <div class="collapse" id="collapseActions">
             <div class="action-block">
-              <button @click="restartPort" v-bind:disabled="loading.restart || blockedSetButton" class="btn btn-action btn-row btn-sm">
+              <button @click="restartPort" v-bind:disabled="loading.restart || blockedTechPort" class="btn btn-action btn-row btn-sm">
                 <i class="fas fa-power-off"></i>
                 перезагрузить порт
                 <span v-show="port.restartPort" class="text-success float-right"><i class="fa fa-check"></i></span>
@@ -631,15 +632,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
               </div>
             </div>
             <div class="action-block">
-              <button v-bind:disabled="blockedSetPortForUser" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
+              <button v-bind:disabled="blockedSetPortOnBadPort" class="btn btn-action btn-row btn-sm" @click="setPortForUser()">
                 <i class="fas fa-link"></i>
                 привязать лицевой счет
               </button>
             </div>
             <div class="action-block">
-              <button @click="testCable" v-bind:disabled="loading.cabletest || blockedDiagButton" class="btn btn-action btn-row btn-sm">
-				<!--replace this<button @click="testCable" v-bind:disabled="loading.cabletest || blockedSetButton" class="btn btn-action btn-row btn-sm">-->
-                <i class="fas fa-ruler-combined"></i>
+              <button @click="testCable" v-bind:disabled="loading.cabletest || blockedTechPortOperUp" class="btn btn-action btn-row btn-sm">
+				<i class="fas fa-ruler-combined"></i>
                 кабель тест
               </button>
               <template v-if="port.cabletest">
@@ -652,7 +652,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
               </div>
             </div>
             <div class="action-block">
-              <button v-bind:disabled="blockedSetButton" @click="showLog()" class="btn btn-action btn-row btn-sm">
+              <button v-bind:disabled="loading.status" @click="showLog()" class="btn btn-action btn-row btn-sm">
                 <i class="fas fa-stream"></i>
                 показать лог
               </button>
@@ -664,7 +664,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div class="action-block">
               <button
                 @click="showPortMacs" 
-                v-bind:disabled="loading.macs || blockedSetButton"
+                v-bind:disabled="loading.macs || loading.status"
                 class="btn btn-action btn-row btn-sm">
                 <i class="fas fa-at"></i>
                 MAC-адреса
@@ -686,7 +686,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                         @click.native="clearMac"
                         class='mt-2'
                         :loading="loading.cleanmac"
-                        :disabled="loading.cleanmac || blockedSetButton"
+                        :disabled="loading.cleanmac || loading.status"
                         :success='port.clearMac'
                         :error='clearMacError'
                       > 
@@ -702,7 +702,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
             <div class="action-block">
               <button
                 @click="addrBindShow" 
-                v-bind:disabled="loading.addrBindShow || blockedSetButton"
+                v-bind:disabled="loading.addrBindShow || loading.status"
                 class="btn btn-action btn-row btn-sm">
                 <i class="fas fa-paperclip"></i>
                 связка IP-MAC-PORT
@@ -746,7 +746,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
                     @click.native="clearBind"
                     class='mt-2'
                     :loading="loading.clearBind"
-                    :disabled="loading.clearBind || blockedSetButton"
+                    :disabled="loading.clearBind || loading.status"
                     :success='port.clearBind'
                     :error='clearBindError'
                     
@@ -935,15 +935,14 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 
   },
   computed: {
-    blockedSetButton: function () {
-      return this.port.is_trunk || this.port.is_link || this.loading.status
+    blockedTechPort: function () {
+		return this.port.is_trunk || this.port.is_link || this.loading.status
     },
-    blockedSetPortForUser: function () {
-      return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || /*this.blockedSetButton*/this.loading.status
+    blockedSetPortOnBadPort: function () {
+		return this.port.state == 'bad' || this.port.status.IF_ADMIN_STATUS == false || this.loading.status
     },
-	/*add blockedDiagButton*/
-	blockedDiagButton: function () {
-		if (((this.port.is_trunk || this.port.is_link) && this.port.status.IF_OPER_STATUS) || this.loading.status) return true;
+	blockedTechPortOperUp: function () {
+		return ((this.port.is_trunk || this.port.is_link) && this.port.status.IF_OPER_STATUS) || this.loading.status
 	},
     portParams: function () {
       return {
@@ -978,8 +977,6 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     },
 	/*add portReBindData, for set-port-modal*/
 	portReBindData: function(){
-		console.log(this.port);
-		console.log(this.device);
 		return {
 			region:this.device.REGION_ID,
 			state:this.port.state,
@@ -1535,7 +1532,7 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
 					account: this.sample };
 				  Object.assign(params, this.resource);
 				  if (type_of_bind && params.type_of_bind != 10) params.type_of_bind = type_of_bind;
-				  this.serviceMixQuery('set_bind', params, this.data.portReBindData);/*add this.data.portReBindData*/
+				  this.serviceMixQuery('set_bind', params, ((this.data.portReBindData)?(this.data.portReBindData):(false)));/*add this.data.portReBindData*/
 				},
 				serviceMixQuery: function(method, params, p_info) {/*add p_info*/
 				  this.loading = true;
@@ -2111,41 +2108,39 @@ if(document.title != 'Inetcore+' && ((window.location.href.indexOf('https://fx.m
     hasPassword(service) {
       return service.type == 'internet'||service.type == 'phone';/*тест для питера, пароль от воип 2-041-0025544*/
     },
-    getAuthAndSpeed() {
-      this.loading.updateVgroups = this.account.vgroups.length;
-      this.account.vgroups.forEach((vgroup) => {
-        const params = {
-          login: vgroup.login,
-          serverid: vgroup.serverid,
-          vgid: vgroup.vgid,
-          date: '',
-        };
-        if (
-          vgroup.agenttype == '2' ||
-          vgroup.agenttype == '4' ||
-          vgroup.agenttype == '6'
-        ) {
-          httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then(
-            (data) => {
-              if (data.code == '200' && data.data.length > 0 && data.data[0].auth_type) {
-                vgroup.auth_type = data.data[0].auth_type;
-              }
-            }
-          );
-          httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then(
-            (response) => {
-              const is_data = response.code == '200' && response.data && response.data.length > 0;
-              if(is_data && (response.data[0].rate || response.data[0].rate == 0)){
-                this.data.billingInfo = response.data;
-                vgroup.rate = response.data[0].rate + ' Мбит/c';
-              }
-              this.loading.updateVgroups--;
-            }
-          );
-        } else {
-          this.loading.updateVgroups--;
-        }
-      });
+    getAuthAndSpeed(){
+		this.loading.updateVgroups=this.account.vgroups.length;
+		this.account.vgroups.forEach((vgroup)=>{
+			const params={
+				login:vgroup.login,
+				serverid:vgroup.serverid,
+				vgid:vgroup.vgid,
+				date:''
+			};
+			if(vgroup.agenttype=='2'||vgroup.agenttype=='4'||vgroup.agenttype=='6'){
+				httpGet(buildUrl('get_auth_type',params,'/call/aaa/'),true).then(
+					(data)=>{
+						if(data.code=='200'&&data.data.length>0&& data.data[0].auth_type){
+							vgroup.auth_type=data.data[0].auth_type;
+						}
+					}
+				);
+				httpGet(buildUrl('get_user_rate',params,'/call/aaa/'),true).then(
+					(response)=>{
+						const is_data=response.code=='200'&&response.data&&response.data.length>0;
+						if(is_data&&(response.data[0].rate||response.data[0].rate==0)){
+							this.data.billingInfo=response.data;
+							/*todo на каждый params.vgid отдельно*/
+							/*this.data.billingInfo=this.data.billingInfo.concat(Object.assign(response.data[0],{'params':params}));*/
+							vgroup.rate=response.data[0].rate+' Мбит/c';
+						}
+						this.loading.updateVgroups--;
+					}
+				);
+			}else{
+				this.loading.updateVgroups--;
+			}
+		});
     },
     sessionHelp() {
       this.$root.showModal({
