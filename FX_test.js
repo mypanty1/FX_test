@@ -79,8 +79,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				/*ok*/myPortsEl_template();
 				/*ok*/myPort_template();
 				/*ok*/mySetPort_modal();
-				/*ok*/myAccount_template();
-				/*ok*/mySession_template();
+				/*ok*//*myAccount_template();/*
+				/*ok*//*mySession_template();*/
 				/*ok*/myBillingInfo_modal();
 				templates_need_replace=false;
 			};
