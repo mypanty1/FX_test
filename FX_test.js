@@ -1309,13 +1309,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                             <div class="form-group full-fill custom-control-radio" v-for="vg in acc.vgids">
 								<label>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                                        <input type="radio" class="custom-control-input" 
-                                                v-bind:disabled="loading"
-                                                v-bind:id="vg.vgid" 
-                                                v-bind:name="acc.userid" 
-                                                @change="getMacList"
-                                                v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" 
-                                                v-model="resource">
+                                        <input type="radio" class="custom-control-input" v-bind:disabled="loading" v-bind:id="vg.vgid" v-bind:name="acc.userid" @change="getMacList" v-bind:value="{vgid: vg.vgid, login: vg.login, serverid: vg.serverid, type_of_bind: vg.type_of_bind, agentid: vg.agentid}" v-model="resource">
                                         <!--replaced this fragment-->
                                         <span class="custom-control-label custom-control-empty">{{vg.login}} • {{vg.vgid}}</span>
 										<div v-if="true||vg.serverid=='108'" class="full-fill">
@@ -1463,8 +1457,6 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			  created: function () {
 				this.erace();
 				this.audioSetting();
-				this.myparams.sw=this.data.deviceParams.IP_ADDRESS;/*add manual input*/
-				this.myparams.port=this.data.portNumber;/*add manual input*/
 			  },
 			  template: '#set-port-modal',
 			  computed: {
@@ -1489,6 +1481,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				  this.resource = null;
 				  this.result = {};
 				  this.resultReBind = {};/*add this*/
+				  this.myparams={/*add manual input*/
+					  sw:this.data.deviceParams.IP_ADDRESS,
+					  port:this.data.portNumber
+					};
 				  this.mac = {list: [], loading: false, selected: ''};
 				},
 				erace: function () {
