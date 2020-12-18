@@ -65,9 +65,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.g');*//*fix descr:xrad*//*add link to account from setPort*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v172.a');*//*fix vlan-old*//*short addr*//*isconvergent 6-080-4032996*/
-		window.AppInventor.setWebViewString('version_:FX_test_v172.b');/*действия на trunk*//*fix? set-port-modal*/
+		/*window.AppInventor.setWebViewString('version_:FX_test_v172.b');*//*действия на trunk*//*fix? set-port-modal*/
+		window.AppInventor.setWebViewString('version_:FX_test_v172.с');/*ручной ввод комок/порт*/
 		
-		console.log('version_:FX_test_v172.b');
+		console.log('version_:FX_test_v172.с');
 	
 		document.body.addEventListener("click", updateHTML);
 		
@@ -79,9 +80,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				/*ok*/myPortsEl_template();
 				/*ok*/myPort_template();
 				/*ok*/mySetPort_modal();
-				/*ok*//*myAccount_template();/*
+				/*ok*//*myAccount_template();*/
 				/*ok*//*mySession_template();*/
-				/*ok*/myBillingInfo_modal();
+				/*ok*/myBillingInfo_modal();/*сломалась привязка!!*/
 				templates_need_replace=false;
 			};
 		};
@@ -1250,7 +1251,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 });
 		};
 		
-		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*short addr*//*дата заведения id*//*переход на лс*/
+		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*short addr*//*дата заведения id*//*переход на лс*//*ручной ввод комок/порт*/
 			document.getElementById('set-port-modal').innerHTML=`
     <div class="container-fluid">
 		<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
@@ -1325,6 +1326,23 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                                 </label>
                             </div>
                         </div>
+						
+						
+						<!--add комок,порт-->
+						<div class="container-fluid" style="border: 1px solid #a2a2a2;border-radius:5px;padding:0.2em;margin-bottom:0.2em;">
+							<div class="form-row">
+								<div class="form-group col-9 control">
+									<div class="small-text">коммутатор</div>
+									<input class="form-control form-control-sm" v-model="myparams.sw" v-filter="'[0-9\.]'" maxlength="15" placeholder="коммутатор">
+								</div>
+								<div class="form-group col-3 control">
+									<div class="small-text">порт</div>
+									<input class="form-control form-control-sm" v-model="myparams.port" v-filter="'[0-9]'" maxlength="2" placeholder="порт">
+								</div>
+							</div>
+						</div>
+						
+						
                         <div v-if="typeOfBind == 2" class="form-row">
 							<!--replace this fragment-->
 							<input class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="override">
@@ -1432,18 +1450,24 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				  result: {},
 				  resultReBind: {},/*add this*/
 				  recognizer: {},
-				  audioShow: false
+				  audioShow: false,
+				  myparams:{/*add manual input*/
+					  sw:'',
+					  port:''
+				  },
 				};
 			  },
 			  created: function () {
 				this.erace();
 				this.audioSetting();
+				this.myparams.sw=this.data.deviceParams.IP_ADDRESS;/*add manual input*/
+				this.myparams.port=this.data.portNumber;/*add manual input*/
 			  },
 			  template: '#set-port-modal',
 			  computed: {
 				typeOfBind: function () {
 				  if (this.resource && this.resource.type_of_bind) return this.resource.type_of_bind
-				}
+				},
 			  },
 			  methods: {
 				shortAddress:function(addr){/*сжатие адреса для account*/
@@ -1525,11 +1549,13 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				  this.serviceMixQuery('ins_only_mac', params);
 				},
 				setBind: function (type_of_bind) {
-				  var params = { ip: this.data.deviceParams.IP_ADDRESS, 
-					port: this.data.portNumber,
+				  var params = {
+					ip: this.myparams.sw,/*add manual input*//*this.data.deviceParams.IP_ADDRESS*/ 
+					port: this.myparams.port,/*add manual input*//*this.data.portNumber*/
 					client_ip: this.client_ip,
 					mac: this.mac.selected,
-					account: this.sample };
+					account: this.sample 
+					};
 				  Object.assign(params, this.resource);
 				  if (type_of_bind && params.type_of_bind != 10) params.type_of_bind = type_of_bind;
 				  this.serviceMixQuery('set_bind', params, ((this.data.portReBindData)?(this.data.portReBindData):(false)));/*add this.data.portReBindData*/
