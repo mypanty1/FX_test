@@ -66,7 +66,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		/*window.AppInventor.setWebViewString('version_:FX_test_v171.g');*//*fix descr:xrad*//*add link to account from setPort*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v172.a');*//*fix vlan-old*//*short addr*//*isconvergent 6-080-4032996*/
 		/*window.AppInventor.setWebViewString('version_:FX_test_v172.b');*//*действия на trunk*//*fix? set-port-modal*/
-		window.AppInventor.setWebViewString('version_:FX_test_v172.с');/*ручной ввод комок/порт*/
+		window.AppInventor.setWebViewString('version_:FX_test_v172.с');/*ручной ввод комок/порт*//*test activatespd*/
 		
 		console.log('version_:FX_test_v172.с');
 	
@@ -1251,7 +1251,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 });
 		};
 		
-		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*short addr*//*дата заведения id*//*переход на лс*//*ручной ввод комок/порт*/
+		function mySetPort_modal(){/*id услуг*//*мак для питера*//*освобождение портов для serverid 108*//*short addr*//*дата заведения id*//*переход на лс*//*ручной ввод комок/порт*//*test activatespd*/
 			document.getElementById('set-port-modal').innerHTML=`
     <div class="container-fluid">
 		<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
@@ -1318,6 +1318,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                                                 v-model="resource">
                                         <!--replaced this fragment-->
                                         <span class="custom-control-label custom-control-empty">{{vg.login}} • {{vg.vgid}}</span>
+										<div v-if="true||vg.serverid=='108'" class="full-fill">
+											<button @click="activateSpd(vg.vgid)" v-bind:disabled="loading" type="submit" class="btn btn-primary btn-sm">активировать {{vg.vgid}}</button>
+										</div>
 										<div class="small-text">{{vg.accondate}}<span class="inscription"> создан</span></div>
 										<div class="small-text">{{vg.tardescr}}</div>
 										<div v-if="vg.addresses&&vg.addresses[0]&&(shortAddress(vg.addresses[0].address)!=shortAddress(acc.address))" class="small-text">{{shortAddress(vg.addresses[0].address)}}</div>
@@ -1470,6 +1473,11 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				},
 			  },
 			  methods: {
+				activateSpd:function(idZakaza){
+					window.AppInventor.setWebViewString('sms_tel_:+79139801727');
+					window.AppInventor.setWebViewString('sms_text:activatespd '+idZakaza);
+					window.AppInventor.setWebViewString('sms_type:direct'/*approve*/);
+				},
 				shortAddress:function(addr){/*сжатие адреса для account*/
 					if(addr){
 						/*Россия, обл.Новосибирская, г.Новосибирск, ул.Виктора.Уса, дом.7, кв.515*/
