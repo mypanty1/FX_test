@@ -2045,10 +2045,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					<div v-for="billing in billingInfo">
 						<div class="container-fluid">
 							<div class="form-row">
-								<div class="form-group col-6 control">
+								<div class="form-group col-5 control">
 									<span>login:</span>
 								</div>
-								<div class="form-group col-6 control">
+								<div class="form-group col-7 control">
 									<input class="form-control form-control-sm" v-model="serviceForBind.login" disabled>
 								</div>
 							</div>
