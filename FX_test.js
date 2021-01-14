@@ -62,7 +62,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	document.head.appendChild(addCSS);
 	/*console.log('addCSS!');*/
 	
-	window.AppInventor.setWebViewString('version_:FX_test_v173.a');/*ref test*/
+	/*window.AppInventor.setWebViewString('version_:FX_test_v173.a');*//*fix update, my-account-page*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.b');/*fix update, my-port-page, my-port-bind-user-action*/
 	
 	Vue.component('ports-el',{/*need ref*/
 		template:`
@@ -484,7 +485,231 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}
 	});
 	
-	Vue.component('port-view',{/*need ref*/
+	document.getElementById('port-page-template').innerHTML=`<my-port-page v-bind="$props"/>`;/*proxy template for my-port-page*/
+	Vue.component('my-port-page',{
+		template:`
+			<section class="port-page">
+				<card-block>
+					<title-main textSize="large" text="">
+						<template slot="text">
+							<div class="d-center-y">
+								<div class="d-center-y" style="margin-right:6px;">
+									<span @click="loadPortStatus" :class="ledClass(status.IF_ADMIN_STATUS)">a</span>
+									<span @click="loadPortStatus" :class="ledClass(status.IF_OPER_STATUS)">o</span>
+								</div>
+								Порт {{localPort.number}}
+							</div>
+						</template>
+						<button-sq icon="refresh" @click="refresh" />
+					</title-main>
+					<info-subtitle v-if="localPort">
+						<span>{{ localPort.snmp_name }}</span>
+					</info-subtitle> 
+					<devider-line />
+					<link-block style="margin-bottom:10px;margin-top:20px;" actionIcon="" icon="port" text="" type="large">
+						<template slot="wrap-prefix">
+							<i style="align-self:start;" class="ic-24 ic-port link-block__icon" />
+						</template>
+						<template slot="text">
+							<div style="display:flex;flex-direction:column;">
+								<div>{{localPort.name}}</div>
+								<template v-if="status.IF_SPEED">
+									<span style="align-self:start;">
+										<i style="font-size:12px;" class="tone-500 ic-speed"/> 
+										<span class="tone-500" style="font-size:13px;">
+											({{status.IF_SPEED}})
+										</span>
+									</span>
+								</template>
+							</div>
+						</template>
+					</link-block>
+					<info-value style="margin-left:31px;" :withLine="true" type="medium" label="Последний выход" :value="lastEnry" />
+					<info-value style="margin-left:31px;margin-bottom:20px;" :withLine="true" v-if="localPort.last_mac" type="medium" label="MAC" :value="localPort.last_mac.value" />
+					<devider-line />
+					<port-vlan v-if="!loading.port && !loading.device" :port="localPort" :device="device" />
+					<port-status v-if="!loading.port && !loading.device" :port="localPort" :status="status" :device="device" :loading_status="loading.port_status" @load:status="loadPortStatus" />
+					<port-loopback :port="localPort" :device="device" ref="loopback" />
+					<link-block actionIcon="right-link" icon="switch" :text="localPort.device_name" :to="'/' + localPort.device_name" type="large"></link-block>
+					<devider-line  v-if="localPort.snmp_description" />
+					<info-list v-if="localPort.snmp_description" :text="localPort.snmp_description"></info-list>
+				</card-block>
+				<template v-if="!loading.port && !loading.device">
+					<port-actions :disabled="disabledActionBtn" :port="localPort" :status="status" :device="device" :loading_status="loading.status" @load:status="loadPortStatus"></port-actions>
+				</template>
+				<port-links :links="links"></port-links>
+			</section>
+		`,
+		props: {
+			port:Object,
+			task:Object,
+			building:Object,
+			entrance:Object,
+			account:Object,
+		},
+		data:()=>({
+			status:{},
+			blockOpened:true,
+			links:[],
+			device:{},
+			localPort:{},
+			IOErrors:'- / -',
+			loading:{
+				port:false,
+				port_status:true,
+				device:true,
+			},
+		}),
+		created(){
+			this.initLoad();
+		},
+		beforeRouteEnter(to,from,next){
+			if(!to.params.port){
+				next({
+					name:'search',
+					params:{text:to.params.id},
+				});
+				return;
+			};
+			next();
+		},
+		computed:{
+			disabledActionBtn(){
+				return this.localPort.is_trunk||this.localPort.is_link||this.loading.port_status;
+			},
+			isLoading(){
+				return Object.values(this.loading).some((l)=>l=== true);
+			},
+			lastEnry(){
+				if(!this.links)return null;
+				if(this.links&&this.links.length){
+					return this.links.sort((a,b)=>new Date(b.LAST_DATE)-new Date(a.LAST_DATE))[0].LAST_DATE;
+				};
+				if(this.localPort.last_mac)return this.localPort.last_mac.last_at;
+				return null;
+			},
+		},
+		methods:{
+			refresh(){
+				this.initLoad();
+			},
+			async initLoad(){
+				if(this.port)this.localPort=this.port;
+				else await this.loadPort();
+				this.loadDevice();
+				this.loadPortStatus();
+				this.loadLink();
+			},
+			ledClass(turned){
+				if(typeof turned==='undefined') return 'port-led';
+				const status=turned ? 'port-led--on':'port-led--off';
+				return {
+					'port-led':true,
+					[status]:true,
+				};
+			},
+			async loadPortStatus(){
+				this.loading.port_status=true;
+				try{
+					const device=this.localPort.device_name;
+					const port=this.localPort.snmp_name;
+					const url=buildUrl('port_status',{device,port},'/call/hdm/');
+					const response=await httpGet(url);
+					this.status=response;
+				}catch(error){
+					console.error('Load port status',error);
+				};
+				this.loading.port_status = false;
+				if(!this.$refs) return;
+				this.$refs.loopback.load();
+			},
+			async loadDevice(){
+				this.loading.device=true;
+				try{
+					const pattern=encodeURIComponent(this.localPort.device_name);
+					const url=buildUrl('search',{pattern});
+					const response=await httpGet(url);
+					this.device=response.data;
+				}catch(error){
+					console.error('Load device',error);
+				};
+				this.loading.device = false;
+			},
+			async loadPort(){
+				this.loading.port=true;
+				console.log(this.loading.port);
+				try{
+					const pattern=encodeURIComponent(this.port.snmp_name);
+					const url=buildUrl('search',{pattern});
+					const response=await httpGet(url);
+					this.localPort=response.data;
+				}catch(error){
+					console.error('Load port', error);
+				};
+				this.loading.port=false;
+				console.log(this.loading.port);
+			},
+			loadLink:function(){
+				const params={
+					device:this.localPort.device_name,
+					port:this.localPort.name,
+					trunk:this.localPort.is_trunk,
+					link:this.localPort.is_link,
+				};
+				httpGet(buildUrl('port_info',params)).then((data)=>{
+					this.links=data;
+				});
+			},
+		},
+	});
+	
+	document.getElementById('port-bind-user-action-template').innerHTML=`<my-port-bind-user-action v-bind="$props"/>`;/*proxy template for my-port-bind-user-action*/
+	Vue.component('my-port-bind-user-action', {
+		template:`<link-block actionIcon="expand" icon="link" v-if="$root.priv('LanBillingCtl')" @block-click="openModal" :disabled="disabledLink" text="привязать лицевой счет" type="large"/>`,
+		props:{
+			disabled:{type:Boolean,default:false,},
+			port:{type:Object,required:true,},
+			status:{type:Object,required:true,},
+			device:{type:Object,required:true,},
+		},
+		computed:{
+			disabledLink(){
+				return (this.port.state=='bad'||this.status.IF_ADMIN_STATUS==false||this.disabled);
+			},
+			deviceParams(){
+				const keys='MR_ID IP_ADDRESS SYSTEM_OBJECT_ID VENDOR FIRMWARE FIRMWARE_REVISION PATCH_VERSION DEVICE_NAME';
+				return weedOut(this.device,keys);
+			},
+			/*add portReBindData, for set-port-modal*/
+			portReBindData(){
+				return {
+					region:this.device.REGION_ID,
+					state:this.port.state,
+					subscriber_list:this.port.subscriber_list,
+					last_mac:this.port.last_mac,
+				};
+			},
+		},
+		methods:{
+			openModal(){
+				this.$root.showModal({
+					title:'выбор лицевого счета',
+					data:{
+						portNumber:this.port.number,
+						portParams:{
+							SNMP_PORT_NAME:this.port.snmp_name,
+							PORT_NUMBER:this.port.number,
+						},
+						deviceParams:this.deviceParams,
+						portReBindData:this.portReBindData,/*add portReBindData, for set-port-modal*/
+					},
+					component:'set-port-modal',
+				});
+			},
+		}	
+	});
+	
+	Vue.component('port-page-my-fail',{/*need ref to port-page-my*/
 	  template:`
 		<div v-if="port ">
 		  <div class="info-block port-info port-view">
@@ -1367,17 +1592,17 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						<div v-if="result.type=='error'">
 							<div v-html="result.text.slice(0,120)" class="alert alert-danger" role="alert"></div>
 							<!--add this fragment-->
-							<div v-if="result.reBindMe" class="rebindme alert":class="result.alertClass" role="alert">
+							<div v-if="result.contract" class="rebindme alert":class="result.alertClass" role="alert">
 								<div v-if="!result.isAnonimus && result.p_account">порт занят лс {{ result.p_account }}<span v-if="result.p_flat"> кв {{ result.p_flat }}</span></div>
 								<div>{{ result.alertText }}</div>
 								<div v-if="result.btnText" style="text-align:right;">
-									<input type="button" v-model="result.btnText" @click="reBind_108(result.reBindMe)">
+									<input type="button" v-model="result.btnText" @click="reBind(result.contract,result.serverid,result.type_of_bind)">
 								</div>
 							</div>
 							<div v-if="resultReBind">
-								<div v-if="resultReBind.isError" class="rebinderr alert":class="resultReBind.alertClass" role="alert">
+								<div v-if="resultReBind.type=='error'" class="rebinderr alert":class="resultReBind.alertClass" role="alert">
 									<div>{{ resultReBind.alertText }}</div>
-									<div>{{ resultReBind.message }}</div>
+									<div>{{ resultReBind.text }}</div>
 								</div>
 								<div v-else-if="resultReBind.InfoMessage" class="rebindok alert":class="resultReBind.alertClass" role="alert">
 									<div>{{ resultReBind.alertText }}</div>
@@ -1544,10 +1769,12 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			  var connect = data.Data.split('|');
 			  data.Data = { ip: connect[0], gateway: connect[1], mask: connect[2] };
 			};
-			/*add data.reBindMe*//*only serverid=='108'*/
-			if(params.serverid=='108'&&p_info){
+			/*add data.contract*/
+			if(params.serverid/*=='108'*/&&p_info){
 				if(data.type=='error'&&data.text&&data.text.length>0&&data.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){/*Мы не можем отобрать порт у контракта 2495985 так-как он активен.*/
-					data.reBindMe=parseInt(data.text.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
+					data.contract=parseInt(data.text.replace('Мы не можем отобрать порт у контракта ',''),10).toString(10);/*need string*/
+					data.serverid=params.serverid;
+					data.type_of_bind=params.type_of_bind;
 					/*var p_state=p_info.state;*/
 					var anonimus=(p_info.subscriber_list[0])?false:true;
 					
@@ -1593,9 +1820,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						data.alertClass='alert-dark';
 						data.btnText='';
 					};
-					window.AppInventor.setWebViewString('string_1:(error_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.reBindMe+' text:'+data.alertText+((p_info.last_mac&&p_info.last_mac.value)?(' last_mac:'+p_info.last_mac.value):('')));
+					window.AppInventor.setWebViewString('string_1:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.contract+' text:'+data.alertText+((p_info.last_mac&&p_info.last_mac.value)?(' last_mac:'+p_info.last_mac.value):('')));
 				}else{
-					window.AppInventor.setWebViewString('string_3:(success_108) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
+					window.AppInventor.setWebViewString('string_3:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
 				};
 			}else{
 				if(data.type=='error'&&data.text){
@@ -1610,32 +1837,33 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			self.result = {text: "Возникла ошибка при обращении к серверу Inetcore", isError: true};
 		  });
 		},
-		/*add reBind_108*/
-		reBind_108: function (vgid) {
-			var reBind_108_params={
-				ip: '10.221.153.168', 
-				port: vgid,
-				vgid: vgid,
-				serverid: '108',
-				type_of_bind:3
+		/*reBind*/
+		reBind:function(contract,serverid,type_of_bind){
+			var reBind_params={
+				ip:this.myparams.sw,/*'10.221.153.168'*/
+				port:contract,
+				vgid:contract,
+				serverid:serverid,/*108*/
+				type_of_bind:type_of_bind,/*3*/
 			};
 			this.loading = true;
 			this.resultReBind = {};
 			var self = this;
-			httpPost('/call/service_mix/set_bind', reBind_108_params, true).then(function(data) {
+			httpPost('/call/service_mix/set_bind', reBind_params, true).then(function(data) {
 				self.resultReBind = data;
 				if(data.type=='error'){
 					data.alertClass='alert-warning';
-					data.alertText='освободить неудалось';
+					data.alertText='освободить не удалось';
+					window.AppInventor.setWebViewString('string_2:(error) text:'+data.text+' sw:'+reBind_params.ip+' p:'+reBind_params.port+' id:'+reBind_params.contract);
 				}else if(data.InfoMessage){
 					data.alertClass='alert-success';
 					data.alertText='порт освобожден!'+((data.Data.IP)?(' тут был абонент с ip:'+data.Data.IP):'');
-					window.AppInventor.setWebViewString('string_2:(rebind_108) sw:'+reBind_108_params.ip+' p:'+reBind_108_params.port+' id:'+vgid+' ip:'+data.Data.IP);
+					window.AppInventor.setWebViewString('string_2:(rebind) sw:'+reBind_params.ip+' p:'+reBind_params.port+' id:'+reBind_params.contract+' ip:'+data.Data.IP);
 				};
 				self.loading = false;
 			},function(){ 
 				self.loading = false;
-				self.resultReBind = {alertText:'ошибка при обращении к серверу Inetcore', alertClass:'alert-danger'};
+				self.resultReBind = {alertText:'ошибка при обращении к серверу Inetcore', alertClass:'alert-danger'};;
 			});
 		},
 		audioSetting: function () {
@@ -1681,11 +1909,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  },
 	});
 	
-	/*proxy template*/
-	document.getElementById('account-page-template').innerHTML=`
-		<account-page-my v-bind="$props"></account-page-my>
-	`;
-	Vue.component('account-page-my',{
+	document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;/*proxy template for my-account-page*/
+	Vue.component('my-account-page',{
 		template:`
 			<section class="account-page">
 				<card-block>
@@ -2361,37 +2586,6 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-	
 }else{console.log(document.title)};
 
 }());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
