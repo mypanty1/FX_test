@@ -484,7 +484,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}
 	});
 	
-	document.getElementById('port-page-template').innerHTML=`<my-port-page v-bind="$props"/>`;/*proxy template for my-port-page*/
+	/*document.getElementById('port-page-template').innerHTML=`<my-port-page v-bind="$props"/>`;*//*proxy template for my-port-page*/
 	Vue.component('my-port-page',{
 		template:`
 			<section class="port-page">
