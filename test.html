@@ -1,18 +1,15 @@
 <!DOCTYPE>
 <html>
- <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>QR код тест</title>
- </head>
- <body>
-  <script>
-let str='М54'+new Date().getTime().toString().substring(6,13);
-let div=document.createElement('div');
-div.innerHTML=str;div.style='width:100%;text-align:center;display:flex;flex-direction:column;';div.id='div-code'
-document.body.appendChild(div);
-let iframe=document.createElement('iframe');
-iframe.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+str;
-document.getElementById('div-code').appendChild(iframe);
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>QR код тест</title>
+</head>
+<body>
+<script>
+var code='М54'+new
+Date().getTime().toString().substring(6,13);document.body.insertAdjacentHTML('beforeEnd',`<div
+style="width:100%;text-align:center;display:flex;flex-direction:column;"><div>`+code+`</div><div><img
+src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=`+code+`"></div></div>`);
 </script>
- </body>
+</body>
 </html>
