@@ -6,7 +6,7 @@
 </head>
 <body>
 <script>
-var code='М'+randcode(2,'0123456789')+randcode(7);document.body.insertAdjacentHTML('beforeEnd',`<div style="width:100%;text-align:center;font-family:monospace;font-size:20px;"><div>`+code+`</div><div onclick="window.print();"><img src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&choe=UTF-8&chld=M&chl=`+code+`"></div></div>`);function randcode(n=1,d='0123456789zaqwsxcderfvbgtyhnmjuiklopZAQWSXCDERFVBGTYHNMJUIKLOP'){let str='';while(str.length<n){str+=d[Math.random()*d.length|0]};return str};
+var code='М'+randcode(2,'0123456789')+randcode(7);document.body.insertAdjacentHTML('beforeEnd',`<div style="width:100%;text-align:center;font-family:monospace;font-size:40px;"><div>`+code+`</div><div onclick="window.print();"><img src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&choe=UTF-8&chld=M&chl=`+code+`"></div></div>`);function randcode(n=1,d='0123456789zaqwsxcderfvbgtyhnmjuiklopZAQWSXCDERFVBGTYHNMJUIKLOP'){let str='';while(str.length<n){str+=d[Math.random()*d.length|0]};return str};
 </script>
 </body>
 </html>
