@@ -7,7 +7,9 @@
  <body>
   <script>
 let str='М54'+new Date().getTime().toString().substring(6,13);
-document.body.appendChild(document.createTextNode(str));
+let div=document.createElement('div');
+div.innerHTML=str;
+document.body.appendChild(div);
 let iframe=document.createElement('iframe');
 iframe.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+str;
 document.body.appendChild(iframe);
