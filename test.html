@@ -11,7 +11,7 @@ let div=document.createElement('div');
 div.innerHTML=str;div.style='width:100%;text-align:center;display:flex;flex-direction:column;';div.id='div-code'
 document.body.appendChild(div);
 let iframe=document.createElement('iframe');
-iframe.src='https://api.qrserver.com/v1/create-qr-code/?size=150&data='+str;
+iframe.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+str;
 document.getElementById('div-code').appendChild(iframe);
 </script>
  </body>
