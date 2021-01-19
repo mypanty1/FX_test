@@ -5,6 +5,12 @@
   <title>QR код тест</title>
  </head>
  <body>
-  <script>document.body.appendChild(document.createTextNode('М54'+new Date().getTime().toString().substring(6,13)));</script>
+  <script>
+let str='М54'+new Date().getTime().toString().substring(6,13);
+document.body.appendChild(document.createTextNode(str));
+let iframe=document.createElement('iframe');
+iframe.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+str;
+document.body.appendChild(iframe);
+</script>
  </body>
 </html>
