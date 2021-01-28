@@ -1346,7 +1346,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 											<!--replaced this fragment-->
 											<span class="custom-control-label custom-control-empty">{{vg.login}} • {{vg.vgid}}</span>
 											<div v-if="true||vg.serverid=='108'" class="full-fill">
-												<button @click="activateSpd(vg.vgid)" v-bind:disabled="loading||vg.serverid!='108'" type="submit" class="btn btn-primary btn-sm">активировать {{vg.vgid}}</button>
+												<button @click="activateSpd(vg.vgid)" v-bind:disabled="loading||vg.serverid!='108'" type="submit" class="btn btn-primary btn-sm" style="margin-left:20px;">активировать {{vg.vgid}}</button>
 											</div>
 											<div class="small-text">{{vg.accondate}}<span class="inscription"> создан</span></div>
 											<div class="small-text">{{vg.tardescr}}</div>
