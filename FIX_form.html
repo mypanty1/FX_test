@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+		<title>FIX_form</title>
+		<style type="text/css">
+			body{margin:unset;height:100%;background-color:#f1f1f1;display:flex;flex-direction:column;box-sizing:border-box;font-size:12px;}
+			.chkb{}
+			.search-input{width:100%;font-size:14px;}
+			.btn{height:22px;font-size:14px;padding:1px 4px;}
+			/*hr{padding:0px;margin:8px 0px;border:0;border-top:1px solid rgba(34,30,30,0.15);}*/
+			
+			
+			
+			.mobile-tile{box-shadow:0px 7px 16px 0px rgba(0,0,0,0.12);padding:4px;margin-bottom:4px;}
+			.tile-search{display:inline-flex;background-color:#fff;order:-1;}
+			.tile-search.hide{display:none;}
+			.tile{}
+			.tile-warning{background-color:#fee;}
+			.tile-select{background-color:#fed;}
+			.tile-task{display:inline-flex;background-color:#fff;}
+				.create-task{}
+					.task-input{font-size:12px;width:100%;resize:vertical;min-height:16px;}
+				.task-new{background-color:aliceblue;}
+				.task-start{background-color:bisque;}
+				.task-reject{background-color:darksalmon;}
+				.task-end{background-color:darkseagreen;}
+					.task-id{margin-right:auto;}
+					.task-state{}
+					.task-date{margin-left:auto;}
+			.tile-building{background-color:#fff;}
+				.tab-controller{display:inline-flex;width:100%;margin-bottom:2px;}
+					.tab-controller>.title{font-size:12px;line-height:20px;margin-right:2px;}
+					.btns-row-scroll{overflow-x:overlay;}
+						.btns-row{display:inline-flex;}
+							.tab-btn{font-size:14px;width:22px;padding:0px 0px;margin-left:1px;margin-right:1px;}
+							.tab-btn:disabled{font-weight:bold;}
+				.entrances-row{}
+					.entrance-tab{display:block;}
+					.entrance-tab.hide{display:none;}
+						.entrance{display:flex;flex-direction:column;}
+							.entrance-head{font-size:10pt;background-color:#eee;border: 1px solid #000;border-bottom:unset;}
+								.entrance-title{font-size:8pt;line-height:12px;color:#000;}
+								.el-input{height:9px;font-size:8pt;line-height:10px;text-align:left;}
+							.floors-over{display:flex;flex-direction:column-reverse;background-color:#eee;border: 1px solid #000;border-top-color:#ccc;border-bottom-color:#ccc;}
+							.floors-under{display:flex;flex-direction:column;background-color:#eee;border: 1px solid #000;border-top:unset;}
+								.floor{display:inline-grid;grid-template-columns:20px auto;border-top:1px solid #000;/*border-bottom:1px solid #000;*//*margin-top:1px;*//*margin-bottom:1px;*/}
+									.floor-number{line-height:14px;height:14px;color:gray;/*margin:auto;*/text-align:center;}
+									.floor-objects{}
+										.floor-racks{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-around;}
+											.rack{width:max-content;height:fit-content;min-height:12px;margin:1px;border:1px solid #000;border-radius:2px;background-color:#aaa;}
+											.type-L{width:108px;}
+											.type-CU{width:48px;}
+												.rack-head{}
+													.rack-title{line-height:12px;font-size:8pt;color:#000;}
+												.rack-devices{display:flex;flex-direction:column;/*flex-direction:row;*//*flex-wrap:wrap;*/}
+													.device{width:104px;height:12px;margin-left:1px;margin-right:1px;margin-bottom:1px;border:1px solid #000;background-color:#fff;display:flex;flex-direction:column;}
+													.type-CU .device{width:44px;}/*устройство/пп в рк*/
+													.type-ETH{background-color:#eff;}
+													.type-OP{background-color:#ffe;}
+													.type-A{background-color:#ffe;}
+													.type-SBE{background-color:#eef;/*height:20px;*/}
+													.type-OSW{background-color:#eef;}
+													.type-FAMP{background-color:#eef;}
+													.type-MBH{background-color:#eef;/*height:20px;*/}
+													.type-MPLS{background-color:#eef;/*height:20px;*/}
+													.type-OLT{background-color:#eef;/*height:20px;*/}
+													.type-IP{background-color:#fef;}
+													.type-CPE{background-color:#fef;}
+													.type-Voip{background-color:#fef;}
+													.type-CR{background-color:#ddd;}
+													.type-PP{background-color:#ddd;}
+													.without{width:44px;margin-top:1px;}
+														.device-head{display:inline-flex;}
+															.device-led{width:6px;min-width:6px;}
+															.online{background-color:green;}
+															.offline{background-color:red;}
+															.nomon{background-color:#ddd;}
+															.device-title{font-size:8pt;color:#000;}
+																.title-norm{display:block;}
+																.type-CU .title-norm{display:none;}
+																.without .title-norm{display:none;}
+																.title-short{display:none;}
+																.type-CU .title-short{display:block;}
+																.without .title-short{display:block;}
+										.floor-flats{display:flex;flex-direction:row;flex-wrap:wrap;}
+											.flat-none{width:100%;height:16px;line-height:16px;font-size:14px;margin:auto;text-align:center;color:#a2a2a2;}
+											.flat{width:24px;min-width:24px;height:36px;line-height:12px;font-size:12px;margin:1px;border: 1px solid #a2a2a2;color:#a2a2a2;border-radius:2px;text-align:center;}
+											.flat-service{border-color:#000;}
+											.service-inet{}
+											.service-tv{}
+											.service-voip{}
+											.service-unknown{}
+												.service{display:none;}
+												.red{display:block;color:tomato;}
+												.green{display:block;color:forestgreen;}
+			.hide{display:none;}
+		</style>
+		<script type="text/javascript">
+			let app={login:'mypanty1'};
+			let user={};
+			function init(){
+				document.getElementById('input_search').setAttribute('placeholder','адрес в '+(user.city||'новосибирск'));
+				document.getElementById('input_search').setAttribute('city',(user.city||'новосибирск'));
+				document.getElementById('input_search').addEventListener('keydown',function(e){if(e.keyCode===13){document.getElementById('btn_search').click();}});
+				document.getElementById('btn_search').addEventListener('click',function(){clsTiles();let pattern=document.getElementById('input_search').getAttribute('city')+' '+document.getElementById('input_search').value.trim();if(pattern){searchByAddress(pattern)}});
+				document.getElementById('btn_clsAll').addEventListener('click',function(){clsTiles();document.getElementById('input_search').value='';});
+				document.getElementById('btn_getTaskList').addEventListener('click',getTaskList);
+				document.getElementById('chkb_nsk').addEventListener('change',function(e){
+					if(event.target.checked){
+						document.getElementById('input_search').setAttribute('placeholder','адрес в '+(user.city||'новосибирск'));
+						document.getElementById('input_search').setAttribute('city',(user.city||'новосибирск'));
+					}else{
+						document.getElementById('input_search').setAttribute('placeholder','адрес');
+						document.getElementById('input_search').setAttribute('city','');
+					};
+				});
+				return {FIX_form:true};
+			};
+			function clsTiles(){
+				document.getElementById('btn_getTaskList').classList.add('hide');
+				let tiles=document.getElementsByClassName('tile');
+				while(tiles.length>0){tiles[0].remove();};
+			};
+			function searchByAddress(pattern,apikey='96902d94-ce02-4125-9ca8-b028c28b7772'){
+				fetch('https://geocode-maps.yandex.ru/1.x/?format=json&apikey='+apikey+'&geocode='+pattern+'&result=1&lang=ru_RU').then(response=>response.json()).then(function(obj){
+					let coords=obj.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.replace(' ',',').split(',').reverse().join(',');/*55.03165,83.01073*/
+					if(coords){
+						return coords;
+					}else{
+						return 'location error';
+					};
+				});
+			};
+			function getTaskList(){
+				let taskTiles=document.getElementsByClassName('tile-task');while(taskTiles.length>0){taskTiles[0].remove()};
+				let site_id=document.getElementsByClassName('tile-building')[0].id;
+				fetch('https://script.google.com/macros/s/AKfycbwIPhtGGK5M-2TmJDRZvkkdPTq-WZwQ3RLIWEOEhlE61T8SDiZG6CWiMQ/exec?action=getTaskList&login='+app.login+'&key=site_id&value='+site_id).then(response=>response.json()).then(function(obj){
+					for(let task of obj.task_list.filter(function(item){return item.task_state=='new'||item.task_state=='start'})){/*только активные*/
+						createTaskTile(task);
+					};
+					if(!document.getElementsByClassName('task-new').length&&!document.getElementsByClassName('task-start').length){
+						createTaskTile({task_id:''});
+					};
+				});
+			};			
+			function createTaskTile(task){
+				let newTile='';
+				if(task.task_id){
+					let stateText=(task.task_state)?({'new':'создан:','start':'в работе:','reject':'отклонен:','end':'завершен:'}[task.task_state]):'unknown:';
+					let last_date_time=new Date(task.last_date_time);
+					let lastDateTime=((task.last_date_time)?(last_date_time.toLocaleDateString()+' '+last_date_time.toLocaleTimeString()):'');
+					newTile=`
+						<div class="mobile-tile tile tile-task task-`+task.task_state+`" id="`+task.task_id+`">
+							<div class="task-id">`+task.task_id+`</div><div class="task-state">`+stateText+`</div><div class="task-date">`+lastDateTime+`</div>
+						</div>
+					`;
+				}else{
+					newTile=`
+						<div class="mobile-tile tile tile-task create-task">
+							<textarea rows="1" class="task-input" placeholder="описание запроса" id="input_task"></textarea><button type="button" class="btn" id="btn_task">отправить</button>
+						</div>
+					`;
+				};
+				document.getElementsByClassName('tile-search')[0].insertAdjacentHTML('afterEnd',newTile);
+				if(document.getElementById('btn_task')){document.getElementById('btn_task').addEventListener('click',createNewTask);};
+			};			
+			function createNewTask(){
+				let url='https://script.google.com/macros/s/AKfycbwIPhtGGK5M-2TmJDRZvkkdPTq-WZwQ3RLIWEOEhlE61T8SDiZG6CWiMQ/exec';
+				let prms='?action=addTask&login='+app.login
+				+'&address='+document.getElementById('input_search').value
+				+'&site_id='+document.getElementsByClassName('tile-building')[0].getAttribute('id')
+				+'&site_name='+document.getElementsByClassName('tile-building')[0].getAttribute('name')
+				+'&description='+document.getElementById('input_task').value;
+				fetch(url+prms).then(response=>response.json()).then(function(obj){
+					console.log('task_id',obj.task_id);getTaskList();
+				});
+			};
+		</script>
+	</head>
+	<body>
+		<div class="mobile-tile tile-search">
+			<button type="button" class="btn" id="btn_clsAll">X</button>
+			<input type="checkbox" class="chkb" id="chkb_nsk" checked>
+			<input type="text" class="search-input" id="input_search" city="" value="" placeholder="">
+			<button type="button" class="btn" id="btn_search">поиск</button>
+			<button type="button" class="btn hide" id="btn_getTaskList">задачи</button>
+			<script>
+				fetch('https://script.google.com/macros/s/AKfycbyGlvjV6Wtt0JxzN9cFAD9bN1aE2FzCuORSWs0Rx5XFHQYIBg7xJBqgvA/exec?login='+app.login/*,{mode:'no-cors'}*/).then(response=>response.json());
+				fetch('https://script.google.com/macros/s/AKfycbwIPhtGGK5M-2TmJDRZvkkdPTq-WZwQ3RLIWEOEhlE61T8SDiZG6CWiMQ/exec?action=getUser&login='+app.login).then(response=>response.json()).then(function(obj){
+					user=obj.user;
+					init();
+				});
+			</script>
+		</div>
+	</body>
+</html>
