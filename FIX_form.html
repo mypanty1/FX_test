@@ -101,6 +101,13 @@
 			let app={login:'mypanty1'};
 			let user={};
 			function init(){
+				fetch('https://script.google.com/macros/s/AKfycbyGlvjV6Wtt0JxzN9cFAD9bN1aE2FzCuORSWs0Rx5XFHQYIBg7xJBqgvA/exec?login='+app.login/*,{mode:'no-cors'}*/).then(response=>response.json());
+				fetch('https://script.google.com/macros/s/AKfycbwIPhtGGK5M-2TmJDRZvkkdPTq-WZwQ3RLIWEOEhlE61T8SDiZG6CWiMQ/exec?action=getUser&login='+app.login).then(response=>response.json()).then(function(obj){
+					user=obj.user;
+					initDocument();
+				});
+			};
+			function initDocument(){
 				document.getElementById('input_search').setAttribute('placeholder','адрес в '+(user.city||'новосибирск'));
 				document.getElementById('input_search').setAttribute('city',(user.city||'новосибирск'));
 				document.getElementById('input_search').addEventListener('keydown',function(e){if(e.keyCode===13){document.getElementById('btn_search').click();}});
