@@ -3,7 +3,7 @@ javascript:(function(){
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
 	document.title='Inetcore+';
 	
-	let dev=true;
+	let dev=false;
 	let input='';
 	if(dev){
 		window.AppInventor={
