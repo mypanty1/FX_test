@@ -3,7 +3,7 @@ javascript:(function(){
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
 	document.title='Inetcore+';
 	
-	let dev=false;
+	let dev=true;
 	let input='';
 	if(dev){
 		window.AppInventor={
@@ -62,7 +62,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.a');*//*fix update, my-account-page*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.b');*//*fix update, my-port-page, my-port-bind-user-action*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.c');/*temp fix update2, my-port test*/
+	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid on service)*/
 	
 	Vue.component('ports-el',{/*need ref*/
 		template:`
@@ -2422,6 +2423,206 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-}else{console.log(document.title)};
+	document.getElementById('services-el-template').innerHTML=`<my-services-el v-bind="$props"/>`;/*proxy template for my-services-el*/
+	Vue.component('my-services-el',{
+		template:`
+			<card-block>
+				<title-main text="услуги и оборудование"/>
+				<!--div class="font--16-500 tone-900">  </!--div-->
+				<!--div v-if="false" class="tone-900 size-16 ml-auto"><button class="btn"> Активировать </button></!--div-->
+				<div v-for="service in services" :key="service.vgid">
+					<link-block actionIcon="" :icon="icon(service)" type="medium">
+						<template slot="text">
+							<span class="tone-900">{{typeService(service)}}</span> 
+							<span :class="stateClass(service)"> • {{ service.statusname }} </span>
+						</template>
+					</link-block> 
+					<div class="ml-4 pl-1">
+						<info-subtitle :text="service.tarif||service.tardescr"/>
+						<info-subtitle v-if="service.type=='internet'&&service.auth_type||service.rate" :text="authAndSpeed(service)"/>
+						<login-pass class='ml-3' v-if="service.type=='internet'||service.type=='phone'" :service="service" :billingid="account.billingid"></login-pass>
+						<div class="ml-3">
+							<div class="mt-2 w-75">
+								<button-main v-if="service.available_for_activation" @click="activate(service)" buttonStyle="outlined" :disabled=false label="Активировать" loadingText="" size="full"></button-main>
+							</div>
+						</div>
+						<account-iptv-code class="ml-3" v-if="service.iptv_code" :account="accountNumber" :login="service.login" />
+					</div>
+					<devider-line class="mt-3"/>
+				</div>
+			</card-block>
+		`,
+		props:{
+			account:Object,
+			services:Array,
+			name:String,
+			accountNumber:String,
+		},
+		data:()=>({
+			opened:true,
+		}),
+		computed:{
+			
+		},
+		methods:{
+			typeService(service){
+				switch(service.type){
+					case 'internet':
+						return 'интернет';
+					case 'tv':
+						return 'телевидение';
+					case 'phone':
+						return 'телефония';
+					case 'hybrid':
+						return 'ИТВ';
+					case 'iptv':
+						return 'IPTV';
+					default:
+						return 'другое';
+				};
+			},
+			icon(service){
+				switch(service.type){
+					case 'internet':
+						return 'eth';
+					case 'tv':
+						return 'tv';
+					case 'phone':
+						return 'phone-1';
+					case 'hybrid':
+						return 'tv';
+					default:
+						return 'amount';
+				};
+			},
+			stateClass(service){
+				return service.status=='0'||(service.billing_type==4&&service.status=='12')?'main-green':'main-red';
+			},
+			activate(vg){
+				this.$root.showModal({
+					title:'активация услуги',
+					data:vg,
+					component:'activation-modal',
+				});
+			},
+			authAndSpeed(service){
+				const auth_type=service.auth_type;
+				const rate=service.rate;
+				if(auth_type&&rate){
+					return `${auth_type} • ${rate}`;
+				}else{
+					if(!auth_type)return `${rate}`;
+					if(!rate)return `${auth_type}`;
+				};
+			}
+		}
+	});
+	
+	document.getElementById('login-pass-template').innerHTML=`<my-login-pass v-bind="$props"/>`;/*proxy template for my-login-pass*/
+	Vue.component('my-login-pass',{
+		template:`
+			<div>
+				<template v-if="isSamatlor">
+					<div v-if="service.blkdate" class="line-row pl-3">
+						{{ service.blkdate }}
+						<span class="inscription">дата блокировки</span>
+					</div>
+					<div>
+						<div v-show="!loading" class="font-13"><span class="tone-500">Логин • </span><span>{{service.login}} • </span><span>{{service.vgid}}</span></div>
+						<div v-show="loading">
+							<i class="ic-20 ic-loading rotating"></i>
+						</div>
+					</div>
+					<div class="w-75 mt-2">
+						<button-main @click="reset" :class="{ password:show }" buttonStyle="outlined" :disabled=false :icon="icon" :label="label" :loading="loading||resetting" loadingText="" size="full"></button-main>
+					</div>
+				</template>
+				<template v-else>
+					<div v-show="!loading" class="font--13-500"><span class="tone-500">Логин • </span><span>{{service.login}} • </span><span>{{service.vgid}}</span></div>
+					<div v-show="loading"><i class="ic-20 ic-loading rotating"></i></div>
+					<div class="w-75 mt-2">
+						<button-main @click="load" :class="{ password:show }" buttonStyle="outlined" :disabled=false :icon="icon" :label="label" :loading="loading" loadingText="" size="full"></button-main>
+					</div>
+				</template>
+			</div>
+		`,
+		props: {
+			service: Object,
+			billingid: Number,
+		},
+		data:()=>({
+			loading:false,
+			show:false,
+			passwd:null,
+			resetting:false
+		}),
+		created:function(){
+			if(this.isSamatlor)this.getSamatlorLogin();
+		},
+		computed:{
+			isSamatlor:function(){
+				return this.billingid==6014;
+			},
+			label(){
+				if(this.isSamatlor){
+					if(this.show)return this.passwd;
+					return 'сбросить пароль';
+				}else{
+					if(this.show)return this.passwd||'Нет пароля';
+					return 'запросить пароль';
+				}
+			},
+			icon(){
+				return this.show?'':'unlock'
+			}
+		},
+		methods:{
+			load:function(){
+				this.passwd=this.service.pass;
+				this.loading=true;
+				this.show=true;
+				this.loading=false;
+			},
+			getSamatlorLogin:function(){
+				this.service.login='';
+				this.loading=true;
+				let params={
+					serverid:this.service.serverid,
+					vgid:this.service.vgid
+				};
+				httpGet(buildUrl('samatlor_equip_login',params,'/call/lbsv/')).then(data=>{
+					this.passwd=data.password;
+					this.service.login=data.login;
+					this.show=false;
+					if(data.status=='5'){
+						this.service.status=5;
+						this.service.status_name='заблокирован(трафик)';
+						this.service.statusname='заблокирован(трафик)';
+						this.service.blkdate=data.blkdate;
+					};
+					this.loading=false;
+				});
+			},
+			reset:function(){
+				this.resetting=true;
+				let params={
+					serverid:this.service.serverid,
+					vgid:this.service.vgid,
+					update:{
+						pass:this.passwd
+					}
+				};
+				httpPost('/call/lbsv/extend_service',params,true).then(data=>{
+					if(data.type=='error'){
+						this.passwd = 'функционал не поддерживается';
+					};
+					this.show=true;
+					this.resetting=false;
+				});
+			}
+		}
+	});
+	
+	}else{console.log(document.title)};
 
 }());
