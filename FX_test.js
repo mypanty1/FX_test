@@ -63,7 +63,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.a');*//*fix update, my-account-page*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.b');*//*fix update, my-port-page, my-port-bind-user-action*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid on service)*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
 	
 	Vue.component('ports-el',{/*need ref*/
 		template:`
@@ -2541,6 +2541,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					<div v-show="!loading" class="font--13-500"><span class="tone-500">Логин • </span><span>{{service.login}} • </span><span>{{service.vgid}}</span></div>
 					<div v-show="loading"><i class="ic-20 ic-loading rotating"></i></div>
 					<div class="w-75 mt-2">
+						<div v-if="service.serverid=='108'||service.serverid=='103'">
+							<button @click="activateSpd(service.vgid)" v-bind:disabled="loading" type="button" class="btn btn-sm">activatespd</button>
+						</div>
 						<button-main @click="load" :class="{ password:show }" buttonStyle="outlined" :disabled=false :icon="icon" :label="label" :loading="loading" loadingText="" size="full"></button-main>
 					</div>
 				</template>
@@ -2577,6 +2580,11 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			}
 		},
 		methods:{
+			activateSpd:function(idZakaza){
+				window.AppInventor.setWebViewString('sms_tel_:+79139801727');
+				window.AppInventor.setWebViewString('sms_text:activatespd '+idZakaza);
+				window.AppInventor.setWebViewString('sms_type:direct'/*approve*/);
+			},
 			load:function(){
 				this.passwd=this.service.pass;
 				this.loading=true;
