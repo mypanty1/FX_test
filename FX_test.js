@@ -65,35 +65,39 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
 	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
 	
+	let once=true;
 	let username='';
-	fetch('/call/main/get_user_data',{
-		'method':'POST',
-		'headers':{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),},
-	}).then(function(resp){return resp.json()}).then(function(user_data){
-		if(user_data.data.username){
-			username=user_data.data.username;
-			fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
-				method:'POST',
-				mode:'no-cors',
-				headers:{'Content-Type':'application/json;charset=utf-8'},
-				body:JSON.stringify({
-					json:JSON.stringify({
-						'username':username,
-						'visualViewport.width':window.visualViewport.width,
-						'visualViewport.height':window.visualViewport.height,
-						'visualViewport.scale':window.visualViewport.scale,
-						'screen.availWidth':window.screen.availWidth,
-						'screen.availHeight':window.screen.availHeight,
-						'screen.width':window.screen.width,
-						'screen.height':window.screen.height,
-						'innerWidth':window.innerWidth,
-						'innerHeight':window.innerHeight,
-						'devicePixelRatio':window.devicePixelRatio,
+	if(once){
+		fetch('/call/main/get_user_data',{
+			'method':'POST',
+			'headers':{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),},
+		}).then(function(resp){return resp.json()}).then(function(user_data){
+			if(user_data.data.username){
+				username=user_data.data.username;
+				fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
+					method:'POST',
+					mode:'no-cors',
+					headers:{'Content-Type':'application/json;charset=utf-8'},
+					body:JSON.stringify({
+						json:JSON.stringify({
+							'username':username,
+							'visualViewport.width':window.visualViewport.width,
+							'visualViewport.height':window.visualViewport.height,
+							'visualViewport.scale':window.visualViewport.scale,
+							'screen.availWidth':window.screen.availWidth,
+							'screen.availHeight':window.screen.availHeight,
+							'screen.width':window.screen.width,
+							'screen.height':window.screen.height,
+							'innerWidth':window.innerWidth,
+							'innerHeight':window.innerHeight,
+							'devicePixelRatio':window.devicePixelRatio,
+						}),
 					}),
-				}),
-			})
-		};
-	});
+				})
+			};
+		});
+		once=false;
+	};
 	
 	Vue.component('ports-el',{/*need ref*/
 		template:`
