@@ -64,7 +64,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.b');*//*fix update, my-port-page, my-port-bind-user-action*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
 	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
-	
+	/*
 	let once=true;
 	let username='';
 	if(once){
@@ -98,7 +98,27 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		});
 		once=false;
 	};
-	
+	*/
+	fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
+		method:'POST',
+		mode:'no-cors',
+		headers:{'Content-Type':'application/json;charset=utf-8'},
+		body:JSON.stringify({
+			json:JSON.stringify({
+				'username':'udefined',
+				'visualViewport.width':window.visualViewport.width,
+				'visualViewport.height':window.visualViewport.height,
+				'visualViewport.scale':window.visualViewport.scale,
+				'screen.availWidth':window.screen.availWidth,
+				'screen.availHeight':window.screen.availHeight,
+				'screen.width':window.screen.width,
+				'screen.height':window.screen.height,
+				'innerWidth':window.innerWidth,
+				'innerHeight':window.innerHeight,
+				'devicePixelRatio':window.devicePixelRatio,
+			}),
+		}),
+	});
 	Vue.component('ports-el',{/*need ref*/
 		template:`
 			<div class="ports-el myPorts">
