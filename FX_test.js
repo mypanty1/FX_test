@@ -105,7 +105,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		headers:{'Content-Type':'application/json;charset=utf-8'},
 		body:JSON.stringify({
 			json:JSON.stringify({
-				'username':'udefined',
+				'username':'undefined',
 				'visualViewport.width':window.visualViewport.width,
 				'visualViewport.height':window.visualViewport.height,
 				'visualViewport.scale':window.visualViewport.scale,
