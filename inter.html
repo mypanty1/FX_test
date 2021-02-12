@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+		<title>опрос</title>
+		<style type="text/css">
+			body{box-sizing:border-box;font-size:10pt;line-height:10px;color:#000;font-family:monospace;text-align:left;}
+			textarea[type="text"]{width:-webkit-fill-available;}
+			select{border:1px #e7a74f solid;width:-webkit-fill-available;}
+			input[type="text"]{width:-webkit-fill-available;}
+			button[type="button"]{height:20px;align-self:center;}
+				.header{}
+				.error{margin-bottom:1em;color:crimson;font-weight:bold;}
+				.question-list{display:flex;flex-direction:column;}
+					.question{border: 2px solid #e7a74f;margin:2px;}
+					.question>*{margin:3px 1px 1px 1px;}
+			.hide{display:none;}
+		</style>
+	</head>
+	<body>
+		<h2 class="header">опрос:</h2>
+		<div class="hide" id="ok">ответы отправлены! спасибо</div>
+		<div class="question-list">
+			<div class="question">
+				<div>big question 1</div>
+				<textarea class="" type="text" id="input1" placeholder="placeholder"></textarea>
+			</div>
+			<div class="question">
+				<div>big question 2</div>
+				<select class="" id="input2">
+					<option></option>
+					<option value="option 1">option 1</option>
+					<option value="option 2">option 2</option>
+					<option value="option 3">option 3</option>
+					<option value="option 4">option 4</option>
+				</select>
+			</div>
+			<div class="question">
+				<div>big question 3</div>
+				<input class="" type="text" value="" id="input3" placeholder="placeholder">
+			</div>
+			<div class="error" id="error"></div>
+			<button class="" type="button" id="btn">reply</button>
+			viewport:
+			<textarea id="brwsr1" type="text" rows="8" disabled></textarea>
+			browser:
+			<textarea id="brwsr2" type="text" rows="20" disabled></textarea>
+			connection:
+			<textarea id="brwsr3" type="text" rows="5" disabled></textarea>
+			battery:
+			<textarea id="brwsr4" type="text" rows="5" disabled></textarea>
+		</div>
+		<script>
+			let brwsr={};
+			brwsr=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
+			brwsr.visualViewport=filterAttrs(window.visualViewport,['width','height']);
+			brwsr.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,vendor,maxTouchPoints,hardwareConcurrency,standalone,appVersion,platform,product,userAgent,language,oscpu,deviceMemory');
+			brwsr.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
+			window.navigator.getBattery().then(function(obj){brwsr.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');b4();});
+			for(let key in brwsr){document.getElementById('brwsr1').innerHTML=document.getElementById('brwsr1').innerHTML+key+':'+brwsr[key]+'\n';};
+			for(let key in brwsr.navigator){document.getElementById('brwsr2').innerHTML=document.getElementById('brwsr2').innerHTML+key+':'+brwsr.navigator[key]+'\n';};
+			for(let key in brwsr.navigator.connection){document.getElementById('brwsr3').innerHTML=document.getElementById('brwsr3').innerHTML+key+':'+brwsr.navigator.connection[key]+'\n';};
+			function b4(){for(let key in brwsr.navigator.battery){document.getElementById('brwsr4').innerHTML=document.getElementById('brwsr4').innerHTML+key+':'+brwsr.navigator.battery[key]+'\n';};};
+			function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
+			document.getElementById('btn').addEventListener('click',function(){
+				document.getElementById('btn').setAttribute('disabled','disabled');
+				document.getElementById('error').innerHTML='';
+				fetch('https://script.google.com/macros/s/AKfycbwUCvBh5e0sB8Zjwo3wZ_kete_-SRXXpfQ7iafFJbCPRMRButI9BEQ2/exec',{
+					'method':'POST',
+					'mode':'no-cors',
+					'headers':{'Content-Type':'application/json;charset=utf-8'},
+					'body':JSON.stringify({
+						'brwsr':brwsr,
+						'input1':document.getElementById('input1').value,
+						'input2':document.getElementById('input2').value,
+						'input3':document.getElementById('input3').value,
+					})
+				})/*.then(function(resp){return resp.json()})*/.then(function(obj){
+					document.getElementById('error').innerHTML='';
+					document.getElementById('ok').classList.remove('hide');
+					document.getElementsByClassName('question-list')[0].classList.add('hide');
+				}).catch(function(err){
+					console.log(err);
+					document.getElementById('error').innerHTML='ошибка отправки';
+				}).finally(function(){
+					window.navigator.vibrate([100,30,100,30,30,200,30,100,30,30,100,30,30,200,30,30,200,30,100,30,200,30,100,30,30,200,30,200,30,200,30,30,100,30,200,30,100,30,30,100]);
+				});
+			});
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
