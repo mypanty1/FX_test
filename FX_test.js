@@ -90,6 +90,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					'body':JSON.stringify({
 						obj:{
 							username:username,
+							latitude:user_data.data.latitude,
+							longitude:user_data.data.longitude,
 							date:new Date(Date.now()).toString(),
 							info:info,
 						},
