@@ -1,8 +1,8 @@
-javascript:(function(){
+/*javascript:(function(){
 	
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
 	document.title='Inetcore+';
-	
+	*/
 	let dev=false;
 	let input='';
 	if(dev){
@@ -98,7 +98,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		});
 		once=false;
 	};
-	*//*
+	*/
 	fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
 		method:'POST',
 		mode:'no-cors',
@@ -118,7 +118,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				'devicePixelRatio':window.devicePixelRatio,
 			}),
 		}),
-	});*/
+	});
 	Vue.component('ports-el',{/*need ref*/
 		template:`
 			<div class="ports-el myPorts">
@@ -2684,7 +2684,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			}
 		}
 	});
-	
+	/*
 	}else{console.log(document.title)};
 
-}());
+}());*/
