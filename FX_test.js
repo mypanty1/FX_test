@@ -65,6 +65,14 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
 	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
 	
+	let info={};
+	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
+	info.visualViewport=filterAttrs(window.visualViewport,['width','height']);
+	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,vendor,maxTouchPoints,hardwareConcurrency,standalone,appVersion,platform,product,userAgent,language,oscpu,deviceMemory');
+	info.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
+	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
+	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
+	
 	let once=true;
 	let username='';
 	if(once){
@@ -74,51 +82,22 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}).then(function(resp){return resp.json()}).then(function(user_data){
 			if(user_data.data.username){
 				username=user_data.data.username;
-				fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
-					method:'POST',
-					mode:'no-cors',
-					headers:{'Content-Type':'application/json;charset=utf-8'},
-					body:JSON.stringify({
-						json:JSON.stringify({
-							'username':username,
-							'visualViewport.width':window.visualViewport.width,
-							'visualViewport.height':window.visualViewport.height,
-							'visualViewport.scale':window.visualViewport.scale,
-							'screen.availWidth':window.screen.availWidth,
-							'screen.availHeight':window.screen.availHeight,
-							'screen.width':window.screen.width,
-							'screen.height':window.screen.height,
-							'innerWidth':window.innerWidth,
-							'innerHeight':window.innerHeight,
-							'devicePixelRatio':window.devicePixelRatio,
-						}),
-					}),
-				})
+				fetch('https://script.google.com/macros/s/AKfycbwUCvBh5e0sB8Zjwo3wZ_kete_-SRXXpfQ7iafFJbCPRMRButI9BEQ2/exec',{
+					'method':'POST',
+					'mode':'no-cors',
+					'headers':{'Content-Type':'application/json;charset=utf-8'},
+					'body':JSON.stringify({
+						'username':username,
+						'date':new Date(Date.now()).toString(),
+						'info':info,
+					})
+				}).finally(function(){
+					window.navigator.vibrate([100,30,100,30,30,200,30,100,30,30,100,30,30,200,30,30,200,30,100,30,200,30,100,30,30,200,30,200,30,200,30,30,100,30,200,30,100,30,30,100]);
+				});
 			};
 		});
 		once=false;
 	};
-	/*
-	fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
-		method:'POST',
-		mode:'no-cors',
-		headers:{'Content-Type':'application/json;charset=utf-8'},
-		body:JSON.stringify({
-			json:JSON.stringify({
-				'username':'undefined',
-				'visualViewport.width':window.visualViewport.width,
-				'visualViewport.height':window.visualViewport.height,
-				'visualViewport.scale':window.visualViewport.scale,
-				'screen.availWidth':window.screen.availWidth,
-				'screen.availHeight':window.screen.availHeight,
-				'screen.width':window.screen.width,
-				'screen.height':window.screen.height,
-				'innerWidth':window.innerWidth,
-				'innerHeight':window.innerHeight,
-				'devicePixelRatio':window.devicePixelRatio,
-			}),
-		}),
-	});*/
 	Vue.component('ports-el',{/*need ref*/
 		template:`
 			<div class="ports-el myPorts">
