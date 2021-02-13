@@ -69,7 +69,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
 	info.visualViewport=filterAttrs(window.visualViewport,['width','height']);
-	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,platform,product,userAgent,language,oscpu,deviceMemory');
+	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,product,userAgent,language,oscpu,deviceMemory');
 	info.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
 	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
 	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
