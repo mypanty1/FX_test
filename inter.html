@@ -55,7 +55,7 @@
 			let brwsr={};
 			brwsr=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
 			brwsr.visualViewport=filterAttrs(window.visualViewport,['width','height']);
-			brwsr.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,vendor,maxTouchPoints,hardwareConcurrency,standalone,appVersion,platform,product,userAgent,language,oscpu,deviceMemory');
+			brwsr.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,platform,product,userAgent,language,oscpu,deviceMemory');
 			brwsr.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
 			window.navigator.getBattery().then(function(obj){brwsr.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');b4();});
 			for(let key in brwsr){document.getElementById('brwsr1').innerHTML=document.getElementById('brwsr1').innerHTML+key+':'+brwsr[key]+'\n';};
