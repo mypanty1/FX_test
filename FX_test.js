@@ -1,4 +1,5 @@
-/*javascript:(function(){
+/*
+javascript:(function(){
 	
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
 	document.title='Inetcore+';
@@ -68,7 +69,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
 	info.visualViewport=filterAttrs(window.visualViewport,['width','height']);
-	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,vendor,maxTouchPoints,hardwareConcurrency,standalone,appVersion,platform,product,userAgent,language,oscpu,deviceMemory');
+	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,platform,product,userAgent,language,oscpu,deviceMemory');
 	info.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
 	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
 	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
@@ -87,12 +88,20 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					'mode':'no-cors',
 					'headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
-						'username':username,
-						'date':new Date(Date.now()).toString(),
-						'info':info,
+						obj:{
+							username:username,
+							date:new Date(Date.now()).toString(),
+							info:info,
+						},
 					})
+				}).then(function(obj){
+					console.log(obj);
+				}).catch(function(err){
+					console.log(err);
 				}).finally(function(){
-					/*window.navigator.vibrate([100,30,100,30,30,200,30,100,30,30,100,30,30,200,30,30,200,30,100,30,200,30,100,30,30,200,30,200,30,200,30,30,100,30,200,30,100,30,30,100]);*/
+					/*
+					window.navigator.vibrate([100,30,100,30,30,200,30,100,30,30,100,30,30,200,30,30,200,30,100,30,200,30,100,30,30,200,30,200,30,200,30,30,100,30,200,30,100,30,30,100]);
+					*/
 				});
 			};
 		});
