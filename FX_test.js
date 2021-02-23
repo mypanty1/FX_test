@@ -64,7 +64,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.a');*//*fix update, my-account-page*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.b');*//*fix update, my-port-page, my-port-bind-user-action*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.d');/*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
+	/*window.AppInventor.setWebViewString('version_:FX_test_v173.d');*//*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.e');/*my-site-du-wrapper (download)*//*test*/
 	
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -74,41 +75,33 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
 	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
-	let once=true;
 	let username='';
-	if(once){
-		fetch('/call/main/get_user_data',{
-			'method':'POST',
-			'headers':{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),},
-		}).then(function(resp){return resp.json()}).then(function(user_data){
-			if(user_data.data.username){
-				username=user_data.data.username;
-				fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
-					'method':'POST',
-					'mode':'no-cors',
-					'headers':{'Content-Type':'application/json;charset=utf-8'},
-					'body':JSON.stringify({
-						obj:{
-							username:username,
-							latitude:user_data.data.latitude,
-							longitude:user_data.data.longitude,
-							date:new Date(Date.now()).toString(),
-							info:info,
-						},
-					})
-				}).then(function(obj){
-					console.log(obj);
-				}).catch(function(err){
-					console.log(err);
-				}).finally(function(){
-					/*
-					window.navigator.vibrate([100,30,100,30,30,200,30,100,30,30,100,30,30,200,30,30,200,30,100,30,200,30,100,30,30,200,30,200,30,200,30,30,100,30,200,30,100,30,30,100]);
-					*/
-				});
-			};
-		});
-		once=false;
-	};
+	fetch('/call/main/get_user_data',{
+		'method':'POST',
+		'headers':{
+			'Content-Type':'application/json;charset=utf-8',
+			'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+		},
+	}).then(function(resp){return resp.json()}).then(function(user_data){
+		if(user_data.data.username){
+			username=user_data.data.username;
+			fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
+				'method':'POST',
+				'mode':'no-cors',
+				'headers':{'Content-Type':'application/json;charset=utf-8'},
+				'body':JSON.stringify({
+					obj:{
+						username:username,
+						latitude:user_data.data.latitude,
+						longitude:user_data.data.longitude,
+						date:new Date(Date.now()).toString(),
+						info:info,
+					},
+				})
+			}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){});
+		};
+	});
+	
 	Vue.component('ports-el',{/*need ref*/
 		template:`
 			<div class="ports-el myPorts">
@@ -2674,7 +2667,253 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			}
 		}
 	});
+	
+	document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;/*proxy template for my-site-du-wrapper*/
+	Vue.component('my-site-du-wrapper',{
+		template:`
+			<main>
+				<transition name="slide-page" mode="out-in" appear>
+					<div v-if="showNav">
+						<page-navbar title="Домовой узел" @refresh="refresh"/>
+						<card-block>
+							<nav-slider :items="navItems" :loading="loading.entrances"/>
+							<devider-line/>
+							<info-text :title="site.address" :text="site.node"/>
+							<div style="text-align:right;padding-right:1em;margin-top:-2em;">
+								<input type="button" id="btn_downloadPL" @click="downloadPL(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:0.1;" value="download">
+							</div>
+							<devider-line/>
+							<link-block text="Топология сети" icon="topology" actionIcon="right-link" :to="toTopology"/>
+						</card-block>
+					</div>
+				</transition>
+				<transition name="slide-page" mode="out-in">
+					<keep-alive>
+					<router-view :key="$route.params.site_id+'_'+$route.name+'_'+$route.params.entrance_id" :siteProp="site" :entranceProp="currentEntrance" :loading="loading" :entrances="responses.entrances" :devices="uzelDevices" :plints="responses.plints" :racks="responses.racks" :floors="responses.floors" @load:entrances="loadEntrances" @load:floors="loadFloors" @load:racks="loadRacks" @load:plints="loadPlints" @toggle-nav="showNav=$event"/>
+					</keep-alive>
+				</transition>
+			</main>
+		`,
+		props:{
+			siteProp:{type:Object,default:null},
+			entranceProp:{type:Object,default:null},
+		},
+		data(){
+			return {
+				site:this.siteProp,
+				responses:{
+					entrances:null,
+					devices:null,
+					floors:null,
+					racks:null,
+					plints:null,
+				},
+				loading:{
+					entrances:false,
+					devices:false,
+					floors:false,
+					racks:false,
+					plints:false,
+				},
+				infoOpened:false,
+				showNav:true,
+			};
+		},
+		async created(){
+			this.loadDevices();
+			this.loadEntrances();
+			this.$root.$on('building:update',()=>{
+				this.loadEntrances(true);
+				this.loadFloors(true);
+			});
+		},
+		computed:{
+			uzelDevices(){
+				if(!this.responses.devices)return null;
+				return this.responses.devices.filter(({UZEL_NAME})=>UZEL_NAME===this.site.node);
+			},
+			currentEntrance(){
+				if(this.currentIndex===0)return null;
+				const {entrances}=this.responses;
+				const entrance=entrances&&entrances.find(({ENTRANCE_ID})=>ENTRANCE_ID===this.$route.params.entrance_id);
+				return {...this.entranceProp,...entrance };
+			},
+			currentIndex(){
+				const {entrance_id}=this.$route.params;
+				if(!entrance_id)return 0;
+				return this.navItems.findIndex(({id})=>id===entrance_id);
+			},
+			currentItem(){
+				return this.navItems[this.currentIndex];
+			},
+			navItems(){
+				const entrances=this.responses.entrances;
+				const mainRoute={
+					icon:'entrance-mini',
+					name:'ДУ',
+					path:{name:'site_du',params:{site_id:this.$route.params.site_id,siteProp:this.site}},
+				};
+				const generateEntranceRoute=(entrance)=>({
+					icon:'entrance-mini',
+					name:`${entrance.ENTRANCE_NO} • ${entrance.FLAT_FROM_TO} кв`,
+					path:{
+						name:'entrance',
+						params:{
+							site_id:this.$route.params.site_id,
+							entrance_id:entrance.ENTRANCE_ID,
+							siteProp:this.site,
+							entranceProp:entrance,
+						},
+					},
+				});
+				if(!entrances&&this.entranceProp)return [mainRoute,generateEntranceRoute(this.entranceProp)];
+				if(!entrances)return [mainRoute];
+				const entranceRoutes=entrances.map((entrance)=>(generateEntranceRoute(entrance)));
+				return [mainRoute,...entranceRoutes];
+			},
+			toTopology(){
+				return {
+					name:'net-topology',
+					params:{
+						id:this.site.node,
+						type:'site',
+						siteProp:this.site,
+						entrancesProp:this.responses.entrances,
+					},
+				};
+			},
+		},
+		methods:{
+			downloadPL:function(siteid){
+				console.log('downloadPL('+siteid+')');
+				/*buildBuilding(siteid);*/
+				document.getElementById('btn_downloadPL').setAttribute('disabled','disabled');
+				let timer=setTimeout(function(){
+					document.getElementById('btn_downloadPL').removeAttribute('disabled');
+					clearTimeout(timer);
+				},3000);
+			},
+			async loadEntrances(force=false){
+				if (this.loading.entrances) return;
+				const siteid=this.site.id;
+				if(!force){
+					if(this.responses.entrances)return;
+					const cache=this.$cache.getItem(`site_entrance_list/${siteid}`);
+					if(cache){
+						this.responses.entrances = cache;
+						return;
+					};
+				};
+				this.loading.entrances=true;
+				const response=await httpGet(buildUrl('site_entrance_list',{siteid}));
+				this.$cache.setItem(`site_entrance_list/${siteid}`,response);
+				this.responses.entrances=response;
+				this.loading.entrances=false;
+			},
+			async loadDevices(force=false){
+				if(this.loading.devices)return;
+				const siteid=this.site.id;
+				if(!force){
+					if(this.responses.devices)return;
+					const cache=this.$cache.getItem(`devices/${siteid}`);
+					if(cache){
+						this.responses.devices=cache;
+						return;
+					};
+				};
+				this.loading.devices=true;
+				const response=await httpGet(buildUrl('devices',{siteid}));
+				this.$cache.setItem(`devices/${siteid}`,response);
+				this.responses.devices=response;
+				this.loading.devices=false;
+			},
+			async loadFloors(force=false){
+				if(this.loading.floors)return;
+				const siteid=this.site.id;
+				if(!force){
+					if(this.responses.floors)return;
+					const cache=this.$cache.getItem(`site_flat_list/${siteid}`);
+					if(cache){
+						this.responses.floors=cache;
+						return;
+					};
+				};
+				this.loading.floors=true;
+				const response=await httpGet(buildUrl('site_flat_list',{siteid}));
+				this.$cache.setItem(`site_flat_list/${siteid}`,response.data);
+				this.responses.floors=response.data;
+				this.loading.floors=false;
+			},
+			async loadRacks(force=false){
+				if(this.loading.racks)return;
+				const siteid=this.site.id;
+				if(!force){
+					if(this.responses.racks) return;
+					const cache=this.$cache.getItem(`site_rack_list/${siteid}`);
+					if(cache){
+						this.responses.racks=cache;
+						return;
+					};
+				};
+				this.loading.racks=true;
+				const response=await httpGet(buildUrl('site_rack_list',{siteid}));
+				this.$cache.setItem(`site_rack_list/${siteid}`,response);
+				this.responses.racks=response;
+				this.loading.racks=false;
+			},
+			async loadPlints(force=false){
+				if(this.loading.plints)return;
+				const siteid=this.site.id;
+				if(!force){
+					if(this.responses.plints)return;
+					const cache=this.$cache.getItem(`patch_panels/without_tree/${siteid}`);
+					if(cache){
+						this.responses.plints=cache;
+						return;
+					};
+				};
+				this.loading.plints=true;
+				const response=await httpGet(buildUrl('patch_panels',{siteid,without_tree:true}));
+				this.$cache.setItem(`patch_panels/without_tree/${siteid}`,response);
+				this.responses.plints=response;
+				this.loading.plints=false;
+			},
+			refresh(){
+				localStorage.clear();
+				document.location.reload();
+			},
+		},
+		beforeRouteEnter(to,from,next){
+			const {name,params}=to;
+			const isChild=name==='entrance';
+			const isEmptyProps=!params.siteProp&&!params.entranceProp;
+			if(isChild&&isEmptyProps){
+				next({name:'search',params:{text:encodeURIComponent(`entrance/${params.entrance_id}`)}});
+				return;
+			};
+			if(!params.siteProp){
+				next({name:'search',params:{text:params.site_id}});
+				return;
+			};
+			next();
+		},
+		beforeRouteUpdate(to,from,next){
+			const {params}=to;
+			const sameSiteId=to.params.site_id===this.site.id||to.params.site_id===this.site.node;
+			if(!sameSiteId&&!params.siteProp){
+				next({name:'search',params:{text:params.site_id}});
+				return;
+			};
+			next();
+		},
+	});
+	
+	
+	
+	
+	
 	/*
 	}else{console.log(document.title)};
 
-}());*/
+}());
+*/
