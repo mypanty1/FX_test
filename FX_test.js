@@ -1,4 +1,4 @@
-/*opacity:0.1
+/*test 24.02.21
 javascript:(function(){
 	
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
@@ -2680,7 +2680,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							<devider-line/>
 							<info-text :title="site.address" :text="site.node"/>
 							<div style="text-align:right;padding-right:1em;margin-top:-2em;">
-								<input type="button" id="btn_downloadPL" @click="download(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:0.1;" value="download">
+								<input type="button" id="btn_downloadPL" @click="generate(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:0.5;" value="download">
 							</div>
 							<devider-line/>
 							<link-block text="Топология сети" icon="topology" actionIcon="right-link" :to="toTopology"/>
@@ -2784,8 +2784,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			},
 		},
 		methods:{
-			download:function(siteid){
-				console.log('download('+siteid+')');
+			generate:function(siteid){
+				console.log('generate('+siteid+')');
 				document.getElementById('btn_downloadPL').setAttribute('disabled','disabled');
 				buildBuilding(siteid);
 			},
@@ -2905,6 +2905,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	function buildBuilding(siteid='9135155036813485134'){
+		if(document.getElementById('delete_me_after_download')){document.getElementById('delete_me_after_download').remove()};/*удалить если есть*/
 		let headers={'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),};
 		document.getElementsByTagName('body')[0].insertAdjacentHTML('beforeEnd',`
 			<div style="display:none;" id="delete_me_after_download">
@@ -3609,18 +3610,31 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				};
 			};
 		};
-		function downloadPL(obj){
+		function downloadPL(obj){/*переделать на сохранение в гугл диск через запрос и отправить письмо со ссылкой*/
+			/*
 			let html=new Blob([obj.html],{type:'text/plain'});
 			let a=document.createElement('a');
 			a.href=URL.createObjectURL(html);
 			a.download=obj.title+'.html';
 			a.click();
 			a.remove();
+			*/
+			if(false){
+				fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
+					'method':'POST',
+					'mode':'no-cors',
+					'headers':{'Content-Type':'application/json;charset=utf-8'},
+					'body':JSON.stringify(obj)
+				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){});
+			};
 			document.getElementById('delete_me_after_download').remove();
 		};
 		function preparePL(siteid){
-			let title=sites[siteid].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString();
+			let title=sites[siteid].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+username;
 			return {
+				username:username,
+				sitename:sites[siteid].nodes[0].name,
+				address:sites[siteid].nodes[0].address,
 				title:title,
 				html:`
 					<!doctype html>
