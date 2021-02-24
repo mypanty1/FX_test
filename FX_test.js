@@ -1,4 +1,4 @@
-/*opacity:0.1;
+/*opacity:0.1
 javascript:(function(){
 	
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
