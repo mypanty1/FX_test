@@ -3718,7 +3718,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 															.flat.inet{}
 															.flat.tv{}
 															.flat.voip{}
-																.flat-service{display:none;}
+																.flat-service{display:none;line-height:7pt;}
 																.flat-service.red{display:block;color:tomato;}
 																.flat-service.green{display:block;color:forestgreen;}
 										
