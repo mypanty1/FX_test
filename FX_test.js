@@ -3604,7 +3604,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				if(counter.all==counter.done){
 					clearTimeout(timer);
 					document.getElementById('btn_downloadPL').removeAttribute('disabled');
-					downloadPL(preparePL(siteid));
+					downloadPL(preparePL(siteid));alert('план-схема отправлена на '+username+'@mts.ru');
 				}else{
 					timer=setTimeout(testLoad,100);
 				};
