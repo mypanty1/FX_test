@@ -3682,6 +3682,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					clearTimeout(timer);
 					downloadPL(preparePL(siteid));
 					document.getElementById('btn_downloadPL').removeAttribute('disabled');
+					alert('план-схема отправлена на '+username+'@mts.ru')
 				}else{
 					timer=setTimeout(testLoad,100);
 				};
@@ -3693,9 +3694,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				'mode':'no-cors',
 				'headers':{'Content-Type':'application/json;charset=utf-8'},
 				'body':JSON.stringify(obj)
-			}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
-				alert('план-схема отправлена на '+username+'@mts.ru');
-			});
+			}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){});
 			document.getElementById('delete_me_after_download').remove();
 		};
 		function preparePL(siteid){
