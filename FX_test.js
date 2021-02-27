@@ -1823,7 +1823,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						<devider-line />
 						<link-block text="информация в биллинге" icon="server" actionIcon="expand"  @block-click="openBillingInfo" />
 						<billing-info-modal ref='billingInfo' :billingInfo='billingInfo' :loading='loading.vgroups' />
-						<!--<link-block text="информация в биллинге" icon="server" actionIcon="expand"  @block-click="openBillingInfo_old"/>-->
+						<!--<link-block text="информация в биллинге" icon="server" actionIcon="expand" @block-click="openBillingInfo_old"/>-->
 						<link-block text="отправить смс с новым паролем" icon="sms" actionIcon="expand" @block-click="openSendSmsModal" />
 						<send-sms-modal ref='sendSms' :account='account.ACCOUNT' />
 					</card-block>
@@ -2551,6 +2551,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							<span :class="stateClass(service)"> • {{ service.statusname }} </span>
 						</template>
 					</link-block> 
+					<div class="font--13-500" style="margin-left:2.8rem;"><span class="tone-500">ID • </span><span>{{service.vgid}}</span></div>
 					<div class="ml-4 pl-1">
 						<info-subtitle :text="service.tarif||service.tardescr"/>
 						<info-subtitle v-if="service.type=='internet'&&service.auth_type||service.rate" :text="authAndSpeed(service)"/>
