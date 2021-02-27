@@ -1,4 +1,4 @@
-/*test 25.02.21
+/*
 javascript:(function(){
 	
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
@@ -63,7 +63,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.b');*//*fix update, my-port-page, my-port-bind-user-action*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.d');*//*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.e');/*my-site-du-wrapper (download)*//*test*/
+	/*window.AppInventor.setWebViewString('version_:FX_test_v173.e');*//*my-site-du-wrapper (download)*//*test*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*fix update, my-account-page*/
 	
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -102,7 +103,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		};
 	});
 	
-	Vue.component('ports-el',{/*need ref*/
+	Vue.component('ports-el',{/*потерян при редизайне*/
 		template:`
 			<div class="ports-el myPorts">
 				<div v-if="loading">порты</div><!--modify this, мелкие буквы-->
@@ -701,7 +702,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	document.getElementById('port-bind-user-action-template').innerHTML=`<my-port-bind-user-action v-bind="$props"/>`;/*proxy template for my-port-bind-user-action*/
-	Vue.component('my-port-bind-user-action', {
+	Vue.component('my-port-bind-user-action',{
 		template:`<link-block actionIcon="expand" icon="link" v-if="$root.priv('LanBillingCtl')" @block-click="openModal" :disabled="disabledLink" text="привязать лицевой счет" type="large"/>`,
 		props:{
 			disabled:{type:Boolean,default:false,},
@@ -747,7 +748,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	document.getElementById('port-template').innerHTML=`<my-port v-bind="$props"/>`;/*proxy template for my-port*/
-	Vue.component('my-port',{
+	Vue.component('my-port',{/*обновить!, есть редизайн*/
 		template:`
 			<div v-if="port">
 				<div class="info-block port-info port-view">
@@ -1322,7 +1323,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-	Vue.component('set-port-modal',{/*need ref*/
+	Vue.component('set-port-modal',{/*обновить!, есть редизайн*/
 	  template:`
 		<div class="container-fluid">
 			<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
@@ -1787,69 +1788,77 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	Vue.component('my-account-page',{
 		template:`
 			<section class="account-page">
-				<card-block>
-					<title-main :text="account.ACCOUNT" icon="person" />
-					<info-subtitle>
-						<div class="d-center-y">
-							<span v-if="order" style="text-transform: capitalize;">{{order.customer}}</span>
-							<span v-else-if="account && localAccount" style="text-transform: capitalize;">{{localAccount.name}}</span>
-							<!--template v-if='flat || account.FLAT_NUMBER'><span style="padding: 0 4px">•</span><i class='ic-20 ic-apartment'></i><span style="padding-left: 4px;">{{ flat || account.FLAT_NUMBER }} кв.</span></!--template-->
-						</div>
-					</info-subtitle>
-					
-					<devider-line v-if='localAccount'/>
-
-					<info-text-icon v-if='localAccount' :text='computedAddress' type='medium' icon=''/>
-
-					<devider-line v-if='localAccount'/>
-
-					<title-main v-if='localAccount' :text="localAccount.name" icon="person" style="text-transform: capitalize;" /> 
-					<a v-if='localAccount && localAccount.mobile' class="call-link" :href="'tel:' + getPhoneWithPlus(localAccount.mobile)">
-						<div>
-							<div class="tone-900 font--15-500 call-link__number">{{getPhoneWithPlus(localAccount.mobile)}}</div>
-							<div class='tone-500 font--13-500'>Позвонить абоненту</div>
-						</div>  
-						<div class="call-link__icon"><i class="ic-24 ic-phone-1"></i></div>        
-					</a>
-
-					<devider-line class='mt-3' v-if='localAccount'/>
-
-					<info-value v-if='localAccount' icon='purse' :value='balance' type='extra' label='Баланс' />
-					<info-value v-if='localAccount' icon='clock' :value='lastPay' type='extra' label='Платеж' />
-
-					<devider-line v-if='localAccount && localAccount.isconvergent'/>
-					<info-value v-if='localAccount && localAccount.isconvergent' icon='phone' :value="localAccount.convergentmsisdn" type='extra' label='Конвергент' />
-					<info-value v-if='localAccount && localAccount.isconvergent' icon='purse' :value='convergentBalance' type='extra' label='Баланс' />
-
-					<devider-line />
-
-					<link-block text="Информация в биллинге" icon="server" actionIcon="expand"  @block-click="openBillingInfo" />
-					<link-block text="Отправить смс с новым паролем" icon="sms" actionIcon="expand" @block-click="openSendSmsModal" />
-				</card-block>
-				<card-block>
-					<link-block actionIcon='right-link' icon='accidents' text='Недоступность' textSize='large' @block-click='toEvents' />
-				</card-block>
-				<div v-if='agreement'>
-					<card-block v-for='(group, key) in groupServiceList' :key='key' class='mini-card mt-0'>
-						<title-main class='mb-2' icon='eth' :text='group.name' textSize='large' @open="opened[key] = !opened[key]" />
-						<div v-show="opened[key]">
-							<card-block v-if='key == "internet"'>
-								<title-main text='Порт' textSize='medium'></title-main>
-								<traffic-light-el class='px-3' v-if="localAccount" :data="account" :account="localAccount" :sessions="[]"/>
-								<link-block v-if='account.PORT_NAME' actionIcon='right-link' icon="port" :text="account.PORT_NAME" :to="'/' + encodeURIComponent(account.PORT_NAME)"></link-block>
-								<info-subtitle v-if='account.PORT_NAME' class='ml-4 pl-4' :text="'последний опрос MAC ' + account.LAST_DATE" />
-							</card-block>
-							<sessions v-if='key == "internet"' :services='group.services'></sessions>
-							<services-el class='mt-2' :account='localAccount' :services='group.services' :name='group.name' :accountNumber='account.ACCOUNT'/>
-							<div v-if='group.equipments.length>0'>
-								<div v-for="equip in group.equipments">
-									<equipment :equipment="equip" :account="account.ACCOUNT" :key="equip.id" />
+				<template  v-if="ready">
+					<card-block>
+						<title-main :text="account.ACCOUNT" icon="person" />
+						<info-subtitle>
+							<div class="d-center-y">
+								<span v-if="order" style="text-transform: capitalize;">{{order.customer}}</span>
+								<span v-else-if="account && localAccount" style="text-transform: capitalize;">{{localAccount.name}}</span>
+								<template v-if='flat || account.FLAT_NUMBER'><span style="padding: 0 4px">•</span><i class='ic-20 ic-apartment'></i><span style="padding-left: 4px;">{{ flat || account.FLAT_NUMBER }} кв.</span></template>
+							</div>
+						</info-subtitle>
+						<template v-if='localAccount'>
+							<devider-line />
+							<info-text-icon :text='computedAddress' type='medium' icon=''/>
+							<devider-line />
+							<a v-if='phone' class="call-link mb-3" :href="'tel:'+getPhoneWithPlus(localAccount.mobile)">
+							<div>
+								<div class="tone-900 font--15-500 call-link__number">{{getPhoneWithPlus(localAccount.mobile)}}</div>
+								<div class='tone-500 font--13-500'>позвонить абоненту</div>
+							</div>  
+							<div class="call-link__icon"><i class="ic-24 ic-phone-1"></i></div>        
+							</a>
+							<devider-line v-if='agreement'/>
+							<template v-if='agreement'>
+								<info-value icon='purse' :value='balance' type='extra' label='баланс' />
+								<info-value icon='clock' :value='lastPay' type='extra' label='платеж' />
+							</template>
+							<template v-if='agreement && agreement.isconvergent'>
+								<devider-line />
+								<info-value icon='phone' :value="localAccount.convergentmsisdn" type='extra' label='конвергент' />
+								<info-value icon='purse' :value='convergentBalance' type='extra' label='баланс' />
+							</template>
+						</template>
+						<devider-line />
+						<link-block text="информация в биллинге" icon="server" actionIcon="expand"  @block-click="openBillingInfo" />
+						<billing-info-modal ref='billingInfo' :billingInfo='billingInfo' :loading='loading.vgroups' />
+						<!--<link-block text="информация в биллинге" icon="server" actionIcon="expand"  @block-click="openBillingInfo_old"/>-->
+						<link-block text="отправить смс с новым паролем" icon="sms" actionIcon="expand" @block-click="openSendSmsModal" />
+						<send-sms-modal ref='sendSms' :account='account.ACCOUNT' />
+					</card-block>
+					<card-block v-if='localAccount'>
+						<link-block actionIcon='right-link' icon='accidents' text='недоступность' textSize='large' @block-click='toEvents' />
+					</card-block>
+					<div v-if='agreement'>
+						<card-block v-for='(group, key) in groupServiceList' :key='key' class='mini-card mt-0'>
+							<title-main class='mb-2' icon='eth' :text='group.name' textSize='large' @open="opened[key] = !opened[key]" />
+							<div v-show="opened[key]">
+								<card-block v-if='key == "internet"'>
+									<title-main text='Порт' textSize='medium'></title-main>
+									<traffic-light-el v-if="localAccount" :data="account" :account="localAccount" :sessions="[]"/>
+									<link-block v-if='account.PORT_NAME' actionIcon='right-link' icon="port" :text="account.PORT_NAME" :search="account.PORT_NAME"></link-block>
+									<!--<link-block v-if='account.PORT_NAME' actionIcon='right-link' icon="port" :text="account.PORT_NAME" :to="'/' + encodeURIComponent(account.PORT_NAME)"></link-block>-->
+									<info-subtitle v-if='account.PORT_NAME' class='ml-4 pl-4' :text="'последний опрос MAC ' + account.LAST_DATE" />
+								</card-block>
+								<sessions v-if='key == "internet"' :services='group.services'></sessions>
+								<services-el class='mt-2' :account='localAccount' :services='group.services' :name='group.name' :accountNumber='account.ACCOUNT'/>
+								<div v-if='group.equipments.length > 0'>
+									<div v-for="equip in group.equipments">
+										<equipment :equipment="equip" :account="account.ACCOUNT" :key="equip.id" />
+									</div>
 								</div>
 							</div>
+						</card-block>
+					</div>
+					<account-locks  v-if='localAccount' :locks='locks'/>
+					<div v-if='loading.account' class='d-flex justify-content-center'>
+						<div class="spinner-grow text-secondary text-center" role="status">
+							<span class="sr-only"></span>
 						</div>
-					</card-block>
-				</div>
-				<div v-if='loading.account' class='d-flex justify-content-center'>
+					</div>
+				</template>
+				<div v-else class='d-flex justify-content-center'>
 					<div class="spinner-grow text-secondary text-center" role="status">
 						<span class="sr-only"></span>
 					</div>
@@ -1875,17 +1884,31 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				hybrid:true,
 				other:true,
 			},
-			billingInfo:null,
+			billingInfo:[],
 			loading:{
 				account:false,
-				vgroups:false
+				vgroups:false,
+				locks:false,
 			},
 			convergentBalance:null,
+			locks:{},
+			events:null,
 		}),
+		watch:{
+			account:function(val, old){
+				if(val&&val.ACCOUNT){
+					this.localAccount=null;
+					this.loadLbsvAccount();
+				};
+			}
+		},
 		created(){
-			this.loadLbsvAccount();
+			if(this.account)this.loadLbsvAccount();
 		},
 		computed:{
+			ready() {
+				return this.account&&this.account.ACCOUNT;
+			},
 			balance(){
 				let balance=this.agreement.balance;
 				let str=balance.integer+'.'+balance.fraction+' ₽';
@@ -1931,10 +1954,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				if(this.localAccount.vgroups.length===1){
 					const error=this.localAccount.vgroups[0];
 					if(error.type==='error'){
-						return 'Услуги не загружены. Попробуйте перезагрузить страницу.';
+						return 'услуги не загружены. попробуйте перезагрузить страницу.';
 					};
 					if(error.type==='warning'){
-						return 'Услуги у абонента не найдены.';
+						return 'услуги у абонента не найдены.';
 					};
 				};
 				return '';
@@ -2021,6 +2044,27 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				};
 				return filtered;
 			},
+			phone(){
+				const phone=this.localAccount.mobile||this.localAccount.phone;
+				return phone;
+			},
+			hasActiveIncident(){
+				if(!this.events)return false;
+				return Boolean(this.events.active&&this.events.active.length);
+			},
+			currentItem(){
+				return this.navItems[this.currentIndex];
+			},
+			currentIndex(){
+				const {id}=this.$route.params;
+				if(id)return 0;
+				return this.navItems.findIndex(({fullName})=>fullName===id);
+			},
+			title(){
+				const {id}=this.$route.params;
+				if(!id)return 'кв';
+				return `${this.currentItem.name}`;
+			},
 		},
 		methods:{
 			getPhoneWithPlus(phone){
@@ -2029,15 +2073,16 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				
 			async loadLbsvAccount(){
 				this.loading.account=true;
-				if(!this.localAccount){
+				if(!this.localAccount||this.localAccount.account_numbers.includes(this.account.ACCOUNT)){
 					await httpGet('/call/lbsv/search?text='+this.account.ACCOUNT+'&type=account&city=any').then((data)=>{
-						const account=data.type==='list'?data.data.find((data)=>data.agreements[0]&&data.agreements[0].archive==='0'):data.data;
+						const account=data.type==='list'?data.data.find((data)=>data.agreements[0]&&data.agreements[0].archive === '0'):data.data;
 						this.localAccount=account;
 					});
-				};
+				}
 				this.loadClientEquipment();
 				this.getAuthAndSpeed();
-				if(this.localAccount.isconvergent) this.getForisData();
+				this.loadLocks();
+				if(this.localAccount.isconvergent)this.getForisData();
 				this.loading.account=false;
 			},
 			loadClientEquipment(){
@@ -2073,8 +2118,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						httpGet(buildUrl('get_user_rate',params,'/call/aaa/'),true).then((response)=>{
 							const is_data=response.code=='200'&&response.data&&response.data.length>0;
 							if(is_data&&(response.data[0].rate||response.data[0].rate==0)){
-								this.billingInfo=response.data;
-								Object.assign(this.billingInfo[0],{'service':service,'agreement':this.agreement});
+								this.billingInfo.push(response.data);
+								/*Object.assign(this.billingInfo[0],{'service':service,'agreement':this.agreement});*/
 								service.rate=response.data[0].rate+' Мбит/c';
 							}
 						})
@@ -2084,6 +2129,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				this.loading.vgroups=false;
 			},
 			openBillingInfo(){
+				this.$refs.billingInfo.open();
+			},
+			openBillingInfo_old(){
 				/*const {billingInfo,loading}=this;*/
 				this.$root.showModal({
 					title:`настройки профиля абонента`,
@@ -2095,12 +2143,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				});
 			},
 			openSendSmsModal(){
-				if(!this.account) return;
-				const { ACCOUNT:account}=this.account;
-				this.$root.showStaticModal({
-					component:'send-sms-el',
-					data:{account},
-				});
+				if(!this.account)return;
+				this.$refs.sendSms.open();
 			},
 			callTo(){
 				const phone=this.getPhoneWithPlus(this.localAccount.mobile);
@@ -2124,19 +2168,52 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				})
 			},
 			toEvents(){
+				let account=this.localAccount;
+				account.ACCOUNT=this.account.ACCOUNT;
+				account.MR_ID=this.account.MR_ID;
+				account.DEVICE_NIOSS_ID=this.account.DEVICE_NIOSS_ID;
+				account.DEVICE_NAME=this.account.DEVICE_NAME;
 				this.$router.push({
 					name:'account_events',
 					params:{
 						id:this.account.ACCOUNT,
-						data:this.localAccount
+						data:account,
 					},
 				});
 				return;
+			},
+			loadLocks(){
+				const today=new Date();
+				let before=new Date();
+				before.setMonth(before.getMonth()-3);
+				const params={
+					userid:this.localAccount.userid,
+					serverid:this.localAccount.serverid,
+					start:Datetools.format(before),
+					end:Datetools.format(today),
+				};
+				httpGet(buildUrl('blocks_history',params,'/call/lbsv/')).then((data)=>{
+					this.loading.locks=false;
+					this.locks=data;
+				});
+			},
+			async loadAccountEvents(){
+				const params={
+					to:new Date(),
+					from:Dt.addDays(-1),
+					contract:this.agreement.agrmnumber,
+					id:this.account.DEVICE_NIOSS_ID,
+					device:this.account.DEVICE_NAME,
+					regionid:this.account.MR_ID,
+					serverid:this.localAccount.serverid,
+				};
+				const response=await httpGet(buildUrl('events_by_contract',params));
+				this.events=response;
 			}
 		},
 	});
 	
-	Vue.component('account-billing-modal',{
+	Vue.component('account-billing-modal',{/*потерян при редизайне*/
 		template:`
 			<div class="account-billing-modal">
 				<p v-if="data.loading">данные еще на загружены</p>
@@ -3603,30 +3680,22 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				};
 				if(counter.all==counter.done){
 					clearTimeout(timer);
+					downloadPL(preparePL(siteid));
 					document.getElementById('btn_downloadPL').removeAttribute('disabled');
-					downloadPL(preparePL(siteid));alert('план-схема отправлена на '+username+'@mts.ru');
 				}else{
 					timer=setTimeout(testLoad,100);
 				};
 			};
 		};
-		function downloadPL(obj){/*переделать на сохранение в гугл диск через запрос и отправить письмо со ссылкой*/
-			/*
-			let html=new Blob([obj.html],{type:'text/plain'});
-			let a=document.createElement('a');
-			a.href=URL.createObjectURL(html);
-			a.download=obj.title+'.html';
-			a.click();
-			a.remove();
-			*/
-			if(true){
-				fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
-					'method':'POST',
-					'mode':'no-cors',
-					'headers':{'Content-Type':'application/json;charset=utf-8'},
-					'body':JSON.stringify(obj)
-				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){});
-			};
+		function downloadPL(obj){
+			fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
+				'method':'POST',
+				'mode':'no-cors',
+				'headers':{'Content-Type':'application/json;charset=utf-8'},
+				'body':JSON.stringify(obj)
+			}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
+				alert('план-схема отправлена на '+username+'@mts.ru');
+			});
 			document.getElementById('delete_me_after_download').remove();
 		};
 		function preparePL(siteid){
