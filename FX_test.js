@@ -2212,8 +2212,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			}
 		},
 	});
-	
-	document.getElementById('session-history-template').innerHTML=`<my-session-history-modal v-bind="$props"/>`;/*proxy template for my-session-history-modal*/
+	/*
+	document.getElementById('session-history-template').innerHTML=`<my-session-history-modal v-bind="$props"/>`;
 	Vue.component('session-history-modal',{
 		template:`
 			<modal-container ref='sessionHistory'>
@@ -2313,7 +2313,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			},
 		}
 	});
-	
+	*/
 	Vue.component('account-billing-modal',{/*потерян при редизайне*/
 		template:`
 			<div class="account-billing-modal">
