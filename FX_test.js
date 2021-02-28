@@ -2796,7 +2796,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							<devider-line/>
 							<info-text :title="site.address" :text="site.node"/>
 							<div style="text-align:right;padding-right:1em;margin-top:-2em;">
-								<input type="button" id="btn_downloadPL" @click="generate(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:0.9;" value="download">
+								<input type="button" id="btn_downloadPL" @click="generate(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="download">
 							</div>
 							<devider-line/>
 							<link-block text="Топология сети" icon="topology" actionIcon="right-link" :to="toTopology"/>
