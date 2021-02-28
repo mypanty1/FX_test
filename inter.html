@@ -23,46 +23,36 @@
 		<div class="hide" id="ok">ответы отправлены! спасибо</div>
 		<div class="question-list">
 			<div class="question">
-				<div>big question 1</div>
-				<textarea class="" type="text" id="input1" placeholder="placeholder"></textarea>
+				<div>{{question 1}}</div>
+				<textarea class="" type="text" id="input1" placeholder="{{подсказка}}"></textarea>
 			</div>
 			<div class="question">
-				<div>big question 2</div>
+				<div>{{question 2}}</div>
 				<select class="" id="input2">
 					<option></option>
-					<option value="option 1">option 1</option>
-					<option value="option 2">option 2</option>
-					<option value="option 3">option 3</option>
-					<option value="option 4">option 4</option>
+					<option value="option 1">{{option 1}}</option>
+					<option value="option 2">{{option 2}}</option>
+					<option value="option 3">{{option 3}}</option>
+					<option value="option 4">{{option 4}}</option>
 				</select>
 			</div>
 			<div class="question">
-				<div>big question 3</div>
-				<input class="" type="text" value="" id="input3" placeholder="placeholder">
+				<div>{{question 3}}</div>
+				<input class="" type="text" value="" id="input3" placeholder="{{подсказка}}">
 			</div>
 			<div class="error" id="error"></div>
 			<button class="" type="button" id="btn">reply</button>
-			viewport:
-			<textarea id="brwsr1" type="text" rows="8" disabled></textarea>
-			browser:
-			<textarea id="brwsr2" type="text" rows="22" disabled></textarea>
-			connection:
-			<textarea id="brwsr3" type="text" rows="5" disabled></textarea>
-			battery:
-			<textarea id="brwsr4" type="text" rows="5" disabled></textarea>
+			
 		</div>
 		<script>
-			let brwsr={};
-			brwsr=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
-			brwsr.visualViewport=filterAttrs(window.visualViewport,['width','height']);
-			brwsr.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,product,userAgent,language,oscpu,deviceMemory');
-			brwsr.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
-			window.navigator.getBattery().then(function(obj){brwsr.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');b4();});
-			for(let key in brwsr){document.getElementById('brwsr1').innerHTML=document.getElementById('brwsr1').innerHTML+key+':'+brwsr[key]+'\n';};
-			for(let key in brwsr.navigator){document.getElementById('brwsr2').innerHTML=document.getElementById('brwsr2').innerHTML+key+':'+brwsr.navigator[key]+'\n';};
-			for(let key in brwsr.navigator.connection){document.getElementById('brwsr3').innerHTML=document.getElementById('brwsr3').innerHTML+key+':'+brwsr.navigator.connection[key]+'\n';};
-			function b4(){for(let key in brwsr.navigator.battery){document.getElementById('brwsr4').innerHTML=document.getElementById('brwsr4').innerHTML+key+':'+brwsr.navigator.battery[key]+'\n';};};
+			let info={};
+			info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
+			info.visualViewport=filterAttrs(window.visualViewport,['width','height']);
+			info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,product,userAgent,language,oscpu,deviceMemory');
+			info.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
+			window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
 			function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
+	
 			document.getElementById('btn').addEventListener('click',function(){
 				document.getElementById('btn').setAttribute('disabled','disabled');
 				document.getElementById('error').innerHTML='';
@@ -71,10 +61,13 @@
 					'mode':'no-cors',
 					'headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
-						'brwsr':brwsr,
 						'input1':document.getElementById('input1').value,
 						'input2':document.getElementById('input2').value,
 						'input3':document.getElementById('input3').value,
+						obj:{
+							date:new Date(Date.now()).toString(),
+							info:info,
+						},
 					})
 				})/*.then(function(resp){return resp.json()})*/.then(function(obj){
 					document.getElementById('error').innerHTML='';
