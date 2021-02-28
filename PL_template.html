@@ -1,0 +1,614 @@
+<!doctype html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+	<title>{{TITLE}}</title>
+	<style type="text/css">
+		body{height:100%;background-color:#f1f1f1;display:flex;flex-direction:column;box-sizing:border-box;}
+		body{font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
+		input[type="checkbox"]{}
+		input[type="text"]{height:8px;font-size:8pt;text-align:left;padding:1px;}
+		input[type="button"]{height:20px;padding:1px;}
+		button[type="button"]{height:10px;padding:1px;margin-left:auto;}
+			
+			.tile{box-shadow:0px 7px 16px 0px rgba(0,0,0,0.12);margin-bottom:8px;padding:8px;}
+			.tile-search{background-color:#fff;order:-1;display:flex;flex-direction:column;}
+				.loader-line{width:100%;padding-left:1em;background-color:#35a6dc;background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-size:1rem 1rem;animation:progress-bar-stripes 1s linear infinite;}
+				@keyframes progress-bar-stripes{from{background-position:1rem 0}to{background-position:0 0}}
+			.tile-result{}
+			.tile-warning{background-color:#fee;}
+			.tile-unknown{background-color:#fed;}
+			.tile-building{background-color:#fff;}
+			.tile-building>*{margin-bottom:2px;}
+				.content-x-scroll{overflow-x:auto;overflow-y:hidden;}
+					.entrances-grid{display:grid;grid-column-gap:2px;width:min-content;}
+						.floors-over{display:flex;flex-direction:column-reverse;}
+							.entrance-head{background-color:#eee;border: 1px solid #000;min-width:114px;}
+								.entrance-title{width:100%;display:inline-flex;}
+						.floors-under{display:flex;flex-direction:column;}
+							.floor{display:inline-grid;grid-template-columns: 20px auto;background-color:#eee;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #ccc;}
+							.floor.cherdak{border-top:unset;}
+							.floor.tehetag{}
+							.floor.floor_0{border-top:1px solid #000;}
+							.floor.podval{border-bottom:1px solid #000;}
+								.floor-number{font-size:14px;line-height:14px;height:14px;color:gray;margin:auto;}
+								.floor-objects{}
+									.floor-racks{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-around;}
+									.floor-racks.floor-rk{flex-wrap:nowrap;}
+										.rack{width:max-content;height:fit-content;min-height:23px;margin:1px;border:1px solid #000;border-radius:2px;background-color:#aaa;}
+											.type-L{width:104px;}
+											.type-CU{width:48px;}
+												.rack-head{width:100%;display:inline-flex;}
+													.rack-title{}
+												.rack-devices{display:flex;flex-direction:column;}
+													.device{width:100px;margin-left:1px;margin-right:1px;margin-bottom:1px;border:1px solid #000;background-color:#fff;display:flex;flex-direction:column;}
+													.type-CU .device{width:44px;}
+													.type-ETH{background-color:#eff;}
+													.type-OP{background-color:#ffe;}
+													.type-A{background-color:#ffe;}
+													.type-SBE{background-color:#eef;}
+													.type-OSW{background-color:#eef;}
+													.type-FAMP{background-color:#eef;}
+													.type-MBH{background-color:#eef;}
+													.type-MPLS{background-color:#eef;}
+													.type-OLT{background-color:#eef;}
+													.type-IP{background-color:#fef;}
+													.type-CPE{background-color:#fef;}
+													.type-Voip{background-color:#fef;}
+													.type-CR{background-color:#ddd;}
+													.type-PP{background-color:#ddd;}
+													.without{width:44px;margin-top:1px;}
+														.device-head{width:100%;display:inline-flex;}
+															.device-title{}
+																.title-norm{display:block;}
+																.type-CU .title-norm{display:none;}
+																.without .title-norm{display:none;}
+																.title-short{display:none;}
+																.type-CU .title-short{display:block;}
+																.without .title-short{display:block;}
+															.device-led{width:6px;min-width:6px;margin-left:auto;}
+															.device-led.online{background-color:green;}
+															.device-led.offline{background-color:red;}
+															.device-led.nomon{background-color:#ddd;}
+									.floor-flats{display:flex;flex-direction:row;flex-wrap:nowrap;}
+									.floor-flats.floor-even{justify-content:space-between;}
+									.floor-flats.floor-neven{justify-content:space-around;}
+									.floor-flats.floor-fake{flex-wrap:wrap;width:336px;}
+										.flat-none{width:100%;height:16px;line-height:16px;margin:auto;text-align:center;color:#a2a2a2;}
+										.flat{width:24px;min-width:24px;height:30px;margin:1px;border:1px solid #a2a2a2;color:#a2a2a2;border-radius:2px;text-align:center;}
+										.flat.on-service{border-color:#000;}
+										.flat.inet{}
+										.flat.tv{}
+										.flat.voip{}
+											.flat-service{display:none;line-height:7pt;}
+											.flat-service.red{display:block;color:tomato;}
+											.flat-service.green{display:block;color:forestgreen;}
+					
+					
+					.devices-without{/*display:flex;*//*flex-direction:column;*/}
+					
+					
+					.mmrd-field{display:flex;flex-direction:column;width:max-content;}
+					.mmrd-field>table{border-collapse:collapse;margin-bottom:1em;width:fit-content;}
+					.mmrd-field>table>thead{}
+					.mmrd-field>table>thead tr{}
+					.mmrd-field>table>thead tr th{border:1px solid #000;background-color:#ffe4b5;}
+					.mmrd-field>table>tbody{}
+					.mmrd-field>table>tbody tr{}
+					.mmrd-field>table>tbody tr td{border:1px solid #000;background-color:#e0e0e0;}
+					.mmrd-field>table>tbody tr td.edtbl{background-color:unset;}
+					.mmrd-field>table>tbody tr td.edt{background-color:#ffff00;}
+		
+		.hide{display:none;}
+		.ghost{opacity:0.3;}
+		
+		.modal-wrapper{display:block;width:100%;height:100%;position:fixed;}
+			.modal{margin:1em;margin-left:auto;margin-right:auto;width:200px;min-height:100px;height:fit-content;position:relative;background-color:#fff;padding:1em;border:1px solid #000;border-radius:5px;}
+				.dialog-head{width:100%;display:inline-flex;justify-content:space-between;}
+					.dialog-title{}
+				.fields{width:100%;display:grid;grid-template-columns:auto 70%;margin-top:1em;}
+					.field{border:1px solid #777;margin-bottom:2px;}
+					.field-title{grid-column:1/2;border-right:unset;}
+					.field-input{grid-column:2/3;border-left:unset;}
+						.field-input input{width:96%;height:1em;}
+						.field-input select{width:100%;}
+				.dialog-buttons{width:100%;display:inline-flex;justify-content:space-around;margin-top:1em;}
+	</style>
+	<script name="delete_me">window.sites={{JSON}};</script>
+	<script name="delete_me">
+		function build(){
+			console.log(window.sites);
+			for(let siteId in window.sites){
+				visBuilding(siteId,window.sites[siteId].nodes);
+				visEntrances(siteId,window.sites[siteId].entrances);
+				visRacks(siteId,window.sites[siteId].racks);
+				visDevices(siteId,window.sites[siteId].devices);
+				visPPanels(siteId,window.sites[siteId].ppanels);
+			};
+			
+			document.body.removeAttribute('onload');
+			let del=document.getElementsByName('delete_me');
+			while(del.length>0){del[0].remove()};
+		};
+		
+		function val(v=''){return v?v:''};
+		function getType(name){return name.replace(/\W/g,'_').split('_')[0]};
+		function getNum(name){return name.replace(/\W/g,'_').split('_').reverse()[0]};
+		function toKP(name){return name.replace('KR','КР')};
+		function toKR(name){return name.replace('КР','KR')};
+		function isL(name){return(getType(name)=='L')?true:false};
+		function isCU(name){return(getType(name)=='CU')?true:false};
+		function isPP(name){return(getType(name)=='PP')?true:false};
+		function isCR(name){return(getType(name)=='CR')?true:false};
+		function isETH(name){return(getType(name)=='ETH')?true:false};
+		function isOP(name){return(getType(name)=='OP')?true:false};
+		function isA(name){return(getType(name)=='A')?true:false};
+		
+		function visBuilding(siteId,nodes){
+			document.getElementsByTagName('body')[0].insertAdjacentHTML('afterBegin',`
+				<div class="tile tile-result tile-building" id="`+nodes[0].id+`">
+					<div>
+						<input id="btn_updEntrances_`+nodes[0].id+`" type="button" value="upd" disabled>
+						<input id="btn_download_`+nodes[0].id+`" type="button" value="download" disabled>
+						<span title="`+nodes[0].name+` Sites_and_Devices" style="margin-left:10px;"><a href="https://nioss/common/uobject.jsp?tab=_Sites+and+Devices&object=`+nodes[0].id+`" target="_blank">`+nodes[0].name+` (`+nodes[0].address+`)</a></span>
+					</div>
+					<div class="content-x-scroll"><div class="entrances-grid" id="`+nodes[0].id+`.entrances"></div></div>
+					<div>
+						<input id="btn_updDevices_`+nodes[0].id+`" type="button" value="upd" disabled>
+						<input id="btn_pingAll_`+nodes[0].id+`" type="button" value="ping" disabled>
+						`+createNodeTitle(nodes)+`
+					</div>
+					<div class="content-x-scroll"><div class="devices-without" id="`+nodes[0].id+`.devices_without"></div></div>
+					<div>
+						<span title="NIOSS ММРД" style="margin-left:10px;"><a href="https://nioss/solutions/customers/mts/excel/ei_tools.jsp" target="_blank">NIOSS ММРД</a></span>
+					</div>
+					<div class="content-x-scroll"><div class="mmrd-field">
+						<div>Подъезды:</div>
+						<table>
+							<thead>
+								<tr>
+									<th></th>
+									<th style="min-width:115px;">Object_id</th>
+									<th style="min-width:110px;">Имя</th>
+									<th style="min-width:100px;">Родитель</th>
+									<th>Номер подъезда</th>
+									<th>Количество этажей</th>
+									<th>Диапазон квартир в подъезде</th>
+									<th>Количество стояков</th>
+									<th>Каблирован от сетевого элемента ШПД</th>
+									<th>Каблирован от сетевого элемента КТВ</th>
+									<th>Наименование блок фактора ШПД</th>
+									<th>Наименование блок фактора КТВ</th>
+									<th>Наименование блок фактора ТФ/VoIP</th>
+									<th>Примечание</th>
+									<th>Описание</th>
+								</tr>
+							</thead>
+							<tbody id="`+nodes[0].id+`.entrances_table"></tbody>
+						</table>
+					</div></div>
+					<div class="content-x-scroll"><div class="mmrd-field">
+						<div>Шкафы:</div>
+						<table>
+							<thead>
+								<tr>
+									<th></th>
+									<th style="min-width:115px;">Object_id</th>
+									<th style="min-width:110px;">Имя</th>
+									<th style="min-width:100px;">Родитель</th>
+									<th>Тип Шкафа</th>
+									<th>Этаж</th>
+									<th>Расположение</th>
+									<th>Вне этажное размещение</th>
+									<th>Номер ДРС</th>
+									<th>Тип замка</th>
+									<th>Номер ключа</th>
+									<th>Примечание</th>
+									<th>Описание объекта</th>
+								</tr>
+							</thead>
+							<tbody id="`+nodes[0].id+`.racks_table"></tbody>
+						</table>
+					</div></div>
+					<div class="content-x-scroll"><div class="mmrd-field">
+						<div>Устройства:</div>
+						<table>
+							<thead>
+								<tr>
+									<th></th>
+									<th style="min-width:115px;">Object_id</th>
+									<th style="min-width:110px;">Имя</th>
+									<th style="min-width:100px;">Родитель</th>
+									<th>Тип</th>
+									<th>Шкаф</th>
+									<th>Псевдоним</th>
+									<th>IP Адрес (текст)</th>
+									<th>SNMP Community</th>
+									<th>Version SNMP</th>
+									<th>VENDOR</th>
+									<th>MODEL</th>
+									<th>Обслуживаемые подъезды</th>
+									<th>Примечание</th>
+									<th>Описание объекта</th>
+								</tr>
+							</thead>
+							<tbody id="`+nodes[0].id+`.devices_table"></tbody>
+						</table>
+					</div></div>
+					<div class="content-x-scroll"><div class="mmrd-field">
+						<div>Патч-панели:</div>
+						<table>
+							<thead>
+								<tr>
+									<th></th>
+									<th style="min-width:115px;">Object_id</th>
+									<th style="min-width:110px;">Имя</th>
+									<th style="min-width:100px;">Родитель</th>
+									<th>Модель устройства</th>
+									<th>Тип ДРС</th>
+									<th>Шкаф</th>
+									<th>Номер Этажа</th>
+									<th>Расположение</th>
+									<th>Номер ДРС</th>
+									<th>Тип МПК</th>
+									<th>Длинна МПК</th>
+									<th>Охрана</th>
+									<th>Количество задействованных пар UTP/FTP=1 Port Ethernet</th>
+									<th>Вышестоящий элемент ДРС</th>
+									<th>Описание объекта</th>
+								</tr>
+							</thead>
+							<tbody id="`+nodes[0].id+`.ppanels_table"></tbody>
+						</table>
+					</div></div>
+				</div>`);
+			document.getElementById('btn_updEntrances_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_download_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_updDevices_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_pingAll_'+nodes[0].id).addEventListener('click',function(){});
+		};
+		function createNodeTitle(nodes){
+			let title='';
+			for(let node of nodes){
+				title+=`<span title="`+node.node+` Параметры" style="margin-left:10px;"><a href="https://nioss/common/uobject.jsp?tab=_Parameters&object=`+node.uzel_id+`" target="_blank">`+node.node+`</a></span>`;
+			};
+			return title;
+		};
+		
+		function visEntrances(siteId,entrances){
+			for(let entranceId in entrances){let entrance=entrances[entranceId];
+				function createEntranceTitle(e){return getType(e.ENTRANCE_NAME)+'#'+getNum(e.ENTRANCE_NAME)};
+				document.getElementById(siteId+'.entrances').insertAdjacentHTML('beforeEnd',`
+					<div class="floors-over" id="`+entrance.ENTRANCE_ID+`.over" style="grid-column:`+(+entrance.ENTRANCE_NO+1)+`/`+(+entrance.ENTRANCE_NO+2)+`;grid-row:2/3;">
+						<div class="entrance-head" style="order:9999;">
+							<div class="entrance-title" title="`+entrance.ENTRANCE_NAME+` Sites_and_Devices">
+								<a href="https://nioss/common/uobject.jsp?tab=_Sites+and+Devices&object=`+entrance.ENTRANCE_ID+`" target="_blank">`+createEntranceTitle(entrance)+`</a>
+								<input style="width:15px;margin-left:5px;" type="text" value="`+entrance.ENTRANCE_NO+`" disabled>
+								<button type="button" id="`+entrance.ENTRANCE_ID+`_btn">‴</button>
+							</div>
+							<div>
+								<input style="width:15px;" type="text" value="`+entrance.FLOOR_COUNT+`" disabled>
+								<input style="width:30px;margin-left:10px;" type="text" value="`+entrance.FLAT_FROM+`" disabled>
+								<input style="width:30px;margin-left:5px;" type="text" value="`+entrance.FLAT_TO+`" disabled>
+							</div>
+						</div>
+						`+createFloor(entrance.ENTRANCE_ID,'','cherdak')+`
+						`+createFloor(entrance.ENTRANCE_ID,'','tehetag')+`
+					</div>
+					<div class="floors-under" id="`+entrance.ENTRANCE_ID+`.under" style="grid-column:`+(+entrance.ENTRANCE_NO+1)+`/`+(+entrance.ENTRANCE_NO+2)+`;grid-row:3/4;">
+						`+createFloor(entrance.ENTRANCE_ID,'','podval')+`
+					</div>`);
+				document.getElementById(entrance.ENTRANCE_ID+'_btn').addEventListener('click',function(event){openModal(siteId,entrance,'edit');event.stopPropagation();});
+				document.getElementById(siteId+'.entrances_table').insertAdjacentHTML('afterBegin',`
+					<tr id="`+entrance.ENTRANCE_ID+`.row">
+						<td></td>
+						<td attr="Object_id">`+entrance.ENTRANCE_ID+`</td>
+						<td attr="Имя">`+entrance.resource_business_name+`</td>
+						<td attr="Родитель">`+sites[siteId].nodes[0].name+`</td>
+						
+						<td class="edtbl" attr="Номер подъезда">`+entrance.NomerPodezda+`</td>
+						<td class="edtbl" attr="Количество этажей">`+entrance.KolichestvoEtashei+`</td>
+						<td class="edtbl" attr="Диапазон квартир в подъезде">`+entrance.DiapazonKvartirvPodezde+`</td>
+						<td class="edtbl" attr="Количество стояков">`+val(entrance.KolischestvoStoyakov)+`</td>
+						<td attr="Каблирован от сетевого элемента ШПД">`+val(entrance.DEVICE_LIST.filter(d=>isETH(d)).join('|'))+`</td>
+						<td attr="Каблирован от сетевого элемента КТВ">`+val(entrance.DEVICE_LIST.filter(d=>isOP(d)||isA(d)).join('|'))+`</td>
+						<td class="edtbl" attr="Наименование блок фактора ШПД"></td>
+						<td class="edtbl" attr="Наименование блок фактора КТВ"></td>
+						<td class="edtbl" attr="Наименование блок фактора ТФ/VoIP"></td>
+						
+						<td attr="Примечание" class="edtbl">`+val(entrance.Primechanie)+`</td>
+						<td attr="Описание">`+val(entrance.description)+`</td>
+					</tr>`);
+				for(let floor of entrance.floor){
+					document.getElementById(entrance.ENTRANCE_ID+((+floor.number>0)?'.over':'.under')).insertAdjacentHTML('beforeEnd',createFloor(entrance.ENTRANCE_ID,floor.number,'',floor.first,floor.last,floor.flats));
+					for(let flat of floor.flats){
+						let flatHtml=document.getElementById(entrance.ENTRANCE_ID+'.flat_'+flat.number);
+						flatHtml.classList.add('on-service');
+						for(let service of flat.services){
+							switch(service.service_id){
+								case'1':flatHtml.classList.add('inet');document.getElementById(entrance.ENTRANCE_ID+'.flat_'+flat.number+'.spd').classList.add(service.status);break;
+								case'2':case'4':case'16':flatHtml.classList.add('tv');document.getElementById(entrance.ENTRANCE_ID+'.flat_'+flat.number+'.tv').classList.add(service.status);break;
+								case'8':flatHtml.classList.add('voip');document.getElementById(entrance.ENTRANCE_ID+'.flat_'+flat.number+'.spd').classList.add(service.status);break;
+							};
+						};
+						for(let account of flat.subscribers){
+							flatHtml.classList.add('account_'+account.account.match(/\d/g).join(''));
+							document.getElementById(entrance.ENTRANCE_ID+'.flat_'+flat.number+'.number').innerHTML=`<a href="http://inetcore.mts.ru/#/`+account.account+`" target="_blank">`+flat.number+`</a>`;
+						};
+					};
+				};
+				if(entrance.floor.length<=entrance.FLOOR_COUNT){
+					for(var f_number=0;f_number<entrance.floor[0].number;f_number++){
+						document.getElementById(entrance.ENTRANCE_ID+((f_number>0)?'.over':'.under')).insertAdjacentHTML('beforeEnd',createFloor(entrance.ENTRANCE_ID,f_number));
+					};
+				};
+			};
+		};
+		function createFloor(entrance_id,number='0',type='',flat_first=0,flat_last=0,flats=[]){
+			let floor={
+				'cherdak':{name:'cherdak',order:'1001',title:'Ч',flats:createNoFlats('чердак'),variant:''},
+				'tehetag':{name:'tehetag',order:'1000',title:'Т',flats:createNoFlats('тех. этаж'),variant:''},
+				'podval':{name:'podval',order:'1000',title:'П',flats:createNoFlats('подвал'),variant:''},
+				'':{
+					name:'floor_'+number,
+					order:((Math.abs(+number)+10)*10),
+					title:number,
+					flats:((flat_first&&flat_last||flats.length>0)?createEmptyFlats(entrance_id,flat_first,flat_last):createNoFlats()),
+					variant:(+number%2==0)?'floor-even':'floor-neven',
+				},
+			}[type];
+			return `
+				<div class="floor `+floor.name+`" id="`+entrance_id+`.`+floor.name+`" style="order:`+floor.order+`;">
+					<div class="floor-number">`+floor.title+`</div>
+					<div class="floor-objects" id="`+entrance_id+`.`+floor.name+`.objects">
+						<div class="floor-racks" id="`+entrance_id+`.`+floor.name+`.racks"></div>
+						<div class="floor-racks floor-rk" id="`+entrance_id+`.`+floor.name+`.rk"></div>
+						<div class="floor-flats `+floor.variant+`" id="`+entrance_id+`.`+floor.name+`.flats">
+							`+floor.flats+`
+						</div>
+					</div>
+				</div>`;
+		};
+		function createNoFlats(name=''){return `<div class="flat-none">`+name+`</div>`};
+		function createEmptyFlats(entrance_id,f_first,f_last){
+			let newFlatsRow='';
+			for(let flat=f_first;flat<f_last+1;flat++){
+				newFlatsRow+=`<div class="flat" id="`+entrance_id+`.flat_`+flat+`" style="order:`+flat+`;">
+					<div id="`+entrance_id+`.flat_`+flat+`.number">`+flat+`</div>
+					<div class="flat-service" id="`+entrance_id+`.flat_`+flat+`.spd">шпд</div>
+					<div class="flat-service" id="`+entrance_id+`.flat_`+flat+`.tv">тв</div>
+				</div>`
+			};		
+			return newFlatsRow;
+		};
+		
+		function visRacks(siteId,racks){
+			for(let rackId in racks){let rack=racks[rackId];
+				let container=rack.ENTRANCE_ID+'.'+((rack.OFF_FLOR=='Подвал')?'podval':(rack.OFF_FLOR=='Чердак')?'cherdak':(rack.OFF_FLOR=='Технический этаж')?'tehetag':('floor_'+rack.FLOOR))+((isCU(rack.RACK_NAME))?'.rk':(isL(rack.RACK_NAME))?'.racks':'.racks');
+				if(!document.getElementById(container)){
+					document.getElementById(rack.ENTRANCE_ID+((rack.OFF_FLOR=='Подвал'||rack.FLOOR<=0)?'.under':'.over')).insertAdjacentHTML('beforeEnd',createFloor(rack.ENTRANCE_ID,rack.FLOOR,((rack.OFF_FLOR=='Подвал')?'podval':(rack.OFF_FLOR=='Чердак')?'cherdak':(rack.OFF_FLOR=='Технический этаж')?'tehetag':'')));
+				};
+				
+				let devices={ne:``,	pp:``};
+				for(let device of rack.NE_IN_RACK){
+					if(isPP(device)||isCR(device)){
+						devices.pp+=createPP({name:device,inrack:rack.RACK_NAME,ghost:'ghost'});
+					}else{
+						devices.ne+=createDevice({DEVICE_NAME:device,IP_ADDRESS:'',inrack:rack.RACK_NAME,ghost:'ghost'});
+					};
+				};
+				function createRackTitle(r){return getType(r.RACK_NAME)+'#'+getNum(r.RACK_NAME)};
+				let title=`<span class="title-norm">`+createRackTitle(rack)+`</span><span class="title-short">`+createRackTitle(rack)+`</span>`;
+				document.getElementById(container).insertAdjacentHTML('beforeEnd',`
+					<div class="rack `+((rack.RACK_NAME)?(`type-`+getType(rack.RACK_NAME)):`type-unknown`)+`" id="`+rack.RACK_ID+`" style="order:`+((rack.N_RACK_SITE)?rack.N_RACK_SITE:getNum(rack.RACK_NAME))+`;">
+						<div class="rack-head">
+							<div class="rack-title">
+								<a href="https://nioss/ncobject.jsp?id=`+rack.RACK_ID+`" target="_blank">`+title+`</a>
+							</div>
+							<button type="button" id="`+rack.RACK_ID+`_btn">‴</button>
+						</div>
+						<div class="rack-devices" id="`+rack.RACK_NAME+`.devices_ne">`+devices.ne+`</div>
+						<div class="rack-devices" id="`+rack.RACK_ID+`.devices_pp">`+devices.pp+`</div>
+					</div>`);
+				document.getElementById(rack.RACK_ID+'_btn').addEventListener('click',function(event){openModal(siteId,rack,'edit');event.stopPropagation();});
+				document.getElementById(siteId+'.racks_table').insertAdjacentHTML('afterBegin',`
+					<tr id="`+rack.RACK_ID+`.row">
+						<td></td>
+						<td attr="Object_id">`+rack.RACK_ID+`</td>
+						<td attr="Имя">`+rack.resource_business_name+`</td>
+						<td attr="Родитель">`+sites[siteId].entrances[rack.parent.NCObjectKey].resource_business_name+`</td>
+						<td attr="Тип Шкафа">`+rack.TipShkafa+`</td>
+						
+						<td class="edtbl" attr="Этаж">`+rack.Etazh+`</td>
+						<td class="edtbl" attr="Расположение">`+val(rack.RaspologenieShkaf)+`</td>
+						<td class="edtbl" attr="Вне этажное размещение">`+val(rack.VneEtashnoeRazmechenie)+`</td>
+						<td class="edtbl" attr="Номер ДРС">`+''+`</td>
+						<td class="edtbl" attr="Тип замка">`+val(rack.T_LOCK)+`</td>
+						<td class="edtbl" attr="Номер ключа">`+val(rack.NomerKlucha)+`</td>
+						
+						<td attr="Примечание" class="edtbl">`+val(rack.ShifrKlucha)+`</td>
+						<td attr="Описание объекта">`+val(rack.description)+`</td>
+					</tr>`);
+			};
+		};
+		
+		function visDevices(siteId,devices){
+			for(let deviceId in devices){let device=devices[deviceId];
+				let inrack=document.getElementById(toKP(device.DEVICE_NAME));
+				document.getElementById(((inrack)?(inrack.getAttribute('inrack')+'.devices_ne'):(siteId+'.devices_without'))).insertAdjacentHTML('beforeEnd',createDevice(device));
+				let cabled='';for(let id in sites[siteId].entrances){if(sites[siteId].entrances[id].DEVICE_LIST){for(let device_name of sites[siteId].entrances[id].DEVICE_LIST){if(toKP(device_name)==device.resource_business_name){if(cabled.length){cabled+=','};cabled+=sites[siteId].entrances[id].NomerPodezda;};};};};
+				document.getElementById(siteId+'.devices_table').insertAdjacentHTML('afterBegin',`
+					<tr id="`+device.DEVICE_NIOSS_ID+`.row">
+						<td></td>
+						<td attr="Object_id">`+device.DEVICE_NIOSS_ID+`</td>
+						<td attr="Имя">`+device.resource_business_name+`</td>
+						<td attr="Родитель">`+sites[siteId].nodes[0].name+`</td>
+						<td attr="Тип">`+getType(device.resource_business_name)+`</td>
+						
+						<td class="edtbl" attr="Шкаф">`+((device.ShkafPP)?(sites[siteId].racks[device.ShkafPP.NCObjectKey].resource_business_name||''):'')+`</td>
+						<td class="edtbl" attr="Псевдоним">`+val(device.Alias)+`</td>
+						<td class="edtbl" attr="IP Адрес (текст)">`+val(device.IP_ADDRESS)+`</td>
+						<td class="edtbl" attr="SNMP Community">`+val(device.SNMP_COMMUNITY)+`</td>
+						<td class="edtbl" attr="Version SNMP">`+val(device.SNMP_VERSION)+`</td>
+						<td class="edtbl" attr="VENDOR">`+val(device.VENDOR)+`</td>
+						<td class="edtbl" attr="MODEL">`+val(device.MODEL)+`</td>
+						<td attr="Обслуживаемые подъезды">`+cabled+`</td>
+						
+						<td attr="Примечание" class="edtbl">`+val(device.Primechanie)+`</td>
+						<td attr="Описание объекта">`+val(device.description)+`</td>
+					</tr>`);
+				document.getElementById(device.DEVICE_NIOSS_ID+'_btn').addEventListener('click',function(event){openModal(siteId,device,'edit');event.stopPropagation();});
+			};
+		};
+		function createDeviceTitleIP(d){return getType(d.DEVICE_NAME)+'#'+getNum(d.DEVICE_NAME)+((d.IP_ADDRESS)?('&nbsp;..'+d.IP_ADDRESS.split('.')[2]+'.'+d.IP_ADDRESS.split('.')[3]):'')};
+		function createDeviceTitle(d){return getType(d.DEVICE_NAME)+'#'+getNum(d.DEVICE_NAME)};
+		function createDevice(device){
+			let kpname=toKP(device.DEVICE_NAME);
+			if(document.getElementById(kpname)){document.getElementById(kpname).remove();};
+			let title=`<span class="title-norm">`+createDeviceTitleIP(device)+`</span><span class="title-short">`+createDeviceTitle(device)+`</span>`;
+			let inrack=(device.inrack)?(`inrack="`+device.inrack+`"`):'';
+			return `
+				<div class="device type-`+getType(kpname)+((device.ghost)?` ghost`:``)+`" id="`+kpname+`" `+inrack+`>
+					<div class="device-head">
+						<div class="device-title">
+							<a href="https://nioss/ncobject.jsp?id=`+device.DEVICE_NIOSS_ID+`" target="_blank">`+title+`</a>
+						</div>
+						<div class="device-led" id="`+kpname+`.led"></div>
+						`+((device.DEVICE_NIOSS_ID)?(`<button type="button" id="`+device.DEVICE_NIOSS_ID+`_btn">‴</button>`):``)+`
+					</div>
+				</div>`;
+		};
+		
+		function visPPanels(siteId,ppanels){
+			for(let ppId in ppanels){let pp=ppanels[ppId];
+				if(pp.rack_id=='0'){
+					let container=pp.entrance_id+'.floor_'+pp.n_floor+'.rk';
+					if(!document.getElementById(container)){
+						document.getElementById(pp.entrance_id+((pp.n_floor<=0)?'.under':'.over')).insertAdjacentHTML('beforeEnd',createFloor(pp.entrance_id,pp.n_floor));
+					};
+					document.getElementById(container).insertAdjacentHTML('beforeEnd',createPP(pp));
+				}else{
+					let container=document.getElementById(pp.rack_id+'.devices_pp');
+					if(container){
+						container.insertAdjacentHTML('beforeEnd',createPP(pp));
+					}else{
+						
+					};
+				};
+				document.getElementById(siteId+'.ppanels_table').insertAdjacentHTML('afterBegin',`
+					<tr id="`+pp.id+`.row">
+						<td></td>
+						<td attr="Object_id">`+pp.id+`</td>
+						<td attr="Имя">`+pp.resource_business_name+`</td>
+						<td attr="Родитель">`+sites[siteId].entrances[pp.parent.NCObjectKey].resource_business_name+`</td>
+						<td attr="Модель устройства">`+pp.model+`</td>
+						
+						<td attr="Тип ДРС">`+((pp.TipDRS=='Transit')?'Транзитный':'Конечный')+`</td>
+						<td class="edtbl" attr="Шкаф">`+((pp.ShkafPP)?(sites[siteId].racks[pp.ShkafPP.NCObjectKey].resource_business_name||''):'')+`</td>
+						<td class="edtbl" attr="Номер Этажа">`+val(pp.NomerEtazha)+`</td>
+						<td class="edtbl" attr="Расположение">`+val(pp.Raspologenie)+`</td>
+						<td class="edtbl" attr="Номер ДРС">`+''+`</td>
+						<td class="edtbl" attr="Тип МПК">`+''+`</td>
+						<td class="edtbl" attr="Длинна МПК">`+''+`</td>
+						<td class="edtbl" attr="Охрана">`+''+`</td>
+						<td attr="Количество задействованных пар UTP/FTP=1 Port Ethernet">`+val(pp.KolichestvoZadeystvovannixParUtpFtpNaPortEth)+`</td>
+						<td class="edtbl" attr="Вышестоящий элемент ДРС">`+''+`</td>
+						
+						<td attr="Описание объекта">`+val(pp.description)+`</td>
+					</tr>`);
+				document.getElementById(pp.id+'_btn').addEventListener('click',function(event){openModal(siteId,pp,'edit');event.stopPropagation();});
+			};
+		};
+		function createPPTitle(p){return getType(p.name)+'#'+getNum(p.name)};
+		function createPP(pp){
+			let name=toKP(pp.name);
+			if(document.getElementById(name)){document.getElementById(name).remove();};
+			let title=`<span class="title-norm">`+createPPTitle(pp)+`</span><span class="title-short">`+createPPTitle(pp)+`</span>`;
+			let inrack=(pp.inrack)?(`inrack="`+pp.inrack+`"`):'';
+			return `
+				<div class="device type-`+getType(name)+((pp.rack_id=='0')?` without`:``)+((pp.ghost)?` ghost`:``)+`" id="`+name+`" `+inrack+`>
+					<div class="device-head">
+						<div class="device-title">
+							<a href="https://nioss/ncobject.jsp?id=`+pp.id+`" target="_blank">`+title+`</a>
+						</div>
+						`+((pp.id)?(`<button type="button" id="`+pp.id+`_btn">‴</button>`):``)+`
+					</div>
+				</div>`;
+		};
+		
+		function openModal(siteId,obj={},mode=''){
+			let fields='';
+			switch(getType(obj.resource_business_name)){
+				case'P':
+					fields+=createInput('text','Object_id','ENTRANCE_ID',[['',obj.ENTRANCE_ID,'disabled']]);
+					fields+=createInput('text','Имя','resource_business_name',[['',obj.resource_business_name,'disabled']]);
+				break;
+				case'L':case'CU':
+					fields+=createInput('text','Object_id','RACK_ID',[['',obj.RACK_ID,'disabled']]);
+					fields+=createInput('text','Имя','resource_business_name',[['',obj.resource_business_name,'disabled']]);
+				break;
+				case'ETH':case'OP':
+					fields+=createInput('text','Object_id','DEVICE_NIOSS_ID',[['',obj.DEVICE_NIOSS_ID,'disabled']]);
+					fields+=createInput('text','Имя','resource_business_name',[['',obj.resource_business_name,'disabled']]);
+				break;
+				case'PP':case'CR':
+					fields+=createInput('text','Object_id','id',[['',obj.id,'disabled']]);
+					fields+=createInput('text','Имя','resource_business_name',[['',obj.resource_business_name,'disabled']]);
+				break;
+				default:
+					fields+=createInput('text','Object_id','id',[['',obj.DEVICE_NIOSS_ID,'disabled']]);
+					fields+=createInput('text','Имя','resource_business_name',[['',obj.resource_business_name,'disabled']]);
+			};
+			document.getElementById(siteId).insertAdjacentHTML('afterEnd',`
+				<div class="modal-wrapper" id="wrapper">
+					<div class="modal" id="modal">
+						<div class="dialog-head">
+							<div class="dialog-title">`+mode+`</div>
+							<input type="button" id="btn_close" value="X">
+						</div>
+						<div class="fields">`+fields+`</div>
+						<div class="dialog-buttons">
+							<input type="button" id="btn_delete" value="delete" disabled>
+							<input type="button" id="btn_copy" value="copy" disabled>
+							<input type="button" id="btn_save" value="save">
+							<input type="button" id="btn_cancel" value="cancel">
+						</div>
+					</div>
+				</div>
+			`);
+			document.getElementById('btn_close').addEventListener('click',function(){closeModal();});
+			document.getElementById('btn_delete').addEventListener('click',function(){});
+			document.getElementById('btn_copy').addEventListener('click',function(){});
+			document.getElementById('btn_save').addEventListener('click',function(){/*updateObject(false);*/closeModal();});
+			document.getElementById('btn_cancel').addEventListener('click',function(){closeModal();});
+		};
+		function closeModal(){document.getElementById('wrapper').remove();};
+		function createInput(type='text',lable='',name='',values=[['','','']]){
+			switch(type){
+				case'select':
+					let options='';for(let value of values){options+=`<option value="`+value[0]+`" `+((value[2])?`disabled="`+value[2]+`"`:``)+`>`+value[1]+`</option>`;};
+					return `
+						<div class="field field-title">`+lable+`</div>
+						<div class="field field-input">
+							<select name="`+name+`">`+options+`</select>
+						</div>`;
+				break;
+				case'text':
+				default:
+					return `
+						<div class="field field-title">`+lable+`</div>
+						<div class="field field-input">
+							<input type="text" name="`+(name||values[0][0])+`" value="`+values[0][1]+`" `+((values[0][2])?`disabled="`+values[0][2]+`"`:``)+`>
+						</div>`;
+			};
+		};
+		
+	</script>
+</head>
+<body onload="build()">
+	
+</body>
+
+
+
+
