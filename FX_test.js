@@ -64,7 +64,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.c');*//*temp fix update2, my-port test*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.d');*//*my-services-el(pass for voip), my-login-pass(vgid, activatespd)*/
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.e');*//*my-site-du-wrapper (download)*//*test*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*fix update, my-account-page*/
+	/*window.AppInventor.setWebViewString('version_:FX_test_v173.f');*//*fix update, my-account-page*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.j');/*download test json*/
 	
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -3741,127 +3742,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				username:username,
 				sitename:sites[siteid].nodes[0].name,
 				address:sites[siteid].nodes[0].address,
+				siteid:siteid,
 				title:title,
-				html:`
-					<!doctype html>
-					<head>
-						<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-						<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
-						<title>`+title+`</title>
-						<style type="text/css">
-							body{height:100%;background-color:#f1f1f1;display:flex;flex-direction:column;box-sizing:border-box;}
-							body{font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
-							input[type="checkbox"]{}
-							input[type="text"]{height:8px;font-size:8pt;text-align:left;padding:1px;}
-							input[type="button"]{height:20px;padding:1px;}
-								
-								.tile{box-shadow:0px 7px 16px 0px rgba(0,0,0,0.12);margin-bottom:8px;padding:8px;}
-								.tile-search{background-color:#fff;order:-1;display:flex;flex-direction:column;}
-									.loader-line{width:100%;padding-left:1em;background-color:#35a6dc;background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-size:1rem 1rem;animation:progress-bar-stripes 1s linear infinite;}
-									@keyframes progress-bar-stripes{from{background-position:1rem 0}to{background-position:0 0}}
-								.tile-result{}
-								.tile-warning{background-color:#fee;}
-								.tile-unknown{background-color:#fed;}
-								.tile-building{background-color:#fff;}
-								.tile-building>*{margin-bottom:2px;}
-									.content-x-scroll{overflow-x:auto;overflow-y:hidden;}
-										.entrances-grid{display:grid;grid-column-gap:2px;width:min-content;}
-											.floors-over{display:flex;flex-direction:column-reverse;}
-												.entrance-head{background-color:#eee;border: 1px solid #000;min-width:114px;}
-													.entrance-title{}
-											.floors-under{display:flex;flex-direction:column;}
-												.floor{display:inline-grid;grid-template-columns: 20px auto;background-color:#eee;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #ccc;}
-												.floor.cherdak{border-top:unset;}
-												.floor.tehetag{}
-												.floor.floor_0{border-top:1px solid #000;}
-												.floor.podval{border-bottom:1px solid #000;}
-													.floor-number{font-size:14px;line-height:14px;height:14px;color:gray;margin:auto;}
-													.floor-objects{}
-														.floor-racks{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-around;}
-														.floor-racks.floor-rk{flex-wrap:nowrap;}
-															.rack{width:max-content;height:fit-content;min-height:23px;margin:1px;border:1px solid #000;border-radius:2px;background-color:#aaa;}
-																.type-L{width:104px;}
-																.type-CU{width:48px;}
-																	.rack-head{}
-																		.rack-title{}
-																	.rack-devices{display:flex;flex-direction:column;}
-																		.device{width:100px;margin-left:1px;margin-right:1px;margin-bottom:1px;border:1px solid #000;background-color:#fff;display:flex;flex-direction:column;}
-																		.type-CU .device{width:44px;}
-																		.type-ETH{background-color:#eff;}
-																		.type-OP{background-color:#ffe;}
-																		.type-A{background-color:#ffe;}
-																		.type-SBE{background-color:#eef;}
-																		.type-OSW{background-color:#eef;}
-																		.type-FAMP{background-color:#eef;}
-																		.type-MBH{background-color:#eef;}
-																		.type-MPLS{background-color:#eef;}
-																		.type-OLT{background-color:#eef;}
-																		.type-IP{background-color:#fef;}
-																		.type-CPE{background-color:#fef;}
-																		.type-Voip{background-color:#fef;}
-																		.type-CR{background-color:#ddd;}
-																		.type-PP{background-color:#ddd;}
-																		.without{width:44px;margin-top:1px;}
-																			.device-head{display:inline-flex;}
-																				.device-title{}
-																					.title-norm{display:block;}
-																					.type-CU .title-norm{display:none;}
-																					.without .title-norm{display:none;}
-																					.title-short{display:none;}
-																					.type-CU .title-short{display:block;}
-																					.without .title-short{display:block;}
-																				.device-led{width:6px;min-width:6px;margin-left:auto;}
-																				.device-led.online{background-color:green;}
-																				.device-led.offline{background-color:red;}
-																				.device-led.nomon{background-color:#ddd;}
-														.floor-flats{display:flex;flex-direction:row;flex-wrap:nowrap;}
-														.floor-flats.floor-even{justify-content:space-between;}
-														.floor-flats.floor-neven{justify-content:space-around;}
-														.floor-flats.floor-fake{flex-wrap:wrap;width:580px;}
-															.flat-none{width:100%;height:16px;line-height:16px;margin:auto;text-align:center;color:#a2a2a2;}
-															.flat{width:24px;min-width:24px;height:30px;margin:1px;border:1px solid #a2a2a2;color:#a2a2a2;border-radius:2px;text-align:center;}
-															.flat.on-service{border-color:#000;}
-															.flat.inet{}
-															.flat.tv{}
-															.flat.voip{}
-																.flat-service{display:none;line-height:7pt;}
-																.flat-service.red{display:block;color:tomato;}
-																.flat-service.green{display:block;color:forestgreen;}
-										
-										
-										.devices-without{/*display:flex;*//*flex-direction:column;*/}
-										
-										
-										.mmrd-field{display:flex;flex-direction:column;width:max-content;}
-										.mmrd-field>table{border-collapse:collapse;margin-bottom:1em;width:fit-content;}
-										.mmrd-field>table>thead{}
-										.mmrd-field>table>thead tr{}
-										.mmrd-field>table>thead tr th{border:1px solid #000;background-color:#ffe4b5;}
-										.mmrd-field>table>tbody{}
-										.mmrd-field>table>tbody tr{}
-										.mmrd-field>table>tbody tr td{border:1px solid #000;background-color:#e0e0e0;}
-										.mmrd-field>table>tbody tr td.edtbl{background-color:unset;}
-										.mmrd-field>table>tbody tr td.edt{background-color:#ffff00;}
-							
-							.hide{display:none;}
-							.ghost{opacity:0.3;}
-						</style>
-						<script name="delete_me">window.site=`+JSON.stringify(sites[siteid])+`;</script>
-						<script name="delete_me">
-							function hideBtns(){
-								document.body.removeAttribute('onload');
-								console.log(window.site.nodes[0].name,window.site);
-								for(let btn of document.querySelectorAll('input[type="button"]')){
-									btn.classList.add('hide');btn.setAttribute('disabled','disabled');
-								};
-								let del=document.getElementsByName('delete_me');
-								while(del.length>0){del[0].remove()};
-							};
-						</script>
-					</head>
-					<body onload="hideBtns()">
-						`+((document.getElementById(siteid))?(document.getElementById(siteid).outerHTML):`<div>error<div>`)+`
-					</body>`,
+				json:JSON.stringify({[siteid]:sites[siteid]}),
+				html:'',
 			};
 		};
 		
