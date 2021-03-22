@@ -1063,7 +1063,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			shortAddress:function(addr){return addr.split(', ').reverse()[1].replace(/\s/g,'')+' '+addr.split(', ').reverse()[0].replace(/\s/g,'')},/*ул.БорисаБогаткова д.194/2*/
 			refresh:function(){
 				this.$root.clean();
-				this.$root.find(this.port.name);
+				/*this.$root.find(this.port.name);*/this.$root.jump(this.port.name);
 			},
 			loadLink:function(){
 				if(this.port.link)return;
