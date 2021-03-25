@@ -1785,7 +1785,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  },
 	});
 	
-	document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;/*proxy template for my-account-page*/
+	/*document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;*//*proxy template for my-account-page*/
 	Vue.component('my-account-page',{
 		template:`
 			<section class="account-page">
@@ -2215,7 +2215,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	/*времянка entry.log 30805111868*/
-	document.getElementById('session-logs-template').innerHTML=`
+	/*document.getElementById('session-logs-template').innerHTML=`
 		<modal-container ref='sessionLogs'>
     <div class="mx-auto mt-8 w-75">
       <h3 class="font--18-600 tone-900 d-center-x mb-8">
@@ -2249,7 +2249,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       <message-el :text='"авторизаций "+logs.date+" не было"' :box='true' type='info'></message-el>
     </div>
   </modal-container>
-	  `;
+	  `;*/
 	
 	Vue.component('account-billing-modal',{/*потерян при редизайне*/
 		template:`
@@ -2575,7 +2575,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-	document.getElementById('services-el-template').innerHTML=`<my-services-el v-bind="$props"/>`;/*proxy template for my-services-el*/
+	/*document.getElementById('services-el-template').innerHTML=`<my-services-el v-bind="$props"/>`;*//*proxy template for my-services-el*/
 	Vue.component('my-services-el',{
 		template:`
 			<card-block>
@@ -2671,7 +2671,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}
 	});
 	
-	document.getElementById('login-pass-template').innerHTML=`<my-login-pass v-bind="$props"/>`;/*proxy template for my-login-pass*/
+	/*document.getElementById('login-pass-template').innerHTML=`<my-login-pass v-bind="$props"/>`;*//*proxy template for my-login-pass*/
 	Vue.component('my-login-pass',{
 		template:`
 			<div>
