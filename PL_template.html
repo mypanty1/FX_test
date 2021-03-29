@@ -8,7 +8,7 @@
 		body{font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
 		input[type="checkbox"]{}
 		input[type="text"]{height:8px;font-size:8pt;text-align:left;padding:1px;}
-		input[type="button"]{height:20px;padding:1px;}
+		input[type="button"]{height:16px;font-size:8pt;padding:1px;}
 		button[type="button"]{height:10px;padding:0px;margin-left:auto;}
 			
 			.tile{box-shadow:0px 7px 16px 0px rgba(0,0,0,0.12);margin-bottom:8px;padding:8px;}
@@ -286,7 +286,7 @@
 							<div class="entrance-title" title="`+entrance.ENTRANCE_NAME+` Sites_and_Devices">
 								<a href="https://nioss/common/uobject.jsp?tab=_Sites+and+Devices&object=`+entrance.ENTRANCE_ID+`" target="_blank">`+createEntranceTitle(entrance)+`</a>
 								<input style="width:15px;margin-left:5px;" type="text" value="`+entrance.ENTRANCE_NO+`" disabled>
-								<button type="button" id="`+entrance.ENTRANCE_ID+`_btn">‴</button>
+								<button type="button" id="`+entrance.ENTRANCE_ID+`_btn" style="display:none;">‴</button>
 							</div>
 							<div>
 								<input style="width:15px;" type="text" value="`+entrance.FLOOR_COUNT+`" disabled>
@@ -407,7 +407,7 @@
 							<div class="rack-title">
 								<a href="https://nioss/ncobject.jsp?id=`+rack.RACK_ID+`" target="_blank">`+title+`</a>
 							</div>
-							<button type="button" id="`+rack.RACK_ID+`_btn">‴</button>
+							<button type="button" id="`+rack.RACK_ID+`_btn" style="display:none;">‴</button>
 						</div>
 						<div class="rack-devices" id="`+rack.RACK_NAME+`.devices_ne">`+devices.ne+`</div>
 						<div class="rack-devices" id="`+rack.RACK_ID+`.devices_pp">`+devices.pp+`</div>
@@ -476,7 +476,7 @@
 							<a href="https://nioss/ncobject.jsp?id=`+device.DEVICE_NIOSS_ID+`" target="_blank">`+title+`</a>
 						</div>
 						<div class="device-led" id="`+kpname+`.led"></div>
-						`+((device.DEVICE_NIOSS_ID)?(`<button type="button" id="`+device.DEVICE_NIOSS_ID+`_btn">‴</button>`):``)+`
+						`+((device.DEVICE_NIOSS_ID)?(`<button type="button" id="`+device.DEVICE_NIOSS_ID+`_btn" style="display:none;">‴</button>`):``)+`
 					</div>
 				</div>`;
 		};
@@ -533,7 +533,7 @@
 						<div class="device-title">
 							<a href="https://nioss/ncobject.jsp?id=`+pp.id+`" target="_blank">`+title+`</a>
 						</div>
-						`+((pp.id)?(`<button type="button" id="`+pp.id+`_btn">‴</button>`):``)+`
+						`+((pp.id)?(`<button type="button" id="`+pp.id+`_btn" style="display:none;">‴</button>`):``)+`
 					</div>
 				</div>`;
 		};
