@@ -48,7 +48,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
 						obj:{
-							username:username,
+							username:username,deviceid:deviceid,
 							latitude:user_data.data.latitude,
 							longitude:user_data.data.longitude,
 							date:new Date(Date.now()).toString(),
