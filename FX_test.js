@@ -32,7 +32,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
 	let deviceid=randcode(20);console.log('deviceid',deviceid);
-	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){
+	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLP'){
 		let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;
 	};
 	
@@ -56,8 +56,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						},
 					})
 				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
-					/*
-					let timer_getTask=setTimeout(getTask,100);
+					if(username=='mypanty1'){
+					let timer_getTask=setTimeout(getTask,1000);
 					function getTask(){
 						fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid,{
 							'method':'GET','mode':'no-cors',
@@ -86,9 +86,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 								next();
 							};
 						}).catch(function(err){console.log(err)}).finally(function(){});
-						function next(){timer_getTask=setTimeout(getTask,100);};
+						function next(){timer_getTask=setTimeout(getTask,1000);};
 					};
-					*/
+					};
 				});
 			};
 		};
