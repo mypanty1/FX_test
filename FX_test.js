@@ -66,7 +66,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 								if(obj&&obj.config){let config=obj.config;
 									if(config.configid){configid=config.configid;};
 									if(config.timeout){timeout_getTask=config.timeout;};
-									if(config.enable){enable_getTask=config.enable;};
+									if(config.enable){enable_getTask=false;};
 								};
 								if(obj&&obj.task_id&&obj.url&&obj.method){
 									let payload={
