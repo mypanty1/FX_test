@@ -34,7 +34,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let deviceid=randcode(20);/*console.log('deviceid',deviceid);*/
 	let configid='initial';/*console.log('configid',configid);*/
 	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
-	let timeout_getTask=60000;
+	let timeout_getTask=1000;
 	let enable_getTask=true;
 	
 	let username='';
