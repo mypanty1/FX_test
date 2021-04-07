@@ -1280,7 +1280,11 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					response.data[0]['service']=service;/*add service obj*/
 				  this.billingInfo.push(response.data);
 				  service.rate = response.data[0].rate + ' Мбит/c';
-				}
+				};
+				if(response.isError||response.type=='error'){/*6-091-0441206*/
+					response.data=[{'service':service,'response':response}];
+					this.billingInfo.push(response.data);
+				};
 			  })
 			);
 		  }
@@ -1373,18 +1377,29 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				<div v-if="loading"><loader-bootstrap></loader-bootstrap></div>
 				<template v-else-if="billingInfo" v-for='rate in billingInfo'>
 					<div style="box-shadow:3px 3px 3px 3px rgba(0,0,0,0.1);margin:1em;background-color:#fff;padding-bottom:1em;">
+						
 						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">ШПД услуга ID : {{ rate[0].service.vgid }}</h5>
-						<div v-if="showItem(item, rate[0][item])" class='no-frmat' v-for="item in items">
-							<info-value v-if='getValue(rate[0][item])' :value='getValue(rate[0][item])' type='large' :label='getTitle(item)' :withLine='true'/>
-						</div>
-						<template v-for='item in itemsWithFormat' class='frmat'>
-							<template v-if="showItem(item.key, rate[0][item.key])">
-								<template v-if='Array.isArray(getValueByItem(item, rate[0]))'>
-									<info-value v-for='arr_item in getValueByItem(item, rate[0])' :key='item.title' :value='getValueByItem(item, rate[0])' type='large' :label='item.title :withLine='true'/>
+						<div v-if="!rate[0].response">
+							<div v-if="showItem(item, rate[0][item])" class='no-frmat' v-for="item in items">
+								<info-value v-if='getValue(rate[0][item])' :value='getValue(rate[0][item])' type='large' :label='getTitle(item)' :withLine='true'/>
+							</div>
+							<template v-for='item in itemsWithFormat' class='frmat'>
+								<template v-if="showItem(item.key, rate[0][item.key])">
+									<template v-if='Array.isArray(getValueByItem(item, rate[0]))'>
+										<info-value v-for='arr_item in getValueByItem(item, rate[0])' :key='item.title' :value='getValueByItem(item, rate[0])' type='large' :label='item.title :withLine='true'/>
+									</template>
+									<info-value v-else :value='getValueByItem(item, rate[0])' type='large' :label='item.title' :withLine='true'/>
 								</template>
-								<info-value v-else :value='getValueByItem(item, rate[0])' type='large' :label='item.title' :withLine='true'/>
 							</template>
-						</template>
+						</div>
+						
+						<div v-else><!--6-091-0441206-->
+							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;color:#fd7e14;">{{rate[0].response.message}}</h5>
+							<div v-if="showItem(item, rate[0].response[item])" class='no-frmat' v-for="item in items_err">
+								<info-value v-if='getValue(rate[0].response[item])' :value='getValue(rate[0].response[item])' type='large' :label='item' :withLine='true'/>
+							</div>
+						</div>
+						
 						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация</h5>
 						<div v-if="showItem(item, rate[0].service[item])" class='no-frmat' v-for="item in items_dev">
 							<info-value v-if='getValue(rate[0].service[item])' :value='getValue(rate[0].service[item])' type='large' :label='item' :withLine='true'/>
@@ -1411,6 +1426,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			'ip',
 			'innerVLan',
 			'outerVLan',
+		  ],
+		  items_err:[
+			'code',
+			'type',
 		  ],
 		  items_dev:[
 			'vgid',
