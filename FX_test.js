@@ -22,6 +22,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	
 	/*window.AppInventor.setWebViewString('version_:FX_test_v173.e');*//*my-site-du-wrapper (download) test*/
 	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*site download*//*bot test*//*bot config test*/
+	/*my-account-page+my-billing-info-modal*/
 	
 	let info={};
 	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -924,6 +925,572 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			};
 			next();
 		},
+	});
+	
+	document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;
+	Vue.component('my-account-page', {
+	  template:`
+		<section class="account-page">
+		  <template  v-if='ready'>
+			  <card-block>
+				  <title-main :text="account.ACCOUNT" icon="person" />
+				  <info-subtitle>
+					  <div class="d-center-y">
+						  <span v-if="order" style="text-transform: capitalize;">{{ order.customer }}</span>
+						  <span v-else-if="account && localAccount" style="text-transform: capitalize;">{{ localAccount.name }}</span>
+						  <template v-if='flat || account.FLAT_NUMBER'><span style="padding: 0 4px">•</span><i class='ic-20 ic-apartment'></i><span style="padding-left: 4px;">{{ flat || account.FLAT_NUMBER }} кв.</span></template>
+					  </div>
+				  </info-subtitle>
+				  <template v-if='localAccount'>
+					  <devider-line />
+
+					  <info-text-icon :text='computedAddress' type='medium' icon=''/>
+
+					  <devider-line />
+
+					  <title-main :text="localAccount.name" icon="person" style="text-transform: capitalize;" />
+					  <a v-if='phone' class="call-link mb-3" :href="'tel:' + getPhoneWithPlus(phone)">
+					  <div>
+						  <div class="tone-900 font--15-500 call-link__number">{{ getPhoneWithPlus(phone) }}</div>
+						  <div class='tone-500 font--13-500'>позвонить абоненту</div>
+					  </div>
+					  <div class="call-link__icon"><i class="ic-24 ic-phone-1"></i></div>
+					  </a>
+
+					  <devider-line v-if='agreement'/>
+					  <template v-if='agreement'>
+						  <info-value icon='purse' :value='balance' type='extra' label='баланс' />
+						  <info-value icon='clock' :value='lastPay' type='extra' label='платеж' />
+					  </template>
+					  <template v-if='agreement && agreement.isconvergent'>
+						  <devider-line />
+							<info-value icon='phone' :value="'+' + agreement.convergentmsisdn" type='extra' label='конвергент'/>
+						  <info-value icon='purse' :value='convergentBalance' type='extra' label='баланс'/>
+					  </template>
+				  </template>
+				  <devider-line />
+				  <link-block text="информация в биллинге" icon="server" actionIcon="expand" @block-click="openBillingInfo"/>
+				  <my-billing-info-modal ref='billingInfo' :billingInfo='billingInfo' :loading='loading.vgroups'/>
+				  <link-block text="отправить смс с новым паролем" icon="sms" actionIcon="expand" @block-click="openSendSmsModal"/>
+				  <send-sms-modal ref='sendSms' :account='account.ACCOUNT'/>
+			  </card-block>
+
+			  <card-block v-if="localAccount">
+				<title-main text="недоступность" icon="accidents" textSize="large" :attention="hasActiveIncident?'warn':null" @block-click="toEvents">
+					<button-sq icon="right-link" class="no-events"/>
+				</title-main>
+			  </card-block>
+
+			  <div v-if='agreement'>
+				  <card-block v-for='(group, key) in groupServiceList' :key='key' class='mini-card mt-0'>
+					  <title-main class='mb-2' icon='eth' :text='group.name' textSize='large' @open="opened[key] = !opened[key]" />
+					  <div v-show="opened[key]">
+						  <card-block v-if='key == "internet"'>
+							  <title-main text='порт' textSize='medium'></title-main>
+							  <traffic-light-el v-if="localAccount" :data="account" :account="localAccount" :sessions="[]"/>
+							  <link-block v-if='account.PORT_NAME' actionIcon='right-link' icon="port" :text="account.PORT_NAME" :search="account.PORT_NAME" />
+							  <info-subtitle v-if='account.PORT_NAME' class='ml-4 pl-4' :text="'последний опрос MAC ' + account.LAST_DATE" />
+						  </card-block>
+						  <sessions v-if='key == "internet"' :services='group.services'></sessions>
+						  <services-el class='mt-2' :account='localAccount' :services='group.services' :name='group.name' :accountNumber='account.ACCOUNT'/>
+						  <div v-if='group.equipments.length > 0'>
+							  <div v-for="equip in group.equipments">
+								  <equipment :equipment="equip" :account="account.ACCOUNT" :key="equip.id" />
+							  </div>
+						  </div>
+					  </div>
+				  </card-block>
+			  </div>
+			  <account-locks  v-if='localAccount' :locks='locks'/>
+			  <div v-if='loading.account' class='d-flex justify-content-center'>
+				  <div class="spinner-grow text-secondary text-center" role="status">
+					  <span class="sr-only"></span>
+				  </div>
+			  </div>
+		  </template>
+		  <div v-else class='d-flex justify-content-center'>
+			  <div class="spinner-grow text-secondary text-center" role="status">
+				  <span class="sr-only"></span>
+			  </div>
+		  </div>
+	  </section>
+	  `,
+	  props: {
+		order: Object,
+		building: Object,
+		entrance: Object,
+		account: Object,
+		flat: Number,
+	  },
+	  data: () => ({
+		localAccount: null,
+		session: null,
+		equipments: null,
+		opened: {
+		  internet: true,
+		  tv: true,
+		  iptv: true,
+		  phone: true,
+		  hybrid: true,
+		  other: true,
+		},
+		billingInfo: [],
+		loading: {
+		  account: false,
+		  vgroups: false,
+		  locks: false
+		},
+		convergentBalance: null,
+		locks: {},
+		events: null,
+	  }),
+	  watch: {
+		account(val, old) {
+		  if (val && val.ACCOUNT) {
+			this.localAccount = null;
+			this.loadLbsvAccount();
+			this.loadAccountEvents();
+		  };
+		}
+	  },
+	  async created() {
+		if (this.account) await this.loadLbsvAccount();
+		this.loadAccountEvents();
+	  },
+	  computed: {
+		ready() {
+		  return this.account && this.account.ACCOUNT;
+		},
+		balance() {
+		  let balance = this.agreement.balance;
+		  let str = balance.integer + '.' + balance.fraction + ' ₽';
+		  if (balance.minus) return '-' + str;
+		  return str;
+		},
+		lastPay() {
+		  const lastsum = this.agreement.lastsum || '';
+		  const lastpaydate = this.agreement.lastpaydate || '';
+		  const rub = lastsum ? '₽' : '';
+		  const point = lastpaydate ? '•' : '';
+		  return `${lastsum} ${rub} ${point} ${lastpaydate}`;
+		},
+		agreement() {
+		  if (!this.localAccount) return '';
+		  let account = this.account.ACCOUNT;
+		  return this.localAccount.agreements.find(function (agr) {
+			return agr.account.replace(/-/g, '') === account.replace(/-/g, '');
+		  });
+		},
+		computedAddress() {
+		  if (!this.localAccount) return '';
+		  if (this.agreement) {
+			const service = this.localAccount.vgroups.find((s) => s.agrmid == this.agreement.agrmid && s.connaddress);
+			if (service) return service.vgaddress || service.connaddress;
+		  }
+		  let address = {};
+		  if (Array.isArray(this.localAccount.addresses)) {
+			address = this.localAccount.addresses.find((a) => a.address) || {};
+		  };
+		  return this.localAccount.address || address.address || '';
+		},
+		serviceList() {
+		  if (this.agreement) {
+			let agreement = this.agreement;
+			return this.localAccount.vgroups.filter(function (service) {
+			  return service.agrmid === agreement.agrmid;
+			});
+		  };
+
+		  return [];
+		},
+		serviceError() {
+		  if (this.localAccount.vgroups.length === 1) {
+			const error = this.localAccount.vgroups[0];
+			if (error.type === 'error') {
+			  return 'услуги не загружены. перезагрузить страницу.';
+			};
+			if (error.type === 'warning') {
+			  return 'услуги у абонента не найдены.';
+			};
+		  };
+		  return '';
+		},
+		internetEq() {
+		  if (!this.equipments) return [];
+		  return this.equipments.filter((e) => e.type_id == 4);
+		},
+		tvEq() {
+		  if (!this.equipments) return [];
+		  let equipments = this.equipments.filter((e) => [1, 2, 3].includes(parseInt(e.type_id, 10)));
+		  equipments.forEach((equip) => {
+			if (!equip.card || !this.localAccount.vgroups) return;
+			this.localAccount.vgroups.forEach((vg) => {
+			  if (!vg.smartcards) return;
+			  vg.smartcards.forEach((card) => {
+				if (!card.smartcard || !card.smartcard.serial === equip.card) return;
+				equip.vg = vg;
+			  });
+			});
+		  });
+		  return equipments;
+		},
+		iptvEq() {
+		  if (!this.equipments) return [];
+		  return this.equipments.filter((e) => e.type_id == 7);
+		},
+		hybridEq() {
+		  if (!this.equipments) return [];
+		  return this.equipments.filter((e) => e.type_id == 5);
+		},
+		phoneEq() {
+		  if (!this.equipments) return [];
+		  return this.equipments.filter((e) => e.type_id == 6);
+		},
+		otherEq() {
+		  if (!this.equipments) return [];
+		  return this.equipments.filter((e) => e.type_id == 0);
+		},
+		groupServiceList() {
+		  let services = {
+			internet: {
+			  name: 'Интернет',
+			  equipments: this.internetEq,
+			  services: [],
+			},
+			tv: {
+			  name: 'ТВ',
+			  equipments: this.tvEq,
+			  services: [],
+			},
+			iptv: {
+			  name: 'IPTV',
+			  equipments: this.iptvEq,
+			  services: [],
+			},
+			phone: {
+			  name: 'Телефония',
+			  equipments: this.phoneEq,
+			  services: [],
+			},
+			hybrid: {
+			  name: 'ИТВ',
+			  equipments: this.hybridEq,
+			  services: [],
+			},
+			other: {
+			  name: 'Другие',
+			  equipments: this.otherEq,
+			  services: [],
+			},
+		  };
+		  this.serviceList.forEach((s) => {
+			const service = services[s.type];
+			if (service) service.services.push(s);
+			else console.warn('Service not found:', s.type);
+		  });
+		  const filtered = {};
+		  for (const [name, params] of Object.entries(services)) {
+			if (params.services.length || params.equipments.length) filtered[name] = params;
+		  };
+		  return filtered;
+		},
+		phone() {
+		  const phone = this.localAccount.mobile || this.localAccount.phone;
+		  return phone;
+		},
+		hasActiveIncident() {
+		  if (!this.events) return false;
+		  return Boolean(this.events.active && this.events.active.length);
+		},
+		currentItem() {
+		  return this.navItems[this.currentIndex];
+		},
+		currentIndex() {
+		  const {
+			id
+		  } = this.$route.params;
+		  if (id) return 0;
+		  return this.navItems.findIndex(({
+			fullName
+		  }) => fullName === id);
+		},
+		title() {
+		  const {
+			id
+		  } = this.$route.params;
+		  if (!id) return 'кв';
+		  return `${this.currentItem.name}`;
+		},
+	  },
+	  methods: {
+		getPhoneWithPlus(phone) {
+		  return getPhoneWithPlus(phone);
+		},
+		async loadLbsvAccount() {
+		  this.loading.account = true;
+		  if (!this.localAccount || this.localAccount.account_numbers.includes(this.account.ACCOUNT)) {
+			await httpGet('/call/lbsv/search?text=' + this.account.ACCOUNT + '&type=account&city=any').then((data) => {
+			  const account =
+				data.type === 'list' ?
+				  data.data.find((data) => data.agreements[0] && data.agreements[0].archive === '0') :
+				  data.data;
+			  this.localAccount = account;
+			});
+		  };
+		  this.loadClientEquipment();
+		  this.getAuthAndSpeed();
+		  this.loadLocks();
+		  if (this.localAccount.isconvergent) this.getForisData();
+		  this.loading.account = false;
+		},
+		loadClientEquipment() {
+		  if (this.equipments) return;
+		  const params = {
+			serverid: this.agreement.serverid,
+			userid: this.agreement.userid,
+			agrmid: this.agreement.agrmid,
+		  };
+		  httpGet(buildUrl('client_equipment', params, '/call/lbsv/')).then((data) => {
+			if (data.type === 'error') console.warn(data);
+			else this.equipments = data;
+		  });
+		},
+		async getAuthAndSpeed() {
+		  this.billingInfo = [];
+		  const {internet} = this.groupServiceList;
+		  if (!internet) return;
+		  this.loading.vgroups = true;
+		  const promises = [];
+		  const filteredServices = internet.services.filter((service) =>service.agrmid === this.agreement.agrmid && service.isSession && [2, 4, 6].includes(Number(service.agenttype)));
+
+		  for (const service of filteredServices) {
+			const {login,serverid,vgid} = service;
+			const params = {login,serverid,vgid,date: ''};
+			promises.push(
+			  httpGet(buildUrl('get_auth_type', params, '/call/aaa/'), true).then((response) => {
+				if (response.code == '200' && response.data.length > 0 && response.data[0].auth_type) {
+				  service.auth_type = response.data[0].auth_type;
+				}
+			  })
+			);
+			promises.push(
+			  httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then((response) => {
+				const is_data = response.code == '200' && response.data && response.data.length > 0;
+				if (is_data && (response.data[0].rate || response.data[0].rate == 0)) {
+					response.data[0]['service']=service;/*add service obj*/
+				  this.billingInfo.push(response.data);
+				  service.rate = response.data[0].rate + ' Мбит/c';
+				}
+			  })
+			);
+		  }
+
+		  await Promise.all(promises);
+		  this.loading.vgroups = false;
+		},
+		openBillingInfo() {
+		  this.$refs.billingInfo.open();
+		},
+		openSendSmsModal() {
+		  if (!this.account) return;
+		  this.$refs.sendSms.open();
+		},
+		callTo() {
+		  const phone = this.getPhoneWithPlus(this.localAccount.mobile);
+		  window.open(`tel:${phone}`, '_self');
+		},
+		getForisData() {
+		  httpGet(`/call/foris/account?text=${this.agreement.convergentmsisdn}&type=phone`).then((response) => {
+			if (response.data && response.data.length > 0) {
+			  let forisAcc = response.data[0];
+			  this.getConvergentBalance(forisAcc);
+			};
+		  });
+		},
+		getConvergentBalance(acc) {
+		  const account = acc.personal_account_number;
+		  const url = buildUrl('balance_by_account', {
+			account
+		  }, '/call/foris/');
+		  httpGet(url)
+			.then((response) => {
+			  this.convergentBalance = response.amount;
+			})
+		},
+		toEvents() {
+		  this.$router.push({
+			name: 'account_events',
+			params: {
+			  id: this.account.ACCOUNT,
+			  accountProp: this.account,
+			  localAccountProp: this.localAccount,
+			  flatProp: this.flat || this.account.FLAT_NUMBER
+			},
+		  });
+		},
+		loadLocks() {
+		  const today = new Date();
+		  let before = new Date();
+		  before.setMonth(before.getMonth() - 3);
+		  const params = {
+			userid: this.localAccount.userid,
+			serverid: this.localAccount.serverid,
+			start: Datetools.format(before),
+			end: Datetools.format(today),
+		  };
+		  httpGet(buildUrl('blocks_history', params, '/call/lbsv/')).then((data) => {
+			this.loading.locks = false;
+			this.locks = data;
+		  });
+		},
+		async loadAccountEvents() {
+		  const params = {
+			to: new Date(),
+			from: Dt.addDays(-1),
+			id: this.account.DEVICE_NIOSS_ID,
+			device: this.account.DEVICE_NAME,
+			contract: this.agreement.agrmnumber,
+			regionid: this.account.MR_ID,
+			serverid: this.localAccount && this.localAccount.serverid,
+		  };
+		  try {
+			const response = await httpGet(buildUrl('events_by_contract', params));
+			this.events = response;
+		  } catch (error) {
+			console.error('Load account events:', error);
+		  };
+		}
+	  },
+	});
+	document.getElementById('billing-info-modal').innerHTML=`<my-billing-info-modal v-bind="$props"/>`;
+	Vue.component('my-billing-info-modal', {
+		template:`
+			<modal-container ref='billingInfo'>
+				<div>
+					<h3 class="font--18-600 tone-900 d-center-x">настройки профиля абонента</h3>
+					<h5 class="font--13-500-140 tone-500 d-center-x">информация в биллинге</h5>
+				</div>
+				<div v-if="loading"><loader-bootstrap></loader-bootstrap></div>
+				<template v-else-if="billingInfo" v-for='rate in billingInfo'>
+					<div style="box-shadow:3px 3px 3px 3px rgba(0,0,0,0.1);margin:1em;background-color:#fff;padding-bottom:1em;">
+						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">ШПД услуга ID : {{ rate[0].service.vgid }}</h5>
+						<div v-if="showItem(item, rate[0][item])" class='no-frmat' v-for="item in items">
+							<info-value v-if='getValue(rate[0][item])' :value='getValue(rate[0][item])' type='large' :label='getTitle(item)' :withLine='true'/>
+						</div>
+						<template v-for='item in itemsWithFormat' class='frmat'>
+							<template v-if="showItem(item.key, rate[0][item.key])">
+								<template v-if='Array.isArray(getValueByItem(item, rate[0]))'>
+									<info-value v-for='arr_item in getValueByItem(item, rate[0])' :key='item.title' :value='getValueByItem(item, rate[0])' type='large' :label='item.title :withLine='true'/>
+								</template>
+								<info-value v-else :value='getValueByItem(item, rate[0])' type='large' :label='item.title' :withLine='true'/>
+							</template>
+						</template>
+						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация</h5>
+						<div v-if="showItem(item, rate[0].service[item])" class='no-frmat' v-for="item in items_dev">
+							<info-value v-if='getValue(rate[0].service[item])' :value='getValue(rate[0].service[item])' type='large' :label='item' :withLine='true'/>
+						</div>
+					</div>
+				</template>
+				<h5 v-else class="font--13-500-140 tone-600 d-center-x">нет данных</h5>
+		</modal-container>
+		`,
+	  props: {
+		billingInfo: {
+		  type: Array, 
+		  required: true
+		},
+		loading: Boolean,
+	  },
+	  data() {
+		return {
+		  items: [
+			'deviceIP',
+			'portNumber',
+			'macCPE',
+			'deviceMac',
+			'ip',
+			'innerVLan',
+			'outerVLan',
+		  ],
+		  items_dev:[
+			'vgid',
+			'status',
+			'login',
+			'pass',
+			'type_of_bind',
+			'descr',
+			'agentid',
+			'agenttype',
+			'userid',
+		  ],
+		  itemsWithFormat: {
+			deviceSegment: {
+			  title: 'сегмент',
+			  key: 'deviceSegment',
+			  format: (val) => val.split(",")
+			},
+			maxSessions: {
+			  title: 'кол. сессий',
+			  key: 'maxSessions'
+			},
+			accOnDateFirst: {
+			  title: 'активация',
+			  key: 'accOnDateFirst',
+			  format: this.formatDate
+			},
+			blockDate: {
+			  title: 'блокировка',
+			  key: 'blockDate',
+			  format: this.formatDate
+			},
+		  },
+		};
+	  },
+	  methods: {
+		open() {
+		  this.$refs.billingInfo.open();
+		},
+
+		formatDate(value) {
+		  const date = new Date(value);
+		  if (!date) return '';
+		  return Datetools.format(date, 'datetime');
+		},
+		showItem(key, value) {
+		  if (!value) return false;
+		  const filters = ['deviceId'];
+		  if (filters.includes(key)) return false;
+		  if (Array.isArray(value)) return !!value.length;
+		  if (typeof value === 'object') return !!Object.values(value).length;
+		  return !!value;
+		},
+		getTitle(name) {
+		  if (/deviceIP/i.test(name)) return 'коммутатор';
+		  if (/portNumber/i.test(name)) return 'порт';
+		  if (/deviceMac/i.test(name)) return 'MAC-адрес';
+		  if (/ip/i.test(name)) return 'IP-адрес';
+		  if (/macCPE/i.test(name)) return 'MAC-адрес';
+		  if (/innerVLan/i.test(name)) return 'vlan inner';
+		  if (/outerVLan/i.test(name)) return 'vlan outer';
+		  return name;
+		},
+		getValue(value) {
+		  if (Array.isArray(value) && value.length > 0) {
+			if (Object.keys(value[0]).includes('IP')) return value.map(i => i.IP).join(", ");
+			return value.join(", ");
+		  };
+		  if (typeof value === 'object') return String(value);
+		  return value;
+		},
+		getValueByItem(item, billing) {
+		  let value = billing[item.key];
+		  if (!value) return '';
+		  if (item.format) {
+			value = item.format(value);
+		  };
+		  return this.getValue(value);
+		}
+	  },
 	});
 	/*
 	}else{console.log(document.title)};
