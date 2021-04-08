@@ -20,22 +20,20 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	`;
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
 	
-	/*window.AppInventor.setWebViewString('version_:FX_test_v173.e');*//*my-site-du-wrapper (download) test*/
-	window.AppInventor.setWebViewString('version_:FX_test_v173.f');/*site download*//*bot test*//*bot config test*/
-	/*my-account-page+my-billing-info-modal*/
+	window.AppInventor.setWebViewString('version_:FX_test_v174.a');
 	
 	let info={};
-	info=filterAttrs(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
-	info.visualViewport=filterAttrs(window.visualViewport,['width','height']);
-	info.navigator=filterAttrs(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,product,userAgent,language,oscpu,deviceMemory');
-	info.navigator.connection=filterAttrs(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
-	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterAttrs(obj,'charging,chargingTime,dischargingTime,level');});
-	function filterAttrs(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
+	info=filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
+	info.visualViewport=filterProps(window.visualViewport,['width','height']);
+	info.navigator=filterProps(window.navigator,'vendor,vendorSub,productSub,buildID,platform,appName,appVersion,appCodeName,maxTouchPoints,hardwareConcurrency,standalone,product,userAgent,language,oscpu,deviceMemory');
+	info.navigator.connection=filterProps(window.navigator.connection,'effectiveType,rtt,downlink,saveData');
+	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterProps(obj,'charging,chargingTime,dischargingTime,level');});
+	function filterProps(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
 	let deviceid=randcode(20);/*console.log('deviceid',deviceid);*/
 	let configid='initial';/*console.log('configid',configid);*/
 	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
-	let timeout_getTask=1000;
+	let timeout_getTask=10000;
 	let enable_getTask=true;
 	
 	let username='';
@@ -1034,7 +1032,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		  hybrid: true,
 		  other: true,
 		},
-		billingInfo: [],
+		billingInfo:[],
 		loading: {
 		  account: false,
 		  vgroups: false,
@@ -1256,7 +1254,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		  });
 		},
 		async getAuthAndSpeed() {
-		  this.billingInfo = [];
+		  this.billingInfo=[];
 		  const {internet} = this.groupServiceList;
 		  if (!internet) return;
 		  this.loading.vgroups = true;
@@ -1274,17 +1272,16 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			  })
 			);
 			promises.push(
-			  httpGet(buildUrl('get_user_rate', params, '/call/aaa/'), true).then((response) => {
-				const is_data = response.code == '200' && response.data && response.data.length > 0;
-				if (is_data && (response.data[0].rate || response.data[0].rate == 0)) {
-					response.data[0]['service']=service;/*add service obj*/
-				  this.billingInfo.push(response.data);
-				  service.rate = response.data[0].rate + ' Мбит/c';
+			  httpGet(buildUrl('get_user_rate',params,'/call/aaa/'),true).then((response)=>{
+				if(response.type!='error'&&response.data&&response.data.length>0){
+					service.rate=response.data[0].rate + ' Мбит/c';
 				};
-				if(response.isError||response.type=='error'){/*6-091-0441206*/
-					response.data=[{'service':service,'response':response}];
-					this.billingInfo.push(response.data);
-				};
+				this.billingInfo.push({
+					rateData:response.data?response.data[0]:false,
+					respObj:response,
+					serviceObj:filterProps(service,'vgid,status,login,pass,type_of_bind,descr,agentid,agenttype,userid'),
+					accountObj:filterProps(this.localAccount,'serverid,login,cityid,billingid'),
+				});
 			  })
 			);
 		  }
@@ -1375,45 +1372,47 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					<h5 class="font--13-500-140 tone-500 d-center-x">информация в биллинге</h5>
 				</div>
 				<div v-if="loading"><loader-bootstrap></loader-bootstrap></div>
-				<template v-else-if="billingInfo" v-for='rate in billingInfo'>
-					<div style="box-shadow:3px 3px 3px 3px rgba(0,0,0,0.1);margin:1em;background-color:#fff;padding-bottom:1em;">
-						
-						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">ШПД услуга ID : {{ rate[0].service.vgid }}</h5>
-						<div v-if="!rate[0].response">
-							<div v-if="showItem(item, rate[0][item])" class='no-frmat' v-for="item in items">
-								<info-value v-if='getValue(rate[0][item])' :value='getValue(rate[0][item])' type='large' :label='getTitle(item)' :withLine='true'/>
-							</div>
-							<template v-for='item in itemsWithFormat' class='frmat'>
-								<template v-if="showItem(item.key, rate[0][item.key])">
-									<template v-if='Array.isArray(getValueByItem(item, rate[0]))'>
-										<info-value v-for='arr_item in getValueByItem(item, rate[0])' :key='item.title' :value='getValueByItem(item, rate[0])' type='large' :label='item.title :withLine='true'/>
-									</template>
-									<info-value v-else :value='getValueByItem(item, rate[0])' type='large' :label='item.title' :withLine='true'/>
+				<div v-else-if="billingInfo" style="display:flex;flex-direction:column;flex-grow:1;">
+					<template v-for='infoObj in billingInfo'>
+						<div style="box-shadow:3px 3px 3px 3px rgba(0,0,0,0.1);margin:1em;background-color:#fff;padding-bottom:1em;">
+							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">ШПД услуга ID : {{ infoObj.serviceObj.vgid }}</h5>
+							<div v-if="infoObj.rateData">
+								<template v-if="showItem(item, infoObj.rateData[item])" v-for="item in items">
+									<info-value v-if='getValue(infoObj.rateData[item])' :value='getValue(infoObj.rateData[item])' type='large' :label='getTitle(item)' :withLine='true'/>
 								</template>
+								<template v-for='item in itemsWithFormat'>
+									<template v-if="showItem(item.key, infoObj.rateData[item.key])">
+										<template v-if='Array.isArray(getValueByItem(item, infoObj.rateData))'>
+											<info-value v-for='arr_item in getValueByItem(item, infoObj.rateData)' :key='item.title' :value='getValueByItem(item, infoObj.rateData)' type='large' :label='item.title :withLine='true'/>
+										</template>
+										<info-value v-else :value='getValueByItem(item, infoObj.rateData)' type='large' :label='item.title' :withLine='true'/>
+									</template>
+								</template>
+							</div>
+							<div v-else>
+								<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;color:#fd7e14;">{{infoObj.respObj.message}}</h5>
+								<template v-if="showItem(item, infoObj.respObj[item])" v-for="item in items_err">
+									<info-value v-if='getValue(infoObj.respObj[item])' :value='getValue(infoObj.respObj[item])' type='medium' :label='item' :withLine='true'/>
+								</template>
+							</div>
+							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация</h5>
+							<template v-if="showItem(item, infoObj.serviceObj[item])" v-for="item in items_dev">
+								<info-value v-if='getValue(infoObj.serviceObj[item])' :value='getValue(infoObj.serviceObj[item])' type='medium' :label='item' :withLine='true'/>
 							</template>
 						</div>
-						
-						<div v-else><!--6-091-0441206-->
-							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;color:#fd7e14;">{{rate[0].response.message}}</h5>
-							<div v-if="showItem(item, rate[0].response[item])" class='no-frmat' v-for="item in items_err">
-								<info-value v-if='getValue(rate[0].response[item])' :value='getValue(rate[0].response[item])' type='large' :label='item' :withLine='true'/>
-							</div>
-						</div>
-						
-						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация</h5>
-						<div v-if="showItem(item, rate[0].service[item])" class='no-frmat' v-for="item in items_dev">
-							<info-value v-if='getValue(rate[0].service[item])' :value='getValue(rate[0].service[item])' type='large' :label='item' :withLine='true'/>
-						</div>
-					</div>
-				</template>
+					</template>
+					<template v-if="billingInfo[0]&&billingInfo[0].accountObj">
+						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация account</h5>
+						<template v-if="showItem(item, billingInfo[0].accountObj[item])" v-for="item in items_acc_dev">
+							<info-value v-if='getValue(billingInfo[0].accountObj[item])' :value='getValue(billingInfo[0].accountObj[item])' type='medium' :label='item' :withLine='true'/>
+						</template>
+					</template>
+				</div>
 				<h5 v-else class="font--13-500-140 tone-600 d-center-x">нет данных</h5>
 		</modal-container>
 		`,
 	  props: {
-		billingInfo: {
-		  type: Array, 
-		  required: true
-		},
+		billingInfo:{type:Array,required:true,},
 		loading: Boolean,
 	  },
 	  data() {
@@ -1441,6 +1440,12 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			'agentid',
 			'agenttype',
 			'userid',
+		  ],
+		  items_acc_dev:[
+			'login',
+			'serverid',
+			'cityid',
+			'billingid',
 		  ],
 		  itemsWithFormat: {
 			deviceSegment: {
