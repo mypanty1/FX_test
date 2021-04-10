@@ -1375,8 +1375,17 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				<div v-else-if="billingInfo" style="display:flex;flex-direction:column;flex-grow:1;">
 					<template v-for='infoObj in billingInfo'>
 						<div style="box-shadow:3px 3px 3px 3px rgba(0,0,0,0.1);margin:1em;background-color:#fff;padding-bottom:1em;">
-							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">ШПД услуга ID : {{ infoObj.serviceObj.vgid }}</h5>
+							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">{{infoObj.serviceObj.login}} • {{infoObj.serviceObj.vgid}}</h5>
 							<div v-if="infoObj.rateData">
+								<div style="margin-left:1em;margin-right:1em;margin-bottom:0.5em;display:grid;grid-template-columns:68% 30%;grid-gap:0.5em;">
+									<div><input-el :disabled="!!setBind_result.loading" v-model="infoObj.rateData.deviceIP" label='switch_ip' type="text" v-filter="'[0-9\.]'" maxlength="15"/></div>
+									<div><input-el :disabled="!!setBind_result.loading" v-model="infoObj.rateData.portNumber" label='port' type="text" v-filter="'[0-9]'" maxlength="7"/></div>
+									<div><input-el :disabled="!!setBind_result.loading" v-model="(infoObj.rateData.macCPE.length>0)?infoObj.rateData.macCPE[0]:infoObj.rateData.deviceMac" label='abon_mac' type="text" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23"/></div>
+									<div style="padding:0.5em;"><button-main label="bind" @click="setBind(infoObj)" :disabled="!!setBind_result.loading" :loading="!!setBind_result.loading" buttonStyle="contained" style="width:100%;height:100%;"/></div>
+								</div>
+								<div>
+									<message-el v-if="!!setBind_result.text" :text="setBind_result.text" :type="setBind_result.type" :box="true"></message-el>
+								</div>
 								<template v-if="showItem(item, infoObj.rateData[item])" v-for="item in items">
 									<info-value v-if='getValue(infoObj.rateData[item])' :value='getValue(infoObj.rateData[item])' type='large' :label='getTitle(item)' :withLine='true'/>
 								</template>
@@ -1395,126 +1404,184 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									<info-value v-if='getValue(infoObj.respObj[item])' :value='getValue(infoObj.respObj[item])' type='medium' :label='item' :withLine='true'/>
 								</template>
 							</div>
-							<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация</h5>
-							<template v-if="showItem(item, infoObj.serviceObj[item])" v-for="item in items_dev">
-								<info-value v-if='getValue(infoObj.serviceObj[item])' :value='getValue(infoObj.serviceObj[item])' type='medium' :label='item' :withLine='true'/>
-							</template>
+							<title-main icon="card" :text="'dev_info'" @open="openDevInfo=!openDevInfo"></title-main>
+							<div v-show="openDevInfo">
+								<template v-if="showItem(item, infoObj.serviceObj[item])" v-for="item in items_dev">
+									<info-value v-if='getValue(infoObj.serviceObj[item])' :value='getValue(infoObj.serviceObj[item])' type='medium' :label='item' :withLine='true'/>
+								</template>
+							</div>
 						</div>
 					</template>
 					<template v-if="billingInfo[0]&&billingInfo[0].accountObj">
-						<h5 class="font--13-500-140" style="margin-top:1em;padding-left:1em;">отладочная информация account</h5>
-						<template v-if="showItem(item, billingInfo[0].accountObj[item])" v-for="item in items_acc_dev">
-							<info-value v-if='getValue(billingInfo[0].accountObj[item])' :value='getValue(billingInfo[0].accountObj[item])' type='medium' :label='item' :withLine='true'/>
-						</template>
+						<title-main icon="card" :text="'dev_info'" @open="openDevInfo=!openDevInfo"></title-main>
+						<div v-show="openDevInfo">
+							<template v-if="showItem(item, billingInfo[0].accountObj[item])" v-for="item in items_acc_dev">
+								<info-value v-if="getValue(billingInfo[0].accountObj[item])" :value="getValue(billingInfo[0].accountObj[item])" type="medium" :label="item" :withLine="true"/>
+							</template>
+						</div>
 					</template>
 				</div>
 				<h5 v-else class="font--13-500-140 tone-600 d-center-x">нет данных</h5>
 		</modal-container>
 		`,
-	  props: {
-		billingInfo:{type:Array,required:true,},
-		loading: Boolean,
-	  },
-	  data() {
-		return {
-		  items: [
-			'deviceIP',
-			'portNumber',
-			'macCPE',
-			'deviceMac',
-			'ip',
-			'innerVLan',
-			'outerVLan',
-		  ],
-		  items_err:[
-			'code',
-			'type',
-		  ],
-		  items_dev:[
-			'vgid',
-			'status',
-			'login',
-			'pass',
-			'type_of_bind',
-			'descr',
-			'agentid',
-			'agenttype',
-			'userid',
-		  ],
-		  items_acc_dev:[
-			'login',
-			'serverid',
-			'cityid',
-			'billingid',
-		  ],
-		  itemsWithFormat: {
-			deviceSegment: {
-			  title: 'сегмент',
-			  key: 'deviceSegment',
-			  format: (val) => val.split(",")
+		props:{
+			billingInfo:{type:Array,required:true,},
+			loading:Boolean,
+		},
+		data(){
+			return {
+				items:[
+					'deviceIP',
+					'portNumber',
+					'macCPE',
+					'deviceMac',
+					'ip',
+					'innerVLan',
+					'outerVLan',
+				],
+				items_err:[
+					'code',
+					'type',
+				],
+				items_dev:[
+					'vgid',
+					'status',
+					'login',
+					'pass',
+					'type_of_bind',
+					'descr',
+					'agentid',
+					'agenttype',
+					'userid',
+				],
+				items_acc_dev:[
+					'login',
+					'serverid',
+					'cityid',
+					'billingid',
+				],
+				itemsWithFormat:{
+					deviceSegment:{
+						title:'сегмент',
+						key:'deviceSegment',
+						format:(val)=>val.split(','),
+					},
+					maxSessions:{
+						title:'кол. сессий',
+						key:'maxSessions',
+					},
+					accOnDateFirst:{
+						title:'активация',
+						key:'accOnDateFirst',
+						format:this.formatDate,
+					},
+					blockDate:{
+						title:'блокировка',
+						key:'blockDate',
+						format:this.formatDate,
+					},
+				},
+				setBind_result:{
+					loading:false,
+					text:'',
+					type:'',
+				},
+				openDevInfo:false,
+			};
+		},
+		computed:{},
+		methods:{
+			open(){
+				this.$refs.billingInfo.open();
 			},
-			maxSessions: {
-			  title: 'кол. сессий',
-			  key: 'maxSessions'
+			formatDate(value){
+				const date=new Date(value);
+				if(!date) return '';
+				return Datetools.format(date,'datetime');
 			},
-			accOnDateFirst: {
-			  title: 'активация',
-			  key: 'accOnDateFirst',
-			  format: this.formatDate
+			showItem(key,value){
+				if(!value) return false;
+				const filters=['deviceId'];
+				if(filters.includes(key)) return false;
+				if(Array.isArray(value)) return !!value.length;
+				if(typeof value==='object') return !!Object.values(value).length;
+				return !!value;
 			},
-			blockDate: {
-			  title: 'блокировка',
-			  key: 'blockDate',
-			  format: this.formatDate
+			getTitle(name){
+				if(/deviceIP/i.test(name)) return 'коммутатор';
+				if(/portNumber/i.test(name)) return 'порт';
+				if(/deviceMac/i.test(name)) return 'MAC-адрес';
+				if(/ip/i.test(name)) return 'IP-адрес';
+				if(/macCPE/i.test(name)) return 'MAC-адрес';
+				if(/innerVLan/i.test(name)) return 'vlan inner';
+				if(/outerVLan/i.test(name)) return 'vlan outer';
+				return name;
 			},
-		  },
-		};
-	  },
-	  methods: {
-		open() {
-		  this.$refs.billingInfo.open();
+			getValue(value){
+				if(Array.isArray(value)&&value.length>0){
+					if(Object.keys(value[0]).includes('IP')) return value.map(i=>i.IP).join(', ');
+					return value.join(', ');
+				};
+				if(typeof value==='object') return String(value);
+				return value;
+			},
+			getValueByItem(item, billing){
+				let value=billing[item.key];
+				if(!value) return '';
+				if(item.format){
+					value=item.format(value);
+				};
+				return this.getValue(value);
+			},
+			setBind(infoObj){
+				let props={
+					ip:infoObj.rateData.deviceIP,
+					port:infoObj.rateData.portNumber,
+					/*client_ip:infoObj.rateData.deviceIP,*/
+					mac:(infoObj.rateData.macCPE.length>0)?infoObj.rateData.macCPE[0]:infoObj.rateData.deviceMac,
+					account:infoObj.accountObj.login,
+					agentid:infoObj.serviceObj.agentid,
+					login:infoObj.serviceObj.login,
+					serverid:infoObj.accountObj.serverid,
+					type_of_bind:infoObj.serviceObj.type_of_bind,
+					vgid:infoObj.serviceObj.vgid,
+				};
+				switch(infoObj.serviceObj.type_of_bind){
+					case 2:/*'ins_mac'*/
+						this.bind('ins_mac',props);
+					break;
+					case 5:/*'set_bind(3)+ins_only_mac'*/
+						this.bind('ins_only_mac',props);
+					case 3:case 10:/*'set_bind(3)'*/
+						this.bind('set_bind',props,3);
+					break;
+					case 7:case 9:/*'set_bind(7)'*//*'set_bind(9)'*/
+						this.bind('set_bind',props);
+					break;
+					default:/*нет*/
+						this.bind('',props);
+				};
+			},
+			bind(method,props,type_of_bind){
+				this.setBind_result={loading:true,text:'',type:''};
+				if(method){
+					if(type_of_bind){props.type_of_bind=type_of_bind};
+					let othis=this;
+					httpPost('/call/service_mix/'+method,props,true).then(function(result){
+						console.log(result);
+						if(result.type=='error'){
+							othis.setBind_result={loading:false,text:result.text,type:'warn'};
+						}else{
+							othis.setBind_result={loading:false,text:result.InfoMessage,type:'success'};
+						};
+					},function() { 
+						othis.setBind_result={loading:false,text:'ошибка к серверу',type:'error'}
+					});
+				}else{
+					this.setBind_result={loading:false,text:'нет',type:'info'};
+				};
+			},
 		},
-
-		formatDate(value) {
-		  const date = new Date(value);
-		  if (!date) return '';
-		  return Datetools.format(date, 'datetime');
-		},
-		showItem(key, value) {
-		  if (!value) return false;
-		  const filters = ['deviceId'];
-		  if (filters.includes(key)) return false;
-		  if (Array.isArray(value)) return !!value.length;
-		  if (typeof value === 'object') return !!Object.values(value).length;
-		  return !!value;
-		},
-		getTitle(name) {
-		  if (/deviceIP/i.test(name)) return 'коммутатор';
-		  if (/portNumber/i.test(name)) return 'порт';
-		  if (/deviceMac/i.test(name)) return 'MAC-адрес';
-		  if (/ip/i.test(name)) return 'IP-адрес';
-		  if (/macCPE/i.test(name)) return 'MAC-адрес';
-		  if (/innerVLan/i.test(name)) return 'vlan inner';
-		  if (/outerVLan/i.test(name)) return 'vlan outer';
-		  return name;
-		},
-		getValue(value) {
-		  if (Array.isArray(value) && value.length > 0) {
-			if (Object.keys(value[0]).includes('IP')) return value.map(i => i.IP).join(", ");
-			return value.join(", ");
-		  };
-		  if (typeof value === 'object') return String(value);
-		  return value;
-		},
-		getValueByItem(item, billing) {
-		  let value = billing[item.key];
-		  if (!value) return '';
-		  if (item.format) {
-			value = item.format(value);
-		  };
-		  return this.getValue(value);
-		}
-	  },
 	});
 	/*
 	}else{console.log(document.title)};
