@@ -1404,14 +1404,17 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									<info-value v-if='getValue(infoObj.respObj[item])' :value='getValue(infoObj.respObj[item])' type='medium' :label='item' :withLine='true'/>
 								</template>
 							</div>
+							<!--
 							<title-main icon="card" :text="'dev_info'" @open="openDevInfo=!openDevInfo"></title-main>
 							<div v-show="openDevInfo">
 								<template v-if="showItem(item, infoObj.serviceObj[item])" v-for="item in items_dev">
 									<info-value v-if='getValue(infoObj.serviceObj[item])' :value='getValue(infoObj.serviceObj[item])' type='medium' :label='item' :withLine='true'/>
 								</template>
 							</div>
+							-->
 						</div>
 					</template>
+					<!--
 					<template v-if="billingInfo[0]&&billingInfo[0].accountObj">
 						<title-main icon="card" :text="'dev_info'" @open="openDevInfo=!openDevInfo"></title-main>
 						<div v-show="openDevInfo">
@@ -1420,6 +1423,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							</template>
 						</div>
 					</template>
+					-->
 				</div>
 				<h5 v-else class="font--13-500-140 tone-600 d-center-x">нет данных</h5>
 		</modal-container>
