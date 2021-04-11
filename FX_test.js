@@ -496,15 +496,15 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						data.alertClass='alert-dark';
 						data.btnText='';
 					};
-					window.AppInventor.setWebViewString('string_1:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' contract:'+data.contract+' text:'+data.alertText+((p_info.last_mac&&p_info.last_mac.value)?(' last_mac:'+p_info.last_mac.value):('')));
+					window.AppInventor.setWebViewString('string_1:(error) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | contract:'+data.contract+' | text:'+data.alertText+((p_info.last_mac&&p_info.last_mac.value)?(' | last_mac:'+p_info.last_mac.value):('')));
 				}else{
-					window.AppInventor.setWebViewString('string_3:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' text:'+data.InfoMessage);
+					window.AppInventor.setWebViewString('string_3:(success) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | text:'+data.InfoMessage);
 				};
 			}else{
 				if(data.type=='error'&&data.text){
-					window.AppInventor.setWebViewString('string_4:(error) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.text);
+					window.AppInventor.setWebViewString('string_4:(error) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | mac:'+params.mac+' | client_ip:'+params.client_ip+' | serverid:'+params.serverid+' | agentid:'+params.agentid+' | type_of_bind:'+params.type_of_bind+' | text:'+data.text);
 				}else{
-					window.AppInventor.setWebViewString('string_4:(success) account:'+params.account+' login:'+params.login+' id:'+params.vgid+' sw:'+params.ip+' p:'+params.port+' state:'+p_info.state+' mac:'+params.mac+' client_ip:'+params.client_ip+' serverid:'+params.serverid+' agentid:'+params.agentid+' type_of_bind:'+params.type_of_bind+' text:'+data.InfoMessage);
+					window.AppInventor.setWebViewString('string_4:(success) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | mac:'+params.mac+' | client_ip:'+params.client_ip+' | serverid:'+params.serverid+' | agentid:'+params.agentid+' | type_of_bind:'+params.type_of_bind+' | text:'+data.InfoMessage);
 				};
 			};
 			self.loading = false;
@@ -530,11 +530,11 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				if(data.type=='error'){
 					data.alertClass='alert-warning';
 					data.alertText='освободить не удалось';
-					window.AppInventor.setWebViewString('string_2:(error) text:'+data.text+' sw:'+reBind_params.ip+' p:'+reBind_params.port+' id:'+reBind_params.contract);
+					window.AppInventor.setWebViewString('string_2:(error) | text:'+data.text+' | sw:'+reBind_params.ip+' | p:'+reBind_params.port+' | id:'+reBind_params.contract);
 				}else if(data.InfoMessage){
 					data.alertClass='alert-success';
 					data.alertText='порт освобожден!'+((data.Data.IP)?(' тут был абонент с ip:'+data.Data.IP):'');
-					window.AppInventor.setWebViewString('string_2:(rebind) sw:'+reBind_params.ip+' p:'+reBind_params.port+' id:'+reBind_params.contract+' ip:'+data.Data.IP);
+					window.AppInventor.setWebViewString('string_2:(rebind) | sw:'+reBind_params.ip+' | p:'+reBind_params.port+' | id:'+reBind_params.contract+' | ip:'+data.Data.IP);
 				};
 				self.loading = false;
 			},function(){ 
