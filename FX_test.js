@@ -405,7 +405,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		  this.serviceMixQuery('ins_mac', params);
 		},
 		getMacList: function () {
-		  if ([2, 5, 7, 9, 10].indexOf(this.resource.type_of_bind) >= 0) {
+		  if ([2, 5, 7, 9, 10,3].indexOf(this.resource.type_of_bind) >= 0) {
 			this.loading = true; 
 			var self = this;
 			var params = {port: this.data.portParams, device: this.data.deviceParams, type: 'array'};
