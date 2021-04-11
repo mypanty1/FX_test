@@ -237,7 +237,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 								</select>
 								<button @click="setupMacForUser()" v-bind:disabled="loading" class="btn btn-primary btn-sm btn-fill mt-3" type="submit">связать mac</button>
 							</div>
-							<div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8" || typeOfBind == 10" class="form-row">
+							<div v-else-if="typeOfBind == 3 || typeOfBind == 6 || typeOfBind == 8 || typeOfBind == 10" class="form-row">
 								<input v-if="typeOfBind == 6" class="form-control form-control-sm mb-2" v-filter="'[0-9\.]'" v-model="client_ip" maxlength="15">
 								<input v-if="typeOfBind == 3 || typeOfBind == 10" class="form-control form-control-sm" v-model="mac.selected" v-filter="'[0-9a-fA-F\:\.]'" maxlength="23" placeholder="mac">
 								<select id="macs" class="form-control form-control-sm" v-model="mac.selected">
