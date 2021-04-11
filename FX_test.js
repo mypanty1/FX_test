@@ -497,6 +497,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						data.btnText='';
 					};
 					window.AppInventor.setWebViewString('string_1:(error) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | contract:'+data.contract+' | text:'+data.alertText+((p_info.last_mac&&p_info.last_mac.value)?(' | last_mac:'+p_info.last_mac.value):('')));
+				}else if(data.type=='error'){
+					window.AppInventor.setWebViewString('string_4:(error) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | mac:'+params.mac+' | client_ip:'+params.client_ip+' | serverid:'+params.serverid+' | agentid:'+params.agentid+' | type_of_bind:'+params.type_of_bind+' | text:'+data.text);
 				}else{
 					window.AppInventor.setWebViewString('string_3:(success) | account:'+params.account+' | login:'+params.login+' | id:'+params.vgid+' | sw:'+params.ip+' | p:'+params.port+' | state:'+p_info.state+' | text:'+data.InfoMessage);
 				};
