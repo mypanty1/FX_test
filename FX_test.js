@@ -14,13 +14,13 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	};
 	
 	let addCSS=document.createElement('style');/*addCSS.type='text/css';*/let myCSS=`
-		.myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
+		.myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
 		@keyframes myloader-spinner{to{transform:rotate(360deg)}}
 		
 	`;
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
 	
-	window.AppInventor.setWebViewString('version_:FX_test_v174.a');
+	window.AppInventor.setWebViewString('version_:FX_test_v174.b');
 	
 	let info={};
 	info=filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -43,7 +43,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	}).then(function(resp){return resp.json()}).then(function(user_data){
 		if(user_data.data.username){
 			username=user_data.data.username;/*console.log('username',username);*/
-			if(true/*!dev*/){
+			if(!dev){
 				fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
 					'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
@@ -591,6 +591,77 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  },
 	});
 	
+	Vue.component('my-btn-w-loader',{
+		template:`
+			<component :is="tag" :class="blockClass" :to="to" :text="search" @click="blockClick" v-bind='$attrs'>
+				<div class="link-block__part">
+					<slot name="wrap-prefix">
+						<div class="link-block__prefix">
+							<slot name="prefix"><i :class="iconClass"></i></slot>
+						</div>
+					</slot>
+					<div class="link-block__text">
+						<slot name="text">{{text}}</slot>
+					</div>
+				</div>
+				<div class="link-block__part">
+					<div class="link-block__postfix">
+						<slot name="postfix"></slot>
+					</div>
+					<div class="link-block__action">
+						<slot name="action">
+							<button-sq :icon="actionIcon" :disabled='disabled' :type="type" @click="actionClick"/>        
+						</slot>
+					</div>
+				</div>
+			</component>
+		`,
+		props:{
+			text:{type:[String,Number]},
+			icon:{type:String},
+			to:{type:[String,Object]},
+			search:{type:String},
+			type:{type:String,default:'large'},
+			actionIcon:{type:String,default:'right-link'},
+			loading:{type:Boolean,default:false},
+			disabled:{type:Boolean,default:false}
+		},
+		computed:{
+			tag(){
+				if(this.search) return 'search-link';
+				if(this.to) return 'router-link';
+				if(this.$slots.postfix) return 'div';
+				return 'button';
+			},
+			blockClass(){
+				return{
+					[`link-block--${this.type}`]:true,
+					'link-block--loading':this.loading,
+					'link-block--disabled':this.disabled,
+				};
+			},
+			iconSize(){
+				return this.type === 'large' ? 24 :20;
+			},
+			iconClass(){
+				if (!this.icon) return '';
+				return{
+					[`ic-${this.iconSize}`]:true,
+					[`ic-${this.icon}`]:true,
+					'link-block__icon':true,
+				};
+			},
+		},
+		methods:{
+			blockClick(){
+				if(this.$listeners['block-click']) this.$emit('block-click');
+			},
+			actionClick(){
+				if(this.$listeners['click']) this.$emit('click');
+			},
+		},
+	});
+	
 	document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
 	Vue.component('my-site-du-wrapper',{
 		template:`
@@ -602,10 +673,40 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							<nav-slider :items="navItems" :loading="loading.entrances"/>
 							<devider-line/>
 							<info-text :title="site.address" :text="site.node"/>
+							<!--
 							<div style="text-align:right;padding-right:1em;margin-top:-2em;">
-								<span id="loader_downloadPL" class="myloader" style="display:none;"></span>
-								<input type="button" id="btn_downloadPL" @click="generate(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
+								<span id="loader_generatePL" class="myloader" style="display:none;"></span>
+								<input type="button" id="btn_generatePL" @click="generatePL(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
 							</div>
+							-->
+							
+							<devider-line/>
+							<link-block :actionIcon="((openOptions)?('down'):('up'))" icon="card" text="дополнительно" type="large" @block-click='openOptions=!openOptions' />
+							<div v-show="openOptions">
+								<div style="text-align:right;padding-right:1em;">
+									<span id="loader_generatePL" class="myloader" style="display:none;"></span>
+									<input type="button" id="btn_generatePL" @click="generatePL(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
+								</div>
+								<!--
+								<div style="text-align:right;padding-right:1em;">
+									<span class="myloader" style="display:none;"></span>
+									<input type="button" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="абоненты для ППР">
+								</div>
+								<div style="text-align:right;padding-right:1em;">
+									<span class="myloader" style="display:none;"></span>
+									<input type="button" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="абоненты для ПО">
+								</div>
+								<div style="text-align:right;padding-right:1em;">
+									<span class="myloader" style="display:none;"></span>
+									<input type="button" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="абоненты по портам">
+								</div>
+								<div style="text-align:right;padding-right:1em;">
+									<span class="myloader" style="display:none;"></span>
+									<input type="button" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="привязка абонентов">
+								</div>
+								-->
+							</div>
+							
 							<devider-line/>
 							<link-block text="топология сети" icon="topology" actionIcon="right-link" :to="toTopology"/>
 						</card-block>
@@ -624,6 +725,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 		data(){
 			return {
+				openOptions:false,/*add*/
 				site:this.siteProp,
 				responses:{
 					entrances:null,
@@ -708,10 +810,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			},
 		},
 		methods:{
-			generate:function(siteid){
-				console.log('generate('+siteid+')');
-				document.getElementById('btn_downloadPL').setAttribute('disabled','disabled');
-				document.getElementById('loader_downloadPL').style.display='inline-table';
+			generatePL:function(siteid){
+				console.log('generatePL('+siteid+')');
+				document.getElementById('btn_generatePL').setAttribute('disabled','disabled');
+				document.getElementById('loader_generatePL').style.display='inline-table';
 				let headers={'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),};
 				let sites={};function resetSiteObj(nodes={}){return {nodes:nodes,entrances:{},racks:{},devices:{},ppanels:{},loads:{}}};
 				function loader(siteid='unknown',state=true,object='unknown'){if(state){sites[siteid].loads[object]=false;}else{sites[siteid].loads[object]=true;};};
@@ -771,8 +873,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						testLoadPL(siteid);
 						
 					}else{
-						document.getElementById('btn_downloadPL').removeAttribute('disabled');
-						document.getElementById('loader_downloadPL').style.display='none';
+						document.getElementById('btn_generatePL').removeAttribute('disabled');
+						document.getElementById('loader_generatePL').style.display='none';
 					};
 				}).catch(function(err){console.log(err)}).finally(function(){});
 				function testLoadPL(siteid){
@@ -789,8 +891,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						if(counter.all==counter.done){
 							clearTimeout(timer);
 							downloadPL(preparePL(siteid));
-							document.getElementById('btn_downloadPL').removeAttribute('disabled');
-							document.getElementById('loader_downloadPL').style.display='none';
+							document.getElementById('btn_generatePL').removeAttribute('disabled');
+							document.getElementById('loader_generatePL').style.display='none';
 							alert('план-схема отправлена на '+username+'@mts.ru');
 						}else{
 							timer=setTimeout(testLoad,100);
@@ -798,10 +900,19 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					};
 				};
 				function downloadPL(obj){
-					fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
-						'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
-						'body':JSON.stringify(obj)
-					}).then(function(obj){}).catch(function(err){console.log(err)}).finally(function(){});
+					if(!dev){
+						fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
+							'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
+							'body':JSON.stringify(obj)
+						}).then(function(obj){}).catch(function(err){console.log(err)}).finally(function(){});
+					}else{
+						let json=new Blob([obj.json],{type:'text/plain'});
+						let a=document.createElement('a');
+						a.href=URL.createObjectURL(json);
+						a.download=obj.title+'.json';
+						a.click();
+						a.remove();
+					};
 				};
 				function preparePL(siteid){
 					let title=sites[siteid].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+username;
@@ -811,7 +922,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						address:sites[siteid].nodes[0].address,
 						siteid:siteid,
 						title:title,
-						json:JSON.stringify({[siteid]:sites[siteid]}),
+						json:((!dev)?(JSON.stringify({[siteid]:sites[siteid]})):(JSON.stringify({[siteid]:sites[siteid]},null,'\t'))),
 						html:'',
 					};
 				};
