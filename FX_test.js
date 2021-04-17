@@ -681,7 +681,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							-->
 							
 							<devider-line/>
-							<link-block :actionIcon="((openOptions)?('down'):('up'))" icon="card" text="дополнительно" type="large" @block-click='openOptions=!openOptions' />
+							<link-block :actionIcon="((openOptions)?('up'):('down'))" icon="card" text="дополнительно" type="large" @block-click='openOptions=!openOptions' />
 							<div v-show="openOptions">
 								<div style="text-align:right;padding-right:1em;">
 									<span id="loader_generatePL" class="myloader" style="display:none;"></span>
