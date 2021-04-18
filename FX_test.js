@@ -901,8 +901,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					};
 				};
 				function downloadPL(obj){
-					if(!dev){
-						fetch('https://script.google.com/macros/s/AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb/exec',{
+					if(!dev){/*AKfycbxl1S7H0iftlsBt8Tx-gL0zE-qwbwSN4TsUBpPqdIe9uMWtwgHfNGXb*/
+						fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
 							'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 							'body':JSON.stringify(obj)
 						}).then(function(obj){}).catch(function(err){console.log(err)}).finally(function(){});
