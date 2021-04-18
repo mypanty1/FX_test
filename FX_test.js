@@ -918,7 +918,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				function preparePL(siteid){
 					let title=sites[siteid].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+username;
 					return {
-						username:username,
+						username:username,deviceid:deviceid,
 						sitename:sites[siteid].nodes[0].name,
 						address:sites[siteid].nodes[0].address,
 						siteid:siteid,
