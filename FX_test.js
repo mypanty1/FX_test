@@ -105,7 +105,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		};
 	});
 	
-	document.getElementById('port-bind-user-action-template').innerHTML=`<my-port-bind-user-action v-bind="$props"/>`;
+	/*document.getElementById('port-bind-user-action-template').innerHTML=`<my-port-bind-user-action v-bind="$props"/>`;*/
 	Vue.component('my-port-bind-user-action', {
 		template:`<link-block actionIcon="expand" icon="link" v-if="$root.priv('LanBillingCtl')" @block-click="openModal" :disabled="disabledLink" text="привязать лицевой счет" type="large"/>`,
 		props:{
@@ -151,7 +151,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}	
 	});
 	
-	Vue.component('set-port-modal',{/*need ref rebind + redesign*/
+	Vue.component('my-set-port-modal',{/*need ref rebind + redesign*/
 	  template:`
 		<div class="container-fluid">
 			<div class="search-ctrl box-shadow-none search-account-modal" style="height:unset;">
