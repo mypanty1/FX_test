@@ -663,7 +663,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-	document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
+	/*document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;*/
 	Vue.component('my-site-du-wrapper',{
 		template:`
 			<main>
@@ -1043,7 +1043,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		},
 	});
 	
-	document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;
+	/*document.getElementById('account-page-template').innerHTML=`<my-account-page v-bind="$props"/>`;*/
 	Vue.component('my-account-page', {
 	  template:`
 		<section class="account-page">
@@ -1481,7 +1481,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}
 	  },
 	});
-	document.getElementById('billing-info-modal').innerHTML=`<my-billing-info-modal v-bind="$props"/>`;
+	/*document.getElementById('billing-info-modal').innerHTML=`<my-billing-info-modal v-bind="$props"/>`;*/
 	Vue.component('my-billing-info-modal', {
 		template:`
 			<modal-container ref='billingInfo'>
