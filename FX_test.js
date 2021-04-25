@@ -30,7 +30,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterProps(obj,'charging,chargingTime,dischargingTime,level');});
 	function filterProps(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
-	let node_id=randUN(10);/*console.log('device_id',node_id);*/
+	let node_id='N'+randUN(10);/*console.log('device_id',node_id);*/
 	let config_id='initial';/*console.log('config_id',config_id);*/
 	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
 	function randUN(n=1){return randcode(n,'0123456789QAZWSXEDCRFVTGBYHNUJMIKOLP')}
