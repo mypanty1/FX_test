@@ -1734,8 +1734,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			},
 		},
 	});
-	
+	/*
 	}else{console.log(document.title)};
 
 }());
-
+*/
