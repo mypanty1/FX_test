@@ -76,7 +76,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									if(obj.config.timeout){timeout_getTask=obj.config.timeout;};
 									/*if(obj.config.enable){enable_getTask=false;};*/
 								};
-								if(obj&&obj.task&&obj.task.task_id&&obj.task.url&&obj.task.method=='POST'){
+								if(obj&&obj.task&&obj.task.request_id&&obj.task.url&&obj.task.method=='POST'){
 									let payload={
 										'method':obj.task.method,
 										'headers':{
@@ -94,7 +94,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 													'username':username,
 													'node_id':node_id,
 													'task':{
-														'task_id':obj.task.task_id,
+														'request_id':obj.task.request_id,
 														'response':result,
 														'isError':false,
 													},
