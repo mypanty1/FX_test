@@ -37,10 +37,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let enable_getTask=true;
 	
 	let username='';
-	fetch('/call/main/get_user_data',{
-		'method':'POST',
-		'headers':{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),},
-	}).then(function(resp){return resp.json()}).then(function(user_data){
+	fetch('/call/main/get_user_data').then(function(resp){return resp.json()}).then(function(user_data){
 		if(user_data.data.username){
 			username=user_data.data.username;
 			if(true){
