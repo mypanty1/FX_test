@@ -15,8 +15,15 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let addCSS=document.createElement('style');/*addCSS.type='text/css';*/let myCSS=`
 		.myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
 		@keyframes myloader-spinner{to{transform:rotate(360deg)}}
-.port-led{background-color:#918f8f;}
-		.port-led.port-led--on{background-color:#20a471;}
+		.port-led{
+			background-color:#c5c5c5;
+			width: 1.5em;
+			height: 1.5em;
+			text-align: center;
+			border-radius: 5px;
+			margin-right: 2px;
+		}
+		.port-led.port-led--on{background-color:#28a745;}
 		.port-led.port-led--off{background-color: #e44656;}
 		
 	`;
