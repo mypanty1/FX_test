@@ -452,7 +452,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 								let date_last=(this.data.portInfo.last_mac&&this.data.portInfo.last_mac.last_at)?Date.parse(this.data.portInfo.last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now();
 								let date_last_text=new Date(date_last).toISOString().slice(0,10);
 								switch(this.data.portInfo.state){
-									case'busy':case'hub':this.result.refreedable_message='последняя активность '+date_last_text+' , решай сам';break;
+									case'busy':case'hub':this.result.refreedable_message='последняя активность '+date_last_text+' , есть риск отжать порт у действующего абонента';break;
 									case'closed':this.result.refreedable_message='контракт '+contract+' расторгнут, порт можно освободить';break;
 									case'expired':this.result.refreedable_message='неактивен более 3 мес, возможно порт можно освободить';break;
 									case'double':this.result.refreedable_message='абонент "переехал" на другой порт, возможно порт можно освободить';break;
