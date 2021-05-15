@@ -67,7 +67,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 							fetch('https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec?username='+username+'&node_id='+node_id+'&config_id='+config_id,).then(function(resp){return resp.json()}).then(function(obj){
 								/*console.log('getTask',obj);*/
 								if(obj&&obj.config){
-									if(obj.config.config_id){configid=obj.config.config_id;};
+									if(obj.config.config_id){config_id=obj.config.config_id;};
 									if(obj.config.timeout){timeout_getTask=obj.config.timeout;};
 									/*if(obj.config.enable){enable_getTask=false;};*/
 								};
