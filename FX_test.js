@@ -29,7 +29,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	`;
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
 	window.AppInventor.setWebViewString('version_:FX_test_v175');
-	
+	document.head.insertAdjacentHTML('beforeend',`<script type="text/javascript" src="https://github.com/mfranzke/datalist-polyfill/raw/master/datalist-polyfill.min.js"</script>`);
 	let info={};
 	info=filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
 	info.visualViewport=filterProps(window.visualViewport,['width','height']);
