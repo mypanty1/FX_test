@@ -15,20 +15,9 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let addCSS=document.createElement('style');/*addCSS.type='text/css';*/let myCSS=`
 		.myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
 		@keyframes myloader-spinner{to{transform:rotate(360deg)}}
-		.port-led{
-			background-color:#c5c5c5;
-			width: 1.5em;
-			height: 1.5em;
-			text-align: center;
-			border-radius: 5px;
-			margin-right: 2px;
-		}
-		.port-led.port-led--on{background-color:#28a745;}
-		.port-led.port-led--off{background-color: #e44656;}
-		
 	`;
 	addCSS.appendChild(document.createTextNode(myCSS));document.head.appendChild(addCSS);
-	window.AppInventor.setWebViewString('version_:FX_test_v175');
+	window.AppInventor.setWebViewString('version_:FX_test_v175.b');
 	
 	let info={};
 	info=filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']);
@@ -183,7 +172,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		}
 	});
 
-	Vue.component('my-port-bind-user-modal',{
+	Vue.component('my-port-bind-user-modal',{/*10702051141*/
 		template:`
 			<modal-container ref='modal' class='port-bind-user-modal'>
 				<div style="display:flex;flex-direction:column;align-items:center;">
@@ -271,6 +260,18 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				const isResult=result.code==200||result.InfoMessage||result.Data;
 				const isAccount=this.getAccountNumber();
 				return isResult&&isAccount;
+			},
+			devicePortParams(){
+				return {
+					MR_ID: this.data.deviceParams.MR_ID,
+					DEVICE_IP_ADDRESS: this.data.deviceParams.IP_ADDRESS,
+					DEVICE_SYSTEM_OBJECT_ID: this.data.deviceParams.SYSTEM_OBJECT_ID,
+					DEVICE_VENDOR: this.data.deviceParams.VENDOR,
+					DEVICE_FIRMWARE: this.data.deviceParams.FIRMWARE,
+					DEVICE_FIRMWARE_REVISION: this.data.deviceParams.FIRMWARE_REVISION,
+					DEVICE_PATCH_VERSION: this.data.deviceParams.PATCH_VERSION,
+					SNMP_PORT_NAME: this.data.portParams.SNMP_PORT_NAME,
+				};
 			}
 		},
 		methods:{
@@ -309,7 +310,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				});
 				if(found_agreement)return found_agreement.agreements.account;
 				return false;
-			},
+			},/*
 			async searchAccount(){
 				if(this.sample.trim().length===0)return;
 				this.clear();
@@ -341,7 +342,33 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 					console.error("error load account",error);
 				};
 				this.loading=false;
-			},
+			},*/
+			async searchAccount(){
+				if(this.sample.trim().length===0)return;
+				this.clear();
+				this.loading=true;
+				const setError=()=>{
+					this.searchError={
+						type:"warning",
+						text:"ЛС не найден"
+					}
+				};
+				try{
+					const response=await httpGet(buildUrl("search_ma",{pattern:this.sample},"/call/v1/search/"));
+					if(response.type==='error'){
+						setError();
+						return;
+					};
+					const accounts=this.getAccounts(response.data);
+					this.accounts=accounts;
+					this.tmp_sample=this.sample;
+					if(accounts.length===0) setError();
+				}catch(error){
+					setError();
+					console.error("error load account", error);
+				}
+				this.loading=false;
+			},/*
 			getAccounts(response){
 				let data=[];
 				if(response.type==="single"){
@@ -361,6 +388,32 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 						account.vgids=this.getInternetResources(account.vgroups);
 						account.vgids.sort((a,b)=>{return b.vgid-a.vgid});
 						account.vgids.sort((a,b)=>{return b.dateOn-a.dateOn});
+						accounts.push(account);
+					};
+				});
+				return accounts;
+			},*/
+			getAccounts(response){
+				let data=[];
+				if(response&&response.lbsv){
+					if(response.lbsv.type==="single"){
+						data.push(response.lbsv.data);
+					}else{
+						data=[...response.lbsv.data];
+					};
+				};
+				const accounts=[];
+				data.forEach((account)=>{
+					const found_agreement=account.agreements.find((item)=>{
+						const current_account=item.account.replace(/-/g,'');
+						const current_search=this.sample.replace(/-|\s/g,'');
+						return current_account==current_search;
+					});
+					if(found_agreement){
+						account.agreements=found_agreement;
+						account.vgids=this.getInternetResources(account.vgroups);
+						account.vgids.sort((a, b)=>{return b.vgid-a.vgid});
+						account.vgids.sort((a, b)=>{return b.dateOn-a.dateOn});
 						accounts.push(account);
 					};
 				});
@@ -386,7 +439,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				};
 				Object.assign(params,this.resource);
 				this.serviceMixQuery('ins_mac',params);
-			},
+			},/*
 			async getMacList(){
 				const existTypeOfBind=[2,5,7,9,10].indexOf(this.resource.type_of_bind)>=0;
 				if(!existTypeOfBind)return;
@@ -402,6 +455,19 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 				}catch(error){
 					console.error('Load PortMacShow',error);
 				};
+				this.loading=false;
+			},*/
+			async getMacList(){
+				const existTypeOfBind=[2,5,7,9,10].indexOf(this.resource.type_of_bind)>=0;
+				if(!existTypeOfBind)return;
+				this.loading=true;
+				const params={...this.devicePortParams,type:'array'};
+				try{
+					const response=await httpGet(buildUrl('port_mac_show',params,'/call/hdm/'));
+					this.mac.list=response.text;
+				}catch(error){
+					console.error('Load PortMacShow', error)
+				}
 				this.loading=false;
 			},
 			insOnlyMac(){
