@@ -1,0 +1,457 @@
+<!doctype html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0">
+	<title>{{TITLE}}</title>
+	<style type="text/css">
+		body{height:100%;background-color:#f1f1f1;display:flex;flex-direction:column;box-sizing:border-box;}
+		body{font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
+		input{font-family:arial;font-size:8pt;}
+		input[type="checkbox"]{}
+		input[type="text"]#input_search{text-align:left;padding:1px;height:14pt;font-size:14pt;border: 1px solid #aaa;}
+		input[type="text"]{width:100%;text-align:left;padding:0px;border-width:0px;background-color:#ffffff;}
+		input[type="text"]:hover{background-color:#eeeeff;}
+		input[type="text"]:focus{outline:unset;background-color:#eeffff;}
+		input[type="text"].edt{background-color:#ffffe0;}
+		input[type="button"]{padding:1px;}
+		input[type="file"]{width:100%;}
+		
+			
+			/*.tile{box-shadow:0px 7px 16px 0px rgba(0,0,0,0.12);padding:8px;margin-bottom:8px;}*/
+			.tile{box-shadow: 1px 1px 4px rgba(0,0,0,0.4);border: 1px solid #ccc;padding:8px;margin-bottom:8px;}
+			.tile-search{background-color:#fff;order:-1;display:flex;flex-direction:column;}
+				.loader-line{width:100%;padding-left:1em;background-color:#35a6dc;background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-size:1rem 1rem;animation:progress-bar-stripes 1s linear infinite;}
+				@keyframes progress-bar-stripes{from{background-position:1rem 0}to{background-position:0 0}}
+			.tile-result{}
+			.tile-warning{background-color:#fee;}
+			.tile-unknown{background-color:#fed;}
+			.tile-building{background-color:#fff;}
+			.tile-building>*{margin-bottom:2px;}
+				.content-x-scroll{overflow-x:auto;overflow-y:hidden;}
+					.entrances-grid{display:grid;grid-column-gap:2px;width:min-content;}
+						.floors-over{display:flex;flex-direction:column-reverse;}
+							.entrance-head{background-color:#eee;border: 1px solid #000;min-width:114px;}
+								.entrance-title{}
+						.floors-under{display:flex;flex-direction:column;}
+							.floor{display:inline-grid;grid-template-columns: 20px auto;background-color:#eee;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #ccc;}
+							.floor.cherdak{border-top:unset;}
+							.floor.tehetag{}
+							.floor.floor_0{border-top:1px solid #000;}
+							.floor.podval{border-bottom:1px solid #000;}
+								.floor-number{font-size:14px;line-height:14px;height:14px;color:gray;margin:auto;}
+								.floor-objects{}
+									.floor-racks{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-around;}
+									.floor-racks.floor-rk{flex-wrap:nowrap;}
+										.rack{width:max-content;height:fit-content;min-height:23px;margin:1px;border:1px solid #000;border-radius:2px;background-color:#aaa;}
+											.type-L{width:104px;}
+											.type-CU{width:48px;}
+												.rack-head{}
+													.rack-title{}
+												.rack-devices{display:flex;flex-direction:column;}
+													.device{width:100px;height:10px;margin-left:1px;margin-right:1px;margin-bottom:1px;border:1px solid #000;background-color:#fff;display:flex;flex-direction:column;}
+													.type-CU .device{width:44px;}
+													.type-ETH{background-color:#eff;}
+													.type-OP{background-color:#ffe;}
+													.type-A{background-color:#ffe;}
+													.type-А{background-color:#ffe;}
+													.type-SBE{background-color:#eef;}
+													.type-OSW{background-color:#eef;}
+													.type-FAMP{background-color:#eef;}
+													.type-MBH{background-color:#eef;}
+													.type-MPLS{background-color:#eef;}
+													.type-OLT{background-color:#eef;}
+													.type-IP{background-color:#fef;}
+													.type-CPE{background-color:#fef;}
+													.type-Voip{background-color:#fef;}
+													.type-CR{background-color:#ddd;}
+													.type-PP{background-color:#ddd;}
+													.without{width:44px;margin-top:1px;}
+														.device-head{display:inline-flex;}
+															.device-title{}
+																.title-norm{display:block;}
+																.type-CU .title-norm{display:none;}
+																.without .title-norm{display:none;}
+																.title-short{display:none;}
+																.type-CU .title-short{display:block;}
+																.without .title-short{display:block;}
+															.device-led{width:6px;min-width:6px;margin-left:auto;}
+															.device-led.online{background-color:green;}
+															.device-led.offline{background-color:red;}
+															.device-led.nomon{background-color:#ddd;}
+									.floor-flats{display:flex;flex-direction:row;flex-wrap:nowrap;}
+									.floor-flats.floor-even{justify-content:space-between;}
+									.floor-flats.floor-neven{justify-content:space-around;}
+									.floor-flats.floor-fake{flex-wrap:wrap;width:336px;}
+										.flat-none{width:100%;height:16px;line-height:16px;margin:auto;text-align:center;color:#a2a2a2;}
+										.flat{width:24px;min-width:24px;height:30px;margin:1px;border:1px solid #a2a2a2;color:#a2a2a2;border-radius:2px;text-align:center;}
+										.flat.on-service{border-color:#000;}
+										.flat.inet{}
+										.flat.tv{}
+										.flat.voip{}
+											.flat-service{display:none;line-height:7pt;}
+											.flat-service.red{display:block;color:tomato;}
+											.flat-service.green{display:block;color:forestgreen;}
+					
+					
+					.devices-without{/*display:flex;*//*flex-direction:column;*/}
+					
+					.cols{display:inline-flex;}
+						.col{display:flex;flex-direction:column;}
+							.cth{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;border-top:1px solid #000;background-color:#ffe4b5;padding: 0px 1px 0px 1px;text-align:center;order:-1;}
+							.ctd{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;background-color:#e0e0e0;padding: 0px 1px 0px 1px;}
+							.ctd>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
+							.cth>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
+							.cth>input[type="file"]{height:10px;padding:0px;font-size:7pt;width:inherit;}
+							.cth.c-0{border-left:1px solid #000;border-top:1px solid #000;}
+							.ctd.c-0{border-left:1px solid #000;}
+							
+							.cw2{width:2em;}
+							.cw3{width:3em;}
+							.cw4{width:4em;}
+							.cw5{width:5em;}
+							.cw6{width:6em;}
+							.cw7{width:7em;}
+							.cw8{width:8em;}
+							.cw9{width:9em;}
+							.cw10{width:10em;}
+							.cw11{width:11em;}
+							.cw12{width:12em;}
+							.cw13{width:13em;}
+							.cw14{width:14em;}
+							.cw18{width:18em;}
+							.cw19{width:19em;}
+							.cw20{width:20em;}
+							
+							.cmw2{min-width:2em;}
+							.cmw3{min-width:3em;}
+							.cmw4{min-width:4em;}
+							.cmw5{min-width:5em;}
+							.cmw6{min-width:6em;}
+							.cmw7{min-width:7em;}
+							.cmw8{min-width:8em;}
+							.cmw9{min-width:9em;}
+							.cmw10{min-width:10em;}
+							.cmw11{min-width:11em;}
+							.cmw12{min-width:12em;}
+							.cmw13{min-width:13em;}
+							.cmw14{min-width:14em;}
+							.cmw18{min-width:18em;}
+							.cmw19{min-width:19em;}
+							.cmw20{min-width:20em;}
+					
+					.table-rows{display:flex;flex-direction:column;}
+						.table-row{display:inline-flex;}
+							.th{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;border-top:1px solid #000;background-color:#ffe4b5;padding: 0px 1px 0px 1px;text-align:center;}
+							.td{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;background-color:#e0e0e0;padding: 0px 1px 0px 1px;}
+							.td>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
+							.th>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
+							.th>input[type="file"]{height:10px;padding:0px;font-size:7pt;width:inherit;}
+							.col-0{width:auto;}
+							.th.col-0{border-left:1px solid #000;border-top:1px solid #000;}
+							.td.col-0{border-left:1px solid #000;}
+							.row-0{border-bottom:unset;}
+							.col-w2{width:2em;}
+							.col-w3{width:3em;}
+							.col-w4{width:4em;}
+							.col-w5{width:5em;}
+							.col-w6{width:6em;}
+							.col-w7{width:7em;}
+							.col-w8{width:8em;}
+							.col-w9{width:9em;}
+							.col-w10{width:10em;}
+							.col-w11{width:11em;}
+							.col-w12{width:12em;}
+							.col-w13{width:13em;}
+							.col-w14{width:14em;}
+							.col-w18{width:18em;}
+							.col-w19{width:19em;}
+							.col-w20{width:20em;}
+							.col-w50{width:50em;}
+								.vgid-status-0{}
+								.vgid-status-1{color:orangered;}
+								.vgid-status-2{color:orangered;}
+								.vgid-status-3{color:orangered;}
+		
+		.hide{display:none;}
+		.ghost{opacity:0.3;}
+		
+		@supports not (display:grid){*{display:none;}}
+	</style>
+	<script name="delete_me">window.sites={{JSON}};</script>
+	<script name="delete_me">
+		function build(){
+			console.log(window.sites);
+			for(let siteid in window.sites){
+				visBuilding(siteid,window.sites[siteid].nodes);
+				visEntrances(siteid,window.sites[siteid].entrances);
+				visRacks(siteid,window.sites[siteid].racks);
+				visDevices(siteid,window.sites[siteid].devices);
+				visPPanels(siteid,window.sites[siteid].ppanels);
+			};
+			
+			document.body.removeAttribute('onload');
+			let del=document.getElementsByName('delete_me');
+			while(del.length>0){del[0].remove()};
+		};
+		
+		function val(v=''){return v?v:''};
+		function getType(name){return name.replace('-','_').split('_')[0]};
+		function getNum(name){return name.replace(/\W/g,'_').split('_').reverse()[0]};
+		function toKP(name){return isA(name)?name.replace('A','А').replace('KR','КР'):name.replace('KR','КР')};
+		function toKR(name){return name.replace('КР','KR')};
+		function isL(name){return(getType(name)=='L')?true:false};
+		function isCU(name){return(getType(name)=='CU')?true:false};
+		function isPP(name){return(getType(name)=='PP')?true:false};
+		function isCR(name){return(getType(name)=='CR')?true:false};
+		function isETH(name){return(getType(name)=='ETH')?true:false};
+		function isOP(name){return(getType(name)=='OP')?true:false};
+		function isA(name){return(getType(name)=='A')?true:false};
+		
+		function visBuilding(siteid,nodes){
+			document.getElementsByTagName('body')[0].insertAdjacentHTML('afterBegin',`
+				<div class="tile tile-result tile-building" id="`+nodes[0].id+`">
+					<div>
+						<input id="btn_updEntrances_`+nodes[0].id+`" type="button" value="upd" disabled>
+						<input id="btn_download_`+nodes[0].id+`" type="button" value="download" disabled>
+						<span title="`+nodes[0].name+` Sites_and_Devices" style="margin-left:10px;"><a href="https://nioss/common/uobject.jsp?tab=_Sites+and+Devices&object=`+nodes[0].id+`" target="_blank">`+nodes[0].name+` (`+nodes[0].address+`)</a></span>
+					</div>
+					<div class="content-x-scroll"><div class="entrances-grid" id="`+nodes[0].id+`.entrances"></div></div>
+					<div>
+						<input id="btn_updDevices_`+nodes[0].id+`" type="button" value="upd" disabled>
+						<input id="btn_pingAll_`+nodes[0].id+`" type="button" value="ping" disabled>
+						`+createNodeTitle(nodes)+`
+					</div>
+					<div>Устройства вне шкафа:</div>
+					<div class="content-x-scroll"><div class="devices-without" id="`+nodes[0].id+`.devices_without"></div></div>
+					<hr>
+					<div class="content-x-scroll"><div style="width:max-content;">
+						<div style="display:inline-flex;width:100%;">
+							<input type="button" id="btn_`+nodes[0].id+`_cls_accounts" value="X" disabled>
+							<input type="button" id="btn_`+nodes[0].id+`_get_accounts" value="get_accounts" disabled>
+							<input type="button" id="btn_`+nodes[0].id+`_acc_export_csv_x" value="acc_export_x" disabled>
+							<input type="button" id="btn_`+nodes[0].id+`_acc_export_csv" value="acc_export" disabled>
+							<input type="button" id="btn_`+nodes[0].id+`_test_auto_rebind" value="test_auto_rebind" disabled>
+							<input type="file" id="file_`+nodes[0].id+`_import_csv" disabled>
+						</div>
+						<div class="cols hide" id="`+nodes[0].id+`.accounts_table">
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_0" style="order:-1;"><div class="cth c-0"></div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_1" style="order:1;"><div class="cth cmw4">entrance</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_2" style="order:2;"><div class="cth cmw2">floor</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_3" style="order:3;"><div class="cth cmw2">flat</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_4" style="order:4;"><div class="cth cmw7">account</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_5" style="order:5;"><div class="cth cmw4">id</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_6" style="order:6;"><div class="cth cmw2">voip</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_7" style="order:7;"><div class="cth cmw8">ip</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_8" style="order:8;"><div class="cth cmw8">switch</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_9" style="order:9;"><div class="cth cmw2">port</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_10" style="order:10;"><div class="cth cmw8">mac</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_11" style="order:11;"><div class="cth cmw8">mac</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_12" style="order:12;"><div class="cth cmw10">start</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_13" style="order:13;"><div class="cth cmw5">sessionid</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_14" style="order:14;"><div class="cth cmw2" style="display:inline-flex;">
+								<input type="button" type="button" id="btn_`+nodes[0].id+`_get_online_sessions" value="S">
+								<input type="button" type="button" id="btn_`+nodes[0].id+`_stop_session_radius" value="X"></div>
+							</div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_15" style="order:15;"><div class="cth cmw8">switch</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_16" style="order:16;"><div class="cth cmw2">port</div></div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_17" style="order:17;"><div class="cth cmw2">
+								<input type="button" id="btn_`+nodes[0].id+`_set_bind" value="ALL"></div>
+							</div>
+							<div class="col" id="`+nodes[0].id+`.accounts_table.col_18" style="order:18;"><div class="cth cmw10">result</div></div>
+						</div>
+					</div></div>
+				</div>`);
+			document.getElementById('btn_updEntrances_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_download_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_updDevices_'+nodes[0].id).addEventListener('click',function(){});
+			document.getElementById('btn_pingAll_'+nodes[0].id).addEventListener('click',function(){});
+		};
+		function createNodeTitle(nodes){
+			let title='';
+			for(let node of nodes){
+				title+=`<span title="`+node.node+` Параметры" style="margin-left:10px;"><a href="https://nioss/common/uobject.jsp?tab=_Parameters&object=`+node.uzel_id+`" target="_blank">`+node.node+`</a></span>`;
+			};
+			return title;
+		};
+		
+		function visEntrances(siteid,entrances){
+			for(let id in entrances){let entrance=entrances[id];
+				function createEntranceTitle(e){return getType(e.name)+'#'+getNum(e.name)};
+				document.getElementById(siteid+'.entrances').insertAdjacentHTML('beforeEnd',`
+					<div class="floors-over" id="`+entrance.id+`.over" style="grid-column:`+(+entrance.number+1)+`/`+(+entrance.number+2)+`;grid-row:2/3;">
+						<div class="entrance-head" style="order:9999;">
+							<div class="entrance-title" id="`+entrance.id+`_title" title="`+entrance.name+` Sites_and_Devices">
+								<a href="https://nioss/common/uobject.jsp?tab=_Sites+and+Devices&object=`+entrance.id+`" target="_blank">`+createEntranceTitle(entrance)+`</a>
+								<input style="width:15px;margin-left:5px;background-color:#ddd;" type="text" value="`+entrance.number+`" disabled>
+							</div>
+							<div>
+								<input style="width:15px;background-color:#ddd;" type="text" value="`+entrance.flats.count+`" disabled>
+								<input style="width:30px;margin-left:10px;background-color:#ddd;" type="text" value="`+entrance.flats.from+`" disabled>
+								<input style="width:30px;margin-left:5px;background-color:#ddd;" type="text" value="`+entrance.flats.to+`" disabled>
+							</div>
+						</div>
+						`+createFloor(entrance.id,'','cherdak')+`
+						`+createFloor(entrance.id,'','tehetag')+`
+					</div>
+					<div class="floors-under" id="`+entrance.id+`.under" style="grid-column:`+(+entrance.number+1)+`/`+(+entrance.number+2)+`;grid-row:3/4;">
+						`+createFloor(entrance.id,'','podval')+`
+					</div>`);
+				for(let floor of entrance.floor){/*перебор этажей*/
+					document.getElementById(entrance.id+((+floor.number>0)?'.over':'.under')).insertAdjacentHTML('beforeEnd',createFloor(entrance.id,floor.number,'',floor.first,floor.last,floor.flats));
+					for(let flat of floor.flats){/*перебор хат*/
+						let flatHtml=document.getElementById(entrance.id+'.flat_'+flat.number);
+						flatHtml.classList.add('on-service');
+						for(let service of flat.services){/*перебор услуг в квартире*/
+							switch(service.service_id){
+								case'1':flatHtml.classList.add('inet');document.getElementById(entrance.id+'.flat_'+flat.number+'.spd').classList.add(service.status);break;
+								case'2':case'4':case'16':flatHtml.classList.add('tv');document.getElementById(entrance.id+'.flat_'+flat.number+'.tv').classList.add(service.status);break;
+								case'8':flatHtml.classList.add('voip');document.getElementById(entrance.id+'.flat_'+flat.number+'.spd').classList.add(service.status);break;
+							};
+						};
+						for(let account of flat.subscribers){
+							/*flatHtml.classList.add('account_'+account.account.match(/\d/g).join(''));*/
+							document.getElementById(entrance.id+'.flat_'+flat.number+'.number').innerHTML=`<a href="http://inetcore.mts.ru/#/`+account.account+`" target="_blank">`+flat.number+`</a>`;
+						};
+					};
+				};
+				if(entrance.floor.length<=entrance.flats.count){/*фейковые этажи для выравнивание падиков по низу*/
+					for(var f_number=0;f_number<entrance.floor[0].number;f_number++){
+						document.getElementById(entrance.id+((f_number>0)?'.over':'.under')).insertAdjacentHTML('beforeEnd',createFloor(entrance.id,f_number));
+					};
+				};
+			};
+		};
+		function createFloor(entrance_id,number='0',type='',flat_first=0,flat_last=0,flats=[]){/*этаж падика*/
+			let floor={
+				'cherdak':{name:'cherdak',order:'1001',title:'Ч',flats:createNoFlats('чердак'),variant:''},
+				'tehetag':{name:'tehetag',order:'1000',title:'Т',flats:createNoFlats('тех. этаж'),variant:''},
+				'podval':{name:'podval',order:'1000',title:'П',flats:createNoFlats('подвал'),variant:''},
+				'':{
+					name:'floor_'+number,
+					order:((Math.abs(+number)+10)*10),
+					title:number,
+					flats:((flat_first&&flat_last||flats.length>0)?createEmptyFlats(entrance_id,flat_first,flat_last):createNoFlats()),
+					variant:(+number%2==0)?'floor-even':'floor-neven',
+				},
+			}[type];
+			return `
+				<div class="floor `+floor.name+`" id="`+entrance_id+`.`+floor.name+`" style="order:`+floor.order+`;">
+					<div class="floor-number">`+floor.title+`</div>
+					<div class="floor-objects" id="`+entrance_id+`.`+floor.name+`.objects">
+						<div class="floor-racks" id="`+entrance_id+`.`+floor.name+`.racks"></div>
+						<div class="floor-racks floor-rk" id="`+entrance_id+`.`+floor.name+`.rk"></div>
+						<div class="floor-flats `+floor.variant+`" id="`+entrance_id+`.`+floor.name+`.flats">
+							`+floor.flats+`
+						</div>
+					</div>
+				</div>`;
+		};
+		function createNoFlats(name=''){return `<div class="flat-none">`+name+`</div>`};
+		function createEmptyFlats(entrance_id,f_first,f_last){/*заготовки квартир на этаж*/
+			let newFlatsRow='';
+			for(let flat=f_first;flat<f_last+1;flat++){
+				newFlatsRow+=`<div class="flat" id="`+entrance_id+`.flat_`+flat+`" style="order:`+flat+`;">
+					<div id="`+entrance_id+`.flat_`+flat+`.number">`+flat+`</div>
+					<div class="flat-service" id="`+entrance_id+`.flat_`+flat+`.spd">шпд</div>
+					<div class="flat-service" id="`+entrance_id+`.flat_`+flat+`.tv">тв</div>
+				</div>`
+			};		
+			return newFlatsRow;
+		};
+		
+		function visRacks(siteid,racks){
+			for(let id in racks){let rack=racks[id];
+				let container=rack.entrance.id+'.'+((rack.off_floor=='Подвал')?'podval':(rack.off_floor=='Чердак')?'cherdak':(rack.off_floor=='Технический этаж')?'tehetag':('floor_'+rack.floor))+((isCU(rack.name))?'.rk':(isL(rack.name))?'.racks':'.racks');
+				if(!document.getElementById(container)){/*если шкаф на этаже вне подъезда*//*ду0000000054КР-02878*/
+					document.getElementById(rack.entrance.id+((rack.off_floor=='Подвал'||rack.floor<=0)?'.under':'.over')).insertAdjacentHTML('beforeEnd',createFloor(rack.entrance.id,rack.floor,((rack.off_floor=='Подвал')?'podval':(rack.off_floor=='Чердак')?'cherdak':(rack.off_floor=='Технический этаж')?'tehetag':'')));
+				};
+				
+				let devices={ne:``,	pp:``};
+				for(let device of rack.ne_in_rack){
+					if(isPP(device)||isCR(device)){
+						devices.pp+=createPP({name:device,inrack:rack.name,ghost:'ghost'});
+					}else{
+						devices.ne+=createDevice({name:device,ip:'',inrack:rack.name,ghost:'ghost'});
+					};
+				};
+				function createRackTitle(r){return getType(r.name)+'#'+getNum(r.name)};
+				let title=`<span class="title-norm">`+createRackTitle(rack)+`</span><span class="title-short">`+createRackTitle(rack)+`</span>`;
+				document.getElementById(container).insertAdjacentHTML('beforeEnd',`
+					<div class="rack `+((rack.name)?(`type-`+getType(rack.name)):`type-unknown`)+`" id="`+rack.id+`" style="order:`+((rack.n_rack_site)?rack.n_rack_site:getNum(rack.name))+`;">
+						<div class="rack-head">
+							<div class="rack-title" id="`+rack.id+`_title">
+								<a href="https://nioss/ncobject.jsp?id=`+rack.id+`" target="_blank">`+title+`</a>
+							</div>
+						</div>
+						<div class="rack-devices" id="`+rack.name+`.devices_ne">`+devices.ne+`</div>
+						<div class="rack-devices" id="`+rack.id+`.devices_pp">`+devices.pp+`</div>
+					</div>`);
+			};
+		};
+		
+		function visDevices(siteid,devices){
+			for(let id in devices){let device=devices[id];
+				let inrack=document.getElementById(toKP(device.name));
+				document.getElementById(((inrack)?(inrack.getAttribute('inrack')+'.devices_ne'):(siteid+'.devices_without'))).insertAdjacentHTML('beforeEnd',createDevice(device));
+			};
+		};
+		function createDeviceTitleIP(d){return getType(d.name)+'#'+getNum(d.name)+((d.ip)?('&nbsp;..'+d.ip.split('.')[2]+'.'+d.ip.split('.')[3]):'')};
+		function createDeviceTitle(d){return getType(d.name)+'#'+getNum(d.name)};
+		function createDevice(device){
+			let kpname=toKP(device.name);
+			if(document.getElementById(kpname)){document.getElementById(kpname).remove();};
+			let title=`<span class="title-norm">`+createDeviceTitleIP(device)+`</span><span class="title-short">`+createDeviceTitle(device)+`</span>`;
+			let inrack=(device.inrack)?(`inrack="`+device.inrack+`"`):'';
+			return `
+				<div class="device type-`+getType(kpname)+((device.ghost)?` ghost`:``)+`" id="`+kpname+`" `+inrack+`>
+					<div class="device-head">
+						<div class="device-title" id="`+kpname+`_title">
+							<a href="https://nioss/ncobject.jsp?id=`+device.nioss_id+`" target="_blank">`+title+`</a>
+						</div>
+						<div class="device-led" id="`+kpname+`.led"></div>
+					</div>
+				</div>`;
+		};
+		
+		function visPPanels(siteid,ppanels){
+			for(let id in ppanels){let pp=ppanels[id];
+				if(pp.rack_id=='0'){
+					let container=pp.entrance_id+'.floor_'+pp.n_floor+'.rk';
+					if(!document.getElementById(container)){
+						document.getElementById(pp.entrance_id+((pp.n_floor<=0)?'.under':'.over')).insertAdjacentHTML('beforeEnd',createFloor(pp.entrance_id,pp.n_floor));
+					};
+					document.getElementById(container).insertAdjacentHTML('beforeEnd',createPP(pp));
+				}else{
+					let container=document.getElementById(pp.rack_id+'.devices_pp');
+					if(container){
+						container.insertAdjacentHTML('beforeEnd',createPP(pp));
+					}else{
+						
+					};
+				};
+			};
+		};
+		function createPPTitle(p){return getType(p.name)+'#'+getNum(p.name)};
+		function createPP(pp){
+			let kpname=toKP(pp.name);
+			if(document.getElementById(kpname)){document.getElementById(kpname).remove();};
+			let title=`<span class="title-norm">`+createPPTitle(pp)+`</span><span class="title-short">`+createPPTitle(pp)+`</span>`;
+			let inrack=(pp.inrack)?(`inrack="`+pp.inrack+`"`):'';
+			return `
+				<div class="device type-`+getType(kpname)+((pp.rack_id=='0')?` without`:``)+((pp.ghost)?` ghost`:``)+`" id="`+kpname+`" `+inrack+`>
+					<div class="device-head">
+						<div class="device-title" id="`+kpname+`_title">
+							<a href="https://nioss/ncobject.jsp?id=`+pp.id+`" target="_blank">`+title+`</a>
+						</div>
+					</div>
+				</div>`;
+		};
+	</script>
+</head>
+<body onload="build()">
+	
+</body>
+
+
+
+
