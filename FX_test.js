@@ -546,7 +546,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									vgid:contract,
 									account:null,/*only for logs*/
 									login:null,/*only for logs*/
-									mac:((get_refree_mac&&get_refree_mac[0]&&get_refree_mac[0].macCPE[0])?get_refree_mac[0].macCPE[0]:'0000.0000.0000'),/*for omsk serverid 64*/
+									mac:((get_refree_mac&&get_refree_mac.data&&get_refree_mac.data[0]&&get_refree_mac.data[0].macCPE[0])?get_refree_mac.data[0].macCPE[0]:'0000.0000.0000'),/*for omsk serverid 64*/
 								},
 							};
 						};
