@@ -669,7 +669,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		template:`
 			<section>
 				<radio-el v-model="resource" :value="getVgidValue(vgid)" :label="vgid.login" :name="account.userid" :disabled="loading" class='port-bind-user-modal__vgid-radio' />
-				<button-main label="активировать" @click="activateSpd(vgid.vgid)" :disabled="!vgid.vgid||vgid.serverid!='108'" buttonStyle="contained" style="margin-left:auto;margin-right:2em;margin-top:-2em;width:min-content;"/>
+				<button-main label="активировать" @click="activateSpd(vgid.vgid)" :disabled="!vgid.vgid||(vgid.serverid!='108'&&vgid.serverid!='64')" buttonStyle="contained" style="margin-left:auto;margin-right:2em;margin-top:-2em;width:min-content;"/>
 				<div class="port-bind-user-modal__vgid-offset">
 					<div v-if='vgid.tardescr' class="port-bind-user-modal__info">{{ vgid.tardescr }}</div>
 					<info-value v-if="vgid.vgid" :value="vgid.vgid" label="ID_заказа:" type="medium" class='port-bind-user-modal__vgid-login' withLine />
