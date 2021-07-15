@@ -535,6 +535,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 								this.result.refreedable_message='невозможно определить активность, смотри сам';
 							};
 							log_props=Object.assign(log_props,{user_message:this.result.refreedable_message});
+							/*test*/const get_refree_mac=await httpGet(buildUrl('get_user_rate',{serverid:params.serverid,vgid:contract},'/call/aaa/'));
 							this.result.refree_params={
 								method:method,
 								params:{
@@ -545,7 +546,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									vgid:contract,
 									account:null,/*only for logs*/
 									login:null,/*only for logs*/
-									mac:'0000.0000.0000',/*for omsk*/
+									mac:((get_refree_mac&&get_refree_mac[0]&&get_refree_mac[0].macCPE[0])?get_refree_mac[0].macCPE[0]:'0000.0000.0000'),/*for omsk serverid 64*/
 								},
 							};
 						};
