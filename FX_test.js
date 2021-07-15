@@ -545,7 +545,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 									vgid:contract,
 									account:null,/*only for logs*/
 									login:null,/*only for logs*/
-									mac:null,/*only for logs*/
+									mac:'0000.0000.0000',/*for omsk*/
 								},
 							};
 						};
