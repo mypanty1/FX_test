@@ -877,7 +877,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       navItems(){
         const mainRoute={
           icon:'entrance-mini',
-          name:'Дом(ДУ)',
+          name:'Дом',
           path:{
             name:'site_du',
             params:{
