@@ -694,7 +694,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     template:`<main>
       <transition name="slide-page" mode="out-in" appear>
         <div v-if="showNav">
-          <page-navbar title="Домовой узел" @refresh="refresh" />
+          <page-navbar title="Дом(ДУ)" @refresh="refresh" />
           <card-block>
             <nav-slider :items="navItems" :loading="loading.entrances" />
             <devider-line />
@@ -877,7 +877,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       navItems(){
         const mainRoute={
           icon:'entrance-mini',
-          name:'ДУ',
+          name:'Дом(ДУ)',
           path:{
             name:'site_du',
             params:{
