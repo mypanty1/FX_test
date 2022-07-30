@@ -2234,7 +2234,158 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	
 	
 	
-	
+	Vue.component('device-optical-main', {
+  //template: '#device-optical-main-template',
+  template:`<card-block class="device-optical-main">
+  <title-main icon="router" :text="deviceTitle">
+    <button-sq icon="refresh" @click="$emit('refresh')" />
+  </title-main>
+  <devider-line />
+
+  <device-info :device="device" :entrances="entrances" :disabled="true"/>
+  <!--<devider-line v-if="device.display"/>скрываем так как поле перестало нести смысл для полевого сотрудника
+  <info-text-sec :title="device.display"/>-->
+
+  <message-el class='mx-3'
+    v-if="showDiscoveryMessage"
+    :text="discovery.text"
+    :type="discovery.type"
+    :subText="discovery.error"
+    box />
+
+  <devider-line />
+  <loader-bootstrap v-if="loading.configParams" height="72" text="поиск рекомендуемых настроек"/>
+  <div v-if="opticalConfig&&device.type==='OP'">
+    <info-value label="Маска" :value="opticalConfig.Submask" type="small"  withLine />
+    <info-value label="Шлюз" :value="opticalConfig.Gateway" type="small"  withLine />
+  </div>
+  <div v-if="device.snmp">
+    <info-value v-if="device.snmp.community" label="snmp community" :value="device.snmp.community" type="small"  withLine />
+    <info-value v-if="device.snmp.version" label="snmp version" :value="device.snmp.version" type="small"  withLine />
+  </div>
+  <div v-if="opticalConfig&&device.type==='OP'">
+    <info-value v-if="opticalConfig.Attenuator" label="Аттенюатор" :value="opticalConfig.Attenuator" type="small"  withLine />
+    <info-value v-if="opticalConfig.Equalizer" label="Эквалайзер" :value="opticalConfig.Equalizer" type="small"  withLine />
+  </div>
+
+  <devider-line />
+  <link-block icon="superior" text="Вышестоящие устройства" :text2="upstream_ne.length||''" @block-click="open_upstream_ne_modal" actionIcon="expand">
+    <button-sq slot="postfix" class="mx-m16" v-if="!has_upstream_ne">
+      <i class="ic-20 ic-warning main-orange"></i>
+    </button-sq>
+  </link-block>
+
+  <template v-if="showLocationBlock">
+    <devider-line />
+    <title-main icon="info" text="Расположение и информация" @block-click="showLocation = !showLocation" :opened="showLocation" />
+    <collapse-slide :opened="showLocation">
+      <template v-if="rack">
+        <info-list icon="entrance" :text="'Подъезд №'+rack.entrance.number" />
+        <info-list icon="floor" :text="floorText" />
+        <link-block icon="unlock" :text="'Шкаф • '+rack.name" :search="rack.name" />
+      </template>
+      <p v-else class="font--13-500 tone-900" style="padding: 0px 16px 8px; margin: 0;">Вне шкафа</p>
+      <devider-line p="0 16px"/>
+      <link-block icon="du" :text="device.uzel.name" :search="device.uzel.name" />
+      <p class="font--13-500 tone-900" style="padding: 0 16px 16px 16px; margin: 0;">{{ device.region.location }}</p>
+    </collapse-slide>
+  </template>
+
+  <modal-container ref="upstream_ne_modal">
+    <h6 class="t-a-c mb-16">Вышестоящие устройства</h6>
+    <template v-for="(device_name,i) of upstream_ne">
+      <device-info v-if="parentDevices[device_name]" :device="parentDevices[device_name]" showLocation hideEntrances noMinimap class="mx-16 mb-8 py-8 b-w-1 b-s-s b-c-grey">
+        <button-sq slot="link" @click="goToFamp(device_name)" class="m-m10">
+          <i class="ic-24 ic-right-link main-lilac"></i>
+        </button-sq>
+      </device-info>
+      <link-block v-else :text="device_name" :textSub="parentDevices[device_name]?.region?.location" textSubClass="font--13-500 tone-500 t-a-l" @block-click="goToFamp(device_name)" class="mb-8"/>
+    </template>
+    <message-el v-if="!has_upstream_ne" type="warn" text="Отсутствуют!" box class="mx-16"/>
+  </modal-container>
+</card-block>`,
+  props: {
+    device: { type: Object, required: true },
+    entrances: { type: Array, default: () => ([]) },
+    discovery: { type: Object},
+    opticalInfo: { type: Object, default: null },
+    opticalConfig: { type: Object, default: null },
+    rack: { type: Object, default: null },
+    loading: { type: Object, default: () => ({}) },
+  },
+  data:()=>({
+    showLocation: false,
+    parentDevices:{},
+  }),
+  created(){
+    for(let device_name of this.upstream_ne){
+      this.getDevice(device_name)
+    };
+  },
+  watch:{
+    'upstream_ne'(upstream_ne){
+      if(!upstream_ne?.length){return};
+      for(let device_name of upstream_ne){
+        this.getDevice(device_name)
+      };
+    }
+  },
+  computed: {
+    deviceTitle() {
+      return deviceTitles[this.device.name.split('_')[0].split('-')[0].toUpperCase()]||'Устройство';;
+    },
+    floorText() {
+      const { rack } = this;
+      if (!rack) return '';
+      return `${+rack.floor ? 'Этаж ' : ''} ${+rack.floor||rack.off_floor||rack.location}`;
+    },
+    deviceEntrances() {
+      const entrArray = this.device.entrances || this.entrances;
+      if (!(entrArray && entrArray.length)) return null;
+      return entrArray.filter((ent) => ent.device_list.includes(this.device.name));
+    },
+    showLocationBlock() {
+      const { name } = this.$route;
+      return ['task', 'opticalDevice'].includes(name);
+    },
+    showDiscoveryMessage() {
+      const success = 'SUCCESSFULLY';
+      return this.discovery.status !== success;
+    },
+    upstream_ne(){
+      if(!this.device.upstream_ne?.length){return []};
+      return this.device.upstream_ne.split(',');
+    },
+    has_upstream_ne(){
+      return !!this.upstream_ne?.length;
+    },
+  },
+  methods: {
+    open_upstream_ne_modal() {
+      this.$refs.upstream_ne_modal.open();
+    },
+    goToFamp(id){
+      this.$router.push({
+        name:"opticalDevice",
+        params:{id},
+      });
+    },
+    async getDevice(device_name){
+      if(!device_name){return};
+      if(this.parentDevices[device_name]){return};
+      const cache=this.$cache.getItem(`device/${device_name}`);
+      if(cache&&cache.data){
+        this.parentDevices={...this.parentDevices,[device_name]:cache.data};
+      }else{
+        let response=await httpGet(buildUrl('search_ma',{pattern:device_name},'/call/v1/search/'));
+        if(response.data){
+          this.$cache.setItem(`device/${device_name}`,response);
+          this.parentDevices={...this.parentDevices,[device_name]:response.data};
+        };
+      };
+    }
+  }
+});
 	
 	
 	
