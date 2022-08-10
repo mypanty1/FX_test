@@ -688,7 +688,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	
-	document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
+	//document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
   Vue.component('my-site-du-wrapper',{//план-схема
     //template:'#site-du-wrapper-template',
     template:`<main>
@@ -1378,7 +1378,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     },
   });
 	
-	Vue.component('checkbox-el', {//need for find-port
+	Vue.component('checkbox-el---onprod', {//need for find-port
     //template: '#checkbox-el-template',
     template:`<label class="checkbox-el" :class="{ 'checkbox-el--reverse': reverse }">
       <div class="checkbox-el__wrapper" :class="{ 'checkbox-el__wrapper--disabled': disabled }">
@@ -1441,7 +1441,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
   });
 	
 	
-	Vue.component('find-port',{//add selector and filter
+	Vue.component('find-port---onprod',{//add selector and filter
     //template:'#find-port-template',
     template:`<card-block class="find-port">
       <title-main :text="'Поиск '+(saveData.cableTest?'кабеля в':'линка на')+' порту'" @open="show=!show">
@@ -1778,7 +1778,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     },
   });
 
-	Vue.component('find-port-el',{
+	Vue.component('find-port-el---onprod',{
     template:`
     <div class="find-port-el">
       <div class="d-flex-y g-2">
@@ -2012,7 +2012,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	
-	document.getElementById('port-content-template').innerHTML=`<my-port-content v-bind="$props"/>`;
+	//document.getElementById('port-content-template').innerHTML=`<my-port-content v-bind="$props"/>`;
 	Vue.component('my-port-content', {//temp fix to port_status_by_ifindex
 	  //template: '#port-content-template',
 	  template:`<section class="port-content">
@@ -2234,7 +2234,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	
 	
 	
-	Vue.component('device-optical-main', {
+	Vue.component('device-optical-main---onprod', {
   //template: '#device-optical-main-template',
   template:`<card-block class="device-optical-main">
   <title-main icon="router" :text="deviceTitle">
