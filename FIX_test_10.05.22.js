@@ -688,7 +688,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	
-	//document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
+	document.getElementById('site-du-wrapper-template').innerHTML=`<my-site-du-wrapper v-bind="$props"/>`;
   Vue.component('my-site-du-wrapper',{//план-схема
     //template:'#site-du-wrapper-template',
     template:`<main>
@@ -876,7 +876,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       },
       navItems(){
         const mainRoute={
-          icon:'entrance-mini',
+          icon:'home',
           name:'Дом',
           path:{
             name:'site_du',
