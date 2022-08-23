@@ -1529,137 +1529,118 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	
-	Vue.component('rack-box', {
-	  //template: '#rack-box-template',
-	  template:`<div :class="rackClass">
-	    <div class="rack-box__link" @click="toRack">
-	      <div :class="typeClass" style="width:32px;" v-if="rackType">{{rackType}}</div>
-	      <div :class="typeClass" v-if="iconRack"><i class="fas" :class="iconRack"></i></div>
-	      <div class="rack-box__floor"><i class="ic-20 ic-entrance-mini"></i>{{ entrance }}</div>
-	      <div class="rack-box__location" :class="{ 'rack-box--error': !rackLocation }"><i class="ic-20 ic-floor"></i>{{ rackLocation || 'неизвестно' }}</div>
-	      <div v-if="horizontalLocation" class="rack-box__drs-number">{{horizontalLocation}}</div>
+	Vue.component('session-history-modal', {
+	  //template: '#session-history-template',
+	  template:`<modal-container-custom ref="sessionHistory">
+	    <div class="mx-auto mt-8 w-75">
+	      <h3 class="font--18-600 tone-900 d-center-x mb-8">История сессий</h3>
+	      <h5 class="font--13-500-140 tone-500 text-center m-auto">Выберите временной промежуток</h5>
+	    </div>
+	    <div>
+	      <div class="mx-16">
+		<div class="d-center-x py-16">
+		  <input-el :value="history.start" label="Начало" type="date"  v-model="history.start" class="mr-8" data-ic-test="session_history_date_from"/>
+		  <input-el :value="history.end" label="Конец" type="date" v-model="history.end" class="ml-8" data-ic-test="session_history_date_to"/>
+		</div>
+		<button-main @click="get_sessions" :disabled="loading" label="Загрузить" :loading="loading" size="full" buttonStyle="contained" data-ic-test="session_history_load_btn" />
+		<device-params-item-history v-if="history.data?.length" :paramDays="sessions" :item="{param:'traffic',unit:'Gb',valueUnit:'Gb'}" :limit="sessions?.length" chartStyle="border:1px solid #e4e3e3;border-radius:5px;"/>
+	      </div>
+	      <template v-for="entry in history.data">
+		<devider-line></devider-line>
+		<div>
+		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
+		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
+		  <info-value label="IP" :value="entry.ip" type="large" whithLine data-ic-test="session_history_ip"></info-value>
+		  <info-value label="MAC" :value="entry.mac" type="large" whithLine data-ic-test="session_history_mac"></info-value>
+		  <info-value label="NAS" :value="entry.nas" type="large" whithLine></info-value>
+		  <info-value label="Тип трафика" :value="entry.catdescr" type="large" whithLine></info-value>
+		</div>
+	      </template>
 	    </div>
 
-
-	    <title-main v-if="locationFilteredAndTrunkated||notes||description" icon="circle-1" :text="locationFilteredAndTrunkated" text1Class="font--13-500" @open="show_notes=!show_notes" :opened="show_notes" class="mt-m8 mb-m16">
-	      <button-sq v-if="nioss_loading" icon="loading rotating" type="large" @click=""/>
-	      <button-sq v-else-if="!nioss_object" icon="refresh" type="large" @click="get_nioss_object"/>
-	    </title-main>
-	    <template v-if="show_notes">
-	      <info-text-sec v-if="location!==locationFilteredAndTrunkated" :text="location"/>
-	      <info-text-sec :text="notes"/>
-	      <info-text-sec :text="description"/>
-	      <devider-line v-if="location||notes||description"/>
-	    </template>
-
-	    <loader-bootstrap v-if="isLoading" text="загрузка данных"/>
-	    <slot v-else>
-	      <div class="p-all"></div>
-	    </slot>
-	  </div>`,
-	  //props: ['rack', 'isLoading', 'reversed','isOptical'],
+	    <div class="px-16" v-if="Array.isArray(history.data) && history.data.length == 0">
+	      <message-el :text="message.text" :box="true" :type="message.type"></message-el>
+	    </div>
+	  </modal-container-custom>`,
 	  props:{
-	    rack:{type:Object,default:null,required:true},
-	    isLoading:{type:Boolean,default:false},
-	    reversed:{type:Boolean,default:false},
-	    //isOptical:{default:false},
-	  },
-	  data(){
-	    return {
-	      nioss_loading:false,
-	      nioss_object:null,
-	      show_notes:!!(this.rack?.notes||this.rack?.description),
+	    session:{ 
+	      type: Object,
+	      required: true,
 	    }
 	  },
-	  created(){
-	    if(this.$route.name!=='rack'){//открыть и обновить если компонент не в rack-content
-	      //на одной странице может быть множество рк, многовато запросов к oss/j
-	      //this.show_notes=!!(this.rack?.notes||this.rack?.description);
-	      //this.get_nioss_object();
+	  data:function(){
+	    const formatDate=(date,day=0)=>{date.setDate(date.getDate()-day);return date.toLocaleDateString().split('.').reverse().join('-')}
+	    return {
+	      history:{
+		data:null,
+		start:formatDate(new Date(),5),
+		end:formatDate(new Date())
+	      },
+	      loading:false,
 	    };
 	  },
-	  watch:{
-	    'nioss_object'(nioss_object){//toggle notes по обновлению nioss_object
-	      this.show_notes=!!(nioss_object?.Primechanie||nioss_object?.description);
+	  computed:{
+	    sessions(){
+	      return Object.values((this.history.data||[]).reduceRight((sessions,session)=>{
+		const {bytes='',start='',elapsed=''}=session;
+		let {end=''}=session;
+		const [valueInUnits='0',units='']=bytes.split(' ');
+		const valueInt=parseInt(valueInUnits)||0;
+		const value={Kb:valueInt*1000,Mb:valueInt*1000000,Gb:valueInt*1000000000}[units]||valueInt;
+
+		const [date='',time='']=start.split(' ');
+
+		if(!end&&elapsed){//2-041-0091100 - elapsed вместо end //"11ч 56м 21с"//"21м 20с"//"1ч "
+		  const {sec=0,min=0,hor=0}=elapsed.split(' ').reduce((hms,item)=>Object.assign(hms,{[item.includes('ч')?'hor':item.includes('м')?'min':item.includes('с')?'sec':'?']:parseInt(item)||0}),{sec:0,min:0,hor:0});
+		  const [DD=0,MM=0,YYYY=0]=date.split('.');
+		  const session_start_MMDDYYYY=[[MM,DD,YYYY].join('.'),time].join(' ');
+		  end=new Date(Date.parse(session_start_MMDDYYYY||0)+(sec+min*60+hor*3600)*1000);
+		  end=[[`${end.getDate()}`,`${end.getMonth()+1}`,`${end.getFullYear()}`].map(n=>n.padStart(2,0)).join('.'),[`${end.getHours()}`,`${end.getMinutes()}`].map(n=>n.padStart(2,0)).join(':')].join(' ');
+		};
+
+		const sessions_on_date=sessions[date];
+		return Object.assign(sessions,{
+		  [date]:{
+		    date,
+		    start:sessions_on_date?.start||start,
+		    end,
+		    valuesRow:[
+		      ...sessions_on_date?.valuesRow||[],
+		      {value,units:'bytes',title:bytes},
+		    ]
+		  }
+		});
+	      },{}));
 	    },
-	    'show_notes'(show_notes){//если компонент в rack-content и пользователь все же его открыл
-	      if(show_notes&&!this.nioss_object&&!this.nioss_loading){this.get_nioss_object()};
-	    }
-	  },
-	  computed: {
-	    rackClass() {
-	      const isVandal = this.rack?.type === "Антивандальный";
-	      return {
-		'rack-box': true,
-		'rack-box--reversed': this.reversed,
-		'rack-box--empty': !this.rack,
-		'rack-box--solid': isVandal,
-		'rack-box--dashed': !isVandal,
-	      }
-	    },
-	    typeClass() {
-	      const isVandal = this.rack?.type === "Антивандальный";
-	      return {
-		'rack-box__type': true,
-		'rack-box--solid': isVandal,
-		'rack-box--dashed': !isVandal,
-	      }
-	    },
-	    isOptical(){//return true//FAKE для демо, все шкафы - ОРШ
-	      return this.rack?.ne_in_rack.filter(ops=>/(ops|odf)/i.test(ops)).length;
-	    },
-	    rackType(){
-	      return {
-		"Антивандальный":this.isOptical?'ОРШ':'ШДУ',
-		"Абонентская Распределительная Коробка":this.isOptical?'ОРК':'РК',
-	      }[this.rack.type]
-	    },
-	    iconRack() {
-	      if(!this.rack){return ''};
-	      if(this.rack?.ne_in_rack?.length){return "ic-20 ic-plint"};
-	      return '';
-	    },
-	    rackLocation(){
-	      return ({'Чердак':'на чердаке','Технический этаж':'на тех.этаже','Подвал':'в подвале'}[this.off_floor])||("этаж "+this.floor)||''
-	    },
-	    horizontalLocation(){
-	      if(!this.drs_number){return ''};
-	      if(this.drs_number.length<3){return 'стояк '+this.drs_number};
-	      return this.drs_number;//левый,средний,правый
-	    },
-	    entrance(){return this.rack?.entrance?.number||''},
-	    location(){return this.nioss_object?.RaspologenieShkaf||this.rack?.location||''},
-	    notes(){return this.nioss_object?.Primechanie||this.rack?.notes||''},
-	    description(){return this.nioss_object?.description||this.rack?.description||''},
-	    off_floor(){return this.nioss_object?.VneEtashnoeRazmechenie||this.rack?.off_floor||''},
-	    floor(){return this.nioss_object?.Etazh||this.rack?.floor||''},
-	    drs_number(){return this.nioss_object?.NomerDRS||this.rack?.drs_number||''},
-	    locationFilteredAndTrunkated(){
-	      let location=this.location.replace(`Подъезд ${this.entrance}.`,'').replace(`Этаж ${this.floor}.`,'').replace(`${this.off_floor}.`,'').trim().toLowerCase();
-	      return location.length>27?location.substring(0,25)+'...':location
+	    message(){
+	      const {start,end}=this.history;
+	      if(start==end){
+		return {type:'info',text: `Завершенных сессий ${start} нет`}
+	      };
+	      if(new Date(start)>new Date(end)){
+		return {type:'warn',text:'Выбраны неверные даты'}
+	      };
+	      return {type:'info',text:'Завершенных сессий в указанный период нет'}
 	    },
 	  },
 	  methods:{
-	    toRack(){
-	      this.$router.push({
-		name:'rack',
-		params:{
-		  rackProp:this.rack,
-		  rack_id:this.rack?.name,
-		},
-	      });
+	    open(){//public
+	      this.$refs.sessionHistory.open();
 	    },
-	    async get_nioss_object(){
-	      this.nioss_loading=true;
+	    async get_sessions(){
+	      this.loading=true;
+	      this.history.data=null;
+	      const {sessionid,login,serverid,vgid,descr}=this.session.params;
+	      let {start:dtfrom,end:dtto}=this.history;
 	      try{
-		const response=await httpGet(buildUrl('get_nioss_object',{object_id:this.rack?.id,object:'rack'},'/call/nioss/'), true);
-		this.nioss_object=response;
+		const response=await httpGet(buildUrl('get_sessions',{sessionid,login,serverid,vgid,descr,dtfrom,dtto},'/call/aaa/'));
+		this.history.data=response?.rows||[];
 	      }catch(error){
-		console.warn('get_nioss_object.error',error);
-	      }
-	      this.nioss_loading=false;
+		console.warn('get_sessions.error',error);
+	      };
+	      this.loading=false;
 	    },
-	  },
+	  }
 	});
 
 	
