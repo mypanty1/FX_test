@@ -1643,7 +1643,25 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  }
 	});
 
-	
+	document.getElementById('account-wrapper-template').innerHTML=`<div>
+	    <page-navbar :title="title" @refresh="refresh" />
+	    <account-header
+	      :key="key"
+	      :loading="loading"
+	      :flat="flat"
+	      :accountId="accountId"/>
+	    <transition v-if="showContent" name="slide-page" mode="out-in" >
+	      <keep-alive>
+		<router-view
+		  :key="key"
+		  :flat="flat"
+		  :accountId='accountId'
+		  :account="currentData.account"
+		  :mr="currentData?.account?.mr_id"
+		  @change-account="goToCurrentAccount" />
+	      </keep-alive>
+	    </transition>
+	  </div>`;
 	
 	
 	
