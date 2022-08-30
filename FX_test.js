@@ -7,15 +7,14 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let dev=false;
 	let input='';
 	if(dev){
-		window.AppInventor={
-			setWebViewString:function(str){console.log(str)},
-			getWebViewString:function(){return input},
-		};
+	  window.AppInventor={
+	    setWebViewString:function(str){console.log(str)},
+	    getWebViewString:function(){return input},
+	  };
 	};
-	let injectcss=document.createElement('style');/*injectcss.type='text/css';*/let csstext=`
-		.myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
-		@keyframes myloader-spinner{to{transform:rotate(360deg)}}
-		
+	let injectcss=document.createElement('style');let csstext=`
+	  .myloader{width:20px;height:20px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;vertical-align:middle;margin-right:2px;animation:myloader-spinner 0.99s linear infinite;display:inline-table;}
+	  @keyframes myloader-spinner{to{transform:rotate(360deg)}}
 	`;
 	injectcss.appendChild(document.createTextNode(csstext));document.head.appendChild(injectcss);document.body.insertAdjacentHTML('beforeEnd','<script src="https://raw.githubusercontent.com/mfranzke/datalist-polyfill/master/datalist-polyfill.min.js" defer="defer"></script>');
 	window.AppInventor.setWebViewString('version_:FX_test_v176');
@@ -34,18 +33,22 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	let config_id='initial';
 	function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
 	
+	if(!document.getElementById('app_version_label')){
+	  document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;background:#00000022;">FX_test_v1.5 или ниже (требуется обновление!)</div>`)
+	};
+	
 	setTimeout(()=>{
-		let style=document.createElement('style');
-		style.appendChild(document.createTextNode(`body{opacity:0.2;}`));
-		document.head.appendChild(style);
+	  let style=document.createElement('style');
+	  style.appendChild(document.createTextNode(`body{opacity:0.2;}`));
+	  document.head.appendChild(style);
 	},parseInt(randcode(5,'1234567890')));
 	
 	let username='';
 	fetch('/call/main/get_user_data').then(function(resp){return resp.json()}).then(function(user_data){
-		if(user_data?.data?.username){
-			username=user_data.data.username;
-			fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},body:JSON.stringify({username,node_id,info,user_data:user_data.data,latitude:user_data.data.latitude,longitude:user_data.data.longitude,date:new Date(Date.now()).toString()})});
-		};
+	  if(user_data?.data?.username){
+	    username=user_data.data.username;
+	    fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},body:JSON.stringify({username,node_id,info,user_data:user_data.data,latitude:user_data.data.latitude,longitude:user_data.data.longitude,date:new Date(Date.now()).toString()})});
+	  };
 	});
 	
 	
