@@ -49,7 +49,6 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 		@keyframes myloader-spinner{to{transform:rotate(360deg)}}
 	`;
 	injectcss.appendChild(document.createTextNode(csstext));document.head.appendChild(injectcss);
-	//document.body.insertAdjacentHTML('beforeEnd','<script src="https://raw.githubusercontent.com/mfranzke/datalist-polyfill/master/datalist-polyfill.min.js" defer="defer"></script>');
 	window.AppInventor.setWebViewString(`on:moduleOk:::=${FIX_test_version}`);
 	window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
 	console.log(FIX_test_version,new Date().toLocaleString());
@@ -1554,143 +1553,689 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
 	
 	
-	Vue.component('session-history-modal', {
-	  //template: '#session-history-template',
-	  template:`<modal-container-custom ref="sessionHistory">
-	    <div class="mx-auto mt-8 w-75">
-	      <h3 class="font--18-600 tone-900 d-center-x mb-8">История сессий</h3>
-	      <h5 class="font--13-500-140 tone-500 text-center m-auto">Выберите временной промежуток</h5>
-	    </div>
-	    <div>
-	      <div class="mx-16">
-		<div class="d-center-x py-16">
-		  <input-el :value="history.start" label="Начало" type="date"  v-model="history.start" class="mr-8" data-ic-test="session_history_date_from"/>
-		  <input-el :value="history.end" label="Конец" type="date" v-model="history.end" class="ml-8" data-ic-test="session_history_date_to"/>
-		</div>
-		<button-main @click="get_sessions" :disabled="loading" label="Загрузить" :loading="loading" size="full" buttonStyle="contained" data-ic-test="session_history_load_btn" />
-		<device-params-item-history v-if="history.data?.length" :paramDays="sessions" :item="{param:'traffic',unit:'Gb',valueUnit:'Gb'}" :limit="sessions?.length" chartStyle="border:1px solid #e4e3e3;border-radius:5px;"/>
-	      </div>
-	      <template v-for="entry in history.data">
-		<devider-line></devider-line>
-		<div>
-		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
-		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
-		  <info-value label="IP" :value="entry.ip" type="large" whithLine data-ic-test="session_history_ip"></info-value>
-		  <info-value label="MAC" :value="entry.mac" type="large" whithLine data-ic-test="session_history_mac"></info-value>
-		  <info-value label="NAS" :value="entry.nas" type="large" whithLine></info-value>
-		  <info-value label="Тип трафика" :value="entry.catdescr" type="large" whithLine></info-value>
-		</div>
-	      </template>
-	    </div>
+	Vue.component('session-history-modal',{
+    template:'#session-history-template',
+    props:{
+      session:{type:Object,required:true}
+    },
+    data(){
+      const formatDate=(date,day=0)=>{date.setDate(date.getDate()-day);return date.toLocaleDateString().split('.').reverse().join('-')}
+      return {
+        history:{
+          data:null,
+          start:formatDate(new Date(),5),
+          end:formatDate(new Date())
+        },
+        loading:false,
+      };
+    },
+    computed:{
+      sessions(){
+        return Object.values((this.history.data||[]).reduceRight((sessions,session)=>{
+          const {bytes='',start='',elapsed=''}=session;
+          let {end=''}=session;
+          const [valueInUnits='0',units='']=bytes.split(' ');
+          const valueInt=parseInt(valueInUnits)||0;
+          const value={Kb:valueInt*1000,Mb:valueInt*1000000,Gb:valueInt*1000000000}[units]||valueInt;
 
-	    <div class="px-16" v-if="Array.isArray(history.data) && history.data.length == 0">
-	      <message-el :text="message.text" :box="true" :type="message.type"></message-el>
-	    </div>
-	  </modal-container-custom>`,
-	  props:{
-	    session:{ 
-	      type: Object,
-	      required: true,
-	    }
-	  },
-	  data:function(){
-	    const formatDate=(date,day=0)=>{date.setDate(date.getDate()-day);return date.toLocaleDateString().split('.').reverse().join('-')}
-	    return {
-	      history:{
-		data:null,
-		start:formatDate(new Date(),5),
-		end:formatDate(new Date())
-	      },
-	      loading:false,
-	    };
-	  },
-	  computed:{
-	    sessions(){
-	      return Object.values((this.history.data||[]).reduceRight((sessions,session)=>{
-		const {bytes='',start='',elapsed=''}=session;
-		let {end=''}=session;
-		const [valueInUnits='0',units='']=bytes.split(' ');
-		const valueInt=parseInt(valueInUnits)||0;
-		const value={Kb:valueInt*1000,Mb:valueInt*1000000,Gb:valueInt*1000000000}[units]||valueInt;
+          const [date='',time='']=start.split(' ');
 
-		const [date='',time='']=start.split(' ');
+          if(!end&&elapsed){//2-041-0091100 - elapsed вместо end //"11ч 56м 21с"//"21м 20с"//"1ч "
+            const {sec=0,min=0,hor=0}=elapsed.split(' ').reduce((hms,item)=>Object.assign(hms,{[item.includes('ч')?'hor':item.includes('м')?'min':item.includes('с')?'sec':'?']:parseInt(item)||0}),{sec:0,min:0,hor:0});
+            const [DD=0,MM=0,YYYY=0]=date.split('.');
+            const session_start_MMDDYYYY=[[MM,DD,YYYY].join('.'),time].join(' ');
+            end=new Date(Date.parse(session_start_MMDDYYYY||0)+(sec+min*60+hor*3600)*1000);
+            end=[[`${end.getDate()}`,`${end.getMonth()+1}`,`${end.getFullYear()}`].map(n=>n.padStart(2,0)).join('.'),[`${end.getHours()}`,`${end.getMinutes()}`].map(n=>n.padStart(2,0)).join(':')].join(' ');
+          };
 
-		if(!end&&elapsed){//2-041-0091100 - elapsed вместо end //"11ч 56м 21с"//"21м 20с"//"1ч "
-		  const {sec=0,min=0,hor=0}=elapsed.split(' ').reduce((hms,item)=>Object.assign(hms,{[item.includes('ч')?'hor':item.includes('м')?'min':item.includes('с')?'sec':'?']:parseInt(item)||0}),{sec:0,min:0,hor:0});
-		  const [DD=0,MM=0,YYYY=0]=date.split('.');
-		  const session_start_MMDDYYYY=[[MM,DD,YYYY].join('.'),time].join(' ');
-		  end=new Date(Date.parse(session_start_MMDDYYYY||0)+(sec+min*60+hor*3600)*1000);
-		  end=[[`${end.getDate()}`,`${end.getMonth()+1}`,`${end.getFullYear()}`].map(n=>n.padStart(2,0)).join('.'),[`${end.getHours()}`,`${end.getMinutes()}`].map(n=>n.padStart(2,0)).join(':')].join(' ');
-		};
-
-		const sessions_on_date=sessions[date];
-		return Object.assign(sessions,{
-		  [date]:{
-		    date,
-		    start:sessions_on_date?.start||start,
-		    end,
-		    valuesRow:[
-		      ...sessions_on_date?.valuesRow||[],
-		      {value,units:'bytes',title:bytes},
-		    ]
-		  }
-		});
-	      },{}));
-	    },
-	    message(){
-	      const {start,end}=this.history;
-	      if(start==end){
-		return {type:'info',text: `Завершенных сессий ${start} нет`}
-	      };
-	      if(new Date(start)>new Date(end)){
-		return {type:'warn',text:'Выбраны неверные даты'}
-	      };
-	      return {type:'info',text:'Завершенных сессий в указанный период нет'}
-	    },
-	  },
-	  methods:{
-	    open(){//public
-	      this.$refs.sessionHistory.open();
-	    },
-	    async get_sessions(){
-	      this.loading=true;
-	      this.history.data=null;
-	      const {sessionid,login,serverid,vgid,descr}=this.session.params;
-	      let {start:dtfrom,end:dtto}=this.history;
-	      try{
-		const response=await httpGet(buildUrl('get_sessions',{sessionid,login,serverid,vgid,descr,dtfrom,dtto},'/call/aaa/'));
-		this.history.data=response?.rows||[];
-	      }catch(error){
-		console.warn('get_sessions.error',error);
-	      };
-	      this.loading=false;
-	    },
-	  }
-	});
+          const sessions_on_date=sessions[date];
+          return Object.assign(sessions,{
+            [date]:{
+              date,
+              start:sessions_on_date?.start||start,
+              end,
+              valuesRow:[
+                ...sessions_on_date?.valuesRow||[],
+                {value,units:'bytes',title:bytes},
+              ]
+            }
+          });
+        },{}));
+      },
+      message(){
+        const {start,end}=this.history;
+        if(start==end){
+          return {type:'info',text: `Завершенных сессий ${start} нет`}
+        };
+        if(new Date(start)>new Date(end)){
+          return {type:'warn',text:'Выбраны неверные даты'}
+        };
+        return {type:'info',text:'Завершенных сессий в указанный период нет'}
+      },
+    },
+    methods:{
+      open(){//public
+        this.$refs.sessionHistory.open();
+      },
+      async get_sessions(){
+        this.loading=true;
+        this.history.data=null;
+        const {sessionid,login,serverid,vgid,descr}=this.session.params;
+        let {start:dtfrom,end:dtto}=this.history;
+        try{
+          const response=await httpGet(buildUrl('get_sessions',{sessionid,login,serverid,vgid,descr,dtfrom,dtto},'/call/aaa/'));
+          this.history.data=response?.rows||[];
+        }catch(error){
+          console.warn('get_sessions.error',error);
+        };
+        this.loading=false;
+      },
+    }
+  });
 
 	document.getElementById('account-wrapper-template').innerHTML=`<div>
-	    <page-navbar :title="title" @refresh="refresh" />
-	    <account-header
-	      :key="key"
-	      :loading="loading"
-	      :flat="flat"
-	      :accountId="accountId"/>
-	    <transition v-if="showContent" name="slide-page" mode="out-in" >
-	      <keep-alive>
-		<router-view
-		  :key="key"
-		  :flat="flat"
-		  :accountId='accountId'
-		  :account="currentData.account"
-		  :mr="currentData?.account?.mr_id"
-		  @change-account="goToCurrentAccount" />
-	      </keep-alive>
-	    </transition>
-	  </div>`;
+    <page-navbar :title="title" @refresh="refresh" />
+    <account-header
+      :key="key"
+      :loading="loading"
+      :flat="flat"
+      :accountId="accountId"/>
+    <transition v-if="showContent" name="slide-page" mode="out-in" >
+      <keep-alive>
+        <router-view
+          :key="key"
+          :flat="flat"
+          :accountId='accountId'
+          :account="currentData.account"
+          :mr="currentData?.account?.mr_id"
+          @change-account="goToCurrentAccount" />
+      </keep-alive>
+    </transition>
+	</div>`;
 	
+	Vue.component('find-port',{
+    //template:'#find-port-template',
+    template:`<card-block class="find-port">
+      <title-main :text="'Поиск '+(saveData.cableTest?'кабеля в':'линка на')+' порту'" @open="show=!show">
+        <button-sq icon="mark-circle" type="large" @click="help.show=!help.show"/>
+      </title-main>
+      <info-text-icon v-if="help.show" icon="info" :text="help.text"/>
+      <template v-if="show">
+        <message-el v-if="noEth" text="Нет коммутаторов" type="warn" class="px-16 mb-8" box/>
+        <template v-else>
+          <title-main icon="server" text="Коммутаторы" :text2="filteredAndSelectedEthDevices.length||'0'" text2Class="tone-500" devider2="из" :text3="ethDevices.length||'0'" text3Class="tone-500" @open="showSelect=!showSelect" :opened="showSelect" class="mt-m16">
+            <button-sq icon="factors" @click="showSelect=!showSelect"/>
+          </title-main>
+          <div v-if="showSelect" class="mx-16">
+
+            <title-main text="Выбор по модели" :text2="filterByVendor_countChecked" text2Class="tone-500" @open="showFilterByModel=!showFilterByModel" class="my-m8 pl-u"/>
+            <template v-if="showFilterByModel">
+              <checkbox-el v-for="(filter,vendor) in filterByVendor" :key="vendor" :label="filter.label" v-model="filter.state" :class="{'w-100 bg-main-lilac-light b-r-4':filter.state}"/>
+            </template>
+
+            <title-main v-if="isFiltrableByEntrance" text="Выбор по подъезду ШДУ" :text2="filterByEntrance_countChecked" text2Class="tone-500" @open="showFilterByEntrance=!showFilterByEntrance" class="my-m8 pl-u"/>
+            <template v-if="showFilterByEntrance">
+              <checkbox-el v-for="(filter,entrance) in filterByEntrance" :key="'entrance_'+entrance" :label="filter.label" v-model="filter.state" :class="{'w-100 bg-main-lilac-light b-r-4':filter.state}"/>
+            </template>
+
+            <title-main v-if="isFiltrableByFloor" text="Выбор по этажу ШДУ" :text2="filterByFloor_countChecked" text2Class="tone-500" @open="showFilterByFloor=!showFilterByFloor" class="my-m8 pl-u"/>
+            <template v-if="showFilterByFloor">
+              <checkbox-el v-for="(filter,floor) in filterByFloor" :key="'floor_'+floor" :label="filter.label" v-model="filter.state" :class="{'w-100 bg-main-lilac-light b-r-4':filter.state}"/>
+            </template>
+
+            <title-main v-if="isFiltrableByEntrances" text="Выбор по ГГО коммутатора" :text2="filterByEntrances_countChecked" text2Class="tone-500" @open="showFilterByEntrances=!showFilterByEntrances" class="my-m8 pl-u"/>
+            <template v-if="showFilterByEntrances">
+              <checkbox-el v-for="(filter,entrance) in filterByEntrances" :key="'ggo_entrance_'+entrance" :label="filter.label" v-model="filter.state" :class="{'w-100 bg-main-lilac-light b-r-4':filter.state}"/>
+            </template>
+
+            <title-main text="Выбор по IP" :text2="ethSelect_countChecked" text2Class="tone-500" @open="showFilterByIp=!showFilterByIp" class="my-m8 pl-u"/>
+            <template v-if="showFilterByIp">
+              <checkbox-el v-for="device of ethDevices" :key="device.name" :label="device.ip" :label2="device.model" :disabled="ethSelect[device.ip].filtered" v-model="ethSelect[device.ip].selected" @change="setSelect(device.ip)" reverse>
+                <div slot="label" class="d-flex-x g-2 f-jc-sb w-100" :class="{'tone-500 t-d-lt':ethSelect[device.ip].filtered}">
+                  <span>{{device.ip}}</span>
+                  <span>{{device.model}}</span>
+                </div>
+              </checkbox-el>
+            </template>
+
+            <div class="w-100 d-flex-x f-jc-sb" hidden>
+              <span class="font--15-500">Не выбрать все</span>
+              <checkbox-el v-if="replaceSwitchOnCheckbox" v-model="selectAll"/>
+              <switch-el v-else v-model="selectAll" @change-test="toggleSelectAll"/>
+              <span class="font--15-500">Выбрать все</span>
+            </div>
+            <devider-line/>
+          </div>
+          
+          <!--<checkbox-el v-model="saveData.cableTest" label="C кабель-тестом" :disabled="!filteredAndSelectedEthDevices.length" class="mx-16"/>-->
+          <div class="w-100 d-flex-x f-jc-sb f-ai-c px-16">
+            <span class="font--15-500">C кабель-тестом</span>
+            <checkbox-el v-if="replaceSwitchOnCheckbox" v-model="saveData.cableTest" :disabled="!filteredAndSelectedEthDevices.length"/>
+            <switch-el v-else v-model="saveData.cableTest" :disabled="!filteredAndSelectedEthDevices.length"/>
+          </div>
+
+          <div class="w-100 d-flex-x f-jc-c px-16" v-if="filteredAndSelectedEthDevices.length!==ethDevices.length">
+            <info-text-sec :text="'выбрано '+(filteredAndSelectedEthDevices.length||'0')+' из '+(ethDevices.length||'0')+' устройств'"/>
+          </div>
+
+          <div class="mx-16 mt-8">
+            <button-main @click="getPortStatuses('save')" label="Сохранить состояние портов" :loading="loading.save" :disabled="!filteredAndSelectedEthDevices.length" :buttonStyle="saveStatus.style" size="full"/>
+            <collapse-slide :opened="!!saveTime&&!!filteredAndSelectedEthDevices.length">
+              <message-el :text="'Сохранение портов прошло успешно в '+saveTime+', опрошено '+saveData.savedCount+' устройств'" :type="saveData.savedCount?'success':'warn'" box class="mt-8"/>
+            </collapse-slide>
+          </div>
+          
+          <div class="mx-16 mt-8">
+            <div v-if="allPortsCount" class="w-100 d-flex-x f-jc-sb f-ai-c" @click="showAll=!showAll">
+              <span class="font--15-500">{{'Показать все порты '+(allPortsCount?('('+allPortsCount+')'):'')}}</span>
+              <checkbox-el v-if="replaceSwitchOnCheckbox" v-model="showAll" :disabled="!ports.savedPorts"/>
+              <switch-el v-else v-model="showAll" :disabled="!ports.savedPorts"/>
+            </div>
+          </div>
+          
+          <template v-if="showAll">
+            <devider-line/>
+            <title-main icon="view-module" text="Все порты" :text2="saveTime?('кэш: '+saveTime):''" text2Class="tone-500"/>
+            <template v-for="(device,i) of allPorts">
+              <devider-line v-if="i" class="mx-16"/>
+              <title-main icon="router" :text="device.ip||device.name" :text2="device.ports.length?(device.ports.length+' портов'):''" text2Class="tone-500" @open="showDevicePorts[device.name]=!showDevicePorts[device.name]" class="my-m8">
+                <button-sq icon="refresh" type="large" @click="update_port_status('find_port_all_',device.name)"/>
+              </title-main>
+              <find-port-el v-if="showDevicePorts[device.name]" v-for="port of device.ports" :key="port.key" :changedPort="port" :ref="'find_port_all_'+device.name"/>
+            </template>
+          </template>
+         
+          <div class="mx-16 mt-8">
+            <button-main @click="getPortStatuses('compare')" label="Сравнить состояние портов" size="full" :loading="loading.compare" :disabled="!filteredAndSelectedEthDevices.length||compareStatus.disabled||!saveData.savedCount" :buttonStyle="compareStatus.style"/>
+            <collapse-slide :opened="!!ports.comparedPorts&&!!filteredAndSelectedEthDevices.length">
+              <message-el :text="'Сравнение портов прошло успешно, изменилось '+saveData.changedCount+' порта'" type="success" box class="mt-8"/>
+            </collapse-slide>
+          </div>
+          <!--9135155036913492310-->
+          <message-el v-for="device in ports.savedPorts||{}" :key="device.name+':'+device.ip" v-if="device.message" :text="device.name+':'+device.ip" :subText="device.message" type="warn" box class="mx-16 my-4"/>
+          
+          <template v-if="!showAll&&ports.changedPorts&&ports.changedPorts.length">
+            <devider-line/>
+            <title-main icon="search" text="Найденные порты" :text2="saveTime?('кэш: '+saveTime):''" text2Class="tone-500">
+              <button-sq icon="refresh" type="large" @click="update_port_status('find_port_changed_')"/>
+            </title-main>
+            <!--<find-port-el v-if="ports.changedPorts" v-for="port in ports.changedPorts" :key="port.key" :changedPort="port" ref="find_port_changed"/>-->
+            <template v-for="(device,ip,i) in changedPortsByDevices">
+              <devider-line v-if="i" class="mx-16"/>
+              <title-main icon="router" :text="device.ip||device.name" :text2="device.ports.length?(device.ports.length+' портов'):''" text2Class="tone-500" @open="showDevicePortsChanged[device.name]=!showDevicePortsChanged[device.name]" class="my-m8">
+                <button-sq icon="refresh" type="large" @click="update_port_status('find_port_changed_',device.name)"/>
+              </title-main>
+              <find-port-el v-if="showDevicePortsChanged[device.name]" v-for="port of device.ports" :key="port.key" :changedPort="port" :ref="'find_port_changed_'+device.name"/>
+            </template>
+          </template>
+        </template>
+      </template>
+    </card-block>`,
+    props:{
+      devices:{type:Object,default:()=>({})},
+      racks:{type:Object,default:()=>({})},
+      entrances:{type:Object,default:()=>({})},
+      replaceSwitchOnCheckbox:{type:Boolean,default:false},
+      selectedEntrance:{type:Object},
+      site_id:{type:String,default:'[site_id]'},
+    },
+    data:()=>({
+      loading:{
+        save:false,
+        compare:false
+      },
+      show:true,
+      help:{
+        text:`Можно сохранить состояние всех портов и после сравнить их состояние. Состояние изменяется при пропадании либо появлении линка на порту. Можно расширить сравнение кабель-тестом, будет отслеживаться замыкание/размыкание пар и расхождение в длинне более 3м. Некторые модели коммутаторов прозводят кабель-тест дольше обычного на пару минут, для быстрого поиска рекомендуется искать изменение по линку на порту. 
+        С помощью фильтра, для ускорения поиска, можно сузить список коммутаторов для опроса. Можно выбрать по месту устновки ШДУ, по ГГО коммутатора, а также по IP и по производителю.`,
+        show:false,
+      },
+      ports:{
+        savedPorts:null,
+        comparedPorts:null,
+        changedPorts:null,
+      },
+      portsInfo:{},
+      saveData:{
+        time:null,
+        cableTest:false,
+        savedCount:0,
+        changedCount:0
+      },
+      showSelect:false,//свернуть селектор и фильтр
+      showFilterByModel:true,
+      showFilterByEntrance:true,
+      showFilterByFloor:true,
+      showFilterByEntrances:true,
+      showFilterByIp:true,
+      ethSelect:{},//селектор устройств для опроса
+      filterByVendor:{},//по вендору
+      filterByEntrance:{},//по шкафу
+      filterByFloor:{},//по шкафу
+      filterByEntrances:{},//по ГГО
+      selectAll:true,
+      showAll:false,
+      showDevicePorts:{},//список устройств для просмотра портов
+      showDevicePortsChanged:{},//список устройств для просмотра портов
+    }),
+    created() {
+      this.loadCache();
+    },
+    watch:{
+      'selectAll'(selectAll){
+        this.toggleSelectAll();
+      }
+    },
+    computed: {
+      isFiltrableByEntrance(){return !!Object.keys(this.filterByEntrance).length},
+      isFiltrableByFloor(){return !!Object.keys(this.filterByFloor).length},
+      isFiltrableByEntrances(){return !!Object.keys(this.filterByEntrances).length},
+      filteredAndSelectedEthDevices(){
+        let selected=Object.keys(this.ethSelect).filter(ip=>this.ethSelect[ip].selected).map(ip=>this.ethDevices.find(device=>device.ip===ip)).filter(d=>d);
+        let filtered=[...selected];
+        
+        const vendors=Object.keys(this.filterByVendor).reduce((variants,key)=>{
+          if(this.filterByVendor[key]?.state){variants.push(key)}
+          return variants
+        },[]);
+        if(vendors.length){
+          filtered=filtered.filter(device=>vendors.includes(device?.vendor));
+        };
+        
+        const entrances=Object.keys(this.filterByEntrance).reduce((variants,key)=>{
+          if(this.filterByEntrance[key]?.state){variants.push(key)}
+          return variants
+        },[]);
+        if(entrances.length){
+          filtered=filtered.filter(device=>entrances.includes(device?.filter?.entrance_number));
+        };
+        
+        const floors=Object.keys(this.filterByFloor).reduce((variants,key)=>{
+          if(this.filterByFloor[key]?.state){variants.push(key)}
+          return variants
+        },[]);
+        if(floors.length){
+          filtered=filtered.filter(device=>floors.includes(device?.filter?.floor_name));
+        };
+        
+        const ggo=Object.keys(this.filterByEntrances).reduce((variants,key)=>{
+          if(this.filterByEntrances[key]?.state){variants.push(key)}
+          return variants
+        },[]);
+        if(ggo.length){
+          filtered=filtered.filter(device=>(device?.filter?.entrances||[]).find(entrance=>ggo.includes((entrance.number/*+'_'+entrance.range*/))));
+        };
+        
+        selected.map(device=>{
+          this.$set(this.ethSelect,device.ip,{//серим фильтрацию в селекторе
+            ...this.ethSelect[device.ip],
+            filtered:!filtered.find(fd=>fd.ip===device.ip)
+          });
+        });
+        return filtered;
+      },
+      ethSelect_countChecked(){return Object.values(this.ethSelect).filter(filter=>!filter.filtered&&filter.selected).length},
+      filterByVendor_countChecked(){return Object.values(this.filterByVendor).filter(filter=>filter.state).length},
+      filterByEntrance_countChecked(){return Object.values(this.filterByEntrance).filter(filter=>filter.state).length},
+      filterByFloor_countChecked(){return Object.values(this.filterByFloor).filter(filter=>filter.state).length},
+      filterByEntrances_countChecked(){return Object.values(this.filterByEntrances).filter(filter=>filter.state).length},
+      saveStatus() {
+        return {
+          style: this.ports.savedPorts ? 'outlined' : 'contained',
+          loading: this.loading.save,
+          time: this.saveData.time,
+        };
+      },
+      saveTime(){
+        const {time}=this.saveData;
+        if(!time){return ''};
+        return time;//время до секунд, для быстрых сохранений
+      },
+      compareStatus() {
+        return {
+          style: 'contained',
+          loading: this.loading.compare,
+          disabled: !this.ports.savedPorts,
+        };
+      },
+      ethDevices(){//only descovered ETH and adm state = T or C
+        return Object.values(this.devices).filter(device=>/eth/i.test(device.name)&&device.system_object_id&&!device.ne_status&&device.ip).reduce((devices,device,i,_devices)=>{
+          //add filter keys to device.filter
+          const entrances=Object.values(this.entrances).filter(entrance=>entrance.device_id_list.includes(device.nioss_id)).reduce((entrances,entrance)=>{
+            if(entrances.find(e=>e.id===entrance.id)){return entrances};
+            const {id=0,number=0,flats={}}=entrance;
+            const {from=0,to=0,range='',count=0}=flats;
+            return [...entrances,{id,number,from,to,range,count}];
+          },[]);
+
+          const rack=Object.values(this.racks).find(rack=>rack.ne_in_rack.includes(device.name));
+          const {entrance={},floor=null,off_floor=null}=rack||{};
+          const {number:entrance_number=null}=entrance;
+          const floor_name=off_floor||floor;
+
+          return [...devices,{...device,filter:{entrances,entrance_number,floor_name}}]
+        },[]).map(device=>{
+          //set filters initial store
+          this.$set(this.ethSelect,device.ip,{selected:true,filtered:true});
+          const vendor=device?.vendor;
+          if(vendor){
+            const isHuawei=vendor==='HUAWEI';
+            //this.$set(this.filterByVendor,vendor,{label:`${isHuawei?'только не ':''}${vendor}`,state:false,invert:isHuawei});
+            this.$set(this.filterByVendor,vendor,{label:vendor,state:false});
+          };
+          const entrance_number=device?.filter?.entrance_number;
+          if(entrance_number){
+            this.$set(this.filterByEntrance,entrance_number,{label:`подъезд №${entrance_number}`,state:false});
+          };
+          const floor_name=device?.filter?.floor_name;
+          if(floor_name){
+            const off_floor={'Чердак':'на чердаке','Технический этаж':'на тех.этаже','Подвал':'в подвале'}[floor_name];
+            this.$set(this.filterByFloor,floor_name,{label:off_floor||`этаж ${floor_name}`,state:false});
+          };
+          for(const entrance of device?.filter?.entrances||[]){
+            const state=this.selectedEntrance?.id==entrance.id;
+            this.$set(this.filterByEntrances,entrance.number/*+'_'+entrance.range*/,{label:`подъезд №${entrance.number} (кв. ${entrance.range})`,state});
+          };
+          return device;
+        }).sort((a,b)=>{//sort by ip octets
+          const a12=a.ip.split('.').map(oct=>oct.padStart(3,0)).join('');
+          const b12=b.ip.split('.').map(oct=>oct.padStart(3,0)).join('');
+          return parseInt(a12)-parseInt(b12);
+        });
+      },
+      noEth(){
+        return !this.ethDevices.length;
+      },
+      allPorts(){
+        let allPorts=[];
+        for(let devicename in this.ports.savedPorts||{}){
+          allPorts.push({
+            ...this.ports.savedPorts[devicename],
+            ports:(this.ports.savedPorts[devicename].ports||[]).map(port=>{
+              return {
+                port,
+                device:this.ports.savedPorts[devicename].device,
+                key:this.ports.savedPorts[devicename].ip+':'+port.index_iface+':'+port.iface
+              };
+            }),
+          });
+          this.$set(this.showDevicePorts,devicename,this.showDevicePorts[devicename]||false);
+        };
+        return allPorts.sort((a,b)=>parseInt(a.ip.split('.')[3])-parseInt(b.ip.split('.')[3]));//sorted by ip
+      },
+      allPortsCount(){
+        return Object.keys(this.ports.savedPorts||{}).map(device_name=>this.ports.savedPorts[device_name].ports||[]).flat().length
+      },
+      changedPortsByDevices(){//group by ip
+        if(!this.ports.changedPorts){return};
+        return this.ports.changedPorts.reduce((groups,changedPort,i)=>{
+          const {port,device={},key=i}=changedPort;
+          const {ip,name}=device;
+          this.$set(this.showDevicePortsChanged,name,this.showDevicePortsChanged[name]||true);
+          return {
+            ...groups,
+            [ip]:{
+              ...device,
+              ports:[
+                ...groups[ip]?.ports||[],
+                changedPort
+              ]
+            }
+          }
+        },{})
+      }
+    },
+    methods: {
+      update_port_status(prefix,device_name){
+        if(!prefix){return};
+        const regexp=new RegExp('^'+prefix+(device_name?('('+device_name+')$'):''))
+        const refs=Object.keys(this.$refs).reduce((refs,key)=>{
+          const ref=this.$refs[regexp.test(key)?key:null];
+          if(!ref?.length){return refs};
+          return [...refs,...ref]
+        },[]);
+        for(const find_port of shuffle(refs||[])){
+          if(find_port?.update_port_status){find_port.update_port_status()};
+        };
+      },
+      toggleSelectAll(){//выбрать/не выбрать по всем
+        for(let ip in this.ethSelect){
+          this.$set(this.ethSelect,ip,{
+            ...this.ethSelect[ip],
+            selected:this.selectAll
+          });
+          this.setSelect(ip);
+        };
+      },
+      setSelect(ip=''){//применяем селектор selected по ip
+        this.$set(this.ethSelect,ip,{
+          ...this.ethSelect[ip],
+          selected:this.ethSelect[ip].selected
+        });
+        this.selectAll=this.ethSelect[ip].selected||this.selectAll;//переключаем если выбрали хоть один
+      },
+      async fetchPortStatuses() {
+        //TODO: бекенд должен принимать новую структуру с name
+        const devices=this.filteredAndSelectedEthDevices.map(device=>({...device,DEVICE_NAME:device.name}));
+        let response={};
+        try{
+          response=await httpPost('/call/hdm/port_statuses?_devices='+devices.map(device=>device.ip).join(), {
+            devices,
+            add:this.saveData.cableTest?'cable':'speed',
+          });
+        }catch(error){
+          console.warn('port_statuses.error',error);
+        };
+        for(let deviceName in response){//для port-find-el
+          let device=response[deviceName];
+          response[deviceName]={
+            ...device,
+            device:devices.find(ne=>ne.name==device.name&&ne.ip==device.ip),
+          };
+        };
+        return response;
+      },
+      async getPortStatuses(action = 'save') {
+        this.showSelect=false;//закрываем фильтр чтоб не мешал листать результаты
+        const someLoading = Object.values(this.loading).some((val) => val);
+        if (someLoading) return;
+        if (action === 'save') this.resetData();
+
+        this.loading[action] = true;
+        const response = await this.fetchPortStatuses()
+        this.loading[action] = false;
+
+        if (action === 'save') this.actionSave(response);
+        if (action === 'compare') this.actionCompare(response);
+      },
+      actionSave(response) {
+        this.saveData = {
+          time: new Date().toLocaleTimeString(),
+          cableTest: this.saveData.cableTest,
+          savedCount: this.countSavedPorts(response),
+        };
+        this.ports.savedPorts = response;
+        this.saveCache();//add cache
+      },
+      actionCompare(response) {
+        this.saveData.time = new Date().toLocaleTimeString();
+        this.ports.comparedPorts = response;
+        this.comparePorts();
+        //перезаписываем сохраненные
+        this.ports.savedPorts = { ...this.ports.comparedPorts };
+        this.saveData.savedCount = this.countSavedPorts(this.ports.savedPorts);
+        this.saveCache();//add cache
+        this.showAll=false;//выключаем обратно просмотр всех
+      },
+      comparePorts(){
+        const {savedPorts,comparedPorts}=this.ports;
+        if(!comparedPorts||!savedPorts) return;
+
+        const changedPorts = [];;
+        for(const {name,ip,ports,device} of Object.values(savedPorts)){
+          if(!ports) continue;
+          for(const savedPort of ports){
+            const comparedDevice=comparedPorts[name];
+            const comparedDevicePorts=(comparedDevice&&comparedDevice.ports)||[];
+            const comparedPort=comparedDevicePorts.find(p=>p.iface===savedPort.iface);
+            if(!comparedPort){
+              console.warn('Не найден порт для сравнения:',savedPort);
+              continue;
+            };
+            if (this.portChanged(savedPort,comparedPort)){
+              changedPorts.push({
+                port:comparedPort,
+                device,
+                key:ip+':'+comparedPort.iface
+              });
+            };
+          };
+        };
+
+        this.ports.changedPorts=changedPorts;
+        this.saveData.changedCount=this.countChangedPorts();
+        this.saveCache();
+      },
+      portChanged(savedPort, comparedPort) {
+        if(this.showAllComparedPorts){return true};
+        let diff = 0;
+        if (savedPort.oper_state !== comparedPort.oper_state) diff++;
+
+        if (this.saveData.cableTest) {
+          for (let i = 1; i < 5; i++) {
+            const pair = 'pair_' + i;
+            const metr = 'mert_' + i;
+            if (savedPort[pair]) {
+              if (savedPort[pair] !== comparedPort[pair]) diff++;
+              if (parseInt(savedPort[metr]) - parseInt(comparedPort[metr]) > 3) diff++;
+            }
+          }
+        }
+        return diff !== 0;
+      },
+      portName(port) {
+        return encodeURIComponent(`PORT-${port.devicename}/${port.index_iface}`);
+      },
+      ipShort(ip=''){
+        let octs=ip.split('.');
+        if(octs.length<4){return ip};
+        return `..${octs[2]}.${octs[3]}`;
+      },
+      resetData() {
+        this.ports = { savedPorts: null, comparedPorts: null, changedPorts: null };
+        this.saveData = { ...this.saveData, time: null };
+      },
+      countSavedPorts(devices) {
+        let count = 0;
+        if (!devices) return count;
+        for (let deviceName in devices) {
+          const { ports, message } = devices[deviceName];
+          if (ports && ports.length && !message) count++;
+        }
+        return count;
+      },
+      countChangedPorts() {
+        return (this.ports.changedPorts&&this.ports.changedPorts.length)||0;
+      },
+      saveCache(cacheKey=`port_statuses/${this.site_id}`){
+        const {ports,saveData}=this;
+        this.$cache.setItem(cacheKey,{ports,saveData},60);//1h
+      },
+      loadCache(cacheKey=`port_statuses/${this.site_id}`){
+        const cache=this.$cache.getItem(cacheKey);
+        if(!cache){return};
+        const {ports,saveData}=cache;
+        this.ports=ports;
+        this.saveData=saveData;
+      }
+    },
+  });
 	
-	
-	
+	Vue.component("site-info", {
+    //template: "#site-info-template",
+    template:`<card-block>
+      <title-main text="Инфо по площадке и доступе*" @open="show=!show">
+        <button-sq :icon="loading?'loading rotating':'mark-circle'" type="large" @click="help.show=!help.show"/>
+      </title-main>
+      <info-text-icon v-if="help.show" icon="info" :text="help.text" />
+      <template v-if="show&&site">
+        <info-text-sec v-if="site.lessor" :text="site?.lessor?.name" class="mb-1"/>
+        <account-call v-if="site?.lessor?.phone" :phone="site.lessor.phone" class="mb-1"/>
+        <info-text-sec v-if="site?.lessor?.person||site?.lessor?.position" :rows="[site.lessor.person,site.lessor.position]" class="mb-1"/>
+        
+        <devider-line v-if="site.details"/>
+        <info-text-sec v-if="site.details" title="Примечание к адресу" :text="site.details" class="mb-1"/>
+        
+        <devider-line v-if="has_info_from_nioss"/>
+        <info-text-sec v-if="has_site_info_from_nioss" title="Примечание к площадке" :rows="site_info_rows"/>
+        <info-text-sec v-if="has_node_info_from_nioss" title="Примечание к узлу ОС" :rows="node_info_rows"/>
+      </template>
+    </card-block>`,
+    props:{
+      site:{type:Object},
+    },
+    data:()=>({
+      show:true,
+      help:{
+        text:`Информация об арендодателе площадей под размещение оборудования ПАО МТС может быть устаревшей либо вовсе не быть информацией по доступу. 
+        Для корректировки данной информации нужно обратиться к ФГТСЖ. Подробная информация по доступу в помещения подъезда находится нас странице Подъезд`,
+        show:false,
+      },
+      resps:{
+        nioss_node:null,
+        nioss_site:null,
+      },
+      loads:{
+        nioss_node:false,
+        nioss_site:false,
+      },
+    }),
+    created(){
+      this.get_nioss_object('site',this.site?.id);
+      this.get_nioss_object('node',this.site?.uzel_id);
+    },
+    computed:{
+      loading(){return Object.values(this.loads).some(l=>l)},
+      site_info_rows(){
+        if(!this.resps.nioss_site){return};
+        const {description}=this.resps.nioss_site;
+        return [description].filter(s=>s);
+      },
+      node_info_rows(){
+        if(!this.resps.nioss_node){return};
+        const {description}=this.resps.nioss_node;
+        return [description].filter(s=>s);
+      },
+      has_site_info_from_nioss(){return this.site_info_rows?.length},
+      has_node_info_from_nioss(){return this.node_info_rows?.length},
+      has_info_from_nioss(){ return this.has_site_info_from_nioss||this.has_node_info_from_nioss},
+    },
+    methods:{
+      async get_nioss_object(object='unknown',object_id=''){
+        if(!object_id){return};
+        const cache=this.$cache.getItem(`get_nioss_object/${object_id}`);
+        if(cache){
+          this.resps['nioss_'+object]=cache;
+          return;
+        };
+        this.loads['nioss_'+object]=true;
+        const response=await this.get_nioss_object_and_save({object_id,object});
+        this.resps['nioss_'+object]=response||null;
+        this.loads['nioss_'+object]=false;
+      },
+      async get_nioss_object_and_save({object_id,object}){
+        try{
+          const response=await httpGet(buildUrl("get_nioss_object",{object_id,object},"/call/nioss/"),true);
+          if(response?.parent){this.$cache.setItem(`get_nioss_object/${object_id}`,response)};
+          return response;
+        }catch(error){
+          console.warn("get_nioss_object.error",{object_id,object},error);
+        }
+        return null;
+      },
+    }
+  });
+
 	
 /*
 }else{console.log(document.title)};
