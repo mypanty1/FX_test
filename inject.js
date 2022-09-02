@@ -10,7 +10,8 @@ async function asyncInject(){
     //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_22.04.22.js';
     //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_10.05.22.js';
     //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_11.08.22.js';
-    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_30.08.22.js';
+    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_30.08.22.js';
+    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_03.09.22.js';
     document.body.appendChild(FIX_test_js);
     window.AppInventor.setWebViewString(`on:moduleInject:::=${FIX_test_js.src}`);
   };
