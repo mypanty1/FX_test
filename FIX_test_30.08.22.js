@@ -110,11 +110,11 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	});
   
   app.getWfmTasks=async function getWfmTasks(date=new Date()){
-    const {login}=this;
+    //const {login}=this;
     this.loadingWfmTasks=true;
     this.tasks=[];
     try{
-      const resp=httpGet(buildUrl('engineer_tasks',{date,...login?{login}:null},'/call/v1/wfm/'));
+      const resp=httpGet(buildUrl('engineer_tasks',{date/*,...login?{login}:null*/},'/call/v1/wfm/'));
       if(!['warning','error'].includes(resp.type)){
         this.tasks=resp?.length?resp:[];
       }else{
