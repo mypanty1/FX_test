@@ -108,6 +108,23 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       
 		};
 	});
+  
+  app.getWfmTasks=async function getWfmTasks(date=new Date()){
+    const {login}=this;
+    this.loadingWfmTasks=true;
+    this.tasks=[];
+    try{
+      const resp=httpGet(buildUrl('engineer_tasks',{date,...login?{login}:null},'/call/v1/wfm/'));
+      if(!['warning','error'].includes(resp.type)){
+        this.tasks=resp?.length?resp:[];
+      }else{
+        this.errorWfmTasks=resp.text;
+      };
+    }catch(error){
+      console.warn('engineer_tasks:error',error);
+    }
+    this.loadingWfmTasks=false;
+  }
 	
 	Vue.component('port-bind-user-modal',{//refree
 		//template: '#port-bind-user-modal-template',
