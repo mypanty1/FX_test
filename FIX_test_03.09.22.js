@@ -109,7 +109,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     };
   });
   
-  if(app.getWfmTasks){
+  if(false&&app.getWfmTasks){
     app.getWfmTasks=async function getWfmTasks(date=new Date()){
       const {login}=this;
       this.loadingWfmTasks=true;
