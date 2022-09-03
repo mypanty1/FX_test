@@ -1592,7 +1592,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
   });
   
   
-  Vue.component('session-history-modal',{
+  Vue.component('session-history-modal--disabled',{
     template:'#session-history-template',
     props:{
       session:{type:Object,required:true}
