@@ -1592,8 +1592,38 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
   });
   
   
-  Vue.component('session-history-modal--disabled',{
-    template:'#session-history-template',
+  Vue.component('session-history-modal',{
+    //template:'#session-history-template',
+    template:`<modal-container-custom ref="sessionHistory">
+	    <div class="mx-auto mt-8 w-75">
+	      <h3 class="font--18-600 tone-900 d-center-x mb-8">История сессий</h3>
+	      <h5 class="font--13-500-140 tone-500 text-center m-auto">Выберите временной промежуток</h5>
+	    </div>
+	    <div>
+	      <div class="mx-16">
+		<div class="d-center-x py-16">
+		  <input-el :value="history.start" label="Начало" type="date"  v-model="history.start" class="mr-8" data-ic-test="session_history_date_from"/>
+		  <input-el :value="history.end" label="Конец" type="date" v-model="history.end" class="ml-8" data-ic-test="session_history_date_to"/>
+		</div>
+		<button-main @click="get_sessions" :disabled="loading" label="Загрузить" :loading="loading" size="full" buttonStyle="contained" data-ic-test="session_history_load_btn" />
+		<device-params-item-history v-if="history.data?.length" :paramDays="sessions" :item="{param:'traffic',unit:'Gb',valueUnit:'Gb'}" :limit="sessions?.length" chartStyle="border:1px solid #e4e3e3;border-radius:5px;"/>
+	      </div>
+	      <template v-for="entry in history.data">
+		<devider-line></devider-line>
+		<div>
+		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
+		  <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
+		  <info-value label="IP" :value="entry.ip" type="large" whithLine data-ic-test="session_history_ip"></info-value>
+		  <info-value label="MAC" :value="entry.mac" type="large" whithLine data-ic-test="session_history_mac"></info-value>
+		  <info-value label="NAS" :value="entry.nas" type="large" whithLine></info-value>
+		  <info-value label="Тип трафика" :value="entry.catdescr" type="large" whithLine></info-value>
+		</div>
+	      </template>
+	    </div>
+	    <div class="px-16" v-if="Array.isArray(history.data) && history.data.length == 0">
+	      <message-el :text="message.text" :box="true" :type="message.type"></message-el>
+	    </div>
+	  </modal-container-custom>`,
     props:{
       session:{type:Object,required:true}
     },
