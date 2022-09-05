@@ -15,8 +15,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     };
   };
   let injectcss=document.createElement('style');/*injectcss.type='text/css';*/let csstext=`
-    .t-d-lt{text-decoration:line-through !important;}
-    #ptvtb-app.app-content,*{font-family:system-ui !important;}
+    .text-decoration-line-through{text-decoration:line-through !important;}
+    .font-family-system-ui{font-family:system-ui !important;}
     .add-options-block{}
       .t-cols{display:inline-flex;font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
         .t-col{display:flex;flex-direction:column;}
