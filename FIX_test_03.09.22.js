@@ -2238,10 +2238,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
         <info-text-sec v-if="site.details" title="Примечание к адресу" :text="site.details" class="mb-1"/>
         
         <devider-line v-if="has_site_info_from_nioss"/>
-        <info-text-sec v-if="has_site_info_from_nioss" title="Примечание к площадке" :rows="site_info_rows"/>
+        <info-text-sec v-if="has_site_info_from_nioss" :title="'Примечание к '+(resps?.nioss_site?.resource_business_name||'площадке')" :rows="site_info_rows"/>
         
         <devider-line v-if="has_node_info_from_nioss"/>
-        <info-text-sec v-if="has_node_info_from_nioss" title="Примечание к узлу ОС" :rows="node_info_rows"/>
+        <info-text-sec v-if="has_node_info_from_nioss" :title="'Примечание к '+(resps?.nioss_node?.resource_business_name||'узлу ОС')" :rows="node_info_rows"/>
       </template>
     </card-block>`,
     props:{
