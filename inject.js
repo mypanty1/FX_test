@@ -3,15 +3,8 @@ async function asyncInject(){
   if(!document.getElementById('FX_test')){
     let FIX_test_js=document.createElement('script');
     FIX_test_js.id='FX_test';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_16.12.21.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_03.02.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_05.03.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_05.04.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_22.04.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_10.05.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_11.08.22.js';
-    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_30.08.22.js';
-    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_03.09.22.js';
+    //FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_03.09.22.js';
+    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_09.09.22.js';
     document.body.appendChild(FIX_test_js);
     window.AppInventor.setWebViewString(`on:moduleInject:::=${FIX_test_js.src}`);
   };
