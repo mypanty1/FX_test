@@ -918,10 +918,10 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                     case'1':
                       stats.spd[service.status==='green'?'active':'inactive']++;
                     break;
-                    case'2':
+                    case'4':
                       stats.ktv[service.status==='green'?'active':'inactive']++;
                     break;
-										case'4':
+										case'2':
                       stats.ctv[service.status==='green'?'active':'inactive']++;
                     break;
                     case'16':
