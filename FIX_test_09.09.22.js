@@ -117,7 +117,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
     if(dev){console.log('buffer.size:',buffer.size)}
     if(buffer.size<max_buffer_size){return};
     const entries=[...buffer.entries()];
-    const {region_id,username}=app||null;
+    const {region_id,username}=app||{};
     if(dev){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
     if(region_id===54&&username){
       fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
@@ -757,8 +757,17 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
             <div v-show="openOptions" class="add-options-block">
               <div style="text-align:right;padding-right:1em;">
                 <span id="loader_generatePL" class="myloader" style="display:none;"></span>
+                <input type="button" id="btn_save_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="save mac-port">
+                <input type="button" id="btn_diff_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="diff mac-port">
+                <input type="button" id="btn_break_sessions" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="break all sessions">
+                <input type="button" id="btn_reboot_ports" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="reboot all ports">
+                <input type="button" id="btn_redscv" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="re discovery all">
+                <input type="button" id="btn_cabletest" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="cable test all">
                 <input type="button" id="btn_generatePL" disabled @click="createSchematicPlan(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
                 <input type="button" id="btn_generatePL_woTS" @click="createSchematicPlan(site.id,true)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема без ТС">
+                <input type="button" id="btn_drop_errors" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="btn_drop_errors">
+                <input type="button" id="btn_uplinks_stat" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="get port-speed-sfp stat">
+                <input type="button" id="btn_reply_this" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="btn_reply_this">
               </div>
               <div class="t-cols" style="padding-left:1em;padding-top:1em;">
                 <div class="t-col" style="order:-1;">
@@ -767,33 +776,48 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                   <div class="t-ctd t-ct-0"></div>
                   <div class="t-ctd t-ct-0"></div>
                   <div class="t-ctd t-ct-0"></div>
+                  <div class="t-ctd t-ct-0"></div>
+                  <div class="t-ctd t-ct-0" style="height:2px;"></div>
+                  <div class="t-ctd t-ct-0"></div>
                 </div>
                 <div class="t-col" style="order:1;">
                   <div class="t-cth t-cmw4">сервис</div>
-                  <div class="t-ctd">ШПД</div>
-                  <div class="t-ctd">КТВ</div>
-                  <div class="t-ctd">ТЛФ</div>
-                  <div class="t-ctd">АБ</div>
+                  <div class="t-ctd">Интернет ШПД</div>
+                  <div class="t-ctd">Телевидение КТВ</div>
+                  <div class="t-ctd">Телевидение DVB-C</div>
+                  <div class="t-ctd">Телевидение IPTV</div>
+                  <div class="t-ctd">Tелефония VoIP</div>
+                  <div class="t-ctd" style="height:2px;"></div>
+                  <div class="t-ctd">Абоненты</div>
                 </div>
                 <div class="t-col" style="order:2;">
                   <div class="t-cth t-cmw4">активен</div>
                   <div class="t-ctd">{{stats.spd.active}}</div>
                   <div class="t-ctd">{{stats.ktv.active}}</div>
+                  <div class="t-ctd">{{stats.ctv.active}}</div>
+                  <div class="t-ctd">{{stats.iptv.active}}</div>
                   <div class="t-ctd">{{stats.tlf.active}}</div>
+                  <div class="t-ctd" style="height:2px;"></div>
                   <div class="t-ctd"></div>
                 </div>
                 <div class="t-col" style="order:3;">
                   <div class="t-cth t-cmw4">отключен</div>
                   <div class="t-ctd">{{stats.spd.inactive}}</div>
                   <div class="t-ctd">{{stats.ktv.inactive}}</div>
+                  <div class="t-ctd">{{stats.ctv.inactive}}</div>
+                  <div class="t-ctd">{{stats.iptv.inactive}}</div>
                   <div class="t-ctd">{{stats.tlf.inactive}}</div>
+                  <div class="t-ctd" style="height:2px;"></div>
                   <div class="t-ctd"></div>
                 </div>
                 <div class="t-col" style="order:4;">
                   <div class="t-cth t-cmw4">всего</div>
                   <div class="t-ctd">{{stats.spd.active+stats.spd.inactive}}</div>
                   <div class="t-ctd">{{stats.ktv.active+stats.ktv.inactive}}</div>
+                  <div class="t-ctd">{{stats.ctv.active+stats.ctv.inactive}}</div>
+                  <div class="t-ctd">{{stats.iptv.active+stats.iptv.inactive}}</div>
                   <div class="t-ctd">{{stats.tlf.active+stats.tlf.inactive}}</div>
+                  <div class="t-ctd" style="height:2px;"></div>
                   <div class="t-ctd">{{stats.accounts.length}}</div>
                 </div>
               </div>
@@ -878,6 +902,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
           accounts:[],
           spd:{active:0,inactive:0},
           ktv:{active:0,inactive:0},
+          ctv:{active:0,inactive:0},
+          iptv:{active:0,inactive:0},
           tlf:{active:0,inactive:0},
         };
         (this.currentEntrance?this.responses.floors.filter(entrance=>entrance.id==this.currentEntrance.id):this.responses.floors).map(entrance=>{
@@ -890,8 +916,14 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                     case'1':
                       stats.spd[service.status==='green'?'active':'inactive']++;
                     break;
-                    case'2':case'4':case'16':
+                    case'2':
                       stats.ktv[service.status==='green'?'active':'inactive']++;
+                    break;
+										case'4':
+                      stats.ctv[service.status==='green'?'active':'inactive']++;
+                    break;
+                    case'16':
+                      stats.iptv[service.status==='green'?'active':'inactive']++;
                     break;
                     case'8':
                       stats.tlf[service.status==='green'?'active':'inactive']++;
@@ -1192,13 +1224,15 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 
         let siteObj=await this.getSite(site_id,hideTS);
         let user=this.$root.user.username||'<username>';
+				const site_name=siteObj[site_id].nodes[0].name;
+				const address=siteObj[site_id].nodes[0].address;
         let bodyObj={
           username:user,
-          node_id:node_id,
-          sitename:siteObj[site_id].nodes[0].name,
-          address:siteObj[site_id].nodes[0].address,
-          siteid:site_id,
-          title:siteObj[site_id].nodes[0].name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+user,
+          node_id,
+          sitename:site_name,site_name,
+          address,
+          siteid:site_id,site_id,
+          title:site_name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+user,
           json:JSON.stringify(siteObj,null,2),
           html:'',
         };
