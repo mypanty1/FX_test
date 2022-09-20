@@ -760,6 +760,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
                 <input type="button" id="btn_save_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="save mac-port">
                 <input type="button" id="btn_diff_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="diff mac-port">
                 <input type="button" id="btn_break_sessions" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="break all sessions">
+                <input type="button" id="btn_refree_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="refree all ports">
+                <input type="button" id="btn_bind_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="bind by diff mac-port">
                 <input type="button" id="btn_reboot_ports" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="reboot all ports">
                 <input type="button" id="btn_redscv" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="re discovery all">
                 <input type="button" id="btn_cabletest" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="cable test all">
