@@ -1660,7 +1660,134 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  },
 	});
 
-
+	Vue.component('port-info-v1',{
+	  template:`<link-block :icon="icon" :text="ifName" :textSub="ifAlias_filtered" textSubClass="font--13-500 tone-500" @click="toPort" actionIcon="right-link" type="medium">
+	    <button-sq slot="prefix"" @click="getPortStatus">
+	      <i v-if="loading.port_status||loading_status" class="ic-20 ic-loading rotating"></i>
+	      <i v-else class="ic-20 b-r-4" :class="'ic-'+icon+' '+led"></i>
+	    </button-sq>
+	    <span slot="postfix" class="tone-500 d-flex-x f-ai-c g-16">
+	      <button-sq type="medium" @click="getPortSfp" icon="-">
+		<i class="ic-20" v-if="loading_sfp||loading.sfp" :class="(loading_sfp||loading.sfp)?'ic-loading rotating':'ic-down'"></i>
+		<div v-else-if="!(loading_sfp||loading.sfp)&&sfp&&isValidParams" class="d-flex-y f-ai-fe font--13-500">
+		  <div class="w-60 d-flex-x f-jc-sb">Tx:<span :class="warns.tx">{{sfp.DdmInfoTxpower}}</span></div>
+		  <div class="w-60 d-flex-x f-jc-sb">Rx:<span :class="warns.rx">{{sfp.DdmInfoRxpower}}</span></div>
+		</div>
+	      </button-sq>
+	      <div class="mw-16 t-a-r" v-if="!noSubs">{{port?.subscriber_list?.length||''}}</div>
+	    </span>
+	  </link-block>`,
+	  props:{
+	    port:{type:Object,required:true},
+	    sfp_module:{type:Object,default:null},
+	    noInitialGetStatus:{type:Boolean,default:false},
+	    noInitialGetSfp:{type:Boolean,default:false},
+	    noSubs:{type:Boolean,default:false},
+	    port_status:{type:Object,default:null},
+	    loading_status:{type:Boolean,default:false},
+	    loading_sfp:{type:Boolean,default:false},
+	  },
+	  data:()=>({
+	    loading:{
+	      port_status:false,
+	      sfp:false
+	    },
+	    port_status_local:null,//public clear
+	    sfp_local:null,//public clear
+	  }),
+	  created(){
+	    if(!this.noInitialGetStatus){
+	      this.getPortStatus();
+	    };
+	    if(!this.noInitialGetSfp){
+	      this.getPortSfp();
+	    };
+	  },
+	  computed:{
+	    ifIndex(){return this.port.snmp_number||this.port.if_index||+this.port.port_name?.split('/').reverse()[0]},
+	    ifName(){return this.port.snmp_name||this.port.if_name},
+	    ifAlias(){return this.port.snmp_description||this.port.if_alias},
+	    ifAlias_filtered(){
+	      if((this.ifAlias||'').includes(this.ifName)){return ''};
+	      if((this.ifAlias||'').includes('HUAWEI, Quidway Series,')){return ''};
+	      return this.ifAlias;
+	    },
+	    name(){return this.port.name||this.port.port_name},
+	    device_name(){return this.port.device_name||this.port.devicename},
+	    isPon(){return this.name.startsWith('PORT-OLT')||this.ifName.startsWith('PON')||this.ifName.startsWith('GPON')},
+	    icon(){return this.isPon?'subordinate':'status'},
+	    status(){return this.port_status_local||this.port_status},
+	    led(){
+	      if(!this.status){return 'tone-500'};
+	      return this.status.admin_state!='up'?'bg-main-red tone-100':this.status.oper_state!='up'?'tone-500 bg-tone-200-bg':'main-green-light bg-main-green'
+	    },
+	    sfp(){return this.sfp_local||this.sfp_module},
+	    warns(){
+	      const warnClass='main-orange';
+	      const normClass='main-green';
+	      return {
+		rx:this.sfp.DdmInfoRxpower==0?'tone-500':this.sfp.DdmInfoRxpower<-27||this.sfp.DdmInfoRxpower>-8?warnClass:normClass,
+		tx:this.sfp.DdmInfoTxpower<1||this.sfp.DdmInfoTxpower>8?warnClass:normClass,
+		//bias:this.sfp.DdmIndexBias<5||this.sfp.DdmIndexBias>39?warnClass:'',
+		//vcc:this.sfp.DdmInfoVoltage<3.1||this.sfp.DdmInfoVoltage>3.5?warnClass:'',
+		//temp:this.sfp.DdmInfoTemperature<10||this.sfp.DdmInfoTemperature>59?warnClass:''
+	      };
+	    },
+	    isValidParams(){//need enable perf mibs on olt
+	      return this.sfp.DdmInfoVoltage!=0;
+	    },
+	  },
+	  methods:{
+	    getPortStatusAndSfp(){
+	      this.getPortStatus();
+	      this.getPortSfp();
+	    },
+	    async getPortStatus(){
+	      const {device_name,ifIndex}=this;
+	      if(!device_name||!ifIndex){return};
+	      this.loading.port_status=true;
+	      this.port_status_local=null;
+	      try{
+		const port_status=await httpGet(buildUrl('port_status_by_ifindex',{
+		  device:device_name,
+		  port_ifindex:ifIndex,
+		  component:'port-info-v1'
+		},"/call/hdm/"));
+		if(!port_status.code){
+		  this.port_status_local=port_status;
+		};
+	      }catch(error){
+		console.warn('port_status.error', error);
+	      };
+	      this.loading.port_status=false;
+	    },
+	    async getPortSfp(){
+	      this.loading.sfp=true;
+	      this.sfp_local=null;
+	      try{
+		const sfp1=await httpGet(buildUrl('sfp_iface',{
+		  device_name:this.device_name,
+		  port:this.ifName,
+		  component:'port-info-v1'
+		},"/call/hdm/"));
+		if(!sfp1.code&&sfp1.length){
+		  if(!['unknown','invalid','absent'].includes(sfp1[0].DdmInfoType)){
+		    this.sfp_local=sfp1[0];
+		  };
+		};
+	      }catch(error){
+		console.warn('sfp_iface.error', error);
+	      };
+	      this.loading.sfp=false;
+	    },
+	    toPort(){
+	      this.$router.push({
+		name:this.isPon?'pon':'port',
+		params:{id:this.name},
+	      });
+	    },
+	  },
+	});
 
   
 /*
