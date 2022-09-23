@@ -1226,15 +1226,17 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 
         let siteObj=await this.getSite(site_id,hideTS);
         let user=this.$root.user.username||'<username>';
-				const site_name=siteObj[site_id].nodes[0].name;
-				const address=siteObj[site_id].nodes[0].address;
+	const site_name=siteObj[site_id].nodes[0].name;
+	const address=siteObj[site_id].nodes[0].address;
+	const date=new Date();
+	const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+user;
         let bodyObj={
           username:user,
           node_id,
           sitename:site_name,site_name,
           address,
           siteid:site_id,site_id,
-          title:site_name+' '+new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString()+' '+user,
+          title,
           json:JSON.stringify(siteObj,null,2),
           html:'',
         };
@@ -1605,216 +1607,57 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       },
     },
   });
-  
-  
-  Vue.component('ic-yotube-tv',{
-		template:`<svg width="20" height="20" viewBox="0 0 17 17" xmlns="http://www.w3.org/2000/svg">
-			<g fill="none" fill-rule="evenodd" transform="translate(1 2)">
-				<path d="m2.49278838.53409401 10.00000002-.03605833c1.1045623-.00398287 2.0032157.88821306 2.0071986 1.99277538.0000087.00240386.000013.00480774.000013.00721162v5.00197732c0 1.1045695-.8954305 2-2 2h-10c-1.1045695 0-2-.8954305-2-2v-4.965919c0-1.10175423.89104131-1.99601428 1.99278838-1.99998699z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="m9.46666667 4.6-2.66666667-2c-.2209139-.16568542-.53431458-.1209139-.7.1-.06491106.08654809-.1.19181489-.1.3v4c0 .27614237.22385763.5.5.5.10818511 0 .21345191-.03508894.3-.1l2.66666667-2c.2209139-.16568542.26568542-.4790861.1-.7-.02842713-.03790283-.06209717-.07157288-.1-.1z" fill="currentColor" fill-rule="nonzero"/>
-				<path d="m2.464 11.5h10.036" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-			</g>
-		</svg>`
-	});
 
-	Vue.component('entrance-flat-v2',{
-		//template:'#entrance-flat-v2',
-		template:`<div>
-			<entrance-free-line-modal v-if="freeLine" ref="freeLine" :flat="flat" :freeLine="freeLine" :rackList="rackList" :entrances="entrances" :floorNumber="floorNumber"/>
 
-			<link-block icon="apartment" type="medium" :style="hasFreeLine" @block-click="goToAccountOrFlat">
-				<flat-service-icon slot="prefix" :status="flat.subscribers.length==1?agreementState:'none'" style="margin-right:4px;">
-					<i class="ic-20 ic-apartment"></i>
-				</flat-service-icon>
-
-				<div slot="text" class="d-flex align-items-center" style="gap:5px;">
-					<span>кв.</span>
-					<span>{{flat.number}}</span>
-					<!--<span :style="agreementState==='red'?'color:#e44656;':''">{{flat.number}}</span>-->
-					<span v-if="agreement" class="font--12-400 tone-500">{{balance}}</span>
-					<span v-if="freeLine"> • </span>
-					<span v-if="freeLine" @click.stop="openFreeLineModal" class="main-lilac"><i class="ic-20 ic-cable-test"></i></span>
-				</div>
-				
-				<div slot="postfix" v-if="flat.services" class="d-flex align-items-center tone-500">
-					<span v-if="flat.subscribers.length>1" class="d-flex align-items-center entrance-floor__service-icon" style="gap:2px;">
-						<span class="entrance-floor__count-account">{{flat.subscribers.length}}</span>
-						<i class="ic-20 ic-ls"></i>
-					</span>
-
-					<!--<div v-if="agreementState" class="entrance-floor__service-icon">
-						<i class="ic-20 ic-status" :class="'main-'+agreementState"></i>
-					</div>-->
-					
-					<flat-service-icon v-if="internetStatuses.length" :status="internetStatus" class="entrance-floor__service-icon">
-						<i class="ic-20 ic-eth"></i>
-					</flat-service-icon>
-
-					<flat-service-icon v-if="tvStatuses.length" :status="tvStatus" class="entrance-floor__service-icon">
-						<i class="ic-20 ic-tv"></i>
-					</flat-service-icon>
-
-					<flat-service-icon v-if="iptvStatuses.length" :status="iptvStatus" class="entrance-floor__service-icon">
-						<!--<i class="ic-20 ic-router"></i>-->
-						<ic-yotube-tv/>
-					</flat-service-icon>
-
-					<flat-service-icon v-if="phoneStatuses.length" :status="phoneStatus" class="entrance-floor__service-icon">
-						<i class="ic-20 ic-phone-1"></i>
-					</flat-service-icon>
-
-					<div v-if="hasMsisdn&&flat.subscribers.length==1" class="entrance-floor__service-icon">
-						<i class="ic-20 ic-phone"></i>
-					</div>
-				</div> 
-				<button-sq slot="action" :icon="loading?'loading rotating':'right-link'" @click="goToAccountOrFlat"/>
-			</link-block>
-
-			<!--<abon-info-modal v-if="aaccounts.length===1&&account" ref="account_info_modal" :account="account" :abon="accounts[0]"/>-->
-		</div>`,
-		props:{
-			flat:{type:Object,required:true},
-			freeLine:{type:Object,default:null},
-			rackList:{type:Array,default:()=>([])},
-			entrances:{type:Array,default:()=>([])},
-			floorNumber:{type:[String, Number],default:''}
-		},
-		data:()=>({
-			loading:false,
-			services:{
-				internet:[],
-				tv:[],
-				iptv:[],
-				phone:[],
-				other:[],
-			},
-			agreement:null,
-			account:null,
-			accounts:[],
-		}),
-		created(){
-			this.updateAccountServicesFromLbsv();
-		},
-		computed:{
-			internetStatuses(){
-				return this.getStatusesFor(this.services.internet,['1'])
-				//return (this.services.internet.length?this.services.internet:this.flat.services.filter(service=>service.service_id==='1')).map(service=>(service.statusClass||service.status));
-			},
-			tvStatuses(){
-				return this.getStatusesFor(this.services.tv,['2','4'])
-				//return (this.services.tv.length?this.services.tv:this.flat.services.filter(service=>['2','4'].includes(service.service_id))).map(service=>(service.statusClass||service.status));
-			},
-			iptvStatuses(){
-				return this.getStatusesFor(this.services.iptv,['16'])
-				//return (this.services.iptv.length?this.services.iptv:this.flat.services.filter(service=>['16'].includes(service.service_id))).map(service=>(service.statusClass||service.status));
-			},
-			phoneStatuses(){
-				return this.getStatusesFor(this.services.phone,['8'])
-				//return (this.services.phone.length?this.services.phone:this.flat.services.filter(service=>service.service_id==='8')).map(service=>(service.statusClass||service.status));
-			},
-			internetStatus(){
-				return this.getStatusNameFrom(this.internetStatuses)
-				//return this.internetStatuses.includes('green')?'green':this.internetStatuses.includes('orange')?'orange':'red';
-			},
-			tvStatus(){
-				return this.getStatusNameFrom(this.tvStatuses)
-				//return this.tvStatuses.includes('green')?'green':this.tvStatuses.includes('orange')?'orange':'red';
-			},
-			iptvStatus(){
-				return this.getStatusNameFrom(this.iptvStatuses)
-				//return this.iptvStatuses.includes('green')?'green':this.iptvStatuses.includes('orange')?'orange':'red';
-			},
-			phoneStatus(){
-				return this.getStatusNameFrom(this.phoneStatuses)
-				//return this.phoneStatuses.includes('green')?'green':this.phoneStatuses.includes('orange')?'orange':'red';
-			},
-			hasMsisdn(){
-				return this.flat.services.some(service=>service.msisdn);
-			},
-			hasFreeLine(){
-				return this.freeLine?'background-color: #FFF3F3':''
-			},
-			accountList(){
-				return [...new Set(this.flat.subscribers.map(subscriber=>subscriber.account))];
-			},
-			balance(){
-				if(!this.agreement){return ''};
-				//if(this.agreement.isconvergent){return 'конв.'};
-				return (this.agreement.balance.minus?'-':'')+this.agreement.balance.integer.toString()+(parseInt(this.agreement.balance.fraction)>0?'.'+this.agreement.balance.fraction:'')+' ₽';
-			},
-			agreementState(){
-				if(!this.agreement){return ''};
-				return this.agreement.closedon?'red':'green';
-			},
-		},
-		methods: {
-			getStatusesFor(services=[],service_type_ids=[]){
-				return (services.length?services:this.flat.services.filter(service=>service_type_ids.includes(service.service_id))).map(service=>(service.statusClass||service.status));
-			},
-			getStatusNameFrom(statuses=[]){
-				return statuses.includes('green')?'green':statuses.includes('orange')?'orange':'red';
-			},
-			updateAccountServicesFromLbsv(){
-				this.loading=true;
-				Promise.allSettled([
-					...this.accountList.map(pattern=>{
-						let cache=this.$cache.getItem(`search_ma:account/${pattern}`);
-						if(cache){
-							return Promise.resolve(this.$cache.getItem(`search_ma:account/${pattern}`)).then(result=>{
-								this.getServicesInfo(result,pattern);
-							});
-						}else{
-							return httpGet(buildUrl('search_ma',{pattern},'/call/v1/search/')).then(result=>{
-								if(result.type!=='error'&&result.data){//ложим в кэш только если чтото нашлось
-									this.$cache.setItem(`search_ma:account/${pattern}`,result);
-									this.getServicesInfo(result,pattern);
-								};
-							}).catch(error=>console.warn(`search_ma(${pattern})`,error))
-						};
-					})
-				]).then(resps=>{
-					this.loading=false;
-				}).catch(error=>{
-					this.loading=false;
-					console.warn('search_ma',error);
-				});
-			},
-			getServicesInfo(result,pattern=''){
-				let account=result.data?.lbsv?.data;
-				if(!account){return};
-				this.agreement=account.agreements.find(agreement=>agreement.account==pattern);//фильтруем левые agreement найденные по userid
-				if(!this.agreement){return};
-				this.account=pattern;
-				this.accounts.push(account);
-				for(let service of account.vgroups.filter(service=>service.agrmid==this.agreement.agrmid)){//фильтруем левые service по нужному agreement
-					Object.assign(service,{
-						statusClass:service.status=='0'||(service.billing_type==4&&service.status=='12')?'green':service.status=='10'?'red':'orange',//orange - условно активен(блокировка услуги)
-					});
-					this.services[['tv','analogtv','digittv','hybrid'].includes(service.type)?'tv':['iptv'].includes(service.type)?service.type:['internet','phone'].includes(service.type)?service.type:'other'].push(service);//сортируем service по типам
-				};
-			},
-			openFreeLineModal(){
-				this.$refs.freeLine.open();
-			},
-			goToAccountOrFlat(){
-				if(this.flat.subscribers.length===1){
-					this.$router.push({
-						name:'account-proxy',
-						params:{
-							accountId:this.flat.subscribers[0].account,
-						},
-					});
-				}else{
-					this.$router.push({
-						name:'account-flat',
-						params:{
-							accountId:this.flat.subscribers[0].account,
-							flatProp:this.flat,
-						},
-					});
-				}
-			},
-		},
+	Vue.component('plint-info',{
+	  template:'#plint-info-template',
+	  props:{
+	    plint:{type:Object,required:true}
+	  },
+	  data:()=>({
+	    opened:false,
+	  }),
+	  computed:{
+	    drsType(){
+	      if(/(transit|транзит)/gi.test(this.plint.type)){return 'транзитный'};
+	      if(/(endpoint|конеч)/gi.test(this.plint.type)){return 'конечный'};
+	      return '';
+	    },
+	    isEndpoint(){//show ports
+	      return /(endpoint|конеч)/gi.test(this.plint.type);
+	    },
+	    speed(){
+	      if(/2/g.test(this.plint.port_pr_utp)){return '100'};
+	      if(/4/g.test(this.plint.port_pr_utp)){return '1G'};
+	      return '';
+	    },
+	    shortName(){
+	      return getShortDeviceName(this.plint.name);
+	    },
+	    showLocationIfOutOfRack(){
+	      return !this.plint.rack_id||this.plint.rack_id==="0";
+	    },
+	    entranceNumber(){
+	      return this.plint.n_entrance;
+	    },
+	    floorNumber(){
+	      return 'этаж '+this.plint.n_floor;
+	    },
+	    horizontalLocation(){
+	      if(!this.plint.drs_number){return ''};
+	      if(this.plint.drs_number.length<3){return 'стояк '+this.plint.drs_number};
+	      return this.plint.drs_number;
+	    },
+	    locationText(){
+	      let location=this.plint.rack_id=='0'?this.plint.location?.replace(`Подъезд ${this.plint.n_entrance}.`,'').replace(`Этаж ${this.plint.n_floor}.`,'').trim().toLowerCase():'';
+	      return location?.length>30?location?.substring(0,30)+'...':location;
+	    },
+	  },
+	  methods:{
+	    openDrsToDrsTopology(){
+	      this.$emit('open-drs-to-drs-topology');
+	    }
+	  },
 	});
 
 
