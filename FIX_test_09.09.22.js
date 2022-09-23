@@ -1229,7 +1229,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	const site_name=siteObj[site_id].nodes[0].name;
 	const address=siteObj[site_id].nodes[0].address;
 	const date=new Date();
-	const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+user;
+	const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+date.getTime().toString(16)+' '+user;
         let bodyObj={
           username:user,
           node_id,
