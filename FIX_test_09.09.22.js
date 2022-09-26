@@ -264,9 +264,15 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       cpeTitle(){
         return 'добавить CPE '+(this.modelForTitle||'');
       },
-      typeOfBind() {
+      typeOfBind_orig() {
         const isResource = this.resource && this.resource.type_of_bind;
         return isResource ? this.resource.type_of_bind : null;
+      },
+      typeOfBind() {//временно для Белгорода
+        const [account={}]=this.accounts;
+        if(!account){return};
+        const {serverid}=account;
+        return serverid==112?3:this.resource?.type_of_bind||null;
       },
       showAccountLink() {
         const result = this.result;
