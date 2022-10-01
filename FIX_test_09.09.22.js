@@ -1795,6 +1795,276 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  },
 	});
 
+Vue.component('task-entrance',{
+  template:'#task-entrance-template',
+  props:{
+    task:{type:Object,required:true},
+    focused:{type:Boolean,default:false},
+  },
+  data:()=>({
+    site:null,
+    entrances:[],
+    entrance:null,
+    floors:[],
+    responses:{
+      flats:[],
+      entrancesPorts:[],
+    },
+    plints:[],
+    devices:[],
+    racks:[],
+    loading:{
+      site:false,
+      entrances:false,
+      entrancesPorts:false,
+      floors:false,
+      flats:false,
+      devices:false,
+      plints:false,
+      racks:false,
+    },
+    openedEntrance:'',
+    timeout:null,
+  }),
+  watch:{
+    'focused'(isFocused){
+      const SCROLL_TIMEOUT = 600;
+      if(isFocused&&!this.loadingSome){
+        this.timeout=setTimeout(()=>this.loadAllData(),SCROLL_TIMEOUT);
+      }else{
+        clearTimeout(this.timeout);
+      };
+    },
+    'entrance'(entrance){
+      this.$emit('task-entrance',entrance);
+    },
+  },
+  computed:{
+    loadingSome(){
+      let keys = ['site', 'entrances', 'floors', 'devices','flats'];
+      if (!this.entrance) {
+        keys = [...keys, 'plints', 'racks'];
+      }
+      return keys.some(key => this.loading[key]);
+    },
+    allLoaded(){
+      return [
+        Boolean(this.site),
+        Boolean(this.entrances),
+        Boolean(this.devices),
+        Boolean(this.floors),
+        Boolean(this.entrance ? true : this.racks),
+        Boolean(this.entrance ? true : this.plints),
+      ].every(v => v);
+    },
+    flat() {
+      let i = this.task.AddressSiebel.search(/кв\./gi);
+      if (i == -1) return 0;
+      let flat = this.task.AddressSiebel.substring(i + 4).replace(/\D/g, '');
+      return Number(flat);
+    },
+    showAloneFlats(){
+      return !this.entrances.length&&!this.entrance&&this.site;
+    },
+    flats(){
+      let flats={};
+      for(let entrance of this.floors){//this.responses.floors
+        for(let floor of entrance.floor||[]){//9135155037713593629 кривой подъезд
+          for(let flat of floor.flats){
+            flats[flat.number]={...flat,floor:{number:floor.number}};
+          };
+        };
+      }
+      return flats;
+    },
+    outOfNiossRangeFlats(){
+      let flats={};
+      for(let flat of this.responses.flats){
+        if(!this.flats[flat.number]){
+          flats[flat.number]=flat;
+        };
+      };
+      return flats;
+    },
+    outOfNiossRangeFlatsSorted(){
+      return Object.keys(this.outOfNiossRangeFlats).map(number=>this.outOfNiossRangeFlats[number]).sort((a,b)=>parseInt(a.number)-parseInt(b.number))
+    },
+  },
+  methods: {
+    toggleOpened(entr) {
+      this.openedEntrance = this.openedEntrance === entr ? '' : entr;
+    },
+    async loadAllData(){
+      this.getSite();
+      this.getDevices();
+      this.getFloors();
+      this.getFlats();
+      await this.getEntrances();
+      this.getEntrancesPorts();
+      if(!this.entrance){
+        this.getRacks();
+        this.getPlints();
+      };
+    },
+    async getSite(){
+      this.loading.site=true;
+      let response=this.$cache.getItem(`search_ma/${this.task.siteid}`);
+      if(response){
+        this.getNode(response);
+      }else{
+        try{
+          response=await httpGet(buildUrl("search_ma", { pattern: this.task.siteid },"/call/v1/search/"));
+          if(response.type==='error'){throw new Error(response.message)};
+          this.$cache.setItem(`search_ma/${this.task.siteid}`,response.data);
+          this.getNode(response.data);
+        }catch(error){
+          console.warn('search_ma:site.error', error);
+        };
+      };
+      this.loading.site=false;
+    },
+    getNode(response){
+      if(Array.isArray(response)){
+        this.site=response.find(({type})=>type.toUpperCase()==='ДУ')||response[0];
+      }else{
+        this.site=response;
+      }
+    },
+    async getDevices(){
+      this.loading.devices=true;
+      let response=this.$cache.getItem(`devices/${this.task.siteid}`);
+      if(response){
+        this.devices=response;
+      }else{
+        try {
+          response = await httpGet(buildUrl("devices", {site_id:this.task.siteid},"/call/v1/device/"));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          this.devices=response;
+          this.$cache.setItem(`devices/${this.task.siteid}`, response);
+        }catch(error){
+          console.warn('devices.error',error);
+        };
+      };
+      this.loading.devices=false;
+    },
+    async getEntrancesPorts(){
+      this.loading.entrancesPorts=true;
+      let response = this.$cache.getItem(`site_entrance_list_by_gpon/${this.task.siteid}`);
+      if(response){
+        this.responses.entrancesPorts = response;
+      }else{
+        try{
+          response = await httpGet(buildUrl('site_entrance_list_by_gpon', { site_id:this.task.siteid }, '/call/v1/device/'));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          this.$cache.setItem(`site_entrance_list_by_gpon/${this.task.siteid}`,response);
+          this.responses.entrancesPorts=response;
+        }catch(error){
+          console.warn('site_entrance_list_by_gpon.error',error);
+        };
+      };
+      this.loading.entrancesPorts=false;
+    },
+    async getFloors(){
+      this.loading.floors=true;
+      let response = this.$cache.getItem(`site_flat_list/${this.task.siteid}`);
+      if(response){
+        this.floors = response;
+      }else{
+        try{
+          response = await httpGet(buildUrl('site_flat_list', { site_id:this.task.siteid }, '/call/v1/device/'));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          this.$cache.setItem(`site_flat_list/${this.task.siteid}`,response);
+          this.floors=response;
+        }catch(error){
+          console.warn('site_flat_list.error',error);
+        };
+      };
+      this.loading.floors=false;
+    },
+    async getFlats(){
+      if(this.loading.flats){return};
+      let response = this.$cache.getItem(`site_flats_list/${this.task.siteid}`);//9135155037713601501
+      if(response){
+        this.responses.flats = response;
+      }else{
+        try{
+          response = await httpGet(buildUrl('site_flats_list', { site_id:this.task.siteid }, '/call/v1/device/'));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          this.$cache.setItem(`site_flats_list/${this.task.siteid}`,response);
+          this.responses.flats=response;
+        }catch(error){
+          console.warn('site_flats_list.error',error);
+        };
+      };
+      this.loading.flats=false;
+    },
+    async getEntrances(){
+      this.loading.entrances=true;
+      let response=this.$cache.getItem(`site_entrance_list/${this.task.siteid}`);
+      if(response){
+        this.getEntrance(response);
+      }else{
+        try {
+          response=await httpGet(buildUrl('site_entrance_list',{site_id:this.task.siteid},'/call/v1/device/'));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          this.$cache.setItem(`site_entrance_list/${this.task.siteid}`,response);
+          this.getEntrance(response);
+        }catch(error){
+          console.warn('site_entrance_list.error',error);
+        };
+      };
+      this.loading.entrances=false;
+    },
+    getEntrance(response){
+      this.entrances=Array.isArray(response)?response:[];
+      this.entrance=this.entrances.find(entrance=>this.flat>=entrance.flats.from&&this.flat<=entrance.flats.to);
+    },
+    async getRacks(){
+      this.loading.racks=true;
+      let response=this.$cache.getItem(`site_rack_list/${this.task.siteid}`);
+      if(response){
+        this.racks=response;
+      }else{
+        try{
+          response=await httpGet(buildUrl("site_rack_list",{site_id:this.task.siteid},"/call/v1/device/"));
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          //response=this.dev_addFakeGponDrs(response);//#FAKE gpon drs
+          this.$cache.setItem(`site_rack_list/${this.task.siteid}`,response);
+          this.racks=response;
+        }catch(error){
+          console.warn('site_rack_list.error',error);
+        };
+      };
+      this.loading.racks = false;
+    },
+    async getPlints(){
+      this.loading.plints=true;
+      let response = this.$cache.getItem(`patch_panels/${this.task.siteid}`);
+      if(response){
+        this.plints=response;
+      }else{
+        try{
+          response=await httpGet(buildUrl("patch_panels",{site_id:this.task.siteid,without_tree:true},"/call/v1/device/"))
+          if(response.type==='error'){throw new Error(response.message)};
+          if(!response.length){response=[]};
+          //response=this.dev_addFakeGponOps(response);//#FAKE gpon drs
+          this.$cache.setItem(`patch_panels/${this.task.siteid}`,response);
+          this.plints = response;
+        }catch(error){
+          console.warn('patch_panels.error',error);
+        };
+      };
+      this.loading.plints=false;
+    },
+  }
+});
+
   
 /*
 }else{console.log(document.title)};
