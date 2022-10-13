@@ -754,7 +754,15 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
             <info-text-icon v-if="help_show" icon="info" :text="help_text" :class="{'bg-main-lilac-light':help_text}"/>
 
             <info-text :title="site.address" :text="site.name+' • '+site.node" class="mb-m8" :class="{'bg-main-lilac-light':help_text,'mt-m8':!help_text}">
-              <button-sq icon="pin" type="large" @click="toMap"/>
+              <div class="display-flex flex-direction-column gap-4px align-items-center" style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <button-sq icon="pin" type="large" @click="toMap"/>
+                <button-sq v-if="loading.nodes_by_coords" icon="loading rotating"/>
+                <template v-else>
+                  <flat-service-icon v-if="isIptvTech" status="green">
+                    <icon-youtube-tv20 class="main-lilac size-24px" style="width:24px;height:24px;"/>
+                  </flat-service-icon>
+                </template>
+              </div>
             </info-text>
             <devider-line />
             
@@ -876,6 +884,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
           racks:[],
           plints:[],
           flats:[],
+          nodes_by_coords:[],
         },
         loading:{
           entrances:false,
@@ -885,6 +894,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
           racks:false,
           plints:false,
           flats:false,
+          nodes_by_coords:false,
         },
         infoOpened:false,
         showNav:true,
@@ -894,6 +904,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       };
     },
     created(){
+      this.getNodesByCoords();
       this.loadDevices();
       this.loadEntrances();
       this.loadEntrancesPorts();
@@ -945,6 +956,8 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
         stats.accounts=[...new Set(stats.accounts.filter(account=>account))];
         return stats;
       },
+      tv_type(){return this.responses.nodes_by_coords?.find(node=>node.node_id===this.site.node_id)?.tv_type||''},
+      isIptvTech(){return /iptv/i.test(this.tv_type)},
       help_text(){
         const {node=''}=this.site;
         return {//9160918530613206402
@@ -1454,6 +1467,32 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
       refresh(){
         localStorage.clear();
         document.location.reload();
+      },
+      async getNodesByCoords(){
+        if(this.tv_type||this.responses.nodes_by_coords?.length){return};
+        if(this.loading.nodes_by_coords){return};
+        
+        //кэш с поиска по карте
+        const node_by_coords=this.$cache.getItem(`building/${this.site.node}`);
+        if(node_by_coords){
+          this.responses.nodes_by_coords=[node_by_coords]
+          return
+        };
+        
+        const {latitude,longitude}=this.site.coordinates;
+        if(!latitude||!longitude){return}
+        const coords=`${latitude},${longitude}`;
+        const cache=this.$cache.getItem(`buildings/${coords}`);
+        if(cache){
+          this.responses.nodes_by_coords=cache;
+          return;
+        };
+        this.loading.nodes_by_coords=true;
+        let response=await httpGet(buildUrl("buildings",{zoom:17,coords}, "/call/v1/device/"));
+        if(!response.length){response=[]};
+        this.$cache.setItem(`buildings/${coords}`,response);
+        this.responses.nodes_by_coords=response;
+        this.loading.nodes_by_coords=false;
       },
     },
     beforeRouteEnter(to,from,next){
