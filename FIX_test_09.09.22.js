@@ -956,7 +956,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
         stats.accounts=[...new Set(stats.accounts.filter(account=>account))];
         return stats;
       },
-      tv_type(){return this.responses.nodes_by_coords?.find(node=>node.node_id===this.site.node_id)?.tv_type||''},
+      tv_type(){return this.responses.nodes_by_coords?.find(({node_id,uzel_name,node})=>node_id===this.site.node_id||uzel_name===this.site.node||node===this.site.node)?.tv_type||''},
       isIptvTech(){return /iptv/i.test(this.tv_type)},
       help_text(){
         const {node=''}=this.site;
