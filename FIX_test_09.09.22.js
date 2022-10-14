@@ -999,7 +999,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
         };
         const noEntranceRoute = {
           icon:this.outOfNiossRangeFlatsSorted.length?'entrance-mini':'apartment',
-          name:this.outOfNiossRangeFlatsSorted.length?`Z • ${this.outOfNiossRangeFlatsSorted[0].number}-${this.outOfNiossRangeFlatsSorted[this.outOfNiossRangeFlatsSorted.length-1].number} кв`:'—',
+          name:this.outOfNiossRangeFlatsSorted.length?`X • ${this.outOfNiossRangeFlatsSorted[0].number}-${this.outOfNiossRangeFlatsSorted[this.outOfNiossRangeFlatsSorted.length-1].number} кв`:'—',
           path:{
             name:'noentrance',
             params:{
