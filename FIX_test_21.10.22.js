@@ -1626,9 +1626,36 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
   });
 
 
-
-Vue.component("lbsv-account-content", {
-  template: "#lbsv-account-content-template",
+document.getElementById('lbsv-account-content-template').innerHTML=`<my-lbsv-account-content v-bind="$props"/>`;
+Vue.component("my-lbsv-account-content", {//fix equipment
+  template:`<section class="account-page">
+	  <lbsv-account-main
+	    :account="account"
+	    :account-id="accountId"
+	    :agreement="agreement"
+	    :flat-data="flatData"
+	    :billingInfo="billingInfo"
+	    :convergentBalance="convergentBalance"
+	    :loading="loading"
+	    :flat="flat" />
+	  <card-block>
+	    <title-main
+	      @block-click="toEvents"
+	      text="Работы по абоненту"
+	      icon="accidents"
+	      :attention="hasActiveIncident ? 'warn' : null">
+	      <button-sq icon="right-link" class="no-events" />
+	    </title-main>
+	  </card-block>
+	  <lbsv-services
+	    :account-id="accountId"
+	    :account="account"
+	    :mr="mr"
+	    :cp="cp"
+	    :loadingCp="loading_search_by_account_or_port"
+	    :groupServiceList="groupServiceList" />
+	  <account-block-history :history="blockHistory" />
+	</section>`,
   props: {
     accountId: { type: String, required: true },
     account: { type: Object, required: true },
