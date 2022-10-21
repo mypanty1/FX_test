@@ -2096,7 +2096,7 @@ Vue.component("port-links",{//test actual abon state from siebel
                   <div class="d-flex align-items-center justify-content-center m-0 trunk-port-link" style="font-size: 11px;">{{Number(device.LINK_PORT_NUMBER)}}</div>
                 </div>
                 <!--переделать на route-->
-                <search-link class="device-info__title" :text="device.LINK_DEVICE_NAME">{{getNetworkElementShortName(device.LINK_DEVICE_NAME)}} {{device.LINK_DEVICE_IP_ADDRESS}}</search-link>
+                <search-link class="device-info__title" :text="device.LINK_DEVICE_NAME">  {{device.LINK_DEVICE_IP_ADDRESS}}</search-link>
               </header>
               <div class="device-info__main">
                 <!--address-->
