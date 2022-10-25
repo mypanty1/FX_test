@@ -2300,7 +2300,9 @@ Vue.component("port-links",{//test actual abon state from siebel
 Vue.component("site-devices",{//hide flats edit
   //template:"#site-devices-template",
 	template:`<card-block>
-    <title-main text="Шкафы и оборудование"/>
+    <title-main text="Шкафы и оборудование" @open="toggleOpened">
+      <!--<button-sq v-if='hasEntrances' icon="edit" @click="openEditModal" />-->
+    </title-main>
 
     <template v-if="opened">
       <checkbox-el v-if='hasEntrances' label="ДРС" v-model="showDrs" reverse class="px-8"/>
