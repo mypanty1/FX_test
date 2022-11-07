@@ -1626,7 +1626,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
   });
 
 
-document.getElementById('lbsv-account-content-template').innerHTML=`<my-lbsv-account-content v-bind="$props"/>`;
+//document.getElementById('lbsv-account-content-template').innerHTML=`<my-lbsv-account-content v-bind="$props"/>`;
 Vue.component("my-lbsv-account-content", {//wait hotfix
   template:`<section class="account-page">
 	  <lbsv-account-main
