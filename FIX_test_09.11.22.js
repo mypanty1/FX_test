@@ -1843,6 +1843,231 @@ Vue.component("port-links",{//test actual abon state from siebel
 	}
 });
 
+document.getElementById('port-content-template').innerHTML=`<my-port-content v-bind="$props"/>`;
+Vue.component('my-port-content', {//add device widget
+  //template: '#port-content-template',
+	template:`<section class="port-content">
+    <template v-if="!showSfp">
+      <card-block style="padding:unset;">
+        <loader-bootstrap v-if="loading.device" text="устройство загружается"/>
+        <device-info v-else-if="device?.name" :networkElement="device" showLocation hideEntrances/>
+      </card-block>
+      <card-block>
+        <title-main text="">
+          <div slot="text" class="d-center-y">
+            <div class="d-center-y mr-8">
+              <span :class="getLedClass(loading.port_status,status)" style="width:50px;" @click="loadPortStatus">{{getLedText(loading.port_status,status)}}</span>
+            </div>
+            <span>{{localPort.snmp_name}}</span>
+          </div>
+          <button-sq icon="refresh" v-if="showRefresh"  @click="refresh"/>
+        </title-main>
+        <info-text-sec v-if="snmp_description" :title="snmp_description"/>
+        <devider-line/>
+
+        <link-block icon="speed" :text="status.IF_SPEED||'получение...'" @block-click="loadPortStatus" actionIcon="refresh"/>
+        <port-vlan v-if="!loading.port&&!loading.device" :port="localPort" :device="device" :start="!device.slowCli"/>
+        <port-status v-if="!loading.port&&!loading.device" :port="localPort" :status="status" :device="device" :loading_status="loading.port_status" @load:status="loadPortStatus"/>
+        <port-loopback :port="localPort" :device="device" ref="loopback"/>
+        <link-block icon="topology" text="Топология сети" actionIcon="right-link" :to="toTopology"/>
+        <link-block icon="sfp-port" v-if="hasSfp" text="SFP модуль (DDM)" @block-click="toggleSfp" actionIcon="right-link"/>
+        
+      </card-block>
+
+      <port-actions v-if="!loading.port&&!loading.device" :disabled="disabledActionBtn" :disableAction="disableAction" :port="localPort" :status="status" :device="device" :loading_status="loading.status" @load:status="loadPortStatus"/>
+
+      <port-links :port="localPort" :devices="devices" :macs="macs" :loading_devices="loading.devices" :loading_macs="loading.macs"/>
+    </template>
+    <port-sfp v-else :port="localPort" :device="device" @toggle-sfp="toggleSfp"/>
+  </section>`,
+  props: {
+    port: Object,
+    showRefresh: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data: () => ({
+    status: {},
+    blockOpened: true,
+    showSfp: false,
+    devices:[],
+    macs:[],
+    device: {},
+    localPort: {},
+    IOErrors: '- / -',
+    loading: {
+      port: false,
+      port_status: true,
+      device: true,
+      devices:false,
+      macs:false,
+    },
+  }),
+  created() {
+    this.initLoad();
+  },
+  activated() {
+    this.showSfp = false;
+  },
+  computed: {
+    snmp_description(){//исключение для старых huawei, дефолтный дескрипшен не пустой
+      return (this.localPort.snmp_description||'').includes('HUAWEI, Quidway Series,')?'':this.localPort.snmp_description;
+    },
+    loading_port_status(){return this.loading.port_status},
+    disabledActionBtn(){
+      const {is_trunk,is_link}=this.localPort;
+      return [is_trunk&&is_link,is_link,this.loading_port_status].some(t=>t);
+    },
+    disableAction(){
+      const {loading_port_status}=this;
+      const {is_trunk,is_link,state}=this.localPort;
+      const isTechPort=is_trunk||is_link;
+      const isTechPortLinkUp=isTechPort&&this.status.IF_OPER_STATUS;
+      const isBad=state==='bad';
+      return {
+        restart:isTechPortLinkUp||loading_port_status||isBad,
+        bind_user:false,
+        cable_test:isTechPortLinkUp||loading_port_status,
+        log:false,
+        clear_mac:isTechPort||loading_port_status,
+        addr_bind:isTechPort||loading_port_status,
+      }
+    },
+    isLoading() {
+      return Object.values(this.loading).some((l) => l === true);
+    },
+    lastEnry() {
+      if (!this.links) return null;
+      if (this.links && this.links.length) {
+        return this.links.sort((a, b) => new Date(b.LAST_DATE) - new Date(a.LAST_DATE))[0].LAST_DATE;
+      }
+      if (this.localPort.last_mac) return this.localPort.last_mac.last_at;
+      return null;
+    },
+    hasSfp(){
+      const {is_trunk,is_sfp_ddm}=this.localPort
+      return is_sfp_ddm||is_trunk;
+    },
+    toTopology() {
+      return {
+        name: 'net-topology',
+        params: {
+          type: 'port',
+          id: this.port.name,
+          portProp: this.port,
+          deviceProp: this.device,
+        }
+      }
+    }
+  },
+  methods: {
+    refresh() {
+      this.initLoad();
+    },
+    async initLoad() {
+      if (this.port) this.localPort = this.port;
+      else await this.loadPort();
+      const promises = [
+        this.loadLink(),
+        this.loadDevice(),
+        this.loadPortStatus()
+      ];
+      await Promise.all(promises);
+      if (this.$refs) {
+        const LOOP_TIMEOUT = 1500;
+        setTimeout(() => {
+          this.$refs.loopback?.load();
+        }, LOOP_TIMEOUT);
+      }
+    },
+    ledClass(turned) {
+      if (typeof turned === 'undefined') return 'port-content__led';
+      const status = turned ? 'port-content__led--on' : 'port-content__led--off';
+      return {
+        'port-content__led': true,
+        [status]: true,
+      };
+    },
+    getLedClass(loading=true,status){
+      return {
+        'port-content__led':true,
+        'port-content__led--off':!loading&&!status.IF_ADMIN_STATUS,
+        'port-content__led--on':!loading&&status.IF_ADMIN_STATUS&&status.IF_OPER_STATUS,
+      }
+    },
+    getLedText(loading=true,status){
+      if(loading){return '...'};
+      if(!status.IF_ADMIN_STATUS){return 'off'};
+      if(status.IF_OPER_STATUS){return 'up'}else{return 'down'};
+    },
+    async loadPortStatus(){
+      this.loading.port_status = true;
+      try{
+        const device = this.localPort.device_name;
+        const port_ifindex = this.localPort.snmp_number;
+        const url = buildUrl('port_status_by_ifindex', { device, port_ifindex }, '/call/hdm/');
+        const response = await httpGet(url);
+        this.status = response;
+      }catch(error){
+        console.warn('port_status.error',error);
+      }
+      this.loading.port_status = false;
+    },
+    async loadDevice(){
+      this.loading.device = true;
+      try{
+        const response = await httpGet(buildUrl('search_ma',{ pattern:encodeURIComponent(this.localPort.device_name)},'/call/v1/search/'));
+        this.device={
+          ...response.data,
+          slowCli:['FIBERHOME','HUAWEI'].includes(response.data.vendor),
+          title:`${this.shortName(response.data.name)} • ${response.data.ip}`,
+        };
+      }catch(error){
+        console.warn('search_ma:device.error', error);
+      }
+      this.loading.device = false;
+    },
+    shortName(name=''){
+      return getNetworkElementShortName(name);
+    },
+    async loadPort(){
+      this.loading.port = true;
+      try{
+        const response = await httpGet(buildUrl('search_ma',{ pattern:encodeURIComponent(this.port.name)},'/call/v1/search/'));
+        this.localPort = response.data;
+      }catch(error){
+        console.warn('search_ma:port.error', error);
+      }
+      this.loading.port = false;
+    },
+    async loadLink(){
+      try{
+        this.loading.devces=true;
+        const devices=await httpGet(buildUrl('port_info',{
+          device:this.localPort.device_name,
+          port:this.localPort.name,
+          trunk:true,component:'port-content'
+        }));this.devices=devices.length?devices:[];
+        this.loading.devces=false;
+        this.loading.macs=true;
+        const macs=await httpGet(buildUrl('port_info',{
+          device:this.localPort.device_name,
+          port:this.localPort.name,
+          trunk:false,component:'port-content'
+        }));this.macs=macs.length?macs:[];
+        this.loading.macs=false;
+      }catch(error){
+        console.warn('port_info.error', error);
+      }
+    },
+    toggleSfp() {
+      const show = !this.showSfp;
+      this.showSfp = show;
+      this.$emit('set:nav', !show);
+    }
+  },
+});
 
 
 
