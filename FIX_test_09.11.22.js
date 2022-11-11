@@ -1853,7 +1853,7 @@ Vue.component('my-port-content', {//add device widget
         <device-info v-else-if="device?.name" :networkElement="device" showLocation hideEntrances/>
       </card-block>
       <card-block>
-        <title-main text="">
+        <title-main text="" class="mt-m8 mb-m8">
           <div slot="text" class="d-center-y">
             <div class="d-center-y mr-8">
               <span :class="getLedClass(loading.port_status,status)" style="width:50px;" @click="loadPortStatus">{{getLedText(loading.port_status,status)}}</span>
