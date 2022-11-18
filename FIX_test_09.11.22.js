@@ -2069,7 +2069,7 @@ Vue.component('my-port-content', {//add device widget
   },
 });
 
-
+//redesign, need add padding-unset or create custom table
 Vue.component('session-el',{
   //template:'#session-el-template',
   template:`<section>
@@ -2187,7 +2187,42 @@ Vue.component('session-el',{
   }
 });
 
-
+//[Vue warn]: Invalid prop: type check failed for prop "credentials". Expected Array, got Object.
+Vue.component('equipment-credentials',{//30105741270
+  template:`<div v-if="isCredentials&&activation_code" class="my-1">
+    <button-main @click="show=!show" :icon="show?'':'unlock'" :label="show?activation_code:'Код активации'" :class="show?'password':''" size="full" button-style="outlined"/>
+  </div>`,
+  props:{
+    credentials:{type:[Array,Object],default:null,required:true},
+  },
+  data:()=>({
+    show:false,
+  }),
+  computed:{
+    isCredentials(){
+      return !!this.credentials;
+    },
+    credentialsArr(){
+      return Array.isArray(this.credentials)?this.credentials:[this.credentials];
+    },
+    login(){//iptv,spd
+      if(!this.isCredentials){return};
+      return this.credentialsArr.find(row=>row.code.toLowerCase()==='login')?.value?.value;
+    },
+    password(){//voip,spd
+      if(!this.isCredentials){return};
+      return this.credentialsArr.find(row=>row.code.toLowerCase()==='password')?.value?.value;
+    },
+    phone_number(){//voip
+      if(!this.isCredentials){return};
+      return this.credentialsArr.find(row=>row.code.toLowerCase()==='phonenumber')?.value?.value;
+    },
+    activation_code(){//iptv
+      if(!this.isCredentials){return};
+      return this.credentialsArr.find(row=>row.code.toLowerCase()==='activationcode')?.value?.value;
+    },
+  },
+});
 
 
 
