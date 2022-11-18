@@ -2084,12 +2084,12 @@ Vue.component('session-el',{
       </div>
       
       <div class="display-flex flex-direction-column">
-        <info-value v-if="ip" class="padding-unset" label="IP" :value="ip" withLine data-ic-test="session_ip"/>
-        <info-value v-if="macIsValid" class="padding-unset" label="MAC" :value="mac" withLine data-ic-test="session_mac"/>
-        <info-text-sec v-if="vendor" class="padding-unset" :text="vendor"/>
-        <info-value v-if="port" class="padding-unset" label="Agent Circuit ID" :value="portStr" withLine />
-        <info-value v-if="device" class="padding-unset" label="Agent Remote ID" :value="deviceParsed" withLine />
-        <info-value v-if="nas" class="padding-unset" label="NAS" :value="nas" withLine data-ic-test="session_nas"/>
+        <info-value v-if="ip" class="padding-unset" style="padding:unset;" label="IP" :value="ip" withLine data-ic-test="session_ip"/>
+        <info-value v-if="macIsValid" class="padding-unset" style="padding:unset;" label="MAC" :value="mac" withLine data-ic-test="session_mac"/>
+        <info-text-sec v-if="vendor" class="padding-unset" style="padding:unset;" :text="vendor"/>
+        <info-value v-if="port" class="padding-unset" style="padding:unset;" label="Agent Circuit ID" :value="portStr" withLine />
+        <info-value v-if="device" class="padding-unset" style="padding:unset;" label="Agent Remote ID" :value="deviceParsed" withLine />
+        <info-value v-if="nas" class="padding-unset" style="padding:unset;" label="NAS" :value="nas" withLine data-ic-test="session_nas"/>
       </div>
 
       <div class="display-flex justify-content-space-between gap-4px margin-bottom-8px">
