@@ -2070,6 +2070,130 @@ Vue.component('my-port-content', {//add device widget
 });
 
 
+Vue.component('session-el',{
+  //template:'#session-el-template',
+  template:`<section>
+    <loader-bootstrap v-if="loads.get_online_sessions" text="получение сессии абонента"/>
+    <loader-bootstrap v-else-if="loads.stop_session_radius" text="сброс сессии абонента"/>
+    <div v-else-if="session" class="margin-left-16px margin-right-16px display-flex flex-direction-column gap-4px">
+      
+      <message-el :text="!start?'Оффлайн':('Онлайн c '+start)" :type="!start?'warn':'success'" box/>
+
+      <div v-if="sessionid" class="display-flex align-items-center justify-content-center">
+        <span class="font-size-12px">{{sessionid}}</span>
+      </div>
+      
+      <div class="display-flex flex-direction-column">
+        <info-value v-if="ip" class="padding-unset" label="IP" :value="ip" withLine data-ic-test="session_ip"/>
+        <info-value v-if="macIsValid" class="padding-unset" label="MAC" :value="mac" withLine data-ic-test="session_mac"/>
+        <info-text-sec v-if="vendor" class="padding-unset" :text="vendor"/>
+        <info-value v-if="port" class="padding-unset" label="Agent Circuit ID" :value="portStr" withLine />
+        <info-value v-if="device" class="padding-unset" label="Agent Remote ID" :value="deviceParsed" withLine />
+        <info-value v-if="nas" class="padding-unset" label="NAS" :value="nas" withLine data-ic-test="session_nas"/>
+      </div>
+
+      <div class="display-flex justify-content-space-between gap-4px margin-bottom-8px">
+        <button-main @click="openSessionHistory" button-style="outlined" :disabled="false" icon="history" label="История" loading-text="" size="large" data-ic-test="session_history_btn" />
+        <button-main @click="stop_session_radius" button-style="outlined" :disabled="!start" icon="refresh" label="Сброс" loading-text="" size="large" data-ic-test="session_reset_btn" />
+        <button-main @click="openAuthLogs" button-style="outlined" :disabled="false" icon="log" label="Логи" loading-text="" size="large" data-ic-test="session_logs_btn" />
+      </div>
+      
+      <session-history-modal ref="sessionHistory" :session="session"/>
+      <session-logs-modal ref="sessionLogs" :session="session"/>
+
+    </div>
+  </section>`,
+  props:{
+    params:{type:Object,required:true},
+  },
+  data:()=>({
+    resps:{
+      get_online_sessions:null,
+      stop_session_radius:null
+    },
+    loads:{
+      get_online_sessions:false,
+      stop_session_radius:false
+    },
+    ouis:{},
+  }),
+  watch:{
+    'mac'(mac){
+      if(mac){this.getMacVendorLookup()};
+    },
+  },
+  created(){ 
+    this.get_online_sessions() 
+  },
+  computed:{
+    loading(){return Object.values(this.loads).some(v=>v)},
+    session(){return this.resps.get_online_sessions?.data?.[0]||this.resps.get_online_sessions},
+    device(){return `${this.session?.device||''}`},
+    deviceParsed(){try{return unescape('%'+(this.device.match(/.{1,2}/gi)||[]).join('%'))}catch(error){return this.device}},
+    ip(){return this.session?.ip||''},
+    mac(){return this.session?.mac||''},
+    nas(){return this.session?.nas||''},
+    port(){return this.session?.port||''},
+    portStr(){return `${this.port||''}`},
+    sessionid(){return this.session?.sessionid||''},
+    start(){return this.session?.start||''},
+    macIsValid(){return this.mac&&this.mac!=='0000.0000.0000'},
+    vendor(){return this.ouis[this.mac]},
+  },
+  methods:{
+    async get_online_sessions(){
+      this.resps.get_online_sessions=null;
+      this.loads.get_online_sessions=true;
+      const {params}=this;
+      try{
+        const response=await httpGet(buildUrl('get_online_sessions',params,'/call/aaa/'))
+        this.resps.get_online_sessions=response;
+      }catch(error){
+        console.warn("get_online_sessions.error",error);
+      };
+      this.loads.get_online_sessions=false;
+    },
+    async stop_session_radius(){
+      this.resps.stop_session_radius=null;
+      this.loads.stop_session_radius=true;
+      const {serverid,agentid,vgid,login,descr}=this.params;
+      const {sessionid,dbsessid,nas}=this.session;
+      try{
+        const response=await httpGet(buildUrl('stop_session_radius',{serverid,agentid,vgid,login,descr,sessionid,dbsessid,nasip:nas},'/call/aaa/'));
+        if(response.message=='OK'){
+          this.session=null;
+          setTimeout(this.get_online_sessions,10000);
+        };
+        this.resps.stop_session_radius=response;
+      }catch(error){
+        console.warn("stop_session_radius.error",error);
+      };
+      this.loads.stop_session_radius=false;
+    },
+    openSessionHistory() {
+      this.$refs.sessionHistory.open();
+    },
+    openAuthLogs() {
+      this.$refs.sessionLogs.open();
+    },
+    getOnlineSession(){//public
+      this.get_online_sessions()
+    },
+    async getMacVendorLookup(){
+      const {macIsValid,mac}=this;
+      if(!macIsValid){return};
+      this.ouis=await this.test_getMacVendorLookup([mac]);
+    },
+  }
+});
+
+
+
+
+
+
+
+
 
 
 
