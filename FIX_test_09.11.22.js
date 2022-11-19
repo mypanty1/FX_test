@@ -2455,7 +2455,7 @@ Vue.component("lbsv-service-el", {
 //[Vue warn]: Invalid prop: type check failed for prop "credentials". Expected Array, got Object.
 Vue.component('equipment-credentials',{//30105741270
   template:`<div v-if="isCredentials&&parsed.activationcode" class="my-1">
-    <button-main @click="show=!show" :icon="show?'':'unlock'" :label="show?parsed.activationcode:('Код активации '+hardnumber)" :class="show?'password':''" size="full" button-style="outlined"/>
+    <button-main @click="show=!show" :icon="show?'':'unlock'" :label="show?parsed.activationcode:activationcodeBtnTitle" :class="show?'password':''" size="full" button-style="outlined"/>
   </div>`,
   props:{
     credentials:{type:[Array,Object],default:null,required:true},
@@ -2482,6 +2482,11 @@ Vue.component('equipment-credentials',{//30105741270
       //phonenumber - voip
       //activationcode - iptv
     },
+    activationcodeBtnTitle(){
+      const title=['Код активации'];
+      if(this.hardnumber){title.push('для',this.hardnumber)};
+      return title.join(' ');
+    }
   },
 });
 
