@@ -2072,6 +2072,7 @@ Vue.component('my-port-content', {//add device widget
 
 
 
+
 Vue.component('session-el',{//redesign, need add padding-unset or create custom table
   //template:'#session-el-template',
   template:`<section>
@@ -2234,10 +2235,10 @@ Vue.component('session-history-modal',{//fix params
         <div>
           <div class="font--13-500-140 tone-900 px-16"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
           <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
-          <info-value label="IP" :value="entry.ip" type="large" whithLine data-ic-test="session_history_ip"></info-value>
-          <info-value label="MAC" :value="entry.mac" type="large" whithLine data-ic-test="session_history_mac"></info-value>
-          <info-value label="BRAS/BSR" :value="entry.nas" type="large" whithLine></info-value>
-          <info-value label="Тип трафика" :value="entry.catdescr" type="large" whithLine></info-value>
+          <info-value label="IP" :value="entry.ip" type="large" withLine data-ic-test="session_history_ip"></info-value>
+          <info-value label="MAC" :value="entry.mac" type="large" withLine data-ic-test="session_history_mac"></info-value>
+          <info-value label="BRAS/BSR" :value="entry.nas" type="large" withLine></info-value>
+          <info-value label="Тип трафика" :value="entry.catdescr" type="large" withLine></info-value>
         </div>
       </template>
     </div>
@@ -2347,9 +2348,9 @@ Vue.component('session-logs-modal', {//fix params
         <devider-line></devider-line>
         <div class='py-16'>
           <div class='font--13-500-140 tone-900 px-16'> {{ entry.log }} ({{ entry.count }})</div>
-          <info-value :label='entry.enter_login' :value='entry.last' type='large' :whithLine=true></info-value>
-          <info-value label='MAC' :value='entry.mac' type='large' :whithLine=true></info-value>
-          <info-value label='BRAS/BSR' :value='entry.nas' type='large' :whithLine=true></info-value>
+          <info-value :label='entry.enter_login' :value='entry.last' type='large' withLine></info-value>
+          <info-value label='MAC' :value='entry.mac' type='large' withLine></info-value>
+          <info-value label='BRAS/BSR' :value='entry.nas' type='large' withLine></info-value>
         </div>
       </template>
     </div>
@@ -2392,6 +2393,8 @@ Vue.component('session-logs-modal', {//fix params
     }
   }
 });
+
+
 
 
 
