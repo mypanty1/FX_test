@@ -2216,7 +2216,7 @@ Vue.component("lbsv-service-el", {
 
       <account-iptv-code v-if="serviceType==='IPTV'" :account="accountNumber" :service="service" style="grid-area: 4/1/5/5;"/>
       
-      <equipment-credentials v-for="(credentials,i) of credentialsArr" :credentials="credentials" :key="i" :style="{'grid-area': (5+i)+'/1/'+(6+i)+'/5'}"/>
+      <equipment-credentials v-for="(credentials,hardnumber,i) in credentialsByEquipments" :credentials="credentials" :hardnumber="hardnumber" :key="i" :style="{'grid-area': (5+i)+'/1/'+(6+i)+'/5'}"/>
     </div>
 
     <info-text-sec v-if="service.descr" :text="service.descr" rowClass="font--12-400" rowStyle="color:#918f8f;"/>
@@ -2272,26 +2272,16 @@ Vue.component("lbsv-service-el", {
       return this.service.type == "internet" && this.service.isSession;
     },
     typeService() {
-      switch (this.service.type) {
-        case "internet":
-          return "Интернет";
-        case "tv":
-          return "Телевидение";
-        case "analogtv":
-          return "Аналоговое ТВ";
-        case "digittv":
-          return "Цифровое ТВ";
-        case "phone":
-          return "Телефония";
-        case "hybrid":
-          return "ИТВ";
-        case "iptv":
-          return "IPTV";
-        case "other":
-          return "Другое";
-        default:
-          return this.service.serviceclassname;
-      }
+      return {
+        "internet":"Интернет",
+        "tv":"Телевидение",
+        "analogtv":"Аналоговое ТВ",
+        "digittv":"Цифровое ТВ",
+        "phone":"Телефония",
+        "hybrid":"ИТВ",
+        "iptv":"IPTV",
+        "other":"Другое",
+      }[this.service.type]||this.service.serviceclassname;
     },
     serviceType() {
       switch (this.service.type) {
@@ -2344,9 +2334,15 @@ Vue.component("lbsv-service-el", {
       }
       return fields.filter((field) => field).join(" • ");
     },
-    credentialsArr(){
+    credentialsByEquipments(){
       const {equipments}=this.service;
-      return equipments.filter(({credentials})=>credentials).map(({credentials})=>credentials)
+      return equipments.reduce((credentialsBySerial,equipment)=>{
+        const {credentials,service_equipment:{hardnumber=''}}=equipment;
+        if(credentials&&hardnumber){
+          credentialsBySerial[hardnumber]=credentials
+        };
+        return credentialsBySerial
+      },{});
     },
   },
   created() {
@@ -2458,11 +2454,12 @@ Vue.component("lbsv-service-el", {
 
 //[Vue warn]: Invalid prop: type check failed for prop "credentials". Expected Array, got Object.
 Vue.component('equipment-credentials',{//30105741270
-  template:`<div v-if="isCredentials&&activation_code" class="my-1">
-    <button-main @click="show=!show" :icon="show?'':'unlock'" :label="show?activation_code:'Код активации'" :class="show?'password':''" size="full" button-style="outlined"/>
+  template:`<div v-if="isCredentials&&parsed.activationcode" class="my-1">
+    <button-main @click="show=!show" :icon="show?'':'unlock'" :label="show?parsed.activationcode:('Код активации '+hardnumber)" :class="show?'password':''" size="full" button-style="outlined"/>
   </div>`,
   props:{
     credentials:{type:[Array,Object],default:null,required:true},
+    hardnumber:{type:String,default:''},
   },
   data:()=>({
     show:false,
@@ -2471,24 +2468,19 @@ Vue.component('equipment-credentials',{//30105741270
     isCredentials(){
       return !!this.credentials;
     },
-    credentialsArr(){
+    credentialsAsArray(){
       return Array.isArray(this.credentials)?this.credentials:[this.credentials];
     },
-    login(){//iptv,spd
-      if(!this.isCredentials){return};
-      return this.credentialsArr.find(row=>row.code.toLowerCase()==='login')?.value?.value;
-    },
-    password(){//voip,spd
-      if(!this.isCredentials){return};
-      return this.credentialsArr.find(row=>row.code.toLowerCase()==='password')?.value?.value;
-    },
-    phone_number(){//voip
-      if(!this.isCredentials){return};
-      return this.credentialsArr.find(row=>row.code.toLowerCase()==='phonenumber')?.value?.value;
-    },
-    activation_code(){//iptv
-      if(!this.isCredentials){return};
-      return this.credentialsArr.find(row=>row.code.toLowerCase()==='activationcode')?.value?.value;
+    parsed(){
+      return this.credentialsAsArray.reduce((parsed,credential)=>{
+        const {code,value:{value}}=credential;
+        parsed[code.toLowerCase()]=value;
+        return parsed
+      },{});
+      //login - iptv,spd
+      //password - voip,spd
+      //phonenumber - voip
+      //activationcode - iptv
     },
   },
 });
