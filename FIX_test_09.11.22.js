@@ -2707,6 +2707,241 @@ Vue.component('equipment-credentials',{//30105741270
 
 
 
+store.registerModule('kion',{
+  namespaced:true,
+  state:()=>({
+    pq:'',
+    date:'',
+    loading:false,
+  }),
+  getters:{
+    pq:state=>state.pq,
+    date:state=>new Date(Date.parse(state.date)),
+    loading:state=>state.loading,
+  },
+  mutations:{
+    set_response(state,response={}){
+      state.pq=response?.pq||'';
+      state.date=response?.date||'';
+    },
+    set_loading(state,loading=false){
+      state.loading=loading;
+    },
+  },
+  actions:{
+    async getPq({state,rootGetters,commit},props){
+      const username=rootGetters['main/username'];
+      commit('set_loading',true);
+      try{
+        const url='https://script.google.com/macros/s/AKfycbyFZx3LaE77_0n-Hne597ky5P1SyrmeReaKrndXURqKhGJE6qNDjfi455OBuFcWvwaK/exec';
+        const response=await fetch(`${url}?username=${username}`).then(resp=>resp.json())
+        commit('set_response',response);
+      }catch(error){
+        console.warn('getPq:error',error);
+      }
+      commit('set_loading',false);
+    },
+    sendLog({state,rootGetters},{account='',phone='',sms=''}={}){
+      const username=rootGetters['main/username'];
+      const region_id=rootGetters['main/region_id'];
+      fetch('https://script.google.com/macros/s/AKfycbwl2YHpVTeUevuwTqgkm2OmP-sf78EXd91yI4neh1MrmVHA6_M_Pq8dYE7JIwyxwIsL/exec',{
+        method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},
+        body:JSON.stringify({username,region_id,account,phone,sms})
+      })
+    }
+  },
+})
+
+Vue.component('send-kion-pq',{
+  template:`<div v-if="pq||loading" style="background-color:#d1dfed;" class="display-flex flex-direction-column margin-left-right-16px margin-top-bottom-8px bg-minor-200--- border-radius-8px padding-4px">
+    <loader-bootstrap v-if="loading" text="получение промокода KION"/>
+    <template v-else-if="pq">
+      <span class="font--12-400">Отправить промокод KION</span>
+      <div class="display-inline-flex column-gap-4px justify-content-space-between">
+        <div class="display-inline-flex align-items-center">
+          <span class="tone-900 font--15-500">{{phones[0]}}</span>
+        </div>
+        <div class="display-inline-flex column-gap-4px">
+          <div @click="sendSms(phones[0])" style="background-color:#284059;" class="bg-main-green--- size-30px border-radius-4px display-flex align-items-center justify-content-center">
+            <i class="tone-100 ic-24 ic-sms"></i>
+          </div>
+        </div>
+      </div>
+      <span class="font--12-400">{{pq}} от {{date.toLocaleString()}}</span>
+    </template>
+  </div>`,
+  props:{
+    phone:{type:String,default:''},
+    account:{type:String,default:''},
+  },
+  created(){
+    if(!this.pq&&!this.loading){
+      this.getPq()
+    };
+  },
+  computed:{...mapGetters({
+      username:'main/username',
+    }),
+    phones(){
+      return this.phone.split(/[,;]/ig).filter(s=>s).map(phone=>getPhoneWithPlus(phone)).filter(t=>t.length>6)
+    },
+    ...mapGetters({
+      isApp:'app/isApp',
+      pq:'kion/pq',
+      date:'kion/date',
+      loading:'kion/loading',
+    }),
+    sms(){return `http://kion.ru/code?pq=${this.pq}`},
+  },
+  methods:{
+    ...mapActions({
+      sendToApp:'app/sendToApp',
+      getPq:'kion/getPq',
+      sendLog:'kion/sendLog',
+    }),
+    sendSms(phone=''){
+      if(!phone){return};
+      if(!this.pq){return};
+      const {account,sms}=this;
+      if(this.isApp){
+        this.sendToApp(`do:sendSms:direct:${phone}=${sms}`);
+      }else{
+        window.location=`sms:${phone}?body=${encodeURIComponent(sms)}`;
+      };
+      this.sendLog({account,phone,sms})
+    },
+  }
+});
+
+
+
+
+Vue.component("lbsv-account-main", {//add send-kion-pq
+  //template: "#lbsv-account-main-template",
+  template:`<card-block v-if="account">
+    <title-main>
+      <div slot="prefix">
+        <i class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></i>
+      </div>
+      <span slot="text" class="d-flex align-items-center" style="gap:5px;">
+        <span>{{accountId}}</span>
+        <span v-if="agreement.closedon" class="font--12-400 tone-500">расторгнут {{agreement.closedon}}</span>
+        <span v-if="agreement&&agreement.isconvergent&&!agreement.closedon" class="lbsv-account__convergent">Конвергент</span>
+      </span>
+    </title-main>
+    <devider-line />
+    <info-text-icon :text="formatedAddress" type="medium" icon=""/>
+    <devider-line />
+    <title-main :text="account.name" icon="person" style="text-transform: capitalize;" />
+    <div v-if="agreement && phone === agreement.convergentmsisdn">
+      <account-call v-if="agreement && agreement.isconvergent" :phone="agreement.convergentmsisdn" :isConvergent="agreement.isconvergent" class="mb-3" showSendSms/>
+    </div>
+    <div v-else>
+      <account-call v-if="agreement && agreement.isconvergent" :phone="agreement.convergentmsisdn" :isConvergent="agreement.isconvergent" class="mb-3" showSendSms/>
+      <account-call v-if="phone" :phone="phone" class="mb-3" showSendSms/>
+    </div>
+    <div v-if="phone">
+      <send-kion-pq :phone="phone" :account="accountId" class="mb-3"/>
+    </div>
+    <devider-line v-if="agreement"/>
+    <template v-if="agreement">
+      <info-value icon="purse" :value="balance" type="extra" :label="'Баланс (ЛС '+accountId+')'" :minus="agreement.balance.minus"/>
+      <info-value v-if="agreement && agreement.convergentmsisdn && convergentBalance" icon="purse" :value="convergentBalance+' ₽'" type="extra" :label="'Баланс (+'+agreement.convergentmsisdn+')'" :minus="convergentBalance < 0 ? true : false"/>
+      <info-value v-if="agreement.lastpaydate" icon="clock" :value="lastPay" type="extra" label="Платеж" />
+    </template>
+    <devider-line />
+      
+    <link-block @block-click="openBillingInfo" text="Информация в биллинге" icon="server" action-icon="expand" />
+    <billing-info-modal ref="billingInfo" :billing-info="billingInfo" :loading="loading.vgroups" />
+    <link-block @block-click="openSendSmsModal" text="Смс с новым паролем" icon="sms" action-icon="expand" />
+    <send-sms-modal ref="sendSms" :account="accountId" />
+  </card-block>`,
+  props: {
+    account: { type: Object, default: null },
+    agreement: { type: Object, default: null },
+    flatData: { type: Object, default: null },
+    loading: { type: Object, required: true },
+    billingInfo: { type: Array, default: () => [] },
+    convergentBalance: { type: [String, Number], default: null },
+    accountId: { type: String, default: '' },
+    flat: { type: Object, default: null }
+  },
+  computed: {
+    computedAddress() {
+      if (!this.account) return "";
+      if (this.agreement) {
+        const service = this.account.vgroups.find((s) => s.agrmid == this.agreement.agrmid && s.connaddress);
+        if (service) return service.vgaddress || service.connaddress;
+      }
+      let address = {};
+      if (Array.isArray(this.account.addresses)) {
+        address = this.account.addresses.find((a) => a.address) || {};
+      }
+      return this.account.address || address.address || "";
+    },
+    formatedAddress(){
+      const address = this.computedAddress;
+      if (!address) return ''
+      return address
+        .split(',')
+        .map(elem => elem.trim())
+        .filter(elem => elem)
+        .join(", ")
+    },
+    flatNumber() {
+      // TODO: this.account.FLAT_NUMBER пережиток?
+      return (this.flatData && this.flatData.number) || this.account.FLAT_NUMBER;
+    },
+    balance() {
+      let balance = this.agreement.balance;
+      let str = balance.integer + "." + balance.fraction + " ₽";
+      if (balance.minus) return "-" + str;
+      return str;
+    },
+    lastPay() {
+      const lastsum = this.agreement.lastsum || "";
+      const lastpaydate = this.agreement.lastpaydate || "";
+      const rub = lastsum ? "₽" : "";
+      const point = lastpaydate ? "•" : "";
+      return `${lastsum} ${rub} ${point} ${lastpaydate}`;
+    },
+    phone() {
+      const phone = this.account.mobile || this.account.phone;
+      return phone;
+    },
+    titleIcon() {
+      const isActive = Array.isArray(this.account.agreements) && this.account.agreements.length > 0;;
+      return isActive ? 'person' : 'close-1 main-red';
+    },
+    isActiveAgreement() {
+      const vgroups = [...this.account.vgroups];
+      const vgroupStatus = vgroups.some(item =>  
+        !item.accoffdate || (Date.parse(item.accoffdate) > Date.now()) || (item.accoffdate === "0000-00-00 00:00:00") && (item.accondate !== "0000-00-00 00:00:00"));
+      return vgroupStatus
+    },
+    setMinus() {
+      if (this.agreement.balance.minus) {
+        return true
+      }
+    } 
+  },
+  methods: {
+    openBillingInfo() {
+      this.$refs.billingInfo.open();
+    },
+    openSendSmsModal() {
+      this.$refs.sendSms.open();
+    },
+  },
+});
+
+
+
+
+
+
+
+
 
 
 /*
