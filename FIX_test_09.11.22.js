@@ -2706,18 +2706,19 @@ Vue.component('equipment-credentials',{//30105741270
 
 
 
-
 store.registerModule('kion',{
   namespaced:true,
   state:()=>({
     pq:'',
     date:'',
     loading:false,
+    loadingSendLog:false,
   }),
   getters:{
     pq:state=>state.pq,
     date:state=>new Date(Date.parse(state.date)),
     loading:state=>state.loading,
+    loadingSendLog:state=>state.loadingSendLog,
   },
   mutations:{
     set_response(state,response={}){
@@ -2726,6 +2727,9 @@ store.registerModule('kion',{
     },
     set_loading(state,loading=false){
       state.loading=loading;
+    },
+    set_loadingSendLog(state,loading=false){
+      state.loadingSendLog=loading;
     },
   },
   actions:{
@@ -2741,36 +2745,45 @@ store.registerModule('kion',{
       }
       commit('set_loading',false);
     },
-    sendLog({state,rootGetters},{account='',phone='',sms=''}={}){
+    async sendLog({state,rootGetters,commit},{account='',phone='',sms=''}={}){
       const username=rootGetters['main/username'];
       const region_id=rootGetters['main/region_id'];
-      fetch('https://script.google.com/macros/s/AKfycbwl2YHpVTeUevuwTqgkm2OmP-sf78EXd91yI4neh1MrmVHA6_M_Pq8dYE7JIwyxwIsL/exec',{
-        method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},
-        body:JSON.stringify({username,region_id,account,phone,sms})
-      })
+      commit('set_loadingSendLog',true);
+      try{
+        await fetch('https://script.google.com/macros/s/AKfycbwl2YHpVTeUevuwTqgkm2OmP-sf78EXd91yI4neh1MrmVHA6_M_Pq8dYE7JIwyxwIsL/exec',{
+          method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},
+          body:JSON.stringify({username,region_id,account,phone,sms})
+        });
+      }catch(error){
+        console.warn('sendLog:error',error);
+      }
+      commit('set_loadingSendLog',false);
     }
   },
-})
+});
 function getPhoneWithPlus(phone=''){
   phone=phone.replace(/\D/g,'');
   if(!phone){return phone};
   switch(phone[0]){
-    case '8':
-    case '7':return `+7${phone.slice(1)}`;
+    case '8':case '7':return `+7${phone.slice(1)}`;
     default:return phone.length==10?`+7${phone}`:phone;//номер без +7 или 8
   };
 };
 Vue.component('send-kion-pq',{
-  template:`<div v-if="pq||loading" style="background-color:#d1dfed;" class="display-flex flex-direction-column margin-left-right-16px margin-top-bottom-8px bg-minor-200--- border-radius-8px padding-4px">
+  template:`<div v-if="(pq||loading)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column margin-left-right-16px margin-top-bottom-8px bg-minor-200--- border-radius-8px padding-4px">
     <loader-bootstrap v-if="loading" text="получение промокода KION"/>
     <template v-else-if="pq">
       <span class="font--12-400">Отправить промокод KION</span>
       <div class="display-inline-flex column-gap-4px justify-content-space-between">
-        <div class="display-inline-flex align-items-center">
-          <span class="tone-900 font--15-500">{{phones[0]}}</span>
+        <div v-if="items.length==1" class="display-inline-flex align-items-center">
+          <span class="tone-900 font--15-500">{{phone}}</span>
         </div>
+        <select-el v-else :items="items" v-model="selected" :value="phone" class="send-kion-pq-selector"/>
         <div class="display-inline-flex column-gap-4px">
-          <div @click="sendSms(phones[0])" style="background-color:#284059;" class="bg-main-green--- size-30px border-radius-4px display-flex align-items-center justify-content-center">
+          <div v-if="loadingSendLog" class="display-flex align-items-center">
+            <i class="ic-24 ic-loading rotating main-lilac"></i>
+          </div>
+          <div @click="sendSms(phone)" :class="loadingSendLog?'background-color-97a8b9':'background-color-284059'" class="cursor-pointer background-color-284059--- bg-main-green--- size-30px border-radius-4px display-flex align-items-center justify-content-center">
             <i class="tone-100 ic-24 ic-sms"></i>
           </div>
         </div>
@@ -2779,25 +2792,60 @@ Vue.component('send-kion-pq',{
     </template>
   </div>`,
   props:{
-    phone:{type:String,default:''},
+    phones:{type:Array,default:()=>([])},
     account:{type:String,default:''},
+  },
+  data:()=>({
+    selected:'',
+    phone:'',
+    items:[],
+  }),
+  mounted(){
+    document.getElementById('send-kion-pq-css')?.remove();
+    const el=Object.assign(document.createElement('style'),{type:'text/css',id:'send-kion-pq-css'});
+    el.appendChild(document.createTextNode(`
+    .background-color-d1dfed,.kion-bg{background-color:#d1dfed;}
+    .background-color-284059,.kion-bg-btn{background-color:#284059;}
+    .background-color-97a8b9,.kion-bg-btn-disabled{background-color: #97a8b9;}
+    .cursor-pointer{cursor:pointer;}
+    .send-kion-pq-selector.select-el{padding: unset;width: 150px;height: 25px;background: unset;}
+    .send-kion-pq-selector .select-el__label{height: 25px;}
+    .send-kion-pq-selector .select-el__input{padding: unset;margin-left: 4px;}
+    .send-kion-pq-selector .select-el__icon{padding: unset;}
+    .send-kion-pq-selector.select-el--open .select-el__list{top: 26px;padding: unset;}
+    .send-kion-pq-selector .select-el__item{height: 25px;min-height: 25px;padding: unset;padding-left: 4px;padding-right: 2px;}
+    `));
+    document.body.insertAdjacentElement('afterBegin',el);
   },
   created(){
     if(!this.pq&&!this.loading){
-      this.getPq()
+      this.getPq();
     };
+    this.items=[...new Set([this.phone,...this.items,...this.phonesValid].filter(s=>s))];
+    this.selected=this.selected||this.phone||this.items[0];
   },
-  computed:{...mapGetters({
+  watch:{
+    'selected'(selected){
+      if(selected){this.phone=selected};
+    },
+    'phonesValid'(phonesValid){
+      this.items=[...new Set([this.phone,...this.items,...phonesValid].filter(s=>s))];
+      this.selected=this.selected||this.phone||this.items[0]
+    }
+  },
+  computed:{
+    ...mapGetters({
       username:'main/username',
     }),
-    phones(){
-      return this.phone.split(/[,;]/ig).filter(s=>s).map(phone=>getPhoneWithPlus(phone)).filter(t=>t.length>6)
+    phonesValid(){
+      return [...new Set(this.phones.filter(s=>s).map(phone=>getPhoneWithPlus(phone)).filter(t=>t.length>6))];
     },
     ...mapGetters({
       isApp:'app/isApp',
       pq:'kion/pq',
       date:'kion/date',
       loading:'kion/loading',
+      loadingSendLog:'kion/loadingSendLog',
     }),
     sms(){return `http://kion.ru/code?pq=${this.pq}`},
   },
@@ -2805,12 +2853,13 @@ Vue.component('send-kion-pq',{
     ...mapActions({
       sendToApp:'app/sendToApp',
       getPq:'kion/getPq',
-      sendLog:'kion/sendLog',
+      sendLog:'kion/sendLog'
     }),
     sendSms(phone='',mode='direct'){//mode direct or approve
       if(!phone){return};
       if(!this.pq){return};
-      const {account,sms}=this;
+      const {account,sms,loadingSendLog}=this;
+      if(loadingSendLog){return};
       if(this.isApp){
         this.sendToApp(`do:sendSms:${mode}:${phone}=${sms}`);
       }else{
@@ -2848,9 +2897,9 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
       <account-call v-if="agreement && agreement.isconvergent" :phone="agreement.convergentmsisdn" :isConvergent="agreement.isconvergent" class="mb-3" showSendSms/>
       <account-call v-if="phone" :phone="phone" class="mb-3" showSendSms/>
     </div>
-    <div v-if="phone">
-      <send-kion-pq :phone="phone" :account="accountId" class="mb-3"/>
-    </div>
+    
+    <send-kion-pq :phone="phone" :phones="[account.mobile,account.phone,agreement.convergentmsisdn]" :account="accountId"/>
+    
     <devider-line v-if="agreement"/>
     <template v-if="agreement">
       <info-value icon="purse" :value="balance" type="extra" :label="'Баланс (ЛС '+accountId+')'" :minus="agreement.balance.minus"/>
@@ -2942,6 +2991,9 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
     },
   },
 });
+
+
+
 
 
 
