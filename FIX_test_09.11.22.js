@@ -2770,7 +2770,7 @@ Vue.component('send-kion-pq',{
           <span class="tone-900 font--15-500">{{phones[0]}}</span>
         </div>
         <div class="display-inline-flex column-gap-4px">
-          <div @click="sendSms(phones[0])" style="background-color:#284059;" class="bg-main-green--- size-30px border-radius-4px display-flex align-items-center justify-content-center">
+          <div @click="sendSms(phones[0])" v-longclick="sendSms(phones[0],'approve')" style="background-color:#284059;" class="bg-main-green--- size-30px border-radius-4px display-flex align-items-center justify-content-center">
             <i class="tone-100 ic-24 ic-sms"></i>
           </div>
         </div>
@@ -2807,12 +2807,12 @@ Vue.component('send-kion-pq',{
       getPq:'kion/getPq',
       sendLog:'kion/sendLog',
     }),
-    sendSms(phone=''){
+    sendSms(phone='',mode='direct'){//mode direct or approve
       if(!phone){return};
       if(!this.pq){return};
       const {account,sms}=this;
       if(this.isApp){
-        this.sendToApp(`do:sendSms:direct:${phone}=${sms}`);
+        this.sendToApp(`do:sendSms:${mode}:${phone}=${sms}`);
       }else{
         window.location=`sms:${phone}?body=${encodeURIComponent(sms)}`;
       };
