@@ -2734,7 +2734,7 @@ store.registerModule('kion',{
       commit('set_loading',true);
       try{
         const url='https://script.google.com/macros/s/AKfycbyFZx3LaE77_0n-Hne597ky5P1SyrmeReaKrndXURqKhGJE6qNDjfi455OBuFcWvwaK/exec';
-        const response=await fetch(`${url}?username=${username}`).then(resp=>resp.json());await new Promise(r=>setTimeout(r,30000));
+        const response=await fetch(`${url}?username=${username}`).then(resp=>resp.json());//await new Promise(r=>setTimeout(r,30000));
         commit('set_response',response);
       }catch(error){
         console.warn('getPq:error',error);
