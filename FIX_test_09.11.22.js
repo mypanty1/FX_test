@@ -2751,7 +2751,15 @@ store.registerModule('kion',{
     }
   },
 })
-
+function getPhoneWithPlus(phone=''){
+  phone=phone.replace(/\D/g,'');
+  if(!phone){return phone};
+  switch(phone[0]){
+    case '8':
+    case '7':return `+7${phone.slice(1)}`;
+    default:return phone.length==10?`+7${phone}`:phone;//номер без +7 или 8
+  };
+};
 Vue.component('send-kion-pq',{
   template:`<div v-if="pq||loading" style="background-color:#d1dfed;" class="display-flex flex-direction-column margin-left-right-16px margin-top-bottom-8px bg-minor-200--- border-radius-8px padding-4px">
     <loader-bootstrap v-if="loading" text="получение промокода KION"/>
