@@ -2898,7 +2898,7 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
       <account-call v-if="phone" :phone="phone" class="mb-3" showSendSms/>
     </div>
     
-    <send-kion-pq :phone="phone" :phones="[account.mobile,account.phone,agreement.convergentmsisdn]" :account="accountId"/>
+    <send-kion-pq :phone="phone" :phones="[account?.mobile,account?.phone,agreement?.convergentmsisdn]" :account="accountId"/>
     
     <devider-line v-if="agreement"/>
     <template v-if="agreement">
