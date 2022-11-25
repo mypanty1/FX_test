@@ -2993,6 +2993,189 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
 });
 
 
+Vue.component('task-main-account',{//add send-kion-pq
+  //template:'#task-main-account-template',
+  template:`<div>
+    <card-block>
+      <title-main :text="task.tasktype" icon="task">
+        <div class="d-center-y" style="padding-right: 12px;">
+          <span class="tone-900" style="white-space: nowrap; padding-right: 8px;">{{ task.Assignment }}</span>
+          <i class="ic-20 ic-timer tone-500"></i>
+        </div>
+      </title-main>
+
+      <info-subtitle>
+        <span>
+          <i v-if="operationIcons.tv" class="ic-16 ic-tv"></i>
+          <i v-if="operationIcons.internet" class="ic-16 ic-eth"></i>
+          <i v-if="operationIcons.phone" class="ic-16 ic-sim"></i>
+          <span v-if="operationIcons.any"> • </span>
+          <span>{{ task.NumberOrder }}</span>
+        </span>
+      </info-subtitle>
+
+      <devider-line />
+      <link-block :text="task.Number_EIorNumberOrder+' (СЗ)'" type="medium" actionIcon="copy" @click="copy(task.Number_EIorNumberOrder)"/>
+
+      <devider-line />
+      <link-block :text="task.clientNumber+' (ЛС)'" @click="copy(task.clientNumber)" type="medium" actionIcon="copy"/>
+
+      <devider-line />
+      <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
+
+      <devider-line />
+      <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
+        <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
+          <div>
+            <i class="ic-20 ic-warning"></i>
+          </div>
+          <span class="font-size-14px">Блок-фактор</span>
+        </div>
+      </link-block>
+    </card-block>
+
+    <card-block>
+      <title-main :text="task.customer" icon="person" style="text-transform: capitalize;" />
+      <account-call :phone="task.ContactPhoneNumber" :descr="task.customer" showSendSms/>
+      <send-kion-pq :phones="[task.ContactPhoneNumber]" :account="task.clientNumber"/>
+      <info-list icon="timer" :text="task.Appointment" comment="(ожидания клиентом)" />
+    </card-block>
+
+    <card-block>
+      <title-main :text="site?.address||task.AddressSiebel" class="mt-8">
+        <button-sq type="large" icon="pin" @click="toMap"/>
+      </title-main>
+      <info-list icon="apartment" v-if="entrance" :text="titleEntranceFloorFlat"/>
+      <devider-line />
+      <link-block icon="du" :text="site?.node||task.siteid" :search="site?.node||task.siteid" type="medium" />
+      <link-block icon="home" actionIcon="expand" text="Инфо по площадке и доступу" @block-click="open_modal_site_info" type="medium" />
+    </card-block>
+
+    <modal-container ref="modal_site_info">
+      <site-info :site="site"/>
+    </modal-container>
+  </div>`,
+  props:{
+    task:{type:Object,required:true},
+  },
+  data:()=>({
+    site:null,
+    entrances:[],
+    entrance:null,
+  }),
+  computed:{
+    hasBf(){return false //заглушка до вывода 172
+      if(!this.entrance){return};//return true
+      return Object.values(this.entrance?.blocks||{}).some(b=>b);
+    },
+    flat() {
+      let i = this.task.AddressSiebel.search(/кв\./gi);
+      if (i == -1) return 0;
+      let flat = this.task.AddressSiebel.substring(i + 4).replace(/\D/g, '');
+      return Number(flat);
+    },
+    floor() {
+      if (!this.entrance || !this.flat) return '';
+      const floors = this.entrance.floor;
+      const floor = floors.find(el => el.first <= this.flat && el.last >= this.flat);
+      if (floor) return floor.number;
+      return ''
+    },
+    titleEntranceFloorFlat(){
+      let str=[];
+      if(this.entrance.id){str.push('подъезд '+this.entrance.number)};
+      if(this.floor){str.push('этаж '+this.floor)};
+      if(this.flat){str.push('кв '+this.flat)};
+      return str.join(' • ');
+    },
+    operationIcons() {
+      const { service } = this.task;
+      if (!Array.isArray(service)) return {};
+      const hasInternet = service.includes('internet');
+      const hasTv = service.includes('tv');
+      const hasPhone = service.includes('phone');
+      return {
+        any: hasInternet || hasTv || hasPhone,
+        internet: hasInternet,
+        tv: hasTv,
+        phone: hasPhone
+      }
+    },
+  },
+  created(){
+    this.getSite();
+    this.getEntrances();
+  },
+  methods:{
+    slideToEntrance(){
+      if(!this.hasBf){return};
+      this.$emit('slide-to',{name:'entrance'});
+    },
+    async getSite(){
+      let cache=this.$cache.getItem(`search_ma/${this.task.siteid}`);
+      if(cache){
+        this.getNode(cache);
+        return;
+      };
+      try{
+        let response=await httpGet(buildUrl("search_ma",{pattern:this.task.siteid},"/call/v1/search/"));
+        if(response.type==='error'){throw new Error(response.message)};
+        this.$cache.setItem(`search_ma/${this.task.siteid}`,response.data);
+        this.getNode(response.data);
+      }catch(error){
+        console.warn('search_ma:site.error',error);
+      };
+    },
+    getNode(response){
+      if(Array.isArray(response)){
+        this.site=response.find(({type})=>type.toUpperCase()==='ДУ')||response[0];
+      }else{
+        this.site=response;
+      }
+    },
+    async getEntrances(){
+      let cache=this.$cache.getItem(`site_entrance_list/${this.task.siteid}`);
+      if(cache){this.getEntrance(cache);return;};
+      try {
+        let response=await httpGet(buildUrl('site_entrance_list',{site_id:this.task.siteid},'/call/v1/device/'));
+        if(response.type==='error'){throw new Error(response.message)};
+        if(!response.length){response=[]};
+        this.$cache.setItem(`site_entrance_list/${this.task.siteid}`,response);
+        this.getEntrance(response);
+      }catch(error){
+        console.warn('site_entrance_list.error',error);
+      }
+    },
+    getEntrance(response){
+      this.entrances=Array.isArray(response)?response:[];
+      this.entrance=this.entrances.find(entrance=>this.flat>=entrance.flats.from&&this.flat<=entrance.flats.to);
+      this.setEntranceSlide();
+    },
+    setEntranceSlide() {
+      this.$emit('set:header',{
+        component:'task-entrance',
+        title:this.entrance?`Подъезд № ${this.entrance.number}`:(this.entrances&&this.entrances.length)?'Все подъезды':'Подъезды',
+        subtitle:this.entrance?`кв ${this.entrance.flats.range}`:(this.entrances&&this.entrances.length)?`1 - ${this.entrances.length}`:'отсутствуют'
+      });
+    },
+    copy(text){
+      copyToBuffer(text,()=>console.log('Copied:',text));
+    },
+    open_modal_site_info(){
+      this.$refs.modal_site_info.open();
+    },
+    toMap(){
+      if(!this.site){return};
+      this.$router.push({
+        name:'map',
+        query:{
+          lat:this.site?.coordinates?.latitude,
+          long:this.site?.coordinates?.longitude,
+        },
+      });
+    },
+  },
+});
 
 
 
