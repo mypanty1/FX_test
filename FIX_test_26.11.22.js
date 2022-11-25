@@ -4,7 +4,7 @@ javascript:(function(){
 if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
   document.title='Inetcore+';
 */
-const FIX_test_version='FIX_test_026.11.22';
+const FIX_test_version='FIX_test_26.11.22';
 const FIX_test_app_version='FIX_test v1.6';
 const dev=!window.AppInventor;
 if(dev){
