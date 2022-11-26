@@ -2789,7 +2789,7 @@ Vue.component('send-kion-pq',{
   template:`<div v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px margin-left-right-16px margin-top-bottom-8px border-radius-8px padding-4px">
     <loader-bootstrap v-if="loads_getPq" text="получение промокода KION"/>
     <template v-else-if="resps_getPq">
-      <span class="font--12-400">Отправить промокод KION</span>
+      <span class="font--12-400">Отправить смс с промокодом KION</span>
       <div class="display-inline-flex column-gap-4px justify-content-space-between">
         <div v-if="items.length==1" class="display-inline-flex align-items-center">
           <span class="tone-900 font--15-500">{{phone}}</span>
