@@ -2732,6 +2732,7 @@ store.registerModule('kion',{
   getters:{
     resps_getPq:state=>state.resps.getPq,
     pq:state=>state.resps.getPq?.pq,
+    smsText:state=>state.resps.getPq?.sms,
     date:state=>new Date(Date.parse(state.resps.getPq?.date)),
     loads_getPq:state=>state.loads.getPq,
     loads_sendLog:state=>state.loads.sendLog,
@@ -2858,11 +2859,12 @@ Vue.component('send-kion-pq',{
       isApp:'app/isApp',
       resps_getPq:'kion/resps_getPq',
       pq:'kion/pq',
+      smsText:'kion/smsText',
       date:'kion/date',
       loads_getPq:'kion/loads_getPq',
       loads_sendLog:'kion/loads_sendLog',
     }),
-    sms(){return `http://kion.ru/code?pq=${this.pq}`},
+    sms(){return this.smsText || `http://kion.ru/code?pq=${this.pq}`},
   },
   methods:{
     ...mapActions({
