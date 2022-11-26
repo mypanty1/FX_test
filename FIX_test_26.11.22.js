@@ -6,7 +6,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 */
 const FIX_test_version='FIX_test_26.11.22';
 const FIX_test_app_version='FIX_test v1.6';
-const dev=!window.AppInventor;
+const dev=!Boolean(window.AppInventor);
 if(dev){
 	window.AppInventor={
 		setWebViewString:function(str){console.log(str);this.str=str},
