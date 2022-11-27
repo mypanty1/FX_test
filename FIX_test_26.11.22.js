@@ -754,19 +754,19 @@ Vue.component('my-site-du-wrapper',{
 					<div v-show="openOptions" class="add-options-block">
 						<div style="text-align:right;padding-right:1em;">
 							<span id="loader_generatePL" class="myloader" style="display:none;"></span>
-							<input type="button" id="btn_save_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="save mac-port">
-							<input type="button" id="btn_diff_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="diff mac-port">
-							<input type="button" id="btn_break_sessions" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="break all sessions">
-							<input type="button" id="btn_refree_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="refree all ports">
-							<input type="button" id="btn_bind_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="bind by diff mac-port">
-							<input type="button" id="btn_reboot_ports" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="reboot all ports">
-							<input type="button" id="btn_redscv" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="re discovery all">
-							<input type="button" id="btn_cabletest" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="cable test all">
+							<input type="button" id="btn_save_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="save mac-port">
+							<input type="button" id="btn_diff_macs" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="diff mac-port">
+							<input type="button" id="btn_break_sessions" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="break all sessions">
+							<input type="button" id="btn_refree_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="refree all ports">
+							<input type="button" id="btn_bind_all" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="bind by diff mac-port">
+							<input type="button" id="btn_reboot_ports" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="reboot all ports">
+							<input type="button" id="btn_redscv" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="re discovery all">
+							<input type="button" id="btn_cabletest" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="cable test all">
 							<input type="button" id="btn_generatePL" disabled @click="createSchematicPlan(site.id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
 							<input type="button" id="btn_generatePL_woTS" @click="createSchematicPlan(site.id,true)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема без ТС">
-							<input type="button" id="btn_drop_errors" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="btn_drop_errors">
-							<input type="button" id="btn_uplinks_stat" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="get port-speed-sfp stat">
-							<input type="button" id="btn_reply_this" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;" value="btn_reply_this">
+							<input type="button" id="btn_drop_errors" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="btn_drop_errors">
+							<input type="button" id="btn_uplinks_stat" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="get port-speed-sfp stat">
+							<input type="button" id="btn_reply_this" disabled style="font-family:arial;font-size:8pt;padding:1px;opacity:0;display:none;" value="btn_reply_this">
 						</div>
 						<div class="t-cols" style="padding-left:1em;padding-top:1em;">
 							<div class="t-col" style="order:-1;">
