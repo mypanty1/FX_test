@@ -2732,7 +2732,7 @@ store.registerModule('kion',{
   getters:{
     resps_getPq:state=>state.resps.getPq,
     pq:state=>state.resps.getPq?.pq,
-    smsText:state=>state.resps.getPq?.sms,
+    smsTemplate:state=>state.resps.getPq?.sms,
     date:state=>new Date(Date.parse(state.resps.getPq?.date)),
     loads_getPq:state=>state.loads.getPq,
     loads_sendLog:state=>state.loads.sendLog,
@@ -2859,12 +2859,23 @@ Vue.component('send-kion-pq',{
       isApp:'app/isApp',
       resps_getPq:'kion/resps_getPq',
       pq:'kion/pq',
-      smsText:'kion/smsText',
+      smsTemplate:'kion/smsTemplate',
       date:'kion/date',
       loads_getPq:'kion/loads_getPq',
       loads_sendLog:'kion/loads_sendLog',
     }),
-    sms(){return this.smsText || `http://kion.ru/code?pq=${this.pq}`},
+    sms(){
+      if(!this.smsTemplate){return `http://kion.ru/code?pq=${this.pq}`};
+      return this.smsTemplate.split(/({{|}})/).reduce((text,piece,i,arr)=>{
+        if(piece==='{{'){
+          const path=arr[i+1]||'';
+          text+=path.split('.').reduce((value,key)=>(value?.[key]||''),this);
+        }else if(piece!=='}}'&&arr[i-1]!=='{{'){
+          text+=piece;
+        };
+        return text;
+      },'',this)
+    },
   },
   methods:{
     ...mapActions({
