@@ -1855,7 +1855,7 @@ Vue.component("port-links",{//test actual abon state from siebel
 	}
 });
 
-document.getElementById('port-content-template').innerHTML=`<my-port-content v-bind="$props"/>`;
+//document.getElementById('port-content-template').innerHTML=`<my-port-content v-bind="$props"/>`;
 Vue.component('my-port-content', {//add device widget
   //template: '#port-content-template',
 	template:`<section class="port-content">
