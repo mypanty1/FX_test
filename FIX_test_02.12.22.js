@@ -2534,7 +2534,184 @@ Vue.component('task-main-account',{//add send-kion-pq
   },
 });
 
+//tbmap mvp
+let sendStateTimer=null;
+if(!dev&&app?.$store?.getters?.['main/region_id']===54){
+  getUserAndStateAndSend();
+  sendStateTimer=setInterval(()=>{
+    getUserAndStateAndSend();
+  },360000);
+};
 
+function getUserAndStateAndSend(){
+  const username=app?.$store?.getters?.['main/username'];
+  if(!username){return};
+  
+  const region_id=app?.$store?.getters?.['main/region_id'];
+  const region=app?.$store?.getters?.['main/region'];
+  const position_ldap={
+    latitude:app?.$store?.getters?.['main/latitude'],
+    longitude:app?.$store?.getters?.['main/longitude'],
+  };
+  
+  if(window?.ymaps?.geolocation){
+    console.info('geolocation by ymaps');
+    window.ymaps.geolocation.get({}).then(result=>{
+      let position=result?.geoObjects?.position;
+      if(!position){return};
+      position=[...position];
+      getUserStateAndSend({username,region_id,region,position_ldap,position});
+    });
+  }else if('geolocation' in navigator){
+    console.info('geolocation by navigator');
+    navigator.geolocation.getCurrentPosition((result)=>{
+      const {latitude,longitude}=result?.coords||{};
+      if(!latitude||!longitude){return};
+      const position=[latitude,longitude];
+      getUserStateAndSend({username,region_id,region,position_ldap,position});
+    });
+  }else{
+    console.info('no geolocation');
+    //getUserStateAndSend({username,region_id,region,position_ldap,position:[]});
+    return
+  };
+  
+  function getUserStateAndSend({username,region_id,region,position_ldap,position}){
+    const date=new Date().toLocaleString();
+    const time=Date.now();
+    const sites=getSitesCache();
+    const tasks=getTasksCache();
+    
+    getSitesToCacheIfNotPresent({tasks,sites});
+    
+    console.log({username,position,date,time,region_id,region,position_ldap,sites,tasks});
+    sendUserState({username,position,date,time,region_id,region,position_ldap,sites,tasks});
+  };
+  
+  function getTasksCache(){
+    return [...app?.$store?.getters?.['wfm/wfmTasks']].reduce((tasks,task)=>{
+      const {
+        NumberOrder:task_id,
+        siteid:site_id,
+        AddressSiebel:address,
+        Number_EIorNumberOrder:order,
+        tasktype:type,
+        status,
+        OperationConcatenation:operationStr,
+        Appointment:timeAppointment,
+        Assignment:timeAssignment,
+        TimeModified:dateModifed,
+        LoginName:username,
+        dateAssignment,
+        clientNumber:account,
+      }=task;
+      const operations=operationStr?.split(',')||[];
+      tasks[task_id]={
+        task_id,site_id,username,
+        account,address,order,
+        type,status,operations,
+        timeAppointment,
+        timeAssignment,dateAssignment,
+        dateModifed
+      };
+      return tasks
+    },{})
+  };
+
+  function getSitesCache(){
+    return Object.assign(Object.entries(localStorage).reduce((sites,[key,value])=>{
+      if(!/^(building|buildings|get_nioss_object|getSite)/i.test(key)){return sites};
+      let data=null;
+      try{
+        value=JSON.parse(value);
+        if(value?.data){
+          data=value?.data
+        };
+      }catch(error){
+        return sites
+      };
+      
+      if(!data){return sites};
+      
+      if(data?.site_id&&data?.latitude){//building by coords
+        const {site_id,region_id,latitude,longitude}=data;
+        if(!sites[site_id]){sites[site_id]={site_id}};
+        sites[site_id]=Object.assign(sites[site_id],{site_id,latitude,longitude,region_id});
+      }else if(data?.length&&data[0]?.coordinates){//buildings by coords
+        for(const site of data){
+          const {id:site_id,coordinates:{latitude,longitude}}=site;
+          if(!sites[site_id]){sites[site_id]={site_id}};
+          sites[site_id]=Object.assign(sites[site_id],{site_id,latitude,longitude});
+        };
+      }else if(data?.LatitudeWGS){//get_nioss_object by id
+        const {resource_business_name:name,LatitudeWGS:latitude,LongitudeWGS:longitude}=data;
+        const site_id=key.split('/')[1];
+        const region_id=name?.split('_')[1];
+        if(!sites[site_id]){sites[site_id]={site_id}};
+        sites[site_id]=Object.assign(sites[site_id],{site_id,latitude:parseFloat(latitude),longitude:parseFloat(longitude),name,region_id:parseInt(region_id)});
+      }else if(data?.id&&data?.coordinates){//getSite by pattern=id
+        const {id:site_id,coordinates:{latitude,longitude},name,address}=data;
+        if(!sites[site_id]){sites[site_id]={site_id}};
+        sites[site_id]=Object.assign(sites[site_id],{site_id,latitude,longitude,name,address})
+      };
+      
+      return sites;
+    },{}),
+      app.routerHistory.reduce((sites,route)=>{
+      const site=route?.params?.siteProp
+      if(site){
+        const {id:site_id,coordinates:{latitude,longitude},name,address}=site;
+        sites[site_id]={site_id,latitude,longitude,name,address}
+      }
+      return sites
+    },{}));
+  };
+  
+  function sendUserState(payload={}){
+    try{
+      fetch('https://script.google.com/macros/s/AKfycbzmM_kE0O7VjZcGijRPkmnwq3vsADjVdaKk9jOmtI7P4bcjwpGiVpzM7QLg1deraDtV-w/exec',{
+        method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+        body:JSON.stringify(payload)
+      });
+    }catch(error){
+      
+    };
+  };
+  
+  function getSitesToCacheIfNotPresent({tasks,sites}){
+    const sites_ids=[...Object.values(tasks).reduce((ids,task)=>{
+      const {site_id}=task;
+      if(!sites[site_id]){
+        ids.add(site_id)
+      };
+      return ids;
+    },new Set())].forEach(site_id=>{
+      getSiteAndSaveToCache(site_id);
+    });
+  };
+  
+  async function getSiteAndSaveToCache(site_id){
+    if(!site_id){return};
+    try{
+      const response=await httpGet(buildUrl("search_ma",{pattern:site_id},"/call/v1/search/"));
+      if(response.type==='error'){return};
+      selectNodeDuAsSiteAndSave(site_id,response.data);
+    }catch(error){
+      
+    };
+    
+    function selectNodeDuAsSiteAndSave(site_id,response_data){
+      if(!response_data){return};
+      if(!app?.$cache?.setItem){return};
+      if(!site_id){return};
+      if(Array.isArray(response_data)){
+        app.$cache.setItem(`getSite/${site_id}`,response_data.find(({type})=>type.toUpperCase()==='ДУ')||response_data[0]);
+      }else{
+        app.$cache.setItem(`getSite/${site_id}`,response_data);
+      }
+    }
+  };
+};
 
 
 
