@@ -2538,44 +2538,57 @@ Vue.component('task-main-account',{//add send-kion-pq
 //app?.$store?.commit('main/set_userData',{...app.$store.getters['main/userData'],username:"igmuravi"})
 let sendStateTimer=null;
 let savePositionTimer=null;
-const positionsBuffer=new Set();
+const stateBuffer=new Set();
 
 if(app?.$store?.getters?.['main/username']){
-  savePositionToBuffer();
+  saveUserStateToBuffer();
   getUserStateBufferAndSend();
   
   sendStateTimer=setInterval(()=>{
     getUserStateBufferAndSend();
-  },360000);
+  },300000);//5min
   
   savePositionTimer=setInterval(()=>{
-    savePositionToBuffer();
-  },6000);
+    saveUserStateToBuffer();
+  },5000);//5sec
 };
 
-function savePositionToBuffer(){
+async function saveUserStateToBuffer(){
   const date=new Date().toLocaleString();
   const time=Date.now();
+  const getBattery=await window.navigator.getBattery();
+  const {charging,chargingTime,dischargingTime,level}=getBattery||{};
+  const battery=!getBattery?null:{charging,chargingTime,dischargingTime,level};
   if(window?.ymaps?.geolocation){
     console.info('geolocation by ymaps');
     window.ymaps.geolocation.get({}).then(result=>{
       let position=result?.geoObjects?.position;
-      if(!position){return};
+      if(!position){
+        getByNavigator({date,time,battery});
+        return
+      };
       position=[...position];
-      positionsBuffer.add({date,time,position});
+      stateBuffer.add({date,time,position,battery});
     });
   }else if('geolocation' in navigator){
     console.info('geolocation by navigator');
-    navigator.geolocation.getCurrentPosition((result)=>{
-      const {latitude,longitude}=result?.coords||{};
-      if(!latitude||!longitude){return};
-      const position=[latitude,longitude];
-      positionsBuffer.add({date,time,position});
-    });
+    getByNavigator({date,time,battery});
   }else{
     console.info('no geolocation');
-    return
+    stateBuffer.add({date,time,position:null,battery});
   };
+  
+  function getByNavigator({date,time,battery}){
+    navigator.geolocation.getCurrentPosition((result)=>{
+      const {latitude,longitude}=result?.coords||{};
+      if(!latitude||!longitude){
+        stateBuffer.add({date,time,position:null,battery})
+        return
+      };
+      const position=[latitude,longitude];
+      stateBuffer.add({date,time,position,battery});
+    });
+  }
 };
 
 function getUserStateBufferAndSend(){
@@ -2589,12 +2602,12 @@ function getUserStateBufferAndSend(){
     longitude:app?.$store?.getters?.['main/longitude'],
   };
   
-  const history=[...positionsBuffer];
+  const history=[...stateBuffer];
   const date=new Date().toLocaleString();
   const time=Date.now();
-  const position=history[0]?.position;
+  const position=history[0]?.position||null;
   getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time});
-  positionsBuffer.clear();
+  stateBuffer.clear();
   
   function getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time}){
     const sites=getSitesCache();
