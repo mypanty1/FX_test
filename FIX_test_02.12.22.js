@@ -2536,11 +2536,11 @@ Vue.component('task-main-account',{//add send-kion-pq
 
 //tbmap mvp
 let sendStateTimer=null;
-if(!dev&&app?.$store?.getters?.['main/region_id']===54){
+if(true/*&&app?.$store?.getters?.['main/region_id']===54*/){
   getUserAndStateAndSend();
   sendStateTimer=setInterval(()=>{
     getUserAndStateAndSend();
-  },360000);
+  },60000);
 };
 
 function getUserAndStateAndSend(){
