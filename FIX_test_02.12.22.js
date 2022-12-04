@@ -2605,7 +2605,7 @@ function getUserStateBufferAndSend(){
   const history=[...stateBuffer];
   const date=new Date().toLocaleString();
   const time=Date.now();
-  const position=history[0]?.position||null;
+  const position=history[history.length-1]?.position||null;
   getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time});
   stateBuffer.clear();
   
