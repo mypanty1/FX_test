@@ -2541,6 +2541,7 @@ let savePositionTimer=null;
 const positionsBuffer=new Set();
 
 if(app?.$store?.getters?.['main/username']){
+  savePositionToBuffer();
   getUserStateBufferAndSend();
   
   sendStateTimer=setInterval(()=>{
