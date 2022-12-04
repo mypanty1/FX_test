@@ -2535,15 +2535,49 @@ Vue.component('task-main-account',{//add send-kion-pq
 });
 
 //tbmap mvp
+//app?.$store?.commit('main/set_userData',{...app.$store.getters['main/userData'],username:"igmuravi"})
 let sendStateTimer=null;
-if(true/*&&app?.$store?.getters?.['main/region_id']===54*/){
-  getUserAndStateAndSend();
+let savePositionTimer=null;
+const positionsBuffer=new Set();
+
+if(app?.$store?.getters?.['main/username']){
+  getUserStateBufferAndSend();
+  
   sendStateTimer=setInterval(()=>{
-    getUserAndStateAndSend();
-  },60000);
+    getUserStateBufferAndSend();
+  },360000);
+  
+  savePositionTimer=setInterval(()=>{
+    savePositionToBuffer();
+  },6000);
 };
 
-function getUserAndStateAndSend(){
+function savePositionToBuffer(){
+  const date=new Date().toLocaleString();
+  const time=Date.now();
+  if(window?.ymaps?.geolocation){
+    console.info('geolocation by ymaps');
+    window.ymaps.geolocation.get({}).then(result=>{
+      let position=result?.geoObjects?.position;
+      if(!position){return};
+      position=[...position];
+      positionsBuffer.add({date,time,position});
+    });
+  }else if('geolocation' in navigator){
+    console.info('geolocation by navigator');
+    navigator.geolocation.getCurrentPosition((result)=>{
+      const {latitude,longitude}=result?.coords||{};
+      if(!latitude||!longitude){return};
+      const position=[latitude,longitude];
+      positionsBuffer.add({date,time,position});
+    });
+  }else{
+    console.info('no geolocation');
+    return
+  };
+};
+
+function getUserStateBufferAndSend(){
   const username=app?.$store?.getters?.['main/username'];
   if(!username){return};
   
@@ -2554,38 +2588,21 @@ function getUserAndStateAndSend(){
     longitude:app?.$store?.getters?.['main/longitude'],
   };
   
-  if(window?.ymaps?.geolocation){
-    console.info('geolocation by ymaps');
-    window.ymaps.geolocation.get({}).then(result=>{
-      let position=result?.geoObjects?.position;
-      if(!position){return};
-      position=[...position];
-      getUserStateAndSend({username,region_id,region,position_ldap,position});
-    });
-  }else if('geolocation' in navigator){
-    console.info('geolocation by navigator');
-    navigator.geolocation.getCurrentPosition((result)=>{
-      const {latitude,longitude}=result?.coords||{};
-      if(!latitude||!longitude){return};
-      const position=[latitude,longitude];
-      getUserStateAndSend({username,region_id,region,position_ldap,position});
-    });
-  }else{
-    console.info('no geolocation');
-    //getUserStateAndSend({username,region_id,region,position_ldap,position:[]});
-    return
-  };
+  const history=[...positionsBuffer];
+  const date=new Date().toLocaleString();
+  const time=Date.now();
+  const position=history[0]?.position;
+  getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time});
+  positionsBuffer.clear();
   
-  function getUserStateAndSend({username,region_id,region,position_ldap,position}){
-    const date=new Date().toLocaleString();
-    const time=Date.now();
+  function getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time}){
     const sites=getSitesCache();
     const tasks=getTasksCache();
     
     getSitesToCacheIfNotPresent({tasks,sites});
     
-    console.log({username,position,date,time,region_id,region,position_ldap,sites,tasks});
-    sendUserState({username,position,date,time,region_id,region,position_ldap,sites,tasks});
+    console.log({username,position,region_id,region,position_ldap,sites,tasks,history,date,time});
+    sendUserState({username,position,region_id,region,position_ldap,sites,tasks,history,date,time});
   };
   
   function getTasksCache(){
