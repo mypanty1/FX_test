@@ -2702,7 +2702,7 @@ function getUserStateBufferAndSend(){
     try{
       fetch('https://script.google.com/macros/s/AKfycbzmM_kE0O7VjZcGijRPkmnwq3vsADjVdaKk9jOmtI7P4bcjwpGiVpzM7QLg1deraDtV-w/exec',{
         method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-        body:JSON.stringify({payload,api_filter:'5x5'})
+        body:JSON.stringify({...payload,api_filter:'5x5'})
       });
     }catch(error){
       
