@@ -2602,7 +2602,7 @@ function getUserStateBufferAndSend(){
   if(!username){return};
   
   const region_id=app?.$store?.getters?.['main/region_id'];
-  const region=app?.$store?.getters?.['main/region'];
+  //const region=app?.$store?.getters?.['main/region'];
   const position_ldap={
     latitude:app?.$store?.getters?.['main/latitude'],
     longitude:app?.$store?.getters?.['main/longitude'],
@@ -2612,17 +2612,22 @@ function getUserStateBufferAndSend(){
   const date=new Date().toLocaleString();
   const time=Date.now();
   const position=history[history.length-1]?.position||null;
-  getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time});
+  const getBattery=await window.navigator.getBattery();
+  const {charging,chargingTime,dischargingTime,level}=getBattery||{};
+  const battery=!getBattery?null:{charging,chargingTime,dischargingTime,level};
+  const connection=window.navigator.connection||null;
+  
+  getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection});
   stateBuffer.clear();
   
-  function getUserStateAndSend({username,region_id,region,position_ldap,position,history,date,time}){
+  function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection}){
     const sites=getSitesCache();
     const tasks=getTasksCache();
     
     getSitesToCacheIfNotPresent({tasks,sites});
     
-    console.log({username,position,region_id,region,position_ldap,sites,tasks,history,date,time});
-    sendUserState({username,position,region_id,region,position_ldap,sites,tasks,history,date,time});
+    console.log({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection});
+    sendUserState({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection});
   };
   
   function getTasksCache(){
