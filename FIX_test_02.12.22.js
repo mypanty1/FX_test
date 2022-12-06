@@ -2619,17 +2619,21 @@ async function getUserStateBufferAndSend(){
   const {effectiveType,rtt,downlink}=window.navigator.connection||{};
   const connection={effectiveType,rtt,downlink};
   
-  getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection});
+  const platform=window.navigator.platform;
+  const {mobile,platform:_platform}=window.navigator.userAgentData||{};
+  const userAgentData={mobile,platform:_platform};
+  
+  getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection,platform,userAgentData});
   stateBuffer.clear();
   
-  function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection}){
+  function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection,platform,userAgentData}){
     const sites=getSitesCache();
     const tasks=getTasksCache();
     
     getSitesToCacheIfNotPresent({tasks,sites});
     
-    console.log({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection});
-    sendUserState({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection});
+    console.log({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection,platform,userAgentData});
+    sendUserState({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection,platform,userAgentData});
   };
   
   function getTasksCache(){
