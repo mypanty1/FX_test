@@ -2597,7 +2597,7 @@ async function saveUserStateToBuffer(){
   }
 };
 
-function getUserStateBufferAndSend(){
+async function getUserStateBufferAndSend(){
   const username=app?.$store?.getters?.['main/username'];
   if(!username){return};
   
