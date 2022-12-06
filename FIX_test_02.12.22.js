@@ -2559,35 +2559,41 @@ async function saveUserStateToBuffer(){
   const getBattery=await window.navigator.getBattery();
   const {charging,chargingTime,dischargingTime,level}=getBattery||{};
   const battery=!getBattery?null:{charging,chargingTime,dischargingTime,level};
+  const connection=window.navigator.connection||null;
   if(window?.ymaps?.geolocation){
     console.info('geolocation by ymaps');
     window.ymaps.geolocation.get({}).then(result=>{
       let position=result?.geoObjects?.position;
       if(!position){
-        getByNavigator({date,time,battery});
+        getByNavigator({date,time,battery,connection});
         return
       };
       position=[...position];
-      stateBuffer.add({date,time,position,battery});
+      stateBuffer.add({date,time,position,battery,connection});
     });
   }else if('geolocation' in navigator){
     console.info('geolocation by navigator');
-    getByNavigator({date,time,battery});
+    getByNavigator({date,time,battery,connection});
   }else{
     console.info('no geolocation');
-    stateBuffer.add({date,time,position:null,battery});
+    stateBuffer.add({date,time,position:null,battery,connection});
   };
   
-  function getByNavigator({date,time,battery}){
-    navigator.geolocation.getCurrentPosition((result)=>{
-      const {latitude,longitude}=result?.coords||{};
-      if(!latitude||!longitude){
-        stateBuffer.add({date,time,position:null,battery})
-        return
-      };
-      const position=[latitude,longitude];
-      stateBuffer.add({date,time,position,battery});
-    });
+  function getByNavigator({date,time,battery,connection}){
+    if('geolocation' in navigator&&'getCurrentPosition' in navigator.geolocation){
+      navigator.geolocation.getCurrentPosition((result)=>{
+        const {latitude,longitude}=result?.coords||{};
+        if(!latitude||!longitude){
+          stateBuffer.add({date,time,position:null,battery,connection})
+          return
+        };
+        const position=[latitude,longitude];
+        stateBuffer.add({date,time,position,battery,connection});
+      });
+    }else{;
+      stateBuffer.add({date,time,position:null,battery,connection})
+      return
+    }
   }
 };
 
