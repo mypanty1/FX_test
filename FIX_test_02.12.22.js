@@ -2559,8 +2559,8 @@ async function saveUserStateToBuffer(){
   const getBattery=await window.navigator.getBattery();
   const {charging,chargingTime,dischargingTime,level}=getBattery||{};
   const battery=!getBattery?null:{charging,chargingTime,dischargingTime,level};
-  const {effectiveType,rtt,downlink}=window.navigator.connection||{};
-  const connection={effectiveType,rtt,downlink};
+  const {effectiveType,rtt,downlink,downlinkMax,type}=window.navigator.connection||{};
+  const connection={effectiveType,rtt,downlink,downlinkMax,type};
   if(window?.ymaps?.geolocation){
     console.info('geolocation by ymaps');
     window.ymaps.geolocation.get({}).then(result=>{
@@ -2616,8 +2616,8 @@ async function getUserStateBufferAndSend(){
   const getBattery=await window.navigator.getBattery();
   const {charging,chargingTime,dischargingTime,level}=getBattery||{};
   const battery=!getBattery?null:{charging,chargingTime,dischargingTime,level};
-  const {effectiveType,rtt,downlink}=window.navigator.connection||{};
-  const connection={effectiveType,rtt,downlink};
+  const {effectiveType,rtt,downlink,downlinkMax,type}=window.navigator.connection||{};
+  const connection={effectiveType,rtt,downlink,downlinkMax,type};
   
   const platform=window.navigator.platform;
   const {mobile,platform:_platform}=window.navigator.userAgentData||{};
