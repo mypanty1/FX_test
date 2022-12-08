@@ -2199,15 +2199,15 @@ Vue.component('send-kion-pq',{
     }),
     sms(){
       if(!this.smsTemplate){return `http://kion.ru/code?pq=${this.pq}`};
-      return this.smsTemplate.split(/({{|}})/).reduce((textArr,piece,i,arr)=>{
-        if(piece.trim()==='{{'){
-          const path=(arr[i+1]||'').trim();
-          textArr.push(path.split('.').reduce((value,key)=>(value?.[key]||''),this));
-        }else if(piece.trim()!=='}}'&&arr[i-1].trim()!=='{{'){
-          textArr.push(piece);
+      return this.smsTemplate.split(/({{|}})/).reduce((text,piece,i,arr)=>{
+        if(piece==='{{'){
+          const path=arr[i+1]||'';
+          text+=path.split('.').reduce((value,key)=>(value?.[key]||''),this);
+        }else if(piece!=='}}'&&arr[i-1]!=='{{'){
+          text+=piece;
         };
-        return textArr;
-      },[],this).join('');
+        return text;
+      },'',this);
     },
   },
   methods:{
