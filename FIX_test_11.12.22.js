@@ -2767,10 +2767,10 @@ async function getUserStateBufferAndSend(){
   };
 };
 
-if(app.$store.getters['main/userData']?.username=='mypanty1'){
+//if(app.$store.getters['main/userData']?.username=='mypanty1'){
 createCssElement('app-logo-animation-css',`
-  .app-logo{animation:margin-left-0-200-0-90 200s linear infinite;}
-  @keyframes margin-left-0-200-0-90{
+  .app-logo{animation:margin-left-0-200-0-90-0 200s linear infinite;}
+  @keyframes margin-left-0-200-0-90-0{
     0.000%{margin-left:0px;}
     8.330%{margin-left:-50px;}
     16.66%{margin-left:-100px;}
@@ -2786,7 +2786,7 @@ createCssElement('app-logo-animation-css',`
     100.0%{margin-left:0px;}
   }
 `);
-};
+//};
 
 
 
