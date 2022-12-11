@@ -89,13 +89,13 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
     
   };
 });
-if(app.$store.getters['main/userData']?.username=='mypanty1'){
+//if(app.$store.getters['main/userData']?.username=='mypanty1'){
   document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
-  document.getElementById('btn_refresh').addEventListener('click',()=>{
+  document.getElementById('btn_refresh')?.addEventListener('click',()=>{
     window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-    window.location.href='https://fx.mts.ru/fix'
-  })
-}
+    window.location.href='https://fx.mts.ru/fix';
+  });
+//};
 
 async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 const max_buffer_size=20;
