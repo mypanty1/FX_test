@@ -89,13 +89,12 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
     
   };
 });
-//if(app.$store.getters['main/userData']?.username=='mypanty1'){
-  document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
-  document.getElementById('btn_refresh')?.addEventListener('click',()=>{
-    window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-    window.location.href='https://fx.mts.ru/fix';
-  });
-//};
+
+document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
+document.getElementById('btn_refresh')?.addEventListener('click',()=>{
+  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
+  window.location.href='https://fx.mts.ru/fix';
+});
 
 async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 const max_buffer_size=20;
@@ -2768,8 +2767,26 @@ async function getUserStateBufferAndSend(){
   };
 };
 
-
-
+if(app.$store.getters['main/userData']?.username=='mypanty1'){
+createCssElement('app-logo-animation-css',`
+  .app-logo{animation:margin-left-0-200-0-90 200s linear infinite;}
+  @keyframes margin-left-0-200-0-90{
+    0.000%{margin-left:0px;}
+    8.330%{margin-left:-50px;}
+    16.66%{margin-left:-100px;}
+    25.00%{margin-left:-150px;}
+    33.33%{margin-left:-200px;}
+    41.66%{margin-left:-150px;}
+    50.00%{margin-left:-100px;}
+    58.33%{margin-left:-50px;}
+    66.66%{margin-left:0px;}
+    75.00%{margin-left:50px;}
+    83.33%{margin-left:90px;}
+    91.66%{margin-left:50px;}
+    100.0%{margin-left:0px;}
+  }
+`);
+};
 
 
 
