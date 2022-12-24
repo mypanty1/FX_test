@@ -2794,8 +2794,8 @@ if(false){
 
 if(app.$store.getters['main/userData']?.username=='mypanty1'){
   (function(){
-    document.head.insertAdjacentElement('beforeend',Object.assign(document.createElement('script'),{src:`https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js`}));
-    document.querySelector(`body>div`).insertAdjacentHTML(`beforebegin`,`<div id="particles-js-el" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:2;pointer-events:none;"></div>`);
+    document.head.insertAdjacentElement(`beforeend`,Object.assign(document.createElement('script'),{src:`https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js`}));
+    document.body.insertAdjacentHTML(`afterbegin`,`<div id="particles-js-el" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:2;pointer-events:none;"></div>`);
     setTimeout(()=>particlesJS?particlesJS('particles-js-el',{
       particles:{
         number:{value:400,density:{enable:true,value_area:800}},
