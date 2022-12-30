@@ -3,7 +3,7 @@ async function asyncInject(){
   if(!document.getElementById('FX_test')){
     let FIX_test_js=document.createElement('script');
     FIX_test_js.id='FX_test';
-    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_11.12.22.js';
+    FIX_test_js.src='https://mypanty1.github.io/FX_test/FIX_test_30.12.22.js';
     document.body.appendChild(FIX_test_js);
     window.AppInventor.setWebViewString(`on:moduleInject:::=${FIX_test_js.src}`);
   };
