@@ -1,9 +1,4 @@
-/*
-javascript:(function(){
-  
-if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.ru')||window.location.href.includes('http://inetcore.mts.ru/fix')||window.location.href.includes('http://pre.inetcore.mts.ru/fix'))){
-  document.title='Inetcore+';
-*/
+
 const FIX_test_version='FIX_test_30.12.22';
 const FIX_test_app_version='FIX_test v1.6';
 const dev=!Boolean(window.AppInventor);
@@ -1592,7 +1587,7 @@ Vue.component('session-history-modal',{//fix params, need create custom table
           <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
           <info-value label="IP" :value="entry.ip" type="large" withLine data-ic-test="session_history_ip"></info-value>
           <info-value label="MAC" :value="entry.mac" type="large" withLine data-ic-test="session_history_mac"></info-value>
-          <info-value label="BRAS/BSR" :value="entry.nas" type="large" withLine></info-value>
+          <info-value label="BRAS" :value="entry.nas" type="large" withLine></info-value>
           <info-value label="Тип трафика" :value="entry.catdescr" type="large" withLine></info-value>
         </div>
       </template>
@@ -1705,7 +1700,7 @@ Vue.component('session-logs-modal', {//fix params, need create custom table
           <div class='font--13-500-140 tone-900 px-16'> {{ entry.log }} ({{ entry.count }})</div>
           <info-value :label='entry.enter_login' :value='entry.last' type='large' withLine></info-value>
           <info-value label='MAC' :value='entry.mac' type='large' withLine></info-value>
-          <info-value label='BRAS/BSR' :value='entry.nas' type='large' withLine></info-value>
+          <info-value label='BRAS' :value='entry.nas' type='large' withLine></info-value>
         </div>
       </template>
     </div>
@@ -2882,8 +2877,6 @@ app.$watch('$route',({name,params})=>{
 
 
 
-/*
-}else{console.log(document.title)};
 
-}());
-*/
+
+
