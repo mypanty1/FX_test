@@ -1443,7 +1443,7 @@ Vue.component('session-el',{//redesign, need .padding-unset or create custom tab
         <info-value v-if="port" class="padding-unset" label="Agent Circuit ID" :value="AgentCircuitID" withLine />
         <info-value v-if="device" class="padding-unset" label="Agent Remote ID" :value="AgentRemoteID" withLine />
         <info-text-sec v-if="deviceMacVendor" class="padding-unset" :text="deviceMacVendor"/>
-        <info-value v-if="nas" class="padding-unset" label="BRAS/BSR" :value="nas" withLine data-ic-test="session_nas"/>
+        <info-value v-if="nas" class="padding-unset" label="BRAS" :value="nas" withLine data-ic-test="session_nas"/>
       </div>
 
       <div class="display-flex justify-content-space-between gap-4px margin-bottom-8px">
