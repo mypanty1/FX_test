@@ -2738,7 +2738,7 @@ Vue.component('SitePings',{//pings chart
         color:state==='online'?'#20a471':state==='offline'?'#e44656':state==='error'?'#f16b16':'#918f8f',
       };
       if(state==='online'){
-        item.width=ms*12,
+        //item.width=ms*12,
         item.title=ms
       };
       this.$set(this.results[ip],date,item);
