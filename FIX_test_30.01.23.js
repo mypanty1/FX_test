@@ -1,5 +1,5 @@
 
-const FIX_test_version='FIX_test_30.01.22';
+const FIX_test_version='FIX_test_30.01.23';
 const FIX_test_app_version='FIX_test v1.6';
 const fix_test_dev=!Boolean(window.AppInventor);
 if(fix_test_dev){
