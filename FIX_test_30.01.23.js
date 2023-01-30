@@ -2461,9 +2461,23 @@ Vue.component('site-ps',{//add site ext
     </div>
     <devider-line />
     <template v-if="!entrance_id">
-      <link-block :actionIcon="open_pings?'up':'down'" icon="factors" text="доступность" type="large" @block-click="open_pings=!open_pings"/>
+      <link-block :actionIcon="open_pings?'up':'down'" icon="factors" text="доступность" type="large" @block-click="open_pings=!open_pings">
+				<div slot="postfix" class="display-flex align-items-center gap-4px">
+					<span v-if="loadingSomePing" class="ic-20 ic-loading rotating tone-500"></span>
+					<template v-else>
+						<div v-if="countOfflineOrError" class="display-flex align-items-center gap-2px">
+							<span class="font--13-500 tone-500">{{countOfflineOrError}}</span>
+							<span class="ic-20 ic-warning main-orange"></span>
+						</div>
+						<div v-if="countOnline" class="display-flex align-items-center gap-2px">
+							<span class="font--13-500 tone-500">{{countOnline}}</span>
+							<span class="ic-20 ic-status main-green"></span>
+						</div>
+					</template>
+				</div>
+			</link-block>
       <div v-show="open_pings" class="padding-left-right-16px">
-        <SitePings v-bind="{site,site_id}"/>
+        <SitePings v-bind="{site,site_id}" @count-not-online="countOfflineOrError=$event" @count-online="countOnline=$event" @loading-some="loadingSomePing=$event"/>
       </div>
       <devider-line />
     </template>
@@ -2476,7 +2490,10 @@ Vue.component('site-ps',{//add site ext
   },
   data:()=>({
     open_ext:false,
-    open_pings:false
+    open_pings:false,
+		countOfflineOrError:false,
+		countOnline:false,
+		loadingSomePing:false,
   }),
 });
 
@@ -2644,7 +2661,7 @@ Vue.component('SitePings',{//pings chart
       </template>
       
       <template v-for="({ip,mr_id,modelText}) in networkElementsFiltered">
-        <PingLed :key="ip" v-bind="{ip,mr_id,noPingOnCreated:true}" ref="PingLeds" @on-result="storeResult(ip,$event)" @loading="$set(loads,ip,$event)"/>
+        <PingLed :key="ip" v-bind="{ip,mr_id}" noPingOnCreatedddd ref="PingLeds" @on-result="onResult(ip,$event)" @loading="$set(loads,ip,$event)"/>
         <div class="font--13-500">{{ip}}</div>
         <div class="font--13-500 tone-500">{{modelText}}</div>
         
@@ -2666,11 +2683,23 @@ Vue.component('SitePings',{//pings chart
     max_count:100,
     count:0,
     running:false,
+		states:{},
   }),
   created(){
     const {site_id}=this;
     this.getSiteNetworkElements({site_id});
   },
+	watch:{
+		'countNotOnline'(countNotOnline){
+			this.$emit('count-not-online',countNotOnline);
+		},
+		'countOnline'(countOnline){
+			this.$emit('count-online',countOnline);
+		},
+		'loadingSome'(loadingSome){
+			this.$emit('loading-some',loadingSome);
+		},
+	},
   computed:{
     node_id(){return this.site.node_id},
     ...mapGetters({
@@ -2693,6 +2722,12 @@ Vue.component('SitePings',{//pings chart
     loadingSome(){
       return Object.values(this.loads).some(v=>v)
     },
+		countNotOnline(){
+			return Object.values(this.states).filter(v=>v!=='online').length
+		},
+		countOnline(){
+			return Object.values(this.states).filter(v=>v==='online').length
+		}
   },
   methods:{
     ...mapActions({
@@ -2729,9 +2764,14 @@ Vue.component('SitePings',{//pings chart
       this.running=false;
       clearTimeout(this.timer);
     },
-    storeResult(ip,result){
+		onResult(ip,result){
       if(!ip||!result){return};
-      if(!this.running){return};
+      this.$set(this.states,ip,result.state);
+			if(this.running){
+				this.storeResult(ip,result);
+			}
+		},
+    storeResult(ip,result){
       if(!this.results[ip]){this.$set(this.results,ip,{})};
       const {state,ms,date}=result;
       const item={
