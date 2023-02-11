@@ -103,7 +103,7 @@ function pushResponse({url,response}={}){
   if(fix_test_dev){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
-  const {region_id,username}=app||{};
+  const {location:region_id,username}=store?.state?.main?.userData||{};
   if(fix_test_dev){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
   if(region_id===54&&username&&!fix_test_dev){
     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
