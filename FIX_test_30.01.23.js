@@ -1,8 +1,8 @@
 
 const FIX_test_version='FIX_test_30.01.23';
 const FIX_test_app_version='FIX_test v1.6';
-const fix_test_dev=!Boolean(window.AppInventor);
-if(fix_test_dev){
+const FIX_test_DEV=!Boolean(window.AppInventor);
+if(FIX_test_DEV){
   window.AppInventor={
     setWebViewString:function(str){console.log(str);this.str=str},
     getWebViewString:function(){return this.str},
@@ -100,12 +100,12 @@ const max_buffer_size=20;
 const buffer=new Map();
 function pushResponse({url,response}={}){
   buffer.set(url,response);
-  if(fix_test_dev){console.log('buffer.size:',buffer.size)}
+  if(FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
   const {location:region_id,username}=store?.state?.main?.userData||{};
-  if(fix_test_dev){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
-  if(region_id===54&&username&&!fix_test_dev){
+  if(FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
+  if(region_id===54&&username&&!FIX_test_DEV){
     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
       body:JSON.stringify({region_id,username,entries})
@@ -257,11 +257,15 @@ Vue.component('port-bind-user-modal',{//refree
       const isResource = this.resource && this.resource.type_of_bind;
       return isResource ? this.resource.type_of_bind : null;
     },
-    typeOfBind() {//временно для Белгорода
+    typeOfBind() {
       const [account={}]=this.accounts;
       if(!account){return};
       const {serverid}=account;
-      return serverid==112?3:this.resource?.type_of_bind||null;
+      switch(serverid){
+        //case 112:return 3;//временно для Белгорода
+        case 64:return 10;//временно для Омска
+      };
+      return this.resource?.type_of_bind||null;
     },
     showAccountLink() {
       const result = this.result;
@@ -2219,7 +2223,7 @@ let sendStateTimer=null;
 let savePositionTimer=null;
 const stateBuffer=new Set();
 
-if(app?.$store?.getters?.['main/username']){
+if(app?.$store?.getters?.['main/username']&&!FIX_test_DEV){
   saveUserStateToBuffer();
   getUserStateBufferAndSend();
   
@@ -3124,7 +3128,7 @@ Vue.component('SitePlanDownload',{//плансхема
         html:'',
       };
 
-      if(!fix_test_dev){
+      if(!FIX_test_DEV){
         if(user&&user!=='<username>'){
           fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
             method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
