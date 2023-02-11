@@ -261,9 +261,10 @@ Vue.component('port-bind-user-modal',{//refree
       const [account={}]=this.accounts;
       if(!account){return};
       const {serverid}=account;
-      switch(serverid){
-        //case 112:return 3;//временно для Белгорода
-        case 64:return 10;//временно для Омска
+      if(serverid==112){
+        //return 3;//временно для Белгорода
+      }else if(serverid==64){
+        return 10;//временно для Омска
       };
       return this.resource?.type_of_bind||null;
     },
