@@ -114,7 +114,7 @@ function pushResponse({url,response}={}){
   buffer.clear()
 };
 
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/NetworkElement2EquipmentImg.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/NetworkElement2EquipmentView.js',type:'text/javascript'}));
 
 
 Vue.component('port-bind-user-modal',{//refree
