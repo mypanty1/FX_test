@@ -81,8 +81,8 @@ Vue.component('NetworkElement2',{
       
       <template v-if="!hideEquipmentView&&username=='mypanty1'&&networkElement.system_object_id">
         <devider-line/>
-        <title-main icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :opened="openEquipmentView" class="my-m8"/>
-        <!--<link-block icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :actionIcon="openEquipmentView?'up':'down'" type="large" class="my-m8"/>-->
+        <title-main icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :opened="openEquipmentView"/>
+        <!--<link-block icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :actionIcon="openEquipmentView?'up':'down'" type="large"/>-->
         <collapse-slide :opened="openEquipmentView">
           <EquipmentView type="networkElement" :equipment_id="networkElement.system_object_id" :object="networkElement"/>
         </collapse-slide>
@@ -90,7 +90,7 @@ Vue.component('NetworkElement2',{
       
       <template v-if="!hideLocation">
         <devider-line/>
-        <title-main icon="info" text="Расположение и информация" @block-click="openLocation=!openLocation" :opened="openLocation" class="my-m8"/>
+        <title-main icon="info" text="Расположение и информация" @block-click="openLocation=!openLocation" :opened="openLocation"/>
         <collapse-slide :opened="openLocation">
           <rack-header v-if="rack&&canBeInRack" :rack="rack"/>
           <p v-else class="font--13-500 tone-900" style="padding: 0px 16px 8px; margin: 0;">Вне шкафа</p>
@@ -102,7 +102,7 @@ Vue.component('NetworkElement2',{
 
       <template v-if="showTopology">
         <devider-line/>
-        <link-block icon="topology" text="Топология сети" actionIcon="right-link" :to="topologyRoute" class="my-m8"/>
+        <link-block icon="topology" text="Топология сети" actionIcon="right-link" :to="topologyRoute"/>
       </template>
       
       <template v-if="showEqAndAttFromDb">
@@ -122,7 +122,7 @@ Vue.component('NetworkElement2',{
 
       <template v-if="showUpstreamNe">
         <devider-line/>
-        <link-block icon="superior" text="Вышестоящие устройства" :text2="upstream_ne.length||''" @block-click="open_upstream_ne_modal" actionIcon="expand" class="my-m8">
+        <link-block icon="superior" text="Вышестоящие устройства" :text2="upstream_ne.length||''" @block-click="open_upstream_ne_modal" actionIcon="expand">
           <button-sq slot="postfix" class="mx-m16" v-if="!has_upstream_ne">
             <i class="ic-20 ic-warning main-orange"></i>
           </button-sq>
