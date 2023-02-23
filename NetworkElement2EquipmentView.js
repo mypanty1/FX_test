@@ -83,9 +83,9 @@ Vue.component('NetworkElement2',{
         <devider-line/>
         <title-main icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :opened="openEquipmentView"/>
         <!--<link-block icon="сube" text="Внешний вид" @block-click="openEquipmentView=!openEquipmentView" :actionIcon="openEquipmentView?'up':'down'" type="large"/>-->
-        <collapse-slide :opened="openEquipmentView">
+        <div v-show="openEquipmentView"><!--<collapse-slide :opened="openEquipmentView">-->
           <EquipmentView type="networkElement" :equipment_id="networkElement.system_object_id" :object="networkElement"/>
-        </collapse-slide>
+        </div><!--</collapse-slide>-->
       </template>
       
       <template v-if="!hideLocation">
