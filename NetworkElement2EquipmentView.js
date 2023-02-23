@@ -1,4 +1,4 @@
-//https://base64.guru/converter/encode/image
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/NetworkElement2EquipmentView.js',type:'text/javascript'}));
 function objectToQuery(...params){
   try{
     function objectToPairs(rootKey,object){
@@ -20,7 +20,10 @@ Vue.component('EquipmentView',{
   template:`<div name="EquipmentView" class="display-content">
     <loader-bootstrap v-if="loading" height="72" text="поиск изображения"/>
     <div v-else-if="src" class="display-flex align-items-center justify-content-center">
-      <img :src="src" style="width:340px;">
+      <div class="position-relative">
+        <img :src="src" style="width:340px;">
+        <div class="position-absolute" style="inset:0px;"></div>
+      </div>
     </div>
   </div>`,
   props:{
