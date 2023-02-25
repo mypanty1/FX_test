@@ -3171,6 +3171,37 @@ Vue.component('SitePlanDownload',{//плансхема
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Vue.component("port-actions",{
   //template:"#port-actions-template",
   template:`<card-block>
@@ -3274,7 +3305,7 @@ Vue.component("port-logs-modal", {
     </div>
     
     <message-el v-if="log.status=='error'" text="Ошибка получения данных" box type="warn" class="mx-3"/>
-    <message-el v-else-if="!loading&&log.status=='success'&&!logs.length" text="Не найдено" box type="info" class="mx-3"/>
+    <message-el v-else-if="!loading&&log.status=='success'&&!logs.length" text="Не найдено" :subText="subText" box type="info" class="mx-3"/>
     
     <div class="pt-16 w-100 d-flex-x f-jc-sa">
       <button-main label="Закрыть" @click="close" buttonStyle="outlined" size="medium" icon="close"/>
@@ -3295,6 +3326,9 @@ Vue.component("port-logs-modal", {
     filter:true,
   }),
   computed: {
+    subText(){
+      return `[${this.device?.region?.mr_id||'?'}/${this.device?.region?.id||'?'}] ${this.device.ip} ${this.port.snmp_name}`
+    },
     subtitle(){
       const row=['Коммутатор',this.device.ip];
       if(this.filter){
@@ -3352,6 +3386,35 @@ Vue.component("port-logs-modal", {
     }
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
