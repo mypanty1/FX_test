@@ -3343,9 +3343,9 @@ Vue.component("port-logs-modal", {
       const ifName=` ${this.port.snmp_name} `;//Fiberhome, Huawei
       const poNumUp=`Port ${this.port.snmp_number} `;//D-Link
       //const poNumLo=`port ${this.port.snmp_number} `;//D-Link DES-1210-28/ME, DGS-1210-28X/ME/B1A
-      return this.log.data.filter(r=>{
-        return new RegExp(`[^a-zA-z]${ifName}[^0-9]`).test(r) || new RegExp(`[^a-zA-z]${poNumUp}[^0-9]`,'i').test(row)
-        //return r.includes(ifName) || r.includes(poNumUp) || r.includes(poNumLo)
+      return this.log.data.filter(row=>{
+        return new RegExp(`[^a-zA-z]${ifName}[^0-9]`).test(row) || new RegExp(`[^a-zA-z]${poNumUp}[^0-9]`,'i').test(row)
+        //return row.includes(ifName) || row.includes(poNumUp) || row.includes(poNumLo)
       });
     }
   },
