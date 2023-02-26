@@ -3340,13 +3340,12 @@ Vue.component("port-logs-modal", {
       if(!this.filter){
         return this.log.data.filter(v=>v)//.slice(0,200)
       };
-      const name=` ${this.port.snmp_name} `;//Fiberhome
-      const numberUp=` Port ${this.port.snmp_number} `;//D-Link
-      const numberLo=` port ${this.port.snmp_number} `;//D-Link DGS-1210-28X/ME/B1A
-      const byName=this.log.data.filter(r=>{
-        return r.includes(name) || r.includes(numberUp) || r.includes(numberLo)
+      const ifName=`${this.port.snmp_name}`;//Fiberhome, Huawei
+      const poNumUp=`Port ${this.port.snmp_number}`;//D-Link
+      const poNumLo=`port ${this.port.snmp_number}`;//D-Link DGS-1210-28X/ME/B1A
+      return this.log.data.filter(r=>{
+        return r.includes(ifName) || r.includes(poNumUp) || r.includes(poNumLo)
       });
-      return byName
     }
   },
   methods: {
