@@ -3327,7 +3327,7 @@ Vue.component("port-logs-modal", {
   }),
   computed: {
     subText(){
-      return `[${this.device?.region?.mr_id||'?'}/${this.device?.region?.id||'?'}] ${this.device.ip} ${this.port.snmp_name}`
+      return `[${this.device?.region?.id}] ${this.device.ip} ${this.port.snmp_name}`
     },
     subtitle(){
       const row=['Коммутатор',this.device.ip];
@@ -3342,7 +3342,7 @@ Vue.component("port-logs-modal", {
       };
       const ifName=`${this.port.snmp_name}`;//Fiberhome, Huawei
       const poNumUp=`Port ${this.port.snmp_number}`;//D-Link
-      const poNumLo=`port ${this.port.snmp_number}`;//D-Link DGS-1210-28X/ME/B1A
+      const poNumLo=`port ${this.port.snmp_number}`;//D-Link DES-1210-28/ME, DGS-1210-28X/ME/B1A
       return this.log.data.filter(r=>{
         return r.includes(ifName) || r.includes(poNumUp) || r.includes(poNumLo)
       });
