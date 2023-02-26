@@ -60,7 +60,6 @@ Vue.component("PortLogsModal",{
     <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn" class="margin-left-right-16px"/>
     <message-el v-else-if="!rows.length&&enablePortFilter" text="Не найдено" :subText="subText_dev" box type="info" class="margin-left-right-16px"/>
     <div v-else class="margin-left-right-8px display-flex flex-direction-column gap-1px">
-      <!--<div class="font--12-400" v-for="row of rows">{{row}}</div>-->
       <template v-for="(row,index) of rows">
         <devider-line v-if="index" m="unset"/>
         <PortLogRow :key="index" v-bind="{row,port,device}"/>
@@ -87,14 +86,28 @@ Vue.component("PortLogsModal",{
     rows(){
       if(!this.enablePortFilter){
         return this.log.filter(v=>v&&v.length>30)//.slice(0,200)
+        //D-Link
+        //const prefix='Port ';
+        //const port=('2023-02-26 12:19:15 Port 15 link down').match(new RegExp(`[^a-zA-Z]${prefix}0-9]{1,2}[^0-9]`,'i'))?.[0]
+        
+        //FiberHome, Huawei, H3C
+        //const prefixes=new Set();
+        //for(const {snmp_name} of ports){
+        //  const parts=snmp_name.split('/');
+        //  const index=parts.pop();
+        //  const prefix=parts.join('/')+'/';
+        //  set.add(prefix)
+        //};
+        //const prefix=[...prefixes].reverse().join('|');//need reverse for X prefix after GigaEthernet
+        //const port=('2-IFM-LINKDOWN(l):Interface GigabitEthernet1/0/23 LinkDown.').match(new RegExp(`[^a-zA-Z]${prefix}[0-9]{1,2}[^0-9]`))?.[0]
       };
       if(this.device.vendor=='D-LINK'){
-        const poNum=`Port ${this.port.snmp_number}`;//D-Link
+        const poNum=`Port ${this.port.snmp_number}`;
         return this.log.filter(row=>{
           return row.length>30&&new RegExp(`[^a-zA-Z]${poNum}[^0-9]`,'i').test(row)
         })
-      }else{
-        const ifName=`${this.port.snmp_name}`;//FiberHome, Huawei, H3C
+      }else{//FiberHome, Huawei, H3C
+        const ifName=`${this.port.snmp_name}`;
         return this.log.filter(row=>{
           return row.length>30&&new RegExp(`[^a-zA-Z]${ifName}[^0-9]`).test(row);
         });
