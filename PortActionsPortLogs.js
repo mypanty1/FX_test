@@ -203,6 +203,11 @@ Vue.component("PortLogRow",{
           linkup_regexp:new RegExp(`into UP state`,'i'),
           linkdn_regexp:new RegExp(`into DOWN state`,'i'),
         };
+      }else{
+        return {
+          linkup_regexp:new RegExp(`LinkUP`,'i'),
+          linkdn_regexp:new RegExp(`LinkDown`,'i'),
+        };
       }
     },
     texts(){
