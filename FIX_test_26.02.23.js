@@ -3340,9 +3340,9 @@ Vue.component("port-logs-modal", {
       if(!this.filter){
         return this.log.data.filter(v=>v)//.slice(0,200)
       };
-      const ifName=`${this.port.snmp_name}`;//Fiberhome, Huawei
-      const poNumUp=`Port ${this.port.snmp_number}`;//D-Link
-      const poNumLo=`port ${this.port.snmp_number}`;//D-Link DES-1210-28/ME, DGS-1210-28X/ME/B1A
+      const ifName=` ${this.port.snmp_name} `;//Fiberhome, Huawei(+in=ev)
+      const poNumUp=`Port ${this.port.snmp_number} `;//D-Link
+      const poNumLo=`port ${this.port.snmp_number} `;//D-Link DES-1210-28/ME, DGS-1210-28X/ME/B1A
       return this.log.data.filter(r=>{
         return r.includes(ifName) || r.includes(poNumUp) || r.includes(poNumLo)
       });
