@@ -90,12 +90,11 @@ Vue.component("PortLogsModal",{
       };
       if(this.device.vendor=='D-LINK'){
         const poNum=`Port ${this.port.snmp_number}`;//D-Link
-        //const poNumLo=`port ${this.port.snmp_number}`;//D-Link DES-1210-
         return this.log.filter(row=>{
           return row.length>30&&new RegExp(`[^a-zA-Z]${poNum}[^0-9]`,'i').test(row)
         })
       }else{
-        const ifName=`${this.port.snmp_name}`;//FiberHome, Huawei
+        const ifName=`${this.port.snmp_name}`;//FiberHome, Huawei, H3C
         return this.log.filter(row=>{
           return row.length>30&&new RegExp(`[^a-zA-Z]${ifName}[^0-9]`).test(row);
         });
@@ -142,8 +141,12 @@ Vue.component("PortLogsModal",{
             name:this.device.name
           }
         });
-        if(response.message==="OK"){
-          this.log=response.text;
+        if(response.message==="OK"&&Array.isArray(response.text)){
+          if(this.device.vendor=='H3C'){//temp, need reverse
+            this.log=response.text.reverse();
+          }else{
+            this.log=response.text;
+          };
         }else if(response.error){
           this.error=response.text;
         }
@@ -180,7 +183,7 @@ Vue.component("PortLogRow",{
           port_regexp:new RegExp(`[^a-zA-Z]${port}[^0-9]`,'i')
         };
       }else{
-        const port=`${this.port.snmp_name}`;//FiberHome, Huawei
+        const port=`${this.port.snmp_name}`;//FiberHome, Huawei, H3C
         return {
           port,
           port_regexp:new RegExp(`[^a-zA-Z]${port}[^0-9]`)
@@ -193,7 +196,7 @@ Vue.component("PortLogRow",{
           linkup_regexp:new RegExp(`link up`,'i'),
           linkdn_regexp:new RegExp(`link down`,'i'),
         };
-      }else if(this.device.vendor=='FIBERHOME'){
+      }else if(this.device.vendor=='FIBERHOME'){//X|XL
         return {
           linkup_regexp:new RegExp(`LinkUP|OperStatus=\\[up\\]`,'i'),
           linkdn_regexp:new RegExp(`LinkDown|OperStatus=\\[down\\]`,'i'),
@@ -203,10 +206,15 @@ Vue.component("PortLogRow",{
           linkup_regexp:new RegExp(`into UP state`,'i'),
           linkdn_regexp:new RegExp(`into DOWN state`,'i'),
         };
-      }else{
+      }else if(this.device.vendor=='H3C'){
         return {
-          linkup_regexp:new RegExp(`LinkUP`,'i'),
-          linkdn_regexp:new RegExp(`LinkDown`,'i'),
+          linkup_regexp:new RegExp(`changed to up`,'i'),
+          linkdn_regexp:new RegExp(`changed to down`,'i'),
+        };
+      }else{//default
+        return {
+          linkup_regexp:new RegExp(`[^a-zA-Z0-9]up[^a-zA-Z0-9]`,'i'),
+          linkdn_regexp:new RegExp(`[^a-zA-Z0-9]down[^a-zA-Z0-9]`,'i'),
         };
       }
     },
