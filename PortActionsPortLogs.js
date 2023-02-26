@@ -58,7 +58,7 @@ Vue.component("PortLogsModal",{
     
     <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
     <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn" class="margin-left-right-16px"/>
-    <message-el v-else-if="!rows.length" text="Не найдено" :subText="subText_dev" box type="info" class="margin-left-right-16px"/>
+    <message-el v-else-if="!rows.length&&enablePortFilter" text="Не найдено" :subText="subText_dev" box type="info" class="margin-left-right-16px"/>
     <div v-else class="margin-left-right-8px display-flex flex-direction-column gap-1px">
       <!--<div class="font--12-400" v-for="row of rows">{{row}}</div>-->
       <template v-for="(row,index) of rows">
@@ -190,7 +190,7 @@ Vue.component("PortLogRow",{
         };
       }
     },
-    linkSample(){
+    linkSample(){//IFNET
       if(this.device.vendor=='D-LINK'){
         return {
           linkup_regexp:new RegExp(`link up`,'i'),
