@@ -60,8 +60,8 @@ Vue.component('port-bind-user-modal',{//refree
               </div>
             </div>
             <template v-if="result.type!=='error'">
-              <div v-if="result.InfoMessage" class="port-bind-user-modal__default-offset">
-                <message-el :text="result.InfoMessage" type="success" box class="my-3"/>
+              <div v-if="result.result_message" class="port-bind-user-modal__default-offset">
+                <message-el :text="result.result_message" type="success" box class="my-3"/>
               </div>
               <template v-if="result.Data">
                 <info-value v-if="result.Data.ip" :value="result.Data.ip" label="Ip" type="medium" withLine/>
@@ -374,7 +374,7 @@ Vue.component('port-bind-user-modal',{//refree
             this.$set(this.result,'refreedable',true);
             
 						if(this.data.portInfo){
-              const date_last=(this.data.portInfo.last_mac&&this.data.portInfo.last_mac.last_at)?Date.parse(this.data.portInfo.last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now();
+              const date_last=this.data.portInfo?.last_mac?.last_at?Date.parse(this.data.portInfo.last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now();
               const date_last_text=new Date(date_last).toISOString().slice(0,10);//.toLocaleDateString();
 							
 							this.$set(this.result,'refreedable_message',{
@@ -421,9 +421,9 @@ Vue.component('port-bind-user-modal',{//refree
 					
 					
 				}else{
-					this.result={
+          this.result={
 						...this.result,
-						InfoMessage:this.result.InfoMessage+(this.result.Data.IP?(' IP:'+this.result.Data.IP):'')
+						result_message:(this.result?.InfoMessage||'')+(this.result?.Data?.IP?(' IP:'+this.result?.Data?.IP):'')
 					};
 				};
 				
