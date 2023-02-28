@@ -114,7 +114,7 @@ function pushResponse({url,response}={}){
   buffer.clear()
 };
 
-//port refree
+//port refree - error
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindRefree.js',type:'text/javascript'}));
 
 //activatespd
@@ -124,8 +124,6 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 
 //port log indexing
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionsPortLogs.js',type:'text/javascript'}));
-
-
 
 
 Vue.component('device-ping',{//user ip ping and go
@@ -1310,7 +1308,7 @@ Vue.component('send-kion-pq',{
   }
 });
 
-Vue.component("lbsv-account-main", {//add send-kion-pq
+Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
   //template: "#lbsv-account-main-template",
   template:`<card-block v-if="account">
     <title-main>
@@ -1361,6 +1359,12 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
     flat: { type: Object, default: null }
   },
   computed: {
+    addr_type2(){//0-прописки, 1-проживания, 2-доставки счетов
+      if(!this.account||!this.agreement){return ""};
+      const addresses=this.account.vgroups.find(service=>service.agrmid==this.agreement.agrmid&&service.addresses.find(address=>address.type==2))?.addresses;
+      const addr_type2=addresses.find(address=>address.type==2)?.address;
+      return addr_type2||''
+    },
     computedAddress() {
       if (!this.account) return "";
       if (this.agreement) {
@@ -1374,13 +1378,9 @@ Vue.component("lbsv-account-main", {//add send-kion-pq
       return this.account.address || address.address || "";
     },
     formatedAddress(){
-      const address = this.computedAddress;
-      if (!address) return ''
-      return address
-        .split(',')
-        .map(elem => elem.trim())
-        .filter(elem => elem)
-        .join(", ")
+      const address=this.addr_type2||this.computedAddress;
+      if(!address){return ''};
+      return address.split(',').map(elem=>elem.trim()).filter(v=>v).join(", ")
     },
     flatNumber() {
       // TODO: this.account.FLAT_NUMBER пережиток?
