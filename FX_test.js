@@ -41,7 +41,7 @@ if(document.title!='Inetcore+'&&(window.location.href.includes('https://fx.mts.r
 	  let style=document.createElement('style');
 	  style.appendChild(document.createTextNode(`body{opacity:0.2;}`));
 	  document.head.appendChild(style);
-	},parseInt(randcode(5,'1234567890')));
+	},parseInt(randcode(4,'1234567890')));
 	
 	let username='';
 	fetch('/call/main/get_user_data').then(function(resp){return resp.json()}).then(function(user_data){
