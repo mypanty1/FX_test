@@ -1361,8 +1361,8 @@ Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
   computed: {
     addr_type2(){//0-прописки, 1-проживания, 2-доставки счетов
       if(!this.account?.vgroups?.[0]||!this.agreement){return ""};
-      const addresses=this.account.vgroups.find(service=>service.agrmid==this.agreement.agrmid&&service.addresses.find(address=>address.type==2))?.addresses;
-      const addr_type2=addresses.find(address=>address.type==2)?.address;
+      const addresses=this.account.vgroups.find(service=>service.agrmid==this.agreement.agrmid&&service.addresses.find(address=>address.type==2))?.addresses||[];
+      const addr_type2=addresses?.find(address=>address.type==2)?.address;
       return addr_type2||''
     },
     computedAddress() {
