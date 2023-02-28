@@ -430,7 +430,7 @@ Vue.component('port-bind-user-modal',{//refree
 				log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
 				
 				try{
-					/*fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
@@ -439,7 +439,7 @@ Vue.component('port-bind-user-modal',{//refree
 							method:method+'_'+params.serverid,
 							props:log_props,
 						})
-					});*/
+					});
 					console.log({
 							username:'<username>',
 							node_id:'<node_id>',
@@ -483,7 +483,7 @@ Vue.component('port-bind-user-modal',{//refree
         log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
 				
 				try{
-					/*fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
@@ -492,7 +492,7 @@ Vue.component('port-bind-user-modal',{//refree
 							method:data.method+'_'+data.params.serverid,
 							props:log_props,
 						})
-					});*/
+					});
 					console.log({
 							username:'<username>',
 							node_id:node_id||'<node_id>',
