@@ -359,8 +359,10 @@ Vue.component('port-bind-user-modal',{//refree
       this.loading=true;
 			const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=params;
 			let log_props=Object.assign({method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
-			try{
-				const response=await httpPost(`/call/service_mix/${method}`,params);
+      
+      try{
+				//const response=await httpPost(`/call/service_mix/${method}`,params);
+        const response=await CustomRequest.post(`/call/service_mix/${method}`,params);
 				this.result=response;
 				
 				if(this.result?.type=='error'&&this.result?.text?.length>0&&this.result.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
@@ -376,13 +378,13 @@ Vue.component('port-bind-user-modal',{//refree
               const date_last_text=new Date(date_last).toISOString().slice(0,10);//.toLocaleDateString();
 							
 							this.$set(this.result,'refreedable_message',{
-								'busy':`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
-								'hub':`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
-								'closed':`контракт ${contract} расторгнут, порт можно освободить`,
-								'expired':`неактивен более 3 мес, возможно порт можно освободить`,
-								'double':`абонент "переехал" на другой порт, возможно порт можно освободить`,
-								'new':`на порту просто новый мак, возможно порт можно освободить`,
-								'free':`на порту никогда небыло активности, возможно порт можно освободить`,
+								'busy'    :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
+								'hub'     :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
+								'closed'  :`контракт ${contract} расторгнут, порт можно освободить`,
+								'expired' :`неактивен более 3 мес, возможно порт можно освободить`,
+								'double'  :`абонент "переехал" на другой порт, возможно порт можно освободить`,
+								'new'     :`на порту просто новый мак, возможно порт можно освободить`,
+								'free'    :`на порту никогда небыло активности, возможно порт можно освободить`,
 							}[this.data.portInfo.state]||`статус порта: ${this.data.portInfo.state||'error'} , нужно проверить`);
 							
               log_props=Object.assign(log_props,{state:this.data.portInfo.state,date_last:date_last_text});
@@ -406,12 +408,12 @@ Vue.component('port-bind-user-modal',{//refree
               },
             });
 						
-            httpGet(buildUrl('get_user_rate',{serverid:params.serverid,vgid:contract},'/call/aaa/')).then(get_refree_mac=>{//for omsk serverid 64
+            httpGet(buildUrl('get_user_rate',{serverid:params.serverid,vgid:contract},'/call/aaa/')).then(response=>{//for omsk serverid 64
               this.result.refree_params={
                 ...this.result.refree_params,
                 params:{
                   ...this.result.refree_params.params,
-                  mac:((get_refree_mac&&get_refree_mac.data&&get_refree_mac.data[0]&&get_refree_mac.data[0].macCPE[0])?get_refree_mac.data[0].macCPE[0]:'0000.0000.0000'),//for omsk serverid 64
+                  mac:response?.data?.[0]?.macCPE?.[0]||'0000.0000.0000',//for omsk serverid 64
                 },
               };
             });
@@ -428,7 +430,7 @@ Vue.component('port-bind-user-modal',{//refree
 				log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
 				
 				try{
-					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+					/*fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
@@ -437,9 +439,9 @@ Vue.component('port-bind-user-modal',{//refree
 							method:method+'_'+params.serverid,
 							props:log_props,
 						})
-					});
+					});*/
 					console.log({
-							username:this.$root.username||'<username>',
+							username:'<username>',
 							node_id:'<node_id>',
 							action:'bind',
 							method:method+'_'+params.serverid,
@@ -464,7 +466,8 @@ Vue.component('port-bind-user-modal',{//refree
 			const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=data.params
 			let log_props=Object.assign({method:data.method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
 			try{
-				const response=await httpPost(`/call/service_mix/${data.method}`,data.params);
+				//const response=await httpPost(`/call/service_mix/${data.method}`,data.params);
+        const response=await CustomRequest.post(`/call/service_mix/${data.method}`,data.params);
 				if(!response||response?.type=='error'){
           this.refree_result={
             type:'error',
@@ -480,7 +483,7 @@ Vue.component('port-bind-user-modal',{//refree
         log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
 				
 				try{
-					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+					/*fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
@@ -489,7 +492,14 @@ Vue.component('port-bind-user-modal',{//refree
 							method:data.method+'_'+data.params.serverid,
 							props:log_props,
 						})
-					});
+					});*/
+					console.log({
+							username:'<username>',
+							node_id:node_id||'<node_id>',
+							action:'refree',
+							method:data.method+'_'+data.params.serverid,
+							props:log_props,
+						})
 				}catch(error){
 					console.warn('log',error)
 				};
