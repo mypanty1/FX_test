@@ -100,7 +100,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
         const {port,flat,mac,account,ifName}=cp;
         rows[port]={
           port,flat,mac,account,ifName,
-          status:result.success?'success':'error',
+          status:result.success?'success ✔':result.error?'error ✘':result.loading?'loading...':'',
         }
         return rows
       },{});
@@ -118,6 +118,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
           continue
         };
         const {mac,account}=subscriber;
+        this.$set(this.results,account,{loading:true});
         try{
           const abon_lbsv=this.abons[account]?.abon_lbsv||await httpGet("/call/v1/search/search_ma?pattern="+account);
           if(!abon_lbsv?.data?.lbsv?.data?.agreements){return};
