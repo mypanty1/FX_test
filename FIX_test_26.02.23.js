@@ -128,6 +128,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //user ip ping and go
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceActionPing.js',type:'text/javascript'}));
 
+//rebind all abons by mac-port
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceActionPortsAbonsBinds.js',type:'text/javascript'}));
+
 //test actual abon state from siebel
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortLinks.js',type:'text/javascript'}));
 
