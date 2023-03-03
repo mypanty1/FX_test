@@ -140,7 +140,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
             const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port,vgid,serverid,type_of_bind});
             if(response_set_bind?.type=='error'){
               if(response_set_bind?.text?.length>0&&response_set_bind.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
-                let contract=parseInt(this.result.text.replace('Мы не можем отобрать порт у контракта ',''));
+                let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
                 if(!contract){
                   console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_set_bind.text||'contract error',step:'port_contract'});
                   this.$set(this.results,account,{error:'contract error'});
@@ -149,7 +149,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                 contract=contract.toString();
                 
                 try{
-                  const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid,serverid,type_of_bind});
+                  const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid:contract,serverid,type_of_bind});
                   if(response_refree?.type=='error'){
                     console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_refree?.text||'refree error',step:'port_refree_vgid'});
                     this.$set(this.results,account,{error:'refree error'});
@@ -265,14 +265,14 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port,vgid,serverid,type_of_bind});
     if(response_set_bind?.type=='error'){
       if(response_set_bind?.text?.length>0&&response_set_bind.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
-        let contract=parseInt(this.result.text.replace('Мы не можем отобрать порт у контракта ',''));
+        let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
         if(!contract){
           console.warn({name,ip,port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_set_bind.text||'contract error',step:'port_contract'});
           continue
         };
         contract=contract.toString();
         
-        const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid,serverid,type_of_bind});
+        const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid:contract,serverid,type_of_bind});
         if(response_refree?.type=='error'){
           //освободить не удалось
           console.warn({name,ip,port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_refree?.text||'refree error',step:'port_refree_vgid'});
