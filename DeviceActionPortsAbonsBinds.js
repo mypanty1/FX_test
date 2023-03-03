@@ -130,7 +130,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
             this.$set(this.results,account,{error:'agreement error'});
             continue
           };
-          const {serverid,type_of_bind,vgid}=(agreement?.services?.internet?.vgroups||[]).find(({status})=>[0,1,2,3].includes(status))||{};
+          const {serverid,type_of_bind,vgid}=(agreement?.services?.internet?.vgroups||[]).find(({status})=>['0','1','2','3'].includes(status))||{};
           if(!serverid||!type_of_bind||!vgid){
             console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,error:'service error',step:'service_vgid'});
             this.$set(this.results,account,{error:'service error'});
@@ -257,7 +257,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
       console.warn({name,ip,port,flat,mac,account,error:'agreement error',step:'abon_agreement'});
       continue
     };
-    const {serverid,type_of_bind,vgid}=(agreement?.services?.internet?.vgroups||[]).find(({status})=>[0,1,2,3].includes(status))||{};//[актив,баланс,абон,админ]
+    const {serverid,type_of_bind,vgid}=(agreement?.services?.internet?.vgroups||[]).find(({status})=>['0','1','2','3'].includes(status))||{};//[актив,баланс,абон,админ]
     if(!serverid||!type_of_bind||!vgid){
       console.warn({name,ip,port,flat,mac,account,serverid,type_of_bind,vgid,error:'service error',step:'service_vgid'});
       continue
