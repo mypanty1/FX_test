@@ -103,12 +103,12 @@ Vue.component('NetworkElement2',{
         </collapse-slide>
       </template>
 
-      <template v-if="networkElement?.ip">
+      <template v-if="!hideEquipmentView&&networkElement?.ip&&username=='mypanty1'">
         <devider-line/>
         <!--<NetworkElementExt :networkElement="networkElement"/>-->
         <div name="NetworkElementExt" class="display-content">
           <link-block actionIcon="down" icon="card" text="Дополнительно" type="large" disabled/>
-          <div v-show="open" class="margin-left-right-16px">
+          <div v-show="false" class="margin-left-right-16px">
             
           </div>
         </div>
