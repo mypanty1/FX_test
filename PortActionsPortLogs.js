@@ -86,7 +86,7 @@ Vue.component("PortLogsModal",{
     rows(){
       if(!this.enablePortFilter){
         return this.log.filter(v=>v&&v.length>30)//.slice(0,200)
-        //D-Link
+        //D-Link,Edge-Core
         //const prefix='Port ';
         //const port=('2023-02-26 12:19:15 Port 15 link down').match(new RegExp(`[^a-zA-Z]${prefix}0-9]{1,2}[^0-9]`,'i'))?.[0]
         
@@ -101,7 +101,7 @@ Vue.component("PortLogsModal",{
         //const prefix=[...prefixes].reverse().join('|');//need reverse for X prefix after GigaEthernet
         //const port=('2-IFM-LINKDOWN(l):Interface GigabitEthernet1/0/23 LinkDown.').match(new RegExp(`[^a-zA-Z]${prefix}[0-9]{1,2}[^0-9]`))?.[0]
       };
-      if(this.device.vendor=='D-LINK'){
+      if(['D-LINK','EDGE-CORE'].includes(this.device.vendor)){
         const poNum=`Port ${this.port.snmp_number}`;
         return this.log.filter(row=>{
           return row.length>30&&new RegExp(`[^a-zA-Z]${poNum}[^0-9]`,'i').test(row)
@@ -183,13 +183,41 @@ Vue.component("PortLogRow",{
   data:()=>({
     tileClass:'padding-left-right-2px border-radius-4px text-align-center',
     bgPort:'#4682b4',//steelblue
-    tColor:'#f0f8ff',//aliceblue
+    cText:'#f0f8ff',//aliceblue
     bgLinkUp:'#228b22',//forestgreen
     bgLinkDn:'#778899',//lightslategray
+    bgDate:'#5f9ea0',//cadetblue
   }),
   computed:{
-    portSample(){
-      if(this.device.vendor=='D-LINK'){
+    vendorTime(){
+      if('EDGE-CORE'==this.device.vendor){
+        return {//750] 17:27:39 2023-03-07
+          time_regexp:/\d{2}:\d{2}:\d{2}\s\d{4}-\d{2}-\d{2}/,
+        };
+      }else if('D-LINK'==this.device.vendor){
+        return {//58318 2023-02-23 15:21:48
+          time_regexp:/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/,
+        };
+      }else if(this.device.vendor=='FIBERHOME'){
+        return {//2023/02/17 18:09:21
+          time_regexp:/\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}/,
+        };
+      }else if(this.device.vendor=='HUAWEI'){
+        return {//Mar  7 2023 23:56:41+07:00
+          time_regexp:/\w{3}\s{1,2}\d{1,2}\s\d{4}\s\d{2}:\d{2}:\d{2}/,
+        };
+      }else if(this.device.vendor=='H3C'){
+        return {//%Mar  1 02:08:55:598 2013
+          time_regexp:/\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}:\d{3}\s\d{4}/,
+        };
+      }else{//default
+        return {
+          time_regexp:/\d{2}:\d{2}:\d{2}\s\d{4}-\d{2}-\d{2}/,
+        };
+      }
+    },
+    vendorPort(){
+      if(['D-LINK','EDGE-CORE'].includes(this.device.vendor)){
         const port=`Port ${this.port.snmp_number}`;
         return {
           port,
@@ -203,11 +231,16 @@ Vue.component("PortLogRow",{
         };
       }
     },
-    linkSample(){//IFNET
+    vendorLink(){//IFNET
       if(this.device.vendor=='D-LINK'){
         return {
           linkup_regexp:new RegExp(`link up`,'i'),
           linkdn_regexp:new RegExp(`link down`,'i'),
+        };
+      }else if(this.device.vendor=='EDGE-CORE'){
+        return {
+          linkup_regexp:new RegExp(`link-up`,'i'),
+          linkdn_regexp:new RegExp(`link-down`,'i'),
         };
       }else if(this.device.vendor=='FIBERHOME'){//X|XL
         return {
@@ -232,31 +265,52 @@ Vue.component("PortLogRow",{
       }
     },
     texts(){
-      let texts=[];
-      const {port,port_regexp}=this.portSample;
-      const _texts_port_around=`${this.row}  `.split(port_regexp);
+      const texts=[];
+      const {time_regexp}=this.vendorTime;
+      const _texts_date_around=`  ${this.row}`.split(time_regexp);
+      const date=this.parseDate(this.row,time_regexp);
+      let _texts_after_date='';console.log({date,_texts_date_around})
+      if(_texts_date_around.length>=2&&date){
+        const [text0_before_date,...__texts_after_date]=_texts_date_around;
+        _texts_after_date=__texts_after_date;
+        texts.push(...[
+          //{text:text0_before_date},
+          {
+            text:date,
+            class:this.tileClass,
+            style:{
+              'background-color':this.bgDate,
+              'color':this.cText,
+            }
+          },
+        ]);
+      }else{
+        _texts_after_date=_texts_date_around;
+      };
+      
+      const {port,port_regexp}=this.vendorPort;
+      const _texts_port_around=`${_texts_after_date}  `.split(port_regexp);
       let _texts_after_port='';
       
       if(_texts_port_around.length>=2){
         const [text0_before_port,...__texts_after_port]=_texts_port_around;
         _texts_after_port=__texts_after_port;
-        texts=[
+        texts.push(...[
           {text:text0_before_port},
           {
             text:port,
             class:this.tileClass,
             style:{
               'background-color':this.bgPort,
-              'color':this.tColor,
+              'color':this.cText,
             }
           },
-          //..._texts_after_port.map(text=>text.split(' ').map(text=>({text}))).flat(),
-        ];
+        ]);
       }else{
         _texts_after_port=_texts_port_around;
       };
       
-      const {linkup_regexp,linkdn_regexp}=this.linkSample;
+      const {linkup_regexp,linkdn_regexp}=this.vendorLink;
       const _row_after_port=_texts_after_port.join(` ${port} `);
       const _texts_linkup_around=_row_after_port.split(linkup_regexp);
       const _texts_linkdn_around=_row_after_port.split(linkdn_regexp);
@@ -272,7 +326,7 @@ Vue.component("PortLogRow",{
             class:this.tileClass,
             style:{
               'background-color':isLinkUp?this.bgLinkUp:this.bgLinkDn,
-              'color':this.tColor,
+              'color':this.cText,
             }
           },
           ..._texts_after_link.map(text=>text.split(' ').filter(v=>v).map(text=>({text}))).flat(),
@@ -283,7 +337,16 @@ Vue.component("PortLogRow",{
       return texts
     }
   },
-  methods:{},
+  methods:{
+    parseDate(row='',regexp=''){
+      let date=new Date(Date.parse(row.match(regexp)?.[0]));
+      if(!date||date=='Invalid Date'){return}
+      return [
+        date.toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'}),
+        date.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+      ].join(' '); 
+    }
+  },
 });
 
 

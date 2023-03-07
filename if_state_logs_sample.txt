@@ -53,8 +53,15 @@ h3c ETH_37KR_02597_5, need reverse
 %Mar  1 02:08:57:386 2013 0.01_sw56_Sakko-37b-2p IFNET/3/PHY_UPDOWN: Physical state on the interface GigabitEthernet1/0/48 changed to up. 
 %Mar  1 02:08:57:388 2013 0.01_sw56_Sakko-37b-2p IFNET/5/LINK_UPDOWN: Line protocol state on the interface GigabitEthernet1/0/48 changed to up. 
 
-edgecore ETH_71KR_01665_2
-
+Edge-Core ETH_71KR_01665_2
+750] 17:27:39 2023-03-07   Unit 1, Port 22 link-up 100M FD notification.   
+749] 17:27:33 2023-03-07   Unit 1, Port 22 link-down notification.   
+748] 17:27:03 2023-03-07   Unit 1, Port 22 link-up 100M FD notification.   
+747] 17:26:59 2023-03-07   Unit 1, Port 22 link-down notification.   
+746] 17:26:59 2023-03-07   Unit 1, Port 22 link-up 100M FD notification.   
+745] 17:26:56 2023-03-07   Unit 1, Port 22 link-down notification.   
+744] 17:26:27 2023-03-07   Unit 1, Port 22 link-up 100M FD notification.   
+743] 17:26:23 2023-03-07   Unit 1, Port 22 link-down notification.   
 
 
 
