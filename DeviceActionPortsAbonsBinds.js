@@ -33,7 +33,7 @@ Vue.component('device-actions',{
     device:{type:Object,default:null}
   },
   data:()=>({
-    opened:false,
+    opened:true,
     show:{
       info:{
         ping:false,
