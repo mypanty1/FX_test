@@ -46,14 +46,14 @@ Feb 26 2023 11:43:22+07:00 ITY-BorBogat163d9 %%01IFPDT/4/IF_STATE(l)[19]:Interfa
 
 
 
-h3c ETH_37KR_02597_5, neec reverse
+h3c ETH_37KR_02597_5, need reverse
 %Mar  1 02:08:55:598 2013 0.01_sw56_Sakko-37b-2p SHELL/6/SHELL_CMD: -Line=vty0-IPAddr=172.20.95.24-User=sa0100icorewr; Command is interface GigabitEthernet1/0/48 
 %Mar  1 02:08:55:641 2013 0.01_sw56_Sakko-37b-2p IFNET/3/PHY_UPDOWN: Physical state on the interface GigabitEthernet1/0/48 changed to down. 
 %Mar  1 02:08:55:646 2013 0.01_sw56_Sakko-37b-2p IFNET/5/LINK_UPDOWN: Line protocol state on the interface GigabitEthernet1/0/48 changed to down. 
 %Mar  1 02:08:57:386 2013 0.01_sw56_Sakko-37b-2p IFNET/3/PHY_UPDOWN: Physical state on the interface GigabitEthernet1/0/48 changed to up. 
 %Mar  1 02:08:57:388 2013 0.01_sw56_Sakko-37b-2p IFNET/5/LINK_UPDOWN: Line protocol state on the interface GigabitEthernet1/0/48 changed to up. 
 
-
+edgecore ETH_71KR_01665_2
 
 
 
