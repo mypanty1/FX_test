@@ -4,6 +4,8 @@
 58318 2023-02-23 15:21:48 Port 2 link up, 100Mbps FULL duplex
 58317 2023-02-23 15:21:45 Port 2 link down
 
+3026 ETH_58KR_00293_1
+
 2328 129.3
 Feb 26 2023 12:52:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[4]:Interface Ethernet0/0/10 has turned into UP state.
 Feb 26 2023 12:49:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[5]:Interface Ethernet0/0/10 has turned into DOWN state.
