@@ -50,22 +50,36 @@ Vue.component("PortLogs",{
 });
 Vue.component("PortLogsModal",{
   template:`<modal-container-custom name="PortLogsModal" ref="modal" @open="openedEvent" header :footer="false" :wrapperStyle="{'min-height':'auto','margin-top':'4px'}">
-    <div class="display-flex align-items-center gap-4px margin-left-right-16px margin-bottom-16px">
-      <switch-el class="width-40px" v-model="enablePortFilter"/>
-      <div class="font--13-500" v-if="enablePortFilter">Логи по порту {{port.snmp_name}}</div>
-      <div class="font--13-500 tone-500" v-else>Логи по коммутатору {{device.ip}}</div>
-    </div>
-    
-    <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
-    <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn" class="margin-left-right-16px"/>
-    <message-el v-else-if="!rows.length&&enablePortFilter" text="Не найдено" :subText="subText_dev" box type="info" class="margin-left-right-16px"/>
-    <div v-else class="margin-left-right-8px display-flex flex-direction-column gap-1px">
-      <template v-for="(row,index) of rows">
-        <devider-line v-if="index" m="unset"/>
-        <PortLogRow :key="index" v-bind="{row,port,device}"/>
+    <div class="margin-left-right-16px">
+      
+      <div class="margin-bottom-8px">
+        <div class="display-flex align-items-center gap-4px">
+          <switch-el class="width-40px" v-model="enablePortFilter"/>
+          <div class="font--13-500" v-if="enablePortFilter">Логи по порту {{port.snmp_name}}</div>
+          <div class="font--13-500 tone-500" v-else>Логи по коммутатору {{device.ip}}</div>
+        </div>
+        <div class="display-flex align-items-center gap-4px" v-show="enablePortFilter">
+          <switch-el class="width-40px" v-model="enableLinkFilter"/>
+          <div class="font--13-500" v-if="enableLinkFilter">Только линк</div>
+          <div class="font--13-500 tone-500" v-else>Все события</div>
+        </div>
+      </div>
+      
+      <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
+      <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn"/>
+      <message-el v-else-if="!rowsCount&&enablePortFilter" text="Не найдено" :subText="subText_dev" box type="info"/>
+      
+      <template v-else>
+        <PortLogLinkEventsChart v-if="rowsCount>6&&enablePortFilter&&enableLinkFilter&&events.length>6" :events="events" class="margin-bottom-8px"/>
+        <div class="display-flex flex-direction-column gap-1px">
+          <template v-for="(row,index) of rows">
+            <devider-line v-if="index" m="unset"/>
+            <PortLogRow :key="index" v-bind="{row,port,device}" :linkEventsOnly="enablePortFilter&&enableLinkFilter" @onparse="onParse(index,$event)"/>
+          </template>
+        </div>
       </template>
+      
     </div>
-    
     <div class="margin-top-16px width-100-100 display-flex align-items-center justify-content-space-around">
       <button-main label="Закрыть" @click="close" buttonStyle="outlined" size="medium"/>
       <button-main label="Обновить" @click="refresh" :disabled="loading" buttonStyle="outlined" size="large"/>
@@ -80,9 +94,12 @@ Vue.component("PortLogsModal",{
     error:'',
     log:[],
     enablePortFilter:true,
+    enableLinkFilter:true,
+    parsed:{},
   }),
-  computed: {
+  computed:{
     subText_dev(){return `[${this.device?.region?.id}] ${this.device.ip} ${this.port.snmp_name}`},
+    rowsCount(){return this.rows.length},
     rows(){
       if(!this.enablePortFilter){
         return this.log.filter(v=>v&&v.length>30)//.slice(0,200)
@@ -113,6 +130,19 @@ Vue.component("PortLogsModal",{
         });
       }
     },
+    events(){
+      return Object.values(this.parsed).reduce((events,{logDate,portIsFinded,isLinkUp,isLinkDn})=>{
+        if(portIsFinded&&logDate&&(isLinkUp||isLinkDn)){
+          const {formatted,parsed}=logDate;
+          events.push({
+            time:parsed,
+            date:formatted,
+            state:!!isLinkUp,
+          });
+        };
+        return events
+      },[]);
+    }
   },
   methods:{
     open(){//public
@@ -168,9 +198,64 @@ Vue.component("PortLogsModal",{
         console.warn("log_short.error",error)
       };
       this.loading=false;
+    },
+    onParse(index,event){
+      if(!this.enablePortFilter||!this.enableLinkFilter){return};
+      this.$set(this.parsed,parseInt(`${index}${event.logDate.parsed}`),event);
     }
   },
 });
+Vue.component("PortLogLinkEventsChart",{
+  template:`<div name="PortLogLinkEventsChart">
+    <div class="font--12-400 text-align-center">{{linkDownCounterText||''}}</div>
+    <div class="display-flex align-items-center flex-direction-row-reverse">
+      <div v-for="(ev,index) of events" :key="index" :style="getStyle(ev,index)" class="min-height-20px"></div>
+    </div>
+    <div class="display-flex align-items-center justify-content-space-between">
+      <span class="font--12-400">{{first?.date}}</span>
+      <span class="font--12-400" v-if="first?.date&&last?.date" arrow>⟹</span>
+      <span class="font--12-400">{{last?.date}}</span>
+    </div>
+  </div>`,
+  props:{
+    events:{type:Array,default:()=>[]}
+  },
+  data:()=>({}),
+  computed:{
+    count(){return this.events.length},
+    first(){return this.events[this.count-1]},
+    last(){return this.events[0]},
+    total(){
+      const {first,last}=this;
+      if(!first||!last){return 0};
+      return last.time-first.time;
+    },
+    countLinkDown(){return this.events.filter(({state})=>!state).length},
+    linkDownCounterText(){
+      if(!this.countLinkDown){return};
+      const [days,hours]=this.getDurationDays(this.total);
+      return `${this.countLinkDown} падений линка за ${days} days`+(hours?`, ${hours} hours`:'')
+    },
+  },
+  methods:{
+    getDurationDays(ms){
+      ms=ms/1000;
+      const days=Math.floor(ms/60/60/24);
+      const hours=Math.floor(ms/60/60)-(days*24);
+      const minutes=Math.floor(ms/60)-(hours*60)-(days*24*60);
+      return [days,hours,minutes];
+    },
+    getStyle(ev,index=0){
+      if(!this.total){return};
+      const prev=this.events[index-1];
+      const percent=prev?Math.floor((prev.time-ev.time)*99/this.total)||1:0
+      return {
+        width:!prev?`1%`:`${percent}%`,
+        background:ev.state?'#228b224d':'#778899'
+      };
+    }
+  }
+})
 Vue.component("PortLogRow",{
   template:`<div name="PortLogRow" class="display-flex flex-wrap-wrap gap-2px font--12-400">
     <span v-for="({text,...props}) of texts" v-bind="props">{{text}}</span>
@@ -178,7 +263,8 @@ Vue.component("PortLogRow",{
   props:{
     row:{type:String,default:''},
     port:{type:Object,required:true},
-    device:{type:Object,required:true}
+    device:{type:Object,required:true},
+    linkEventsOnly:{type:Boolean,default:false}
   },
   data:()=>({
     tileClass:'padding-left-right-2px border-radius-4px text-align-center',
@@ -187,6 +273,10 @@ Vue.component("PortLogRow",{
     bgLinkUp:'#228b22',//forestgreen
     bgLinkDn:'#778899',//lightslategray
     bgDate:'#5f9ea0',//cadetblue
+    logDate:null,
+    portIsFinded:false,
+    isLinkUp:false,
+    isLinkDn:false,
   }),
   computed:{
     vendorTime(){
@@ -266,17 +356,18 @@ Vue.component("PortLogRow",{
     },
     texts(){
       const texts=[];
+      
       const {time_regexp}=this.vendorTime;
       const _texts_date_around=`  ${this.row}`.split(time_regexp);
-      const date=this.parseDate(this.row,time_regexp);
-      let _texts_after_date='';console.log({date,_texts_date_around})
-      if(_texts_date_around.length>=2&&date){
+      this.logDate=this.parseLogDate(this.row,time_regexp)||null;
+      let _texts_after_date='';
+      if(_texts_date_around.length>=2&&this.logDate?.formatted){
         const [text0_before_date,...__texts_after_date]=_texts_date_around;
         _texts_after_date=__texts_after_date;
         texts.push(...[
           //{text:text0_before_date},
           {
-            text:date,
+            text:this.logDate?.formatted,
             class:this.tileClass,
             style:{
               'background-color':this.bgDate,
@@ -291,12 +382,12 @@ Vue.component("PortLogRow",{
       const {port,port_regexp}=this.vendorPort;
       const _texts_port_around=`${_texts_after_date}  `.split(port_regexp);
       let _texts_after_port='';
-      
+      this.portIsFinded=false;
       if(_texts_port_around.length>=2){
         const [text0_before_port,...__texts_after_port]=_texts_port_around;
         _texts_after_port=__texts_after_port;
         texts.push(...[
-          {text:text0_before_port},
+          ...this.linkEventsOnly?[]:[{text:text0_before_port}],
           {
             text:port,
             class:this.tileClass,
@@ -306,6 +397,7 @@ Vue.component("PortLogRow",{
             }
           },
         ]);
+        this.portIsFinded=true;
       }else{
         _texts_after_port=_texts_port_around;
       };
@@ -314,37 +406,45 @@ Vue.component("PortLogRow",{
       const _row_after_port=_texts_after_port.join(` ${port} `);
       const _texts_linkup_around=_row_after_port.split(linkup_regexp);
       const _texts_linkdn_around=_row_after_port.split(linkdn_regexp);
-      const isLinkUp=_texts_linkup_around.length>=2;
-      const isLinkDn=_texts_linkdn_around.length>=2;
-      const _texts_link_around=isLinkUp?_texts_linkup_around:isLinkDn?_texts_linkdn_around:_texts_after_port;
+      this.isLinkUp=_texts_linkup_around.length>=2;
+      this.isLinkDn=_texts_linkdn_around.length>=2;
+      const _texts_link_around=this.isLinkUp?_texts_linkup_around:this.isLinkDn?_texts_linkdn_around:_texts_after_port;
       const [text0_before_link,..._texts_after_link]=_texts_link_around;
-      if(isLinkUp||isLinkDn){
+      if(this.isLinkUp||this.isLinkDn){
         texts.push(...[
-          {text:text0_before_link},
+          ...this.linkEventsOnly&&this.portIsFinded?[]:[{text:text0_before_link}],
           {
-            text:isLinkUp?'LinkUp':'LinkDown',
+            text:this.isLinkUp?'LinkUp':'LinkDown',
             class:this.tileClass,
             style:{
-              'background-color':isLinkUp?this.bgLinkUp:this.bgLinkDn,
+              'background-color':this.isLinkUp?this.bgLinkUp:this.bgLinkDn,
               'color':this.cText,
             }
           },
-          ..._texts_after_link.map(text=>text.split(' ').filter(v=>v).map(text=>({text}))).flat(),
-        ])
+          ...this.linkEventsOnly&&this.portIsFinded?[]:_texts_after_link.map(text=>text.split(' ').filter(v=>v).map(text=>({text}))).flat(),
+        ]);
       }else{
+        this.isLinkUp=false;
+        this.isLinkDn=false;
         texts.push(..._texts_after_port.map(text=>text.split(' ').filter(v=>v).map(text=>({text}))).flat())
-      }
+      };
+      
+      const {logDate,portIsFinded,isLinkUp,isLinkDn}=this;
+      this.$emit('onparse',{logDate,portIsFinded,isLinkUp,isLinkDn})
+      
       return texts
     }
   },
   methods:{
-    parseDate(row='',regexp=''){
-      let date=new Date(Date.parse(row.match(regexp)?.[0]));
+    parseLogDate(row='',regexp=''){
+      const parsed=Date.parse(row.match(regexp)?.[0]);
+      const date=new Date(parsed);
       if(!date||date=='Invalid Date'){return}
-      return [
+      const formatted=[
         date.toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'}),
         date.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
       ].join(' '); 
+      return {date,parsed,formatted};
     }
   },
 });
