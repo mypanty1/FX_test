@@ -6,13 +6,30 @@
 58317 2023-02-23 15:21:45 Port 2 link down
 
 3026 ETH_58KR_00293_1
-слеши
+2457   2023/03/08  14:43:24  Port 4 link up, 100Mbps  FULL duplex               
+2456   2023/03/08  14:43:22  Port 4 link down                                   
+2455   2023/03/08  14:43:17  Port 4 link up, 100Mbps  FULL duplex               
+2454   2023/03/08  14:43:14  Port 4 link down                                   
+2453   2023/03/08  14:43:14  Port 4 link up, 100Mbps  FULL duplex               
+2452   2023/03/08  14:43:12  Port 4 link down                                   
+2451   2023/03/08  14:43:12  Port 4 link up, 100Mbps  FULL duplex               
 
 ETH_37KR_02597_4 • D-LINK DES-1210-28/ME
-как huawei ?
+438    Mar  6 10:21:17:LinkStatus-6: Port 2 link up, 100Mbps FULL duplex
+437    Mar  6 10:21:12:LinkStatus-6: port 2 link down
+436    Mar  6 10:20:46:LinkStatus-6: Port 2 link up, 100Mbps FULL duplex
+435    Mar  6 10:20:43:LinkStatus-6: port 2 link down
+434    Mar  6 10:20:05:LinkStatus-6: Port 2 link up, 100Mbps FULL duplex
+433    Mar  6 10:20:02:LinkStatus-6: port 2 link down
+404    Mar  5 10:45:47:LinkStatus-6: Port 2 link up, 100Mbps FULL duplex
 
 ETH_37KR_02597_3 • HUAWEI S5300-10P-LI-AC
-нет года
+Mar  7 20:11:58+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[10]:Interface GigabitEthernet0/0/4 has turned into UP state.
+Mar  7 20:11:54+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[11]:Interface GigabitEthernet0/0/4 has turned into DOWN state.
+Mar  7 20:11:50+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[12]:Interface GigabitEthernet0/0/4 has turned into UP state.
+Mar  7 20:11:43+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[13]:Interface GigabitEthernet0/0/4 has turned into DOWN state.
+Mar  7 20:11:35+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[14]:Interface GigabitEthernet0/0/4 has turned into UP state.
+Mar  7 20:11:25+03:00 0.01_sw5_Sakko_37b_2pod %%01IFPDT/4/IF_STATE(l)[15]:Interface GigabitEthernet0/0/4 has turned into DOWN state.
 
 2328 129.3
 Feb 26 2023 12:52:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[4]:Interface Ethernet0/0/10 has turned into UP state.
