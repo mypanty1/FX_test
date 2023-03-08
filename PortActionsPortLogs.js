@@ -54,12 +54,12 @@ Vue.component("PortLogsModal",{
       
       <div class="margin-bottom-8px">
         <div class="display-flex align-items-center gap-4px">
-          <switch-el class="width-40px" v-model="enablePortFilter" :disabled="loading"/>
+          <switch-el class="width-40px" v-model="enablePortFilter"/>
           <div class="font--13-500" v-if="enablePortFilter">Логи по порту {{port.snmp_name}}</div>
           <div class="font--13-500 tone-500" v-else>Логи по коммутатору {{device.ip}}</div>
         </div>
         <div class="display-flex align-items-center gap-4px" v-show="enablePortFilter">
-          <switch-el class="width-40px" v-model="enableLinkFilter" :disabled="loading"/>
+          <switch-el class="width-40px" v-model="enableLinkFilter"/>
           <div class="font--13-500" v-if="enableLinkFilter">Только линк</div>
           <div class="font--13-500 tone-500" v-else>Все события {{rowsFilteredCount?('('+rowsFilteredCount+')'):''}}</div>
         </div>
