@@ -142,8 +142,8 @@ Vue.component("PortLogsModal",{
           linkdn_regexp:/link-down/i,
         };
         case 'FIBERHOME':return {
-          linkup_regexp:/LinkUP|OperStatus=\\[up\\]/i,
-          linkdn_regexp:/LinkDown|OperStatus=\\[down\\]/i,
+          linkup_regexp:/LinkUP|OperStatus=\[up\]/i,
+          linkdn_regexp:/LinkDown|OperStatus=\[down\]/i,
         };
         case 'HUAWEI':return {
           linkup_regexp:/into UP state/i,
