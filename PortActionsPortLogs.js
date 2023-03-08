@@ -168,7 +168,7 @@ Vue.component("PortLogsModal",{
     }
   },
   methods:{
-    parseLogDate(row='',regexp=''){
+    parseLogDate(row=''){
       let parsed='';
       for(const regexp of [
         /\d{2}:\d{2}:\d{2}\s\d{4}-\d{2}-\d{2}/,//750] 17:27:39 2023-03-07 - Edge-Core
@@ -206,8 +206,8 @@ Vue.component("PortLogsModal",{
       const texts=[];
       
       logDate=this.parseLogDate(row)||null;
-      let _texts_date_around=!logDate?.date?row:` ${row}`.split(logDate.parsed);
-      let _texts_after_date='';
+      let _texts_date_around=!logDate?.date?[row]:` ${row}`.split(logDate.parsed);
+      let _texts_after_date=[];
       if(_texts_date_around.length>=2&&logDate?.formatted){
         const [text0_before_date,...__texts_after_date]=_texts_date_around;
         _texts_after_date=__texts_after_date;
@@ -226,8 +226,8 @@ Vue.component("PortLogsModal",{
       };
       
       const {portText,port_regexp}=this.vendorPortRegexp;
-      const _texts_port_around=`${_texts_after_date}  `.split(port_regexp);
-      let _texts_after_port='';
+      const _texts_port_around=`${_texts_after_date.join(' ')}  `.split(port_regexp);
+      let _texts_after_port=[];
       portIsFinded=false;
       if(_texts_port_around.length>=2){
         const [text0_before_port,...__texts_after_port]=_texts_port_around;
@@ -295,12 +295,12 @@ Vue.component("PortLogsModal",{
         const response=await httpPost(buildUrl('log_short',objectToQuery({
           mr_id:this.device.region.mr_id,
           ip:this.device.ip,
-          ifName:this.port.snmp_name,
+          //ifName:this.port.snmp_name,
         }),'/call/hdm/'),{
           port:{
-            SNMP_PORT_NAME:this.port.snmp_name,
-            PORT_NUMBER:this.port.number,
-            name:this.port.name
+            //SNMP_PORT_NAME:this.port.snmp_name,
+            //PORT_NUMBER:this.port.number,
+            //name:this.port.name
           },
           device:{
             MR_ID:this.device.region.mr_id,
@@ -311,7 +311,7 @@ Vue.component("PortLogsModal",{
             FIRMWARE:this.device.firmware,
             FIRMWARE_REVISION:this.device.firmware_revision,
             PATCH_VERSION:this.device.patch_version,
-            name:this.device.name
+            //name:this.device.name
           }
         });
         if(response.message==="OK"&&Array.isArray(response.text)){
@@ -390,7 +390,7 @@ Vue.component("PortLogLinkEventsChart",{
       };
     }
   }
-})
+});
 Vue.component("PortLogRow",{
   template:`<div name="PortLogRow" class="display-flex flex-wrap-wrap gap-2px font--12-400">
     <span v-for="({text,style}) of texts" v-if="hideNotParsed?style:true" v-bind="{style}" :class="[style&&tileClass]">{{text}}</span>
