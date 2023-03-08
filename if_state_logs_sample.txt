@@ -10,6 +10,9 @@
 ETH_37KR_02597_4 • D-LINK DES-1210-28/ME
 как huawei ?
 
+ETH_37KR_02597_3 • HUAWEI S5300-10P-LI-AC
+нет года
+
 2328 129.3
 Feb 26 2023 12:52:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[4]:Interface Ethernet0/0/10 has turned into UP state.
 Feb 26 2023 12:49:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[5]:Interface Ethernet0/0/10 has turned into DOWN state.
