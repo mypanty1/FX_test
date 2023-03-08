@@ -1,6 +1,7 @@
 
 
-3200b 153.87
+3200b
+153.87
 58318 2023-02-23 15:21:48 Port 2 link up, 100Mbps FULL duplex
 58317 2023-02-23 15:21:45 Port 2 link down
 
@@ -19,12 +20,14 @@ Feb 26 2023 12:49:08+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[5]:Interface E
 Feb 26 2023 10:58:07+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[18]:Interface Ethernet0/0/10 has turned into UP state.
 Feb 26 2023 00:25:19+07:00 Vysotsk39d3sw3 %%01IFNET/4/IF_STATE(l)[24]:Interface Ethernet0/0/10 has turned into DOWN state.
 
-2320-28
+2320-28 135.32
 Feb 26 2023 11:43:26+07:00 ITY-BorBogat163d9 %%01IFPDT/4/IF_STATE(l)[17]:Interface Ethernet0/0/20 has turned into UP state.
 Feb 26 2023 11:43:22+07:00 ITY-BorBogat163d9 %%01IFADP/4/PORTDOWNINFO(l)[18]:Interface Ethernet0/0/20 has turned into DOWN state. (Information=Physical state: down, Negotiation: enable, Negotiation complete: no, Local full-duplex(10M: yes, 100M: yes), Local half-duplex(10M: yes, 100M: yes), Remote full-duplex(10M: no, 100M: no), Remote half-duplex(10M: no, 100M: no))
 Feb 26 2023 11:43:22+07:00 ITY-BorBogat163d9 %%01IFPDT/4/IF_STATE(l)[19]:Interface Ethernet0/0/20 has turned into DOWN state.
 
-4820-X 153.168 ETH_54KR_00340_14
+4820-X
+28 153.168 24 ETH_54KR_00340_14
+52 138.73 10 ETH_54KR_00744_7
 2023/02/21 11:02:00 bb194d2-pod8etag1 %01-2-IFM-LINKUP(l):Interface GigabitEthernet1/0/24 LinkUP Speed:10M(bps) Duplex:half .
 2023/02/21 11:01:57 bb194d2-pod8etag1 %01-2-IFM-LINKDOWN(l):Interface GigabitEthernet1/0/24 LinkDown.
 2023/02/21 10:52:24 bb194d2-pod8etag1 %01-2-IFM-LINKUP(l):Interface GigabitEthernet1/0/24 LinkUP Speed:10M(bps) Duplex:half .
@@ -43,7 +46,8 @@ Feb 26 2023 11:43:22+07:00 ITY-BorBogat163d9 %%01IFPDT/4/IF_STATE(l)[19]:Interfa
 2023/02/17 18:06:43 bb194d2-pod8etag1 %01-2-IFM-LINKDOWN(l):Interface GigabitEthernet1/0/23 LinkDown.
 2023/02/17 18:06:37 bb194d2-pod8etag1 %01-2-IFM-LINKUP(l):Interface GigabitEthernet1/0/23 LinkUP Speed:1000M(bps) Duplex:full .
 
-4820-XL 153.60 ETH_54KR_00288_1
+4820-XL
+52 153.60 ETH_54KR_00288_1
 2037/09/15 10:52:36 0.25_sw202_Vodonapornaya-17 %01-2-IFM-LINKUP(l):The interface status changes. (ifName=[GigaEthernet1/0/14], AdminStatus=[up], OperStatus=[up], Reason=[up]) Speed:1000M(bps) Duplex:full 
 2037/09/15 10:52:30 0.25_sw202_Vodonapornaya-17 %01-2-IFM-LINKDOWN(l):The interface status changes. (ifName=[GigaEthernet1/0/14], AdminStatus=[up], OperStatus=[down], Reason=[link-down])
 2037/09/15 10:52:20 0.25_sw202_Vodonapornaya-17 %01-2-IFM-LINKUP(l):The interface status changes. (ifName=[GigaEthernet1/0/14], AdminStatus=[up], OperStatus=[up], Reason=[up]) Speed:1000M(bps) Duplex:full 
