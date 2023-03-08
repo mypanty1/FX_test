@@ -362,7 +362,7 @@ Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
     </template>
     <devider-line />
       
-    <link-block @block-click="openBillingInfo" text="Информация в биллинге" icon="server" action-icon="expand" />
+    <!--<link-block @block-click="openBillingInfo" text="Информация в биллинге" icon="server" action-icon="expand" />-->
     <billing-info-modal ref="billingInfo" :billing-info="billingInfo" :loading="loading.vgroups" />
     <link-block @block-click="openSendSmsModal" text="Смс с новым паролем" icon="sms" action-icon="expand" />
     <send-sms-modal ref="sendSms" :account="accountId" />
