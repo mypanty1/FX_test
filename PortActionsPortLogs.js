@@ -366,7 +366,7 @@ Vue.component("PortLogLinkEventsChart",{
         minutes?`${minutes} ${plural(['мин.','мин.','мин.'],minutes)}`:'',
       ].join(' ');
       return [
-        `${this.countLinkDown} падений линка`,
+        `${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`,
         duration?`за`:'',
         duration
       ].join(' ');
