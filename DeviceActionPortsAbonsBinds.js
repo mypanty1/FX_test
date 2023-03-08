@@ -70,8 +70,8 @@ Vue.component('DeviceActionPortsAbonsBinds',{
       </template>
     </div>
     <div style="display:inline-flex;gap:4px;width:100%;justify-content:center;margin-top:8px;">
-      <button-main @click="clear" label="clear" :disabled="!is54||loadingSome" buttonStyle="outlined" size="medium"/>
-      <button-main @click="start" label="start" :loading="loadingSome" :disabled="!is54||loadingSome" buttonStyle="contained" size="medium"/>
+      <button-main @click="clear" label="clear" :disabled="!is54||!isETH||loadingSome" buttonStyle="outlined" size="medium"/>
+      <button-main @click="start" label="start" :loading="loadingSome" :disabled="!is54||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
     </div>
   </div>`,
   props:{
@@ -91,6 +91,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
   computed:{
     is54(){return this.networkElement?.region?.id==54},
     name(){return this.networkElement.name},
+    isETH(){return /^eth/i.test(this.name||'')},
     ip(){return this.networkElement.ip},
     ports(){return this.resps.getDevicePorts||[]},
     loadingSome(){return Object.values(this.loads).some(v=>v)||this.loading},
