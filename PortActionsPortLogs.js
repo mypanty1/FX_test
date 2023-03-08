@@ -334,7 +334,7 @@ Vue.component("PortLogsModal",{
 Vue.component("PortLogLinkEventsChart",{
   template:`<div name="PortLogLinkEventsChart">
     <div class="font--12-400 text-align-center">{{linkDownCounterText||''}}</div>
-    <div class="display-flex align-items-center flex-direction-row-reverse">
+    <div class="display-flex align-items-center flex-direction-row-reverse" style="background:#a9a9a938">
       <div v-for="(ev,index) of events" :key="index" :style="getStyle(ev,index)" class="min-height-20px"></div>
     </div>
     <div class="display-flex align-items-center justify-content-space-between">
