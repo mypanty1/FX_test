@@ -399,11 +399,11 @@ Vue.component('PortsMap',{
         </div>
       </div>
       <ports-map-actions v-if="showDetailed&&!loading.ports" :loading="loading" @refresh="refresh" @getStatuses="getStatuses" @getLoopback="getLoopback" @getErrors="getErrors"/>
-      <PortsMapContent ref="PortsMapContent" :networkElement="device" :ports="ports" loading_statuses="loading.statuses_speed" :isUnmount="unmoutedPorts" :errors="responses.errors" :loading="loading" :showDetailed="showDetailed" :showCabelTest="showCabelTest" :showSessions="showSessions" @setDetailedType="setDetailedType" @on-port-status="updatePortStatus"/>
+      <PortsMapContent ref="PortsMapContent" :networkElement="device" :ports="ports" :loading_statuses="loading.statuses_speed" :isUnmount="unmoutedPorts" :errors="responses.errors" :loading="loading" :showDetailed="showDetailed" :showCabelTest="showCabelTest" :showSessions="showSessions" @setDetailedType="setDetailedType" @on-port-status="updatePortStatus"/>
       
-			<PortsMapLogs v-if="!unmoutedPorts" :networkElement="device" :ports="unmoutedPorts?[]:ports" class="margin-bottom-8px"/>
+      <PortsMapLogs v-if="!unmoutedPorts" :networkElement="device" :ports="unmoutedPorts?[]:ports" class="margin-bottom-8px"/>
 			
-			<ports-map-legend :showSessions="showSessions" :showDetailed="showDetailed" :detailedType="detailedType" :ports="ports"/>
+      <ports-map-legend :showSessions="showSessions" :showDetailed="showDetailed" :detailedType="detailedType" :ports="ports"/>
     </template>
     <dismantled-devices v-if="!noDismantled" :device="device" @get:unmouted-ports="getUnmountDevicePorts" @get:ports="loadCache"/>
   </CardBlock>`,
