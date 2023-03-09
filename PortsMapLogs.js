@@ -810,6 +810,7 @@ Vue.component("PortsMapLogs",{
     <div v-show="open" class="margin-left-right-16px">
       <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
       <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn"/>
+      <message-el v-else-if="!countPortsLinkEvents" text="Нет событий IF_STATE" box type="info"/>
       <template v-else>
         <div class="display-flex flex-direction-column gap-1px">
           <template v-for="(portEvents,portId,index) in portsEvents.events">
@@ -870,6 +871,7 @@ Vue.component("PortsMapLogs",{
         return this.getVendorPortRegexp(port)
       })
     },
+		countPortsLinkEvents(){return Object.values(this.portsEvents.events).length},
     portsEvents(){
       return Object.entries(this.portsLogs).reduce((portsEvents,[portId,portLogs])=>{
         if(!portLogs.length){return portsEvents};
