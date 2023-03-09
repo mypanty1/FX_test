@@ -760,7 +760,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart",{
       <span class="font--12-400">{{linkDownCounterText||''}}</span>
     </div>
     <div class="display-flex align-items-center flex-direction-row-reverse" style="background:#a9a9a938">
-      <div v-for="(ev,index) of events" :key="index" :style="getStyle(ev,index)" class="min-height-20px"></div>
+      <div v-for="(event,index) of eventsItems" :key="index" :style="event.style" class="min-height-20px"></div>
     </div>
   </div>`,
   props:{
@@ -783,6 +783,37 @@ Vue.component("PortsMapLogsPortLinkEventsChart",{
         `${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`,
       ].join(' ');
     },
+		eventsItems(){
+			if(!this.total){return []};
+			const {items,availPercent}=this.events.reduce((eventsItems,event,index)=>{
+				const prev=this.events[index-1];
+				const percent=prev?Math.floor((prev.time-event.time)*99/this.total)||1:0
+				const minPercent=!prev?1:percent;
+				eventsItems.availPercent=eventsItems.availPercent-minPercent;
+				eventsItems.items.push({
+					...event,
+					style:{
+						width:`${minPercent}%`,
+						background:event.state?'#228b224d':'#778899'
+					}
+				})
+				return eventsItems;
+			},{items:[],availPercent:100});
+			
+			//заполнение недостающего прошлого периода инверсным значением
+			if(availPercent>0&&items.length){
+				const firstState=items[items.length-1]?.state;
+				items.push({
+					isFake:true,
+					style:{
+						width:`${availPercent}%`,
+						background:!firstState?'#228b224d':'#778899'
+					}
+				})
+			};
+			
+			return items
+		}
   },
   methods:{
     getDurationDays(ms){
