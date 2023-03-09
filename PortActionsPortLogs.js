@@ -364,12 +364,12 @@ Vue.component("PortLogLinkEventsChart",{
         days?`${days} ${plural(['день','дня','дней'],days)}`:'',
         hours?`${hours} ${plural(['час','часа','часов'],hours)}`:'',
         minutes?`${minutes} ${plural(['мин.','мин.','мин.'],minutes)}`:'',
-      ].join(' ');
+      ].filter(v=>v).join(' ');
       return [
         `${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`,
         duration?`за`:'',
         duration
-      ].join(' ');
+      ].filter(v=>v).join(' ');
     },
   },
   methods:{
