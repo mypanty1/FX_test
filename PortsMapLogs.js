@@ -1,6 +1,6 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs.js',type:'text/javascript'}));
 
-Vue.component('ports-map',{
+Vue.component('ports-map-100323',{
   template:`<card-block class="ports-map">
     <title-main :text="title">
       <button-sq :icon="loading.statuses_speed||loading.statuses_cable?'loading rotating':'refresh'" v-if="!unmoutedPorts&&!showDetailed" @click="updateLinksOnPortsCellBase"/>
@@ -376,7 +376,7 @@ Vue.component('ports-map',{
 });
 
 //after 09.03.23
-Vue.component('PortsMap_090323',{
+Vue.component('PortsMap',{
   template:`<CardBlock name="PortsMap" class="ports-map">
     <title-main :text="title">
       <button-sq :icon="loading.statuses_speed||loading.statuses_cable?'loading rotating':'refresh'" v-if="!unmoutedPorts&&!showDetailed" @click="updateLinksOnPortsCellBase"/>
