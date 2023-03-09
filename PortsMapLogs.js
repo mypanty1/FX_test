@@ -760,7 +760,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart",{
       <span class="font--12-400">{{linkDownCounterText||''}}</span>
     </div>
     <div class="display-flex align-items-center flex-direction-row-reverse" style="background:#a9a9a938">
-      <div v-for="(event,index) of eventsItems" :key="index" :style="event.style" class="min-height-20px"></div>
+      <div v-for="(eventItem,index) of eventsItems" :key="index" :style="eventItem.style" :title="eventItem.date||''" class="min-height-20px"></div>
     </div>
   </div>`,
   props:{
@@ -800,7 +800,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart",{
 				return eventsItems;
 			},{items:[],availPercent:100});
 			
-			//заполнение недостающего прошлого периода инверсным значением
+			//заполнение недостающего прошлого периода инверсным значением первого
 			if(availPercent>0&&items.length){
 				const firstState=items[items.length-1]?.state;
 				items.push({
