@@ -42,7 +42,7 @@ Vue.component("PortUserActions",{
         PortActionAbonBind:false,
         PortActionCableTest:isTechPortLinkUp||this.disabled,
         PortActionDeviceLog:false,
-				PortLogs:false,
+        PortLogs:false,
         PortActionIptvDiag:false,
         PortActionMac:isTechPort||this.disabled,
         PortActionIpMacPortBind:isTechPort||this.disabled,
