@@ -90,7 +90,7 @@ Vue.component("PortLogs",{
     openPortLogsModal(){
       this.$refs.PortLogsModal.open();
     },
-		eventLoading(){
+    eventLoading(){
       this.$emit("loading");
     },
   },
@@ -146,7 +146,7 @@ Vue.component("PortLogsModal",{
     minEventsCount:6,
   }),
   watch:{
-		'loading'(loading){
+    'loading'(loading){
       this.$emit('loading',loading)
     },
     'log'(){
@@ -218,7 +218,7 @@ Vue.component("PortLogsModal",{
     },
   },
   methods:{
-		open(){//public
+    open(){//public
       this.$refs.modal.open()
     },
     close(){//public
