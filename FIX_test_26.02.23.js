@@ -215,7 +215,7 @@ function getPhoneWithPlus(phone=''){
     default:return phone.length==10?`+7${phone}`:phone;//номер без +7 или 8
   };
 };
-Vue.component('send-kion-pq',{
+Vue.component('SendKionPq',{
   template:`<div v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px margin-left-right-16px margin-top-bottom-8px border-radius-8px padding-4px">
     <loader-bootstrap v-if="loads_getPq" text="получение промокода KION"/>
     <template v-else-if="resps_getPq">
@@ -248,7 +248,7 @@ Vue.component('send-kion-pq',{
     items:[],
   }),
   mounted(){
-    createStyleElement('send-kion-pq-css',`
+    createStyleElement('SendKionPq-css',`
     .background-color-d1dfed,.kion-bg{background-color:#d1dfed;}
     .background-color-284059,.kion-bg-btn{background-color:#284059;}
     .background-color-97a8b9,.kion-bg-btn-disabled{background-color: #97a8b9;}
@@ -328,12 +328,12 @@ Vue.component('send-kion-pq',{
   }
 });
 
-Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
+Vue.component("lbsv-account-main", {//add SendKionPq and fix address
   //template: "#lbsv-account-main-template",
-  template:`<card-block v-if="account">
+  template:`<CardBlock v-if="account">
     <title-main>
       <div slot="prefix">
-        <i class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></i>
+        <span class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></span>
       </div>
       <span slot="text" class="d-flex align-items-center" style="gap:5px;">
         <span>{{accountId}}</span>
@@ -353,7 +353,7 @@ Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
       <account-call v-if="phone" :phone="phone" class="mb-3" showSendSms/>
     </div>
     
-    <send-kion-pq :phone="phone" :phones="[account?.mobile,account?.phone,agreement?.convergentmsisdn]" :account="accountId"/>
+    <SendKionPq :phone="phone" :phones="[account?.mobile,account?.phone,agreement?.convergentmsisdn]" :account="accountId"/>
     
     <devider-line v-if="agreement"/>
     <template v-if="agreement">
@@ -367,7 +367,7 @@ Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
     <billing-info-modal ref="billingInfo" :billing-info="billingInfo" :loading="loading.vgroups" />
     <link-block @block-click="openSendSmsModal" text="Смс с новым паролем" icon="sms" action-icon="expand" />
     <send-sms-modal ref="sendSms" :account="accountId" />
-  </card-block>`,
+  </CardBlock>`,
   props: {
     account: { type: Object, default: null },
     agreement: { type: Object, default: null },
@@ -449,22 +449,22 @@ Vue.component("lbsv-account-main", {//add send-kion-pq and fix address
   },
 });
 
-Vue.component('task-main-account',{//add send-kion-pq
+Vue.component('task-main-account',{//add SendKionPq
   //template:'#task-main-account-template',
   template:`<div>
-    <card-block>
+    <CardBlock>
       <title-main :text="task.tasktype" icon="task">
         <div class="d-center-y" style="padding-right: 12px;">
           <span class="tone-900" style="white-space: nowrap; padding-right: 8px;">{{ task.Assignment }}</span>
-          <i class="ic-20 ic-timer tone-500"></i>
+          <span class="ic-20 ic-timer tone-500"></span>
         </div>
       </title-main>
 
       <info-subtitle>
         <span>
-          <i v-if="operationIcons.tv" class="ic-16 ic-tv"></i>
-          <i v-if="operationIcons.internet" class="ic-16 ic-eth"></i>
-          <i v-if="operationIcons.phone" class="ic-16 ic-sim"></i>
+          <span v-if="operationIcons.tv" class="ic-16 ic-tv"></span>
+          <span v-if="operationIcons.internet" class="ic-16 ic-eth"></span>
+          <span v-if="operationIcons.phone" class="ic-16 ic-sim"></span>
           <span v-if="operationIcons.any"> • </span>
           <span>{{ task.NumberOrder }}</span>
         </span>
@@ -483,21 +483,21 @@ Vue.component('task-main-account',{//add send-kion-pq
       <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
         <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
           <div>
-            <i class="ic-20 ic-warning"></i>
+            <span class="ic-20 ic-warning"></span>
           </div>
           <span class="font-size-14px">Блок-фактор</span>
         </div>
       </link-block>
-    </card-block>
+    </CardBlock>
 
-    <card-block>
+    <CardBlock>
       <title-main :text="task.customer" icon="person" style="text-transform: capitalize;" />
       <account-call :phone="task.ContactPhoneNumber" :descr="task.customer" showSendSms/>
-      <send-kion-pq :phones="[task.ContactPhoneNumber]" :account="task.clientNumber"/>
+      <SendKionPq :phones="[task.ContactPhoneNumber]" :account="task.clientNumber"/>
       <info-list icon="timer" :text="task.Appointment" comment="(ожидания клиентом)" />
-    </card-block>
+    </CardBlock>
 
-    <card-block>
+    <CardBlock>
       <title-main :text="site?.address||task.AddressSiebel" class="mt-8">
         <button-sq type="large" icon="pin" @click="toMap"/>
       </title-main>
@@ -505,7 +505,7 @@ Vue.component('task-main-account',{//add send-kion-pq
       <devider-line />
       <link-block icon="du" :text="site?.node||task.siteid" :search="site?.node||task.siteid" type="medium" />
       <link-block icon="home" actionIcon="expand" text="Инфо по площадке и доступу" @block-click="open_modal_site_info" type="medium" />
-    </card-block>
+    </CardBlock>
 
     <modal-container ref="modal_site_info">
       <site-info :site="site"/>
@@ -885,7 +885,7 @@ async function getUserStateBufferAndSend(){
 
 
 
-Vue.component('site-ps',{//add site ext
+Vue.component('SiteExt',{
   template:`<div class="display-contents">
     <link-block :actionIcon="open_ext?'up':'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext=!open_ext"/>
     <div v-show="open_ext" class="padding-left-right-16px">
@@ -894,20 +894,20 @@ Vue.component('site-ps',{//add site ext
     <devider-line />
     <template v-if="!entrance_id">
       <link-block :actionIcon="open_pings?'up':'down'" icon="factors" text="доступность" type="large" @block-click="open_pings=!open_pings">
-				<div slot="postfix" class="display-flex align-items-center gap-4px">
-					<span v-if="loadingSomePing" class="ic-20 ic-loading rotating tone-500"></span>
-					<template v-else>
-						<div v-if="countOfflineOrError" class="display-flex align-items-center gap-2px">
-							<span class="font--13-500 tone-500">{{countOfflineOrError}}</span>
-							<span class="ic-20 ic-warning main-orange"></span>
-						</div>
-						<div v-if="countOnline" class="display-flex align-items-center gap-2px">
-							<span class="font--13-500 tone-500">{{countOnline}}</span>
-							<span class="ic-20 ic-status main-green"></span>
-						</div>
-					</template>
-				</div>
-			</link-block>
+        <div slot="postfix" class="display-flex align-items-center gap-4px">
+          <span v-if="loadingSomePing" class="ic-20 ic-loading rotating tone-500"></span>
+          <template v-else>
+            <div v-if="countOfflineOrError" class="display-flex align-items-center gap-2px">
+              <span class="font--13-500 tone-500">{{countOfflineOrError}}</span>
+              <span class="ic-20 ic-warning main-orange"></span>
+            </div>
+            <div v-if="countOnline" class="display-flex align-items-center gap-2px">
+              <span class="font--13-500 tone-500">{{countOnline}}</span>
+              <span class="ic-20 ic-status main-green"></span>
+            </div>
+          </template>
+        </div>
+      </link-block>
       <div v-show="open_pings" class="padding-left-right-16px">
         <SitePings v-bind="{site,site_id}" @count-not-online="countOfflineOrError=$event" @count-online="countOnline=$event" @loading-some="loadingSomePing=$event"/>
       </div>
@@ -923,62 +923,10 @@ Vue.component('site-ps',{//add site ext
   data:()=>({
     open_ext:false,
     open_pings:false,
-		countOfflineOrError:false,
-		countOnline:false,
-		loadingSomePing:false,
+    countOfflineOrError:false,
+    countOnline:false,
+    loadingSomePing:false,
   }),
-});
-
-store.unregisterModule('ping');//add ping date
-store.registerModule('ping',{
-  namespaced:true,
-  state:()=>({
-    loads:{},
-    resps:{},
-  }),
-  getters:{
-    getPingResult:state=>(...attrs)=>state.resps[atok(attrs)],
-    getPingLoading:state=>(...attrs)=>state.loads[atok(attrs)],
-  },
-  mutations:{
-    set_loading(state,{key,loading=false}){
-      state.loads={
-        ...state.loads,
-        [key]:loading
-      }
-    },
-    set_response(state,{key,response}){
-      const _state={200:'online',400:'offline'}[response?.code]||'error';
-      state.resps={
-        ...state.resps,
-        [key]:{
-          state:_state,
-          ms:_state==='online'?parseFloat(response?.ping_info||0):-1,
-          date:Date.now()
-        }
-      }
-    },
-  },
-  actions:{
-    async doPing({state,commit,getters},{mr_id,ip}){
-      if(!mr_id){return};
-      if(!ip){return};
-      const key=atok(mr_id,ip);
-      if(state.loads[key]){return};
-      commit('set_loading',{key,loading:true});
-      commit('set_response',{key,response:null});
-      try{
-        //const query=objectToQuery({ip,mr_id,device:{MR_ID:mr_id,IP_ADDRESS:ip,SYSTEM_OBJECT_ID:null,VENDOR:null}});
-        //const response=await httpGet(buildUrl('device_ping',query,'/call/hdm/'));
-        const response=await httpPost(`/call/hdm/device_ping`,{ip,mr_id,device:{MR_ID:mr_id,IP_ADDRESS:ip,SYSTEM_OBJECT_ID:null,VENDOR:null}})
-        commit('set_response',{key,response});
-      }catch(error){
-        console.warn('ping.error',error);
-      };
-      commit('set_loading',{key,loading:false});
-      return state.resps[key]
-    },
-  },
 });
 
 Vue.component('LedsBarChart',{//bar chart
@@ -1115,23 +1063,23 @@ Vue.component('SitePings',{//pings chart
     max_count:100,
     count:0,
     running:false,
-		states:{},
+    states:{},
   }),
   created(){
     const {site_id}=this;
     this.getSiteNetworkElements({site_id});
   },
-	watch:{
-		'countNotOnline'(countNotOnline){
-			this.$emit('count-not-online',countNotOnline);
-		},
-		'countOnline'(countOnline){
-			this.$emit('count-online',countOnline);
-		},
-		'loadingSome'(loadingSome){
-			this.$emit('loading-some',loadingSome);
-		},
-	},
+  watch:{
+    'countNotOnline'(countNotOnline){
+      this.$emit('count-not-online',countNotOnline);
+    },
+    'countOnline'(countOnline){
+      this.$emit('count-online',countOnline);
+    },
+    'loadingSome'(loadingSome){
+      this.$emit('loading-some',loadingSome);
+    },
+  },
   computed:{
     node_id(){return this.site.node_id},
     ...mapGetters({
@@ -1154,12 +1102,12 @@ Vue.component('SitePings',{//pings chart
     loadingSome(){
       return Object.values(this.loads).some(v=>v)
     },
-		countNotOnline(){
-			return Object.values(this.states).filter(v=>v!=='online').length
-		},
-		countOnline(){
-			return Object.values(this.states).filter(v=>v==='online').length
-		}
+    countNotOnline(){
+      return Object.values(this.states).filter(v=>v!=='online').length
+    },
+    countOnline(){
+      return Object.values(this.states).filter(v=>v==='online').length
+    }
   },
   methods:{
     ...mapActions({
@@ -1196,13 +1144,13 @@ Vue.component('SitePings',{//pings chart
       this.running=false;
       clearTimeout(this.timer);
     },
-		onResult(ip,result){
+    onResult(ip,result){
       if(!ip||!result){return};
       this.$set(this.states,ip,result.state);
-			if(this.running){
-				this.storeResult(ip,result);
-			}
-		},
+      if(this.running){
+        this.storeResult(ip,result);
+      }
+    },
     storeResult(ip,result){
       if(!this.results[ip]){this.$set(this.results,ip,{})};
       const {state,ms,date}=result;
@@ -1222,61 +1170,9 @@ Vue.component('SitePings',{//pings chart
 Vue.component('SitePlanDownload',{//плансхема
   template:`<div name="SitePlanDownload">
     <div class="display-flex align-items-center gap-4px justify-content-flex-end">
-      <span id="loader_generatePL" class="myloader" style="display:none;"></span>
+      <span id="loader_generatePL" class="spd-loader" style="display:none;"></span>
       <input type="button" id="btn_generatePL" disabled @click="createSchematicPlan(site_id)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема">
       <input type="button" id="btn_generatePL_woTS" @click="createSchematicPlan(site_id,true)" style="font-family:arial;font-size:8pt;padding:1px;opacity:1;" value="план-схема без ТС">
-    </div>
-    <div class="t-cols">
-      <div class="t-col" style="order:-1;">
-        <div class="t-cth t-ct-0"></div>
-        <div class="t-ctd t-ct-0"></div>
-        <div class="t-ctd t-ct-0"></div>
-        <div class="t-ctd t-ct-0"></div>
-        <div class="t-ctd t-ct-0"></div>
-        <div class="t-ctd t-ct-0"></div>
-        <div class="t-ctd t-ct-0" style="height:2px;"></div>
-        <div class="t-ctd t-ct-0"></div>
-      </div>
-      <div class="t-col" style="order:1;">
-        <div class="t-cth t-cmw4">сервис</div>
-        <div class="t-ctd">Интернет ШПД</div>
-        <div class="t-ctd">Телевидение КТВ</div>
-        <div class="t-ctd">Телевидение DVB-C</div>
-        <div class="t-ctd">Телевидение IPTV</div>
-        <div class="t-ctd">Tелефония VoIP</div>
-        <div class="t-ctd" style="height:2px;"></div>
-        <div class="t-ctd">Абоненты</div>
-      </div>
-      <div class="t-col" style="order:2;">
-        <div class="t-cth t-cmw4">активен</div>
-        <div class="t-ctd">{{stats.spd.active}}</div>
-        <div class="t-ctd">{{stats.ktv.active}}</div>
-        <div class="t-ctd">{{stats.ctv.active}}</div>
-        <div class="t-ctd">{{stats.iptv.active}}</div>
-        <div class="t-ctd">{{stats.tlf.active}}</div>
-        <div class="t-ctd" style="height:2px;"></div>
-        <div class="t-ctd"></div>
-      </div>
-      <div class="t-col" style="order:3;">
-        <div class="t-cth t-cmw4">отключен</div>
-        <div class="t-ctd">{{stats.spd.inactive}}</div>
-        <div class="t-ctd">{{stats.ktv.inactive}}</div>
-        <div class="t-ctd">{{stats.ctv.inactive}}</div>
-        <div class="t-ctd">{{stats.iptv.inactive}}</div>
-        <div class="t-ctd">{{stats.tlf.inactive}}</div>
-        <div class="t-ctd" style="height:2px;"></div>
-        <div class="t-ctd"></div>
-      </div>
-      <div class="t-col" style="order:4;">
-        <div class="t-cth t-cmw4">всего</div>
-        <div class="t-ctd">{{stats.spd.active+stats.spd.inactive}}</div>
-        <div class="t-ctd">{{stats.ktv.active+stats.ktv.inactive}}</div>
-        <div class="t-ctd">{{stats.ctv.active+stats.ctv.inactive}}</div>
-        <div class="t-ctd">{{stats.iptv.active+stats.iptv.inactive}}</div>
-        <div class="t-ctd">{{stats.tlf.active+stats.tlf.inactive}}</div>
-        <div class="t-ctd" style="height:2px;"></div>
-        <div class="t-ctd">{{stats.accounts.length}}</div>
-      </div>
     </div>
   </div>`,
   props:{
@@ -1289,84 +1185,12 @@ Vue.component('SitePlanDownload',{//плансхема
     openOptions:false,
   }),
   mounted(){
-    createStyleElement('site-ps-css',`
-    .display-contents{display:contents;}
-    .add-options-block{}
-      .t-cols{display:inline-flex;font-family:arial;color:#000;font-size:8pt;line-height:8pt;}
-        .t-col{display:flex;flex-direction:column;}
-          .t-cth{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;border-top:1px solid #000;background-color:#ffe4b5;padding: 0px 1px 0px 1px;text-align:center;order:-1;}
-          .t-ctd{height:12px;border-right:1px solid #000;border-bottom:1px solid #000;background-color:#e0e0e0;padding: 0px 1px 0px 1px;}
-          .t-ctd>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
-          .t-cth>input[type="button"]{height:12px;padding:0px;font-size:7pt;}
-          .t-cth>input[type="file"]{height:10px;padding:0px;font-size:7pt;width:inherit;}
-          .t-cth.t-ct-0{border-left:1px solid #000;border-top:1px solid #000;}
-          .t-ctd.t-ct-0{border-left:1px solid #000;}
-          
-          .t-cw2{width:2em;}.t-cmw2{min-width:2em;}
-          .t-cw3{width:3em;}.t-cmw3{min-width:3em;}
-          .t-cw4{width:4em;}.t-cmw4{min-width:4em;}
-          .t-cw5{width:5em;}.t-cmw5{min-width:5em;}
-          .t-cw6{width:6em;}.t-cmw6{min-width:6em;}
-          .t-cw7{width:7em;}.t-cmw7{min-width:7em;}
-          .t-cw8{width:8em;}.t-cmw8{min-width:8em;}
-          .t-cw9{width:9em;}.t-cmw9{min-width:9em;}
-          .t-cw10{width:10em;}.t-cmw10{min-width:10em;}
-          .t-cw11{width:11em;}.t-cmw11{min-width:11em;}
-          .t-cw12{width:12em;}.t-cmw12{min-width:12em;}
-          .t-cw13{width:13em;}.t-cmw13{min-width:13em;}
-          .t-cw14{width:14em;}.t-cmw14{min-width:14em;}
-          .t-cw18{width:18em;}.t-cmw18{min-width:18em;}
-          .t-cw19{width:19em;}.t-cmw19{min-width:19em;}
-          .t-cw20{width:20em;}.t-cmw20{min-width:20em;}
-    
-    .myloader{width:18px;height:18px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;animation:myloader-spinner 0.99s linear infinite;}
-    @keyframes myloader-spinner{to{transform:rotate(360deg)}}
+    createStyleElement('SitePlanDownload-css',`
+    .spd-loader{width:18px;height:18px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;animation:spd-loader-spinner 0.99s linear infinite;}
+    @keyframes spd-loader-spinner{to{transform:rotate(360deg)}}
     `)
   },
-  computed:{
-    stats(){//add
-      let stats={
-        accounts:[],
-        spd:{active:0,inactive:0},
-        ktv:{active:0,inactive:0},
-        ctv:{active:0,inactive:0},
-        iptv:{active:0,inactive:0},
-        tlf:{active:0,inactive:0},
-      };
-      const entrance=this.entrances.find(({id})=>id==this.entrance_id)
-      const entrances=entrance?[entrance]:this.entrances;
-      entrances.forEach(entrance=>{
-        entrance.floor.forEach(floor=>{
-          floor.flats.forEach(flat=>{
-            flat.subscribers.forEach(subscriber=>{
-              stats.accounts.push(subscriber.account);
-              subscriber.services.forEach(service=>{
-                switch(service.service_id){
-                  case'1':
-                    stats.spd[service.status==='green'?'active':'inactive']++;
-                  break;
-                  case'4':
-                    stats.ktv[service.status==='green'?'active':'inactive']++;
-                  break;
-                  case'2':
-                    stats.ctv[service.status==='green'?'active':'inactive']++;
-                  break;
-                  case'16':
-                    stats.iptv[service.status==='green'?'active':'inactive']++;
-                  break;
-                  case'8':
-                    stats.tlf[service.status==='green'?'active':'inactive']++;
-                  break;
-                };
-              });
-            });
-          });
-        });
-      });
-      stats.accounts=[...new Set(stats.accounts.filter(account=>account))];
-      return stats;
-    },
-  },
+  computed:{},
   methods:{
     async getSite(site_id,hideTS=false){
       console.log('getSite('+site_id+','+hideTS+')');
