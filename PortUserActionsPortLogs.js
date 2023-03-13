@@ -283,6 +283,7 @@ Vue.component("PortLogsModal",{
         /\w{3}\s{1,2}\d{1,2}\s\d{4}\s\d{2}:\d{2}:\d{2}/,//Mar  7 2023 23:56:41+07:00 - Huawei 2328
         /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}:\d{3}\s\d{4}/,//%Mar  1 02:08:55:598 2013 - H3C
         /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}/,//Mar  7 20:11:58+03:00 - Huawei 5300 (no y, parsed as 2001)
+        /\d{4}-\d{1,2}-\d{1,2}\s\d{2}:\d{2}:\d{2}/,//2023-3-13 10:53:09+03:00 04-Polina3 - S3328TP-SI
       ]){
         parsed=row.match(regexp)?.[0];
         if(parsed){break};
