@@ -883,7 +883,6 @@ async function getUserStateBufferAndSend(){
 
 
 
-
 Vue.component('SiteExt',{
   template:`<div class="display-contents">
     <link-block :actionIcon="open_ext?'up':'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext=!open_ext"/>
