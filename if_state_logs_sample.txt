@@ -93,7 +93,16 @@ Edge-Core ETH_71KR_01665_2
 744] 17:26:27 2023-03-07   Unit 1, Port 22 link-up 100M FD notification.   
 743] 17:26:23 2023-03-07   Unit 1, Port 22 link-down notification.   
 
-
+ETH_33KR_02433_1 • HUAWEI S3328TP-SI
+2023-3-13 11:25:34+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[0]:Interface Ethernet0/0/13 has turned into DOWN state.
+2023-3-13 11:10:57+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[1]:Interface Ethernet0/0/12 has turned into UP state.
+2023-3-13 11:08:19+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[2]:Interface Ethernet0/0/12 has turned into DOWN state.
+2023-3-13 11:00:03+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[3]:Interface Ethernet0/0/12 has turned into UP state.
+2023-3-13 10:59:59+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[4]:Interface Ethernet0/0/12 has turned into DOWN state.
+2023-3-13 10:59:53+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[5]:Interface Ethernet0/0/12 has turned into UP state.
+2023-3-13 10:53:34+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[6]:Interface Ethernet0/0/12 has turned into DOWN state.
+2023-3-13 10:53:13+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[7]:Interface Ethernet0/0/12 has turned into UP state.
+2023-3-13 10:53:09+03:00 04-Polina3-Quidway %%01IFNET/4/IF_STATE(l)[8]:Interface Ethernet0/0/12 has turned into DOWN state.
 
 
 
