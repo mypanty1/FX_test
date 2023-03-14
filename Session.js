@@ -7,7 +7,7 @@ Vue.component('session-el',{//redesign, need .padding-unset or create custom tab
     <loader-bootstrap v-else-if="loads.stop_session_radius" text="сброс сессии абонента"/>
     <div v-else-if="session" class="margin-left-16px margin-right-16px display-flex flex-direction-column gap-4px">
       
-      <message-el :text="!start?'Оффлайн':('Онлайн c '+start)" :type="!start?'warn':'success'" box/>
+      <message-el :text="!start?'Оффлайн':('Онлайн c '+startLocal)" :type="!start?'warn':'success'" box/>
 
       <div v-if="sessionid" class="display-flex align-items-center justify-content-center">
         <span class="font-size-12px">{{sessionid}}</span>
@@ -90,6 +90,7 @@ Vue.component('session-el',{//redesign, need .padding-unset or create custom tab
     AgentCircuitID(){return `${this.port||''}`},
     sessionid(){return this.session?.sessionid||''},
     start(){return this.session?.start||''},
+    startLocal(){return !this.start?'':new Date(Date.parse(this.start+' GMT+0300')).toLocaleString()},
     macIsValid(){return this.mac&&this.mac!=='0000.0000.0000'},
     macVendor(){return this.ouis[this.mac]},
     deviceMacVendor(){return this.ouis[this.deviceMac]},
