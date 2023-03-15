@@ -19,7 +19,7 @@ Vue.component('device-actions',{
         </div>
         <message-el v-if="!loading.discovery" :text="discovery.text" :type="discovery.type" :subText="discovery.error" class="px-16" box/>
       </template>
-      <template v-if="hasIP">
+      <template v-if="hasIP&&isETH">
         <devider-line/>
         <link-block icon="repeat" text="Привязка всех абонентов" actionIcon="info" @click="show.info.DeviceActionPortsAbonsBinds=!show.info.DeviceActionPortsAbonsBinds" />
         <info-text-icon v-if="show.info.DeviceActionPortsAbonsBinds" icon="info" text="Привязка всех абонентов на порты в биллинге по соответствию мак-порт после перекоммутации/замены. Для повышения точности привязки желательно актуализировать маки на портах во вкладке [Опросить устройство] незадолго до перед тем как"/>
@@ -43,6 +43,8 @@ Vue.component('device-actions',{
     },
   }),
   computed: {
+    name(){return this.device?.name},
+    isETH(){return /^eth/i.test(this.name||'')},
     attention() {
       return this.discovery.type === 'error' ? 'error' : '';
     },
@@ -299,6 +301,9 @@ Vue.component('DeviceActionPortsAbonsBinds',{
 }())
 */
 
+//device_ports_list.map(({number,flat,subscriber_list:[{account,mac}={}]})=>({number,flat,account,mac})).filter(({flat,account,mac})=>Number.isInteger(flat)&&account&&mac).map(({number,flat,account,mac})=>[mac,`kv${flat}-${(account||'').replace(/-/g,'')}-${(mac||'').replace(/:/g,'')?.slice(8,12)}-15.03.23`])
+
+//Object.values(device_ports).map(({ifName,ifAlias})=>[ifName,ifAlias]).filter(([ifName,ifAlias])=>ifAlias)
 
 
 
