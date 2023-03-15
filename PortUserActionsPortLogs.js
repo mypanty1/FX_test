@@ -78,7 +78,7 @@ Vue.component("PortUserActions",{
 Vue.component("PortLogs",{
   template:`<section name="PortLogs">
     <PortLogsModal ref="PortLogsModal" v-bind="{port,networkElement}" @loading="eventLoading"/>
-    <link-block icon="log" text="Логи порта*" :disabled="false" @block-click="openPortLogsModal" actionIcon="expand"/>
+    <link-block icon="log" text="Логи порта*" :disabled="disabled" @block-click="openPortLogsModal" actionIcon="expand"/>
   </section>`,
   props:{
     disabled:{type:Boolean,default:false},
