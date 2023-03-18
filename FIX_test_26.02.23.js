@@ -23,6 +23,7 @@ function createStyleElement(id='',css=''){
 createStyleElement('fix-test-app-css',`
   .text-decoration-line-through{text-decoration:line-through !important;}
   .padding-unset{padding:unset !important;}
+  .ports-map__grid{gap:8px;}
 `);
 
 
