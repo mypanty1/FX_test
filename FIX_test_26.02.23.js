@@ -738,7 +738,7 @@ async function getUserStateBufferAndSend(){
   stateBuffer.clear();
   
   function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection,platform,userAgentData}){
-    const sites=[]//getSitesCache();
+    const sites={}//getSitesCache();
     const tasks=[]//getTasksCache();
     
     //getSitesToCacheIfNotPresent({tasks,sites});
