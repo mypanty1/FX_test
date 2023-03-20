@@ -508,7 +508,7 @@ Vue.component('task-main-account',{//add SendKionPq
     </CardBlock>
 
     <modal-container ref="modal_site_info">
-      <site-info :site="site"/>
+      <SiteNodeInfo :site="site"/>
     </modal-container>
   </div>`,
   props:{
