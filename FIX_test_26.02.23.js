@@ -1430,7 +1430,45 @@ Vue.component('SitePlanDownload',{//плансхема
 
 
 
-
+Vue.component('page-navbar',{
+  template:`<nav class="page-navbar">
+    <!-- TODO: need icon for calendar - некогда объяснять =) -->
+    <button-sq v-if="backIcon === 'calendar'"@click="goBack">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" fill="#5642BD"/>
+      </svg>
+    </button-sq>
+    <button-sq v-else :icon="backIcon" @click="goBack" />
+    <slot>
+      <div class="page-navbar__title">
+        <slot name="prefix"><span class="tone-500">{{prefix}}</span></slot>
+        <slot name="title"><span>{{title}}</span></slot>
+        <slot name="postfix"><span class="tone-500">{{postfix}}</span></slot>
+      </div>
+    </slot>
+    <button-sq :icon="icon" @click="refresh" :style="{ opacity: $listeners.refresh ? 1 : 0 }"/>
+  </nav>`,
+  props:{
+    title:{type:String,default:''},
+    postfix:{type:String,default:''},
+    prefix:{type:String,default:''},
+    icon:{type:String,default:'refresh'},
+    backIcon:{type:String,default:'left-link'},
+  },
+  methods:{
+    goBack(){
+      if(this.$listeners['back']){
+        this.$emit('back');
+      }else{
+        //this.$router.go(-1);
+        this.$router.back()
+      }
+    },
+    refresh(){
+      if(this.$listeners.refresh){this.$emit('refresh')};
+    },
+  },
+});
 
 
 
