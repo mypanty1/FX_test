@@ -1,4 +1,5 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs2.js',type:'text/javascript'}));
 
 Vue.component('PortsMap',{
   template:`<CardBlock name="PortsMap" class="ports-map">
@@ -25,7 +26,7 @@ Vue.component('PortsMap',{
       <ports-map-actions v-if="showDetailed&&!loading.ports" :loading="loading" @refresh="refresh" @getStatuses="getStatuses" @getLoopback="getLoopback" @getErrors="getErrors"/>
       <PortsMapContent ref="PortsMapContent" :networkElement="device" :ports="ports" :loading_statuses="loading.statuses_speed" :isUnmount="unmoutedPorts" :errors="responses.errors" :loading="loading" :showDetailed="showDetailed" :showCabelTest="showCabelTest" :showSessions="showSessions" @setDetailedType="setDetailedType" @on-port-status="updatePortStatus"/>
       
-      <PortsMapLogs v-if="!unmoutedPorts" :networkElement="device" :ports="unmoutedPorts?[]:ports" class="margin-bottom-8px"/>
+      <component :is="$root.username=='mypanty1'?'PortsMapLogs2':'PortsMapLogs'" v-if="!unmoutedPorts" :networkElement="device" :ports="unmoutedPorts?[]:ports" class="margin-bottom-8px"/>
 			
       <ports-map-legend :showSessions="showSessions" :showDetailed="showDetailed" :detailedType="detailedType" :ports="ports"/>
     </template>
