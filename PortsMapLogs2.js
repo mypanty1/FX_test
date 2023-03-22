@@ -165,7 +165,7 @@ Vue.component("PortsMapLogs2",{
         style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
           top:`${top-18}px`,
           left:`${left2}px`,
-          'background-color':PORT_LINK_LOGS.linkEventName.LinkUp==name?bgLinkUp:bgLinkDn,
+          'background-color':PORT_LINK_LOGS.linkEventName.up==name?bgLinkUp:bgLinkDn,
           'color':cText,
         }
       }
@@ -330,7 +330,7 @@ Vue.component("PortsMapLogs2",{
       return parsed;
     },
     parseRow(row){
-      const {bgPort,cText,bgLinkUp,bgLinkDn,bgDate,linkEventName}=PORT_LINK_LOGS.row;
+      const {bgPort,cText,bgLinkUp,bgLinkDn,bgDate}=PORT_LINK_LOGS.row;
       let logDate=null;
       let logPort=null;
       let portIsFinded=false;
@@ -394,7 +394,7 @@ Vue.component("PortsMapLogs2",{
         texts.push(...[
           {text:text0_before_link},
           {
-            text:isLinkUp?linkEventName.up:linkEventName.dn,
+            text:isLinkUp?PORT_LINK_LOGS.linkEventName.up:PORT_LINK_LOGS.linkEventName.dn,
             style:{
               'background-color':isLinkUp?bgLinkUp:bgLinkDn,
               'color':cText,
@@ -480,7 +480,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
     linkDownCounterText(){return !this.countLinkDown?'':`${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`},
     eventsItems(){
       if(!this.total){return []};
-      const {bgLinkUp,bgLinkDn,linkEventName}=PORT_LINK_LOGS.chart;
+      const {bgLinkUp,bgLinkDn}=PORT_LINK_LOGS.chart;
       const {items,availPercent}=this.events.reduce((eventsItems,event,index)=>{
         const prev=this.events[index-1];
         const percent=prev?Math.floor((prev.time-event.time)*99/this.total)||1:0
@@ -492,7 +492,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
             width:`${minPercent}%`,
             background:event.state?bgLinkUp:bgLinkDn
           },
-          linkEventName:event.state?linkEventName.up:linkEventName.dn
+          linkEventName:event.state?PORT_LINK_LOGS.linkEventName.up:PORT_LINK_LOGS.linkEventName.dn
         })
         return eventsItems;
       },{items:[],availPercent:100});
@@ -506,7 +506,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
             width:`${availPercent}%`,
             background:!firstState?bgLinkUp:bgLinkDn
           },
-          linkEventName:!firstState?linkEventName.up:linkEventName.dn
+          linkEventName:!firstState?PORT_LINK_LOGS.linkEventName.up:PORT_LINK_LOGS.linkEventName.dn
         })
       };
       
