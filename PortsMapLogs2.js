@@ -18,8 +18,8 @@ Vue.component("PortsMapLogs2",{
           <span class="font--12-400">{{portsEvents.dateMax?.formatted}}</span>
         </div>
         <template v-if="cursorLineProps">
-          <div class="position-absolute" v-bind="cursorLineProps"></div>
-          <div class="position-absolute" v-bind="cursorTimeProps">{{cursorTimeProps.value}}</div>
+          <div class="position-absolute" style="top:15px;bottom:15px;width:2px;background:#221e1e;" v-bind="cursorLineProps"></div>
+          <div class="position-absolute font--12-400" style="border-radius:2px;border:1px solid #221e1e;background:#ffffff;color:#221e1e;opacity:0.5;" v-bind="cursorTimeProps">{{cursorTimeProps.value}}</div>
         </template>
       </div>
     </div>
@@ -39,37 +39,33 @@ Vue.component("PortsMapLogs2",{
     touch_y:0,
     offsetLeft:0,
     clientWidth:0,
+    offsetTop:0,
+    clientHeight:0,
   }),
   computed:{
+    offsetY(){return this.offsetTop-window.scrollY},
     cursorLineProps(){
-      const relative_touch_x=this.touch_x-this.offsetLeft;
-      if(relative_touch_x<=0){return};
+      const left=this.touch_x-this.offsetLeft;
+      if(left<=0){return};
+      const top=this.touch_y-this.offsetY;
+      if(top<=0){return};
       return {
         style:{
-          top:'15px',
-          bottom:'15px',
-          left:`${relative_touch_x}px`,
-          width:'2px',
-          background:'#221e1e',
+          left:`${left}px`,
         }
       }
     },
     cursorTimeProps(){
-      const relative_touch_x=this.touch_x-this.offsetLeft;
-      if(relative_touch_x<=0){return};
+      const left=this.touch_x-this.offsetLeft;
+      if(left<=0){return};
       const width=105;
-      const left=relative_touch_x>(this.clientWidth-width)?relative_touch_x-width:relative_touch_x<width?relative_touch_x:(relative_touch_x-width/2)
+      const left2=left>(this.clientWidth-width)?left-width:left<width?left:(left-width/2);
+      const top=this.touch_y-this.offsetY;
       return {
         value:this.cursorDate,
-        class:'font--12-400',
         style:{
-          top:`${this.touch_y}px`,
-          left:`${left}px`,
-          'border-radius':'2px',
-          border:'1px solid #221e1e',
-          background:'#ffffff',
-          color:'#221e1e',
-          opacity:'0.5'
+          top:`${top}px`,
+          left:`${left2}px`,
         }
       }
     },
@@ -161,21 +157,34 @@ Vue.component("PortsMapLogs2",{
       }
     }
   },
+  created(){
+    window.addEventListener('resize',this.onResize);
+  },
   destroyed(){
+    window.removeEventListener('resize',this.onResize);
     this.clearCursor();
   },
   methods:{
+    onResize(){
+      this.clearCursor();
+      this.initCursor();
+      //console.log('onResize');
+    },
     onTouchMove(event){
-      if(event.type==='mousemove'){
-        this.touch_x=event.clientX;
-        this.touch_y=event.clientY;
-      }else{
-        this.touch_x=event.changedTouches[0].clientX;
-        this.touch_y=event.changedTouches[0].clientY;
-      };
-      if(this.touch_x>this.clientWidth+this.offsetLeft){
-        this.touch_x=0;
-      };
+      const isMouseMove=event?.type==='mousemove';
+      this.touch_x=isMouseMove?event.clientX:event.changedTouches?.[0]?.clientX||0;
+      this.touch_y=isMouseMove?event.clientY:event.changedTouches?.[0]?.clientY||0;
+      console.log([
+        `touch_x:       ${this.touch_x}`,
+        `touch_y:       ${this.touch_y}`,
+        `clientWidth:   ${this.clientWidth}`,
+        `offsetLeft:    ${this.offsetLeft}`,
+        `clientHeight:  ${this.clientHeight}`,
+        `offsetTop:     ${this.offsetTop}`,
+        `window.scrollY:${window.scrollY}`
+      ].join('\n'));
+      if(this.touch_x>this.clientWidth+this.offsetLeft){this.touch_x=0};
+      if(this.touch_y>this.clientHeight+this.offsetY){this.touch_y=0};
     },
     initCursor(){
       this.$nextTick(()=>{
@@ -184,9 +193,11 @@ Vue.component("PortsMapLogs2",{
         this.touch_el=touch_el;
         this.offsetLeft=touch_el.offsetLeft||0;
         this.clientWidth=touch_el.clientWidth||0;
+        this.offsetTop=touch_el.offsetTop||0;
+        this.clientHeight=touch_el.clientHeight||0;
         touch_el.addEventListener('touchmove',this.onTouchMove);
         touch_el.addEventListener('mousemove',this.onTouchMove);
-        console.log('initCursor');
+        //console.log('initCursor');
       });
     },
     clearCursor(){
@@ -197,9 +208,11 @@ Vue.component("PortsMapLogs2",{
       this.touch_el=null;
       this.offsetLeft=0;
       this.clientWidth=0;
+      this.offsetTop=0;
+      this.clientHeight=0;
       this.touch_x=0;
       this.touch_y=0;
-      console.log('clearCursor');
+      //console.log('clearCursor');
     },
     parseLogPort(row=''){
       let parsed=null;
