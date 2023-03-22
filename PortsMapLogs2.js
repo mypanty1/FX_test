@@ -1,4 +1,3 @@
-
 const PORT_LINK_LOGS={
   row:{
     bgPort:'#4682b4',//steelblue
@@ -11,6 +10,7 @@ const PORT_LINK_LOGS={
     bg:'#a9a9a938',
     bgLinkUp:'#228b224d',
     bgLinkDn:'#778899',
+    getLinkEventName:(s)=>s?'LinkUp':'LinkDown'
   },
   getPortNameRegExpByVendor(vendor='',port=null){
     if(['D-LINK','EDGE-CORE'].includes(vendor)){
@@ -79,11 +79,11 @@ Vue.component("PortsMapLogs2",{
       <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
       <message-el v-else-if="error" text="Ошибка получения данных" :subText="error" box type="warn"/>
       <message-el v-else-if="!countPortsLinkEvents" text="Нет событий IF_STATE" box type="info"/>
-      <div v-else class="position-relative" ref="touch_el">
+      <div v-else class="position-relative" ref="touch_el" style="cursor:crosshair;">
         <div class="display-flex flex-direction-column gap-1px">
           <template v-for="(portEvents,portId,index) in portsEvents.events">
             <devider-line v-if="index" m="unset"/>
-            <PortsMapLogsPortLinkEventsChart :key="portId" :events="portEvents.events" :port="portEvents.port" :dateMax="portsEvents.dateMax" :dateMin="portsEvents.dateMin"/>
+            <PortsMapLogsPortLinkEventsChart2 :key="portId" :events="portEvents.events" :port="portEvents.port" :dateMax="portsEvents.dateMax" :dateMin="portsEvents.dateMin"/>
           </template>
         </div>
         <div class="display-flex align-items-center justify-content-space-between">
@@ -93,7 +93,8 @@ Vue.component("PortsMapLogs2",{
         </div>
         <template v-if="cursorLineProps">
           <div class="position-absolute" style="top:15px;bottom:15px;width:2px;background:#221e1e;" v-bind="cursorLineProps"></div>
-          <div class="position-absolute font--12-400" style="border-radius:2px;border:1px solid #221e1e;background:#ffffff;color:#221e1e;opacity:0.5;" v-bind="cursorTimeProps">{{cursorTimeProps.value}}</div>
+          <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorTimeProps">{{cursorTime}}</div>
+          <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorLinkEventNameProps">{{cursorLinkEventName}}</div>
         </template>
       </div>
     </div>
@@ -115,6 +116,7 @@ Vue.component("PortsMapLogs2",{
     clientWidth:0,
     offsetTop:0,
     clientHeight:0,
+    cursorLinkEventName:'',
   }),
   computed:{
     offsetY(){return this.offsetTop-window.scrollY},
@@ -135,15 +137,34 @@ Vue.component("PortsMapLogs2",{
       const width=105;
       const left2=left>(this.clientWidth-width)?left-width:left<width?left:(left-width/2);
       const top=this.touch_y-this.offsetY;
+      const {cText,bgDate}=PORT_LINK_LOGS.row;
       return {
-        value:this.cursorDate,
-        style:{
+        style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
           top:`${top}px`,
           left:`${left2}px`,
+          'background-color':bgDate,
+          'color':cText,
         }
       }
     },
-    cursorDate(){
+    cursorLinkEventNameProps(){
+      const name=this.cursorLinkEventName;
+      const left=this.touch_x-this.offsetLeft;
+      if(left<=0||!name){return};
+      const width=105;
+      const left2=left>(this.clientWidth-width)?left-width:left<width?left:(left-width/2);
+      const top=this.touch_y-this.offsetY;
+      const {cText,bgLinkUp,bgLinkDn}=PORT_LINK_LOGS.row;
+      return {
+        style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
+          top:`${top-18}px`,
+          left:`${left2}px`,
+          'background-color':PORT_LINK_LOGS.chart.getLinkEventName(true)==name?bgLinkUp:bgLinkDn,
+          'color':cText,
+        }
+      }
+    },
+    cursorTime(){
       if(!this.portsEvents.dateMin?.time){return};
       if(!this.portsEvents.dateMax?.time){return};
       const timeMin=this.portsEvents.dateMin.time;
@@ -248,7 +269,9 @@ Vue.component("PortsMapLogs2",{
       const isMouseMove=event?.type==='mousemove';
       this.touch_x=isMouseMove?event.clientX:event.changedTouches?.[0]?.clientX||0;
       this.touch_y=isMouseMove?event.clientY:event.changedTouches?.[0]?.clientY||0;
-      console.log([
+      const elementsFromPoint=isMouseMove?document.elementsFromPoint(event.clientX,event.clientY):document.elementsFromPoint(event.changedTouches[0].clientX,event.changedTouches[0].clientY);
+      this.cursorLinkEventName=[...elementsFromPoint].find(elementFromPoint=>elementFromPoint?.attributes?.['link-event-name']?.value)?.attributes?.['link-event-name']?.value;
+      /*console.log([
         `touch_x:       ${this.touch_x}`,
         `touch_y:       ${this.touch_y}`,
         `clientWidth:   ${this.clientWidth}`,
@@ -256,7 +279,7 @@ Vue.component("PortsMapLogs2",{
         `clientHeight:  ${this.clientHeight}`,
         `offsetTop:     ${this.offsetTop}`,
         `window.scrollY:${window.scrollY}`
-      ].join('\n'));
+      ].join('\n'));*/
       if(this.touch_x>this.clientWidth+this.offsetLeft){this.touch_x=0};
       if(this.touch_y>this.clientHeight+this.offsetY){this.touch_y=0};
     },
@@ -286,6 +309,7 @@ Vue.component("PortsMapLogs2",{
       this.clientHeight=0;
       this.touch_x=0;
       this.touch_y=0;
+      this.cursorLinkEventName='';
       //console.log('clearCursor');
     },
     parseLogPort(row=''){
@@ -422,3 +446,68 @@ Vue.component("PortsMapLogs2",{
     },
   },
 });
+
+Vue.component("PortsMapLogsPortLinkEventsChart2",{
+  template:`<div name="PortsMapLogsPortLinkEventsChart2">
+    <div class="display-flex align-items-center justify-content-space-between">
+      <span class="font--12-400">{{port.snmp_name||''}}</span>
+      <span class="font--12-400">{{linkDownCounterText||''}}</span>
+    </div>
+    <div class="display-flex align-items-center flex-direction-row-reverse" :style="{background:bg}">
+      <div v-for="(eventItem,index) of eventsItems" :key="index" :link-event-name="eventItem.linkEventName" :style="eventItem.style" :title="eventItem.date||''" class="min-height-20px"></div>
+    </div>
+  </div>`,
+  props:{
+    events:{type:Array,default:()=>[]},
+    dateMax:{type:Object,default:null},
+    dateMin:{type:Object,default:null},
+    port:{type:Object,default:()=>({})},
+  },
+  data:()=>({}),
+  computed:{
+    bg(){return PORT_LINK_LOGS.chart.bg},
+    total(){
+      const {dateMin,dateMax}=this;
+      if(!dateMin||!dateMax){return 0};
+      return dateMax.time-dateMin.time;
+    },
+    countLinkDown(){return this.events.filter(({state})=>!state).length},
+    linkDownCounterText(){return !this.countLinkDown?'':`${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`},
+    eventsItems(){
+      if(!this.total){return []};
+      const {bgLinkUp,bgLinkDn,getLinkEventName}=PORT_LINK_LOGS.chart;
+      const {items,availPercent}=this.events.reduce((eventsItems,event,index)=>{
+        const prev=this.events[index-1];
+        const percent=prev?Math.floor((prev.time-event.time)*99/this.total)||1:0
+        const minPercent=!prev?1:percent;
+        eventsItems.availPercent=eventsItems.availPercent-minPercent;
+        eventsItems.items.push({
+          ...event,
+          style:{
+            width:`${minPercent}%`,
+            background:event.state?bgLinkUp:bgLinkDn
+          },
+          linkEventName:getLinkEventName(event.state)
+        })
+        return eventsItems;
+      },{items:[],availPercent:100});
+      
+      //заполнение недостающего прошлого периода инверсным значением первого
+      if(availPercent>0&&items.length){
+        const firstState=items[items.length-1]?.state;
+        items.push({
+          isFake:true,
+          style:{
+            width:`${availPercent}%`,
+            background:!firstState?bgLinkUp:bgLinkDn
+          },
+          linkEventName:getLinkEventName(!firstState)
+        })
+      };
+      
+      return items
+    }
+  },
+  methods:{}
+});
+
