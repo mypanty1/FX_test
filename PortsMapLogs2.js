@@ -1,4 +1,9 @@
+
 const PORT_LINK_LOGS={
+  linkEventName:{
+    up:'LinkUp',
+    dn:'LinkDown'
+  },
   row:{
     bgPort:'#4682b4',//steelblue
     cText:'#f0f8ff',//aliceblue
@@ -10,7 +15,6 @@ const PORT_LINK_LOGS={
     bg:'#a9a9a938',
     bgLinkUp:'#228b224d',
     bgLinkDn:'#778899',
-    getLinkEventName:(s)=>s?'LinkUp':'LinkDown'
   },
   getPortNameRegExpByVendor(vendor='',port=null){
     if(['D-LINK','EDGE-CORE'].includes(vendor)){
@@ -71,7 +75,6 @@ const PORT_LINK_LOGS={
     return {parsed,time,date,formatted};
   },
 };
-
 Vue.component("PortsMapLogs2",{
   template:`<section name="PortsMapLogs2">
     <link-block :actionIcon="open?'down':'up'" icon="log" text="Логи портов" :textSub="titleText" textSubClass="tone-500 font--12-400" type="large" @block-click="open=!open"/>
@@ -92,7 +95,10 @@ Vue.component("PortsMapLogs2",{
           <span class="font--12-400">{{portsEvents.dateMax?.formatted}}</span>
         </div>
         <template v-if="cursorLineProps">
-          <div class="position-absolute" style="top:15px;bottom:15px;width:2px;background:#221e1e;" v-bind="cursorLineProps"></div>
+          <div class="position-absolute text-align-center display-flex flex-direction-column justify-content-space-between" style="top:15px;bottom:15px;width:2px;background:#221e1e;opacity:0.6;" v-bind="cursorLineProps">
+            <span style="margin-top:-18px; margin-left:-7px;">▼</span>
+            <span style="margin-bottom:-18px; margin-left:-7px;">▲</span>
+          </div>
           <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorTimeProps">{{cursorTime}}</div>
           <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorLinkEventNameProps">{{cursorLinkEventName}}</div>
         </template>
@@ -159,21 +165,21 @@ Vue.component("PortsMapLogs2",{
         style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
           top:`${top-18}px`,
           left:`${left2}px`,
-          'background-color':PORT_LINK_LOGS.chart.getLinkEventName(true)==name?bgLinkUp:bgLinkDn,
+          'background-color':PORT_LINK_LOGS.linkEventName.LinkUp==name?bgLinkUp:bgLinkDn,
           'color':cText,
         }
       }
     },
     cursorTime(){
-      if(!this.portsEvents.dateMin?.time){return};
-      if(!this.portsEvents.dateMax?.time){return};
-      const timeMin=this.portsEvents.dateMin.time;
-      const timeMax=this.portsEvents.dateMax.time;
+      const timeMin=this.portsEvents?.dateMin?.time;
+      const timeMax=this.portsEvents?.dateMax?.time;
+      if(!timeMin||!timeMax){return};
       const timeOffset=timeMax-timeMin;
-      const cursorMin=this.offsetLeft;
-      const cursorMax=this.clientWidth;
+      const {offsetLeft,clientWidth,touch_x}=this;
+      const cursorMin=offsetLeft;
+      const cursorMax=clientWidth+offsetLeft;
       const cursorOffset=cursorMax-cursorMin;
-      const time=timeMin+((timeOffset/cursorOffset)*(this.touch_x-this.offsetLeft));
+      const time=timeMin+((timeOffset/cursorOffset)*(touch_x-offsetLeft));
       return new Date(time).toDateTimeString();
     },
     vendorPortsNameRegExp(){
@@ -324,7 +330,7 @@ Vue.component("PortsMapLogs2",{
       return parsed;
     },
     parseRow(row){
-      const {bgPort,cText,bgLinkUp,bgLinkDn,bgDate}=PORT_LINK_LOGS.row;
+      const {bgPort,cText,bgLinkUp,bgLinkDn,bgDate,linkEventName}=PORT_LINK_LOGS.row;
       let logDate=null;
       let logPort=null;
       let portIsFinded=false;
@@ -388,7 +394,7 @@ Vue.component("PortsMapLogs2",{
         texts.push(...[
           {text:text0_before_link},
           {
-            text:isLinkUp?'LinkUp':'LinkDown',
+            text:isLinkUp?linkEventName.up:linkEventName.dn,
             style:{
               'background-color':isLinkUp?bgLinkUp:bgLinkDn,
               'color':cText,
@@ -446,7 +452,6 @@ Vue.component("PortsMapLogs2",{
     },
   },
 });
-
 Vue.component("PortsMapLogsPortLinkEventsChart2",{
   template:`<div name="PortsMapLogsPortLinkEventsChart2">
     <div class="display-flex align-items-center justify-content-space-between">
@@ -475,7 +480,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
     linkDownCounterText(){return !this.countLinkDown?'':`${this.countLinkDown} ${plural(['падение','падения','падений'],this.countLinkDown)} линка`},
     eventsItems(){
       if(!this.total){return []};
-      const {bgLinkUp,bgLinkDn,getLinkEventName}=PORT_LINK_LOGS.chart;
+      const {bgLinkUp,bgLinkDn,linkEventName}=PORT_LINK_LOGS.chart;
       const {items,availPercent}=this.events.reduce((eventsItems,event,index)=>{
         const prev=this.events[index-1];
         const percent=prev?Math.floor((prev.time-event.time)*99/this.total)||1:0
@@ -487,7 +492,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
             width:`${minPercent}%`,
             background:event.state?bgLinkUp:bgLinkDn
           },
-          linkEventName:getLinkEventName(event.state)
+          linkEventName:event.state?linkEventName.up:linkEventName.dn
         })
         return eventsItems;
       },{items:[],availPercent:100});
@@ -501,7 +506,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
             width:`${availPercent}%`,
             background:!firstState?bgLinkUp:bgLinkDn
           },
-          linkEventName:getLinkEventName(!firstState)
+          linkEventName:!firstState?linkEventName.up:linkEventName.dn
         })
       };
       
@@ -510,4 +515,3 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
   },
   methods:{}
 });
-
