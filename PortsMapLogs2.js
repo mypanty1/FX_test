@@ -1,3 +1,77 @@
+
+const PORT_LINK_LOGS={
+  row:{
+    bgPort:'#4682b4',//steelblue
+    cText:'#f0f8ff',//aliceblue
+    bgLinkUp:'#228b22',//forestgreen
+    bgLinkDn:'#778899',//lightslategray
+    bgDate:'#5f9ea0',//cadetblue
+  },
+  chart:{
+    bg:'#a9a9a938',
+    bgLinkUp:'#228b224d',
+    bgLinkDn:'#778899',
+  },
+  getPortNameRegExpByVendor(vendor='',port=null){
+    if(['D-LINK','EDGE-CORE'].includes(vendor)){
+      const portText=`Port ${port?.snmp_number}`;
+      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`,'i')};
+    }else{
+      const portText=`${port?.snmp_name}`;//FiberHome, Huawei, H3C
+      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`)};
+    }
+  },
+  getLinkStateRegExpByVendor(vendor){
+    switch(vendor){
+      case 'D-LINK':return {
+        linkUpRegExp:/link up/i,
+        linkDnRegExp:/link down/i,
+      };
+      case 'HUAWEI':return {//IFNET/4/IF_STATE, IFPDT/4/IF_STATE
+        linkUpRegExp:/into UP state/i,
+        linkDnRegExp:/into DOWN state/i,
+      };
+      case 'FIBERHOME':return {//IFM-LINKUP, IFM-LINKDOWN
+        linkUpRegExp:/LinkUP|OperStatus=\[up\]/i,
+        linkDnRegExp:/LinkDown|OperStatus=\[down\]/i,
+      };
+      case 'H3C':return {//IFNET/3/PHY_UPDOWN
+        linkUpRegExp:/changed to up/i,
+        linkDnRegExp:/changed to down/i,
+      };
+      case 'EDGE-CORE':return {
+        linkUpRegExp:/link-up/i,
+        linkDnRegExp:/link-down/i,
+      };
+      default:return {
+        linkUpRegExp:/[^a-zA-Z0-9](link|)(-|\s|)up(\s|)(state|)[^a-zA-Z0-9]/i,
+        linkDnRegExp:/[^a-zA-Z0-9](link|)(-|\s|)down(\s|)(state|)[^a-zA-Z0-9]/i,
+      };
+    };
+  },
+  getLogRowDate(row=''){
+    let parsed='';
+    for(const regexp of [
+      /\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}\s{1,2}\d{2}:\d{2}:\d{2}/,//2023-3-8 10:53:09 (D-Link 3200, FiberHome, Huawei 3328)
+      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}/,                 //Mar  8 10:21:17 (D-Link 1210, Huawei 5300)
+      /\w{3}\s{1,2}\d{1,2}\s\d{4}\s\d{2}:\d{2}:\d{2}/,          //Mar  8 2023 10:56:41+07:00 (Huawei 2328)
+      /\d{2}:\d{2}:\d{2}\s{1,2}\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}/,//10:27:39 2023-03-08 (Edge-Core)
+      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}:\d{3}\s\d{4}/,    //%Mar  8 09:08:55:598 2013 (H3C, HP)
+    ]){
+      parsed=row.match(regexp)?.[0];
+      if(parsed){break};
+    };
+    const time=Date.parse(parsed)
+    const date=new Date(time);
+    if(!date||date=='Invalid Date'){return}
+    const formatted=date?.toDateTimeString?date?.toDateTimeString():[
+      date.toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'}),
+      date.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    ].join(' '); 
+    return {parsed,time,date,formatted};
+  },
+};
+
 Vue.component("PortsMapLogs2",{
   template:`<section name="PortsMapLogs2">
     <link-block :actionIcon="open?'down':'up'" icon="log" text="Логи портов" :textSub="titleText" textSubClass="tone-500 font--12-400" type="large" @block-click="open=!open"/>
