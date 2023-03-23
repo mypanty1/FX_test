@@ -69,7 +69,7 @@ Vue.component("PortsMapLogs2",{
       return {
         style:{
           top:`${top}px`,
-          left:`${left_px}px`,
+          left:`${left}px`,
         },
         linkEventTime:{
           style:{
