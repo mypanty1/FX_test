@@ -1,80 +1,3 @@
-
-const PORT_LINK_LOGS={
-  linkEventName:{
-    up:'LinkUp',
-    dn:'LinkDown'
-  },
-  row:{
-    bgPort:'#4682b4',//steelblue
-    cText:'#f0f8ff',//aliceblue
-    bgLinkUp:'#228b22',//forestgreen
-    bgLinkDn:'#778899',//lightslategray
-    bgDate:'#5f9ea0',//cadetblue
-  },
-  chart:{
-    bg:'#a9a9a938',
-    bgLinkUp:'#228b224d',
-    bgLinkDn:'#778899',
-  },
-  getPortNameRegExpByVendor(vendor='',port=null){
-    if(['D-LINK','EDGE-CORE'].includes(vendor)){
-      const portText=`Port ${port?.snmp_number}`;
-      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`,'i')};
-    }else{
-      const portText=`${port?.snmp_name}`;//FiberHome, Huawei, H3C
-      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`)};
-    }
-  },
-  getLinkStateRegExpByVendor(vendor){
-    switch(vendor){
-      case 'D-LINK':return {
-        linkUpRegExp:/link up/i,
-        linkDnRegExp:/link down/i,
-      };
-      case 'HUAWEI':return {//IFNET/4/IF_STATE, IFPDT/4/IF_STATE
-        linkUpRegExp:/into UP state/i,
-        linkDnRegExp:/into DOWN state/i,
-      };
-      case 'FIBERHOME':return {//IFM-LINKUP, IFM-LINKDOWN
-        linkUpRegExp:/LinkUP|OperStatus=\[up\]/i,
-        linkDnRegExp:/LinkDown|OperStatus=\[down\]/i,
-      };
-      case 'H3C':return {//IFNET/3/PHY_UPDOWN
-        linkUpRegExp:/changed to up/i,
-        linkDnRegExp:/changed to down/i,
-      };
-      case 'EDGE-CORE':return {
-        linkUpRegExp:/link-up/i,
-        linkDnRegExp:/link-down/i,
-      };
-      default:return {
-        linkUpRegExp:/[^a-zA-Z0-9](link|)(-|\s|)up(\s|)(state|)[^a-zA-Z0-9]/i,
-        linkDnRegExp:/[^a-zA-Z0-9](link|)(-|\s|)down(\s|)(state|)[^a-zA-Z0-9]/i,
-      };
-    };
-  },
-  getLogRowDate(row=''){
-    let parsed='';
-    for(const regexp of [
-      /\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}\s{1,2}\d{2}:\d{2}:\d{2}/,//2023-3-8 10:53:09 (D-Link 3200, FiberHome, Huawei 3328)
-      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}/,                 //Mar  8 10:21:17 (D-Link 1210, Huawei 5300)
-      /\w{3}\s{1,2}\d{1,2}\s\d{4}\s\d{2}:\d{2}:\d{2}/,          //Mar  8 2023 10:56:41+07:00 (Huawei 2328)
-      /\d{2}:\d{2}:\d{2}\s{1,2}\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}/,//10:27:39 2023-03-08 (Edge-Core)
-      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}:\d{3}\s\d{4}/,    //%Mar  8 09:08:55:598 2013 (H3C, HP)
-    ]){
-      parsed=row.match(regexp)?.[0];
-      if(parsed){break};
-    };
-    const time=Date.parse(parsed)
-    const date=new Date(time);
-    if(!date||date=='Invalid Date'){return}
-    const formatted=date?.toDateTimeString?date?.toDateTimeString():[
-      date.toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'}),
-      date.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
-    ].join(' '); 
-    return {parsed,time,date,formatted};
-  },
-};
 Vue.component("PortsMapLogs2",{
   template:`<section name="PortsMapLogs2">
     <link-block :actionIcon="open?'down':'up'" icon="log" text="Логи портов" :textSub="titleText" textSubClass="tone-500 font--12-400" type="large" @block-click="open=!open"/>
@@ -94,13 +17,15 @@ Vue.component("PortsMapLogs2",{
           <span class="font--12-400" v-if="portsEvents.dateMin?.formatted&&portsEvents.dateMax?.formatted" arrow>⟹</span>
           <span class="font--12-400">{{portsEvents.dateMax?.formatted}}</span>
         </div>
-        <template v-if="cursorLineProps">
-          <div class="position-absolute text-align-center display-flex flex-direction-column justify-content-space-between" style="top:15px;bottom:15px;width:2px;background:#221e1e;opacity:0.6;" v-bind="cursorLineProps">
-            <span style="margin-top:-18px; margin-left:-7px;">▼</span>
-            <span style="margin-bottom:-18px; margin-left:-7px;">▲</span>
+        <template v-if="cursorLine">
+          <div class="position-absolute display-flex flex-direction-column justify-content-space-between" style="top:12px;bottom:12px;width:2px;background:#000000;opacity:0.5;" :style="cursorLine.style">
+            <span style="margin-top:-15px; margin-left:-7px;">▼</span>
+            <span style="margin-bottom:-15px; margin-left:-7px;">▲</span>
           </div>
-          <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorTimeProps">{{cursorTime}}</div>
-          <div class="position-absolute font--12-400" style="border-radius:2px;opacity:0.8;" v-bind="cursorLinkEventNameProps">{{cursorLinkEventName}}</div>
+          <div class="position-absolute display-flex flex-direction-column gap-1px" :style="cursorTooltip.style" v-if="cursorTooltip">
+            <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime}}</span>
+            <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventName.style" v-if="cursorTooltip.linkEventName">{{linkEventName}}</span>
+          </div>
         </template>
       </div>
     </div>
@@ -118,73 +43,61 @@ Vue.component("PortsMapLogs2",{
     touch_el:null,
     touch_x:0,
     touch_y:0,
-    offsetLeft:0,
-    clientWidth:0,
-    offsetTop:0,
-    clientHeight:0,
-    cursorLinkEventName:'',
+    rect:{},
+    linkEventName:'',
   }),
   computed:{
-    offsetY(){return this.offsetTop-window.scrollY},
-    cursorLineProps(){
-      const left=this.touch_x-this.offsetLeft;
+    cursorLine(){
+      if(this.touch_y<=0){return};
+      const left=this.touch_x-this.rect.left;
       if(left<=0){return};
-      const top=this.touch_y-this.offsetY;
-      if(top<=0){return};
       return {
         style:{
           left:`${left}px`,
         }
       }
     },
-    cursorTimeProps(){
-      const left=this.touch_x-this.offsetLeft;
+    cursorTooltip(){
+      const {touch_y,touch_x,rect,linkEventName}=this;
+      let left=touch_x-rect.left;
       if(left<=0){return};
-      const width=105;
-      const left2=left>(this.clientWidth-width)?left-width:left<width?left:(left-width/2);
-      const top=this.touch_y-this.offsetY;
-      const {cText,bgDate}=PORT_LINK_LOGS.row;
+      if(left>(rect.right-rect.left)/2){
+        left=left-105;
+      };
+      const top=touch_y-rect.top;
+      const {row:{cText,bgLinkUp,bgLinkDn,bgDate},linkEventName:{up}}=PORT_LINK_LOGS;
       return {
-        style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
+        style:{
           top:`${top}px`,
-          left:`${left2}px`,
-          'background-color':bgDate,
-          'color':cText,
-        }
+          left:`${left_px}px`,
+        },
+        linkEventTime:{
+          style:{
+            'background-color':bgDate,
+            'color':cText,
+          }
+        },
+        linkEventName:linkEventName?{
+          style:{
+            'background-color':up==linkEventName?bgLinkUp:bgLinkDn,
+            'color':cText,
+          }
+        }:null
       }
     },
-    cursorLinkEventNameProps(){
-      const name=this.cursorLinkEventName;
-      const left=this.touch_x-this.offsetLeft;
-      if(left<=0||!name){return};
-      const width=105;
-      const left2=left>(this.clientWidth-width)?left-width:left<width?left:(left-width/2);
-      const top=this.touch_y-this.offsetY;
-      const {cText,bgLinkUp,bgLinkDn}=PORT_LINK_LOGS.row;
-      return {
-        style:{//border:1px solid #221e1e;background:#ffffff;color:#221e1e;
-          top:`${top-18}px`,
-          left:`${left2}px`,
-          'background-color':PORT_LINK_LOGS.linkEventName.up==name?bgLinkUp:bgLinkDn,
-          'color':cText,
-        }
-      }
-    },
-    cursorTime(){
+    linkEventTime(){
       const timeMin=this.portsEvents?.dateMin?.time;
       const timeMax=this.portsEvents?.dateMax?.time;
       if(!timeMin||!timeMax){return};
       const timeOffset=timeMax-timeMin;
-      const {offsetLeft,clientWidth,touch_x}=this;
-      const cursorMin=offsetLeft;
-      const cursorMax=clientWidth+offsetLeft;
-      const cursorOffset=cursorMax-cursorMin;
-      const time=timeMin+((timeOffset/cursorOffset)*(touch_x-offsetLeft));
+      const {touch_x,rect}=this;
+      const time=timeMin+((timeOffset/rect.right)*(touch_x-rect.left));
       return new Date(time).toDateTimeString();
     },
     vendorPortsNameRegExp(){
+      const {vendor}=this.networkElement;
       return this.ports.map(port=>{
-        return PORT_LINK_LOGS.getPortNameRegExpByVendor(this.networkElement.vendor,port)
+        return PORT_LINK_LOGS.getPortNameRegExpByVendor(vendor,port)
       })
     },
     countPortsLinkEvents(){return Object.values(this.portsEvents.events).length},
@@ -276,28 +189,17 @@ Vue.component("PortsMapLogs2",{
       this.touch_x=isMouseMove?event.clientX:event.changedTouches?.[0]?.clientX||0;
       this.touch_y=isMouseMove?event.clientY:event.changedTouches?.[0]?.clientY||0;
       const elementsFromPoint=isMouseMove?document.elementsFromPoint(event.clientX,event.clientY):document.elementsFromPoint(event.changedTouches[0].clientX,event.changedTouches[0].clientY);
-      this.cursorLinkEventName=[...elementsFromPoint].find(elementFromPoint=>elementFromPoint?.attributes?.['link-event-name']?.value)?.attributes?.['link-event-name']?.value;
-      /*console.log([
-        `touch_x:       ${this.touch_x}`,
-        `touch_y:       ${this.touch_y}`,
-        `clientWidth:   ${this.clientWidth}`,
-        `offsetLeft:    ${this.offsetLeft}`,
-        `clientHeight:  ${this.clientHeight}`,
-        `offsetTop:     ${this.offsetTop}`,
-        `window.scrollY:${window.scrollY}`
-      ].join('\n'));*/
-      if(this.touch_x>this.clientWidth+this.offsetLeft){this.touch_x=0};
-      if(this.touch_y>this.clientHeight+this.offsetY){this.touch_y=0};
+      this.linkEventName=[...elementsFromPoint].find(elementFromPoint=>elementFromPoint?.attributes?.['link-event-name']?.value)?.attributes?.['link-event-name']?.value;
+      const rect=this.touch_el.getBoundingClientRect();
+      if(this.touch_x>rect.right||this.touch_x<rect.left){this.touch_x=0};
+      if(this.touch_y>rect.bottom||this.touch_y<rect.top){this.touch_y=0};
+      this.rect=rect;
     },
     initCursor(){
       this.$nextTick(()=>{
         const touch_el=this.$refs.touch_el;
         if(!touch_el){return};
         this.touch_el=touch_el;
-        this.offsetLeft=touch_el.offsetLeft||0;
-        this.clientWidth=touch_el.clientWidth||0;
-        this.offsetTop=touch_el.offsetTop||0;
-        this.clientHeight=touch_el.clientHeight||0;
         touch_el.addEventListener('touchmove',this.onTouchMove);
         touch_el.addEventListener('mousemove',this.onTouchMove);
         //console.log('initCursor');
@@ -309,13 +211,10 @@ Vue.component("PortsMapLogs2",{
       touch_el.removeEventListener('touchmove',this.onTouchMove);
       touch_el.removeEventListener('mousemove',this.onTouchMove);
       this.touch_el=null;
-      this.offsetLeft=0;
-      this.clientWidth=0;
-      this.offsetTop=0;
-      this.clientHeight=0;
+      this.rect={};
       this.touch_x=0;
       this.touch_y=0;
-      this.cursorLinkEventName='';
+      this.linkEventName='';
       //console.log('clearCursor');
     },
     parseLogPort(row=''){
@@ -452,6 +351,7 @@ Vue.component("PortsMapLogs2",{
     },
   },
 });
+
 Vue.component("PortsMapLogsPortLinkEventsChart2",{
   template:`<div name="PortsMapLogsPortLinkEventsChart2">
     <div class="display-flex align-items-center justify-content-space-between">
@@ -515,3 +415,99 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
   },
   methods:{}
 });
+
+
+const PORT_LINK_LOGS={
+  linkEventName:{
+    up:'LinkUp',
+    dn:'LinkDown'
+  },
+  row:{
+    bgPort:'#4682b4',//steelblue
+    cText:'#f0f8ff',//aliceblue
+    bgLinkUp:'#228b22',//forestgreen
+    bgLinkDn:'#778899',//lightslategray
+    bgDate:'#5f9ea0',//cadetblue
+  },
+  chart:{
+    bg:'#a9a9a938',
+    bgLinkUp:'#228b224d',
+    bgLinkDn:'#778899',
+  },
+  getPortNameRegExpByVendor(vendor='',port=null){
+    if(['D-LINK','EDGE-CORE'].includes(vendor)){
+      const portText=`Port ${port?.snmp_number}`;
+      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`,'i')};
+    }else{
+      const portText=`${port?.snmp_name}`;//FiberHome, Huawei, H3C
+      return {port,portText,portRegExp:new RegExp(`[^a-zA-Z]${portText}[^0-9]`)};
+    }
+  },
+  getLinkStateRegExpByVendor(vendor){
+    switch(vendor){
+      case 'D-LINK':return {
+        linkUpRegExp:/link up/i,
+        linkDnRegExp:/link down/i,
+      };
+      case 'HUAWEI':return {//IFNET/4/IF_STATE, IFPDT/4/IF_STATE
+        linkUpRegExp:/into UP state/i,
+        linkDnRegExp:/into DOWN state/i,
+      };
+      case 'FIBERHOME':return {//IFM-LINKUP, IFM-LINKDOWN
+        linkUpRegExp:/LinkUP|OperStatus=\[up\]/i,
+        linkDnRegExp:/LinkDown|OperStatus=\[down\]/i,
+      };
+      case 'H3C':return {//IFNET/3/PHY_UPDOWN
+        linkUpRegExp:/changed to up/i,
+        linkDnRegExp:/changed to down/i,
+      };
+      case 'EDGE-CORE':return {
+        linkUpRegExp:/link-up/i,
+        linkDnRegExp:/link-down/i,
+      };
+      default:return {
+        linkUpRegExp:/[^a-zA-Z0-9](link|)(-|\s|)up(\s|)(state|)[^a-zA-Z0-9]/i,
+        linkDnRegExp:/[^a-zA-Z0-9](link|)(-|\s|)down(\s|)(state|)[^a-zA-Z0-9]/i,
+      };
+    };
+  },
+  getLogRowDate(row=''){
+    let parsed='';
+    for(const regexp of [
+      /\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}\s{1,2}\d{2}:\d{2}:\d{2}/,//2023-3-8 10:53:09 (D-Link 3200, FiberHome, Huawei 3328)
+      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}/,                 //Mar  8 10:21:17 (D-Link 1210, Huawei 5300)
+      /\w{3}\s{1,2}\d{1,2}\s\d{4}\s\d{2}:\d{2}:\d{2}/,          //Mar  8 2023 10:56:41+07:00 (Huawei 2328)
+      /\d{2}:\d{2}:\d{2}\s{1,2}\d{4}(-|\/)\d{1,2}(-|\/)\d{1,2}/,//10:27:39 2023-03-08 (Edge-Core)
+      /\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}:\d{3}\s\d{4}/,    //%Mar  8 09:08:55:598 2013 (H3C, HP)
+    ]){
+      parsed=row.match(regexp)?.[0];
+      if(parsed){break};
+    };
+    const time=Date.parse(parsed)
+    const date=new Date(time);
+    if(!date||date=='Invalid Date'){return}
+    const formatted=date?.toDateTimeString?date?.toDateTimeString():[
+      date.toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'}),
+      date.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    ].join(' '); 
+    return {parsed,time,date,formatted};
+  },
+};
+PORT_LINK_LOGS.linkEventName={
+  up:'LinkUp',
+  dn:'LinkDown'
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
