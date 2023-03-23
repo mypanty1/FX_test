@@ -35,20 +35,16 @@ Vue.component('device-ping',{//user ip ping and go
   watch:{
     'ip'(ip){
       if(ip){
-  this.pings=[]
-  if(ip!==this.device?.ip&&ip.match(/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/)){
-    this.getDeviceInfo();
-  }
+        this.pings=[]
+        if(ip!==this.device?.ip&&ip.match(/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/)){
+          this.getDeviceInfo();
+        }
       };
     },
   },
   computed:{
-    ip(){
-      return this.overrideIp||this.device?.ip;
-    },
-    available(){
-      return this.device?.region?.mr_id&&this.ip;
-    },
+    ip(){return this.overrideIp||this.device?.ip},
+    available(){return this.device?.region?.mr_id&&this.ip},
     received(){return this.pings.filter(ping=>ping.values[0]>=0).length},
     lost(){return this.pings.filter(ping=>ping.values[0]<0).length},
     device_model(){

@@ -145,13 +145,13 @@ Vue.component('session-el',{//redesign, need .padding-unset or create custom tab
 Vue.component('session-history-modal',{//fix params, need create custom table
   //template:'#session-history-template',
   template:`<modal-container-custom ref="sessionHistory">
-    <div class="mx-auto mt-8 w-75">
-      <h3 class="font--18-600 tone-900 d-center-x mb-8">История сессий</h3>
-      <h5 class="font--13-500-140 tone-500 text-center m-auto">Выберите временной промежуток</h5>
+    <div class="margin-left-right-auto margin-top-8px width-75-100">
+      <h3 class="font--18-600 tone-900 display-flex justify-content-center margin-bottom-8px">История сессий</h3>
+      <h5 class="font--13-500-140 tone-500 text-align-center margin-auto">Выберите временной промежуток</h5>
     </div>
     <div>
-      <div class="mx-16">
-        <div class="d-center-x py-16">
+      <div class="margin-left-right-16px">
+        <div class="d-center-x padding-top-bottom-16px">
           <input-el :value="history.start" label="Начало" type="date"  v-model="history.start" class="mr-8" data-ic-test="session_history_date_from"/>
           <input-el :value="history.end" label="Конец" type="date" v-model="history.end" class="ml-8" data-ic-test="session_history_date_to"/>
         </div>
@@ -161,17 +161,17 @@ Vue.component('session-history-modal',{//fix params, need create custom table
       <template v-for="entry in history.data">
         <devider-line></devider-line>
         <div>
-          <div class="font--13-500-140 tone-900 px-16"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
-          <div class="font--13-500-140 tone-900 px-16"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
-          <info-value label="IP" :value="entry.ip" type="large" withLine data-ic-test="session_history_ip"></info-value>
-          <info-value label="MAC" :value="entry.mac" type="large" withLine data-ic-test="session_history_mac"></info-value>
-          <info-value label="BRAS" :value="entry.nas" type="large" withLine></info-value>
-          <info-value label="Тип трафика" :value="entry.catdescr" type="large" withLine></info-value>
+          <div class="font--13-500-140 tone-900 padding-left-right-16px"> {{ entry.start }} <span class="tone-500"> • </span> {{ entry.end || "-" }}</div>
+          <div class="font--13-500-140 tone-900 padding-left-right-16px"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
+          <info-value label="IP" :value="entry.ip" type="large" withLine data-ic-test="session_history_ip"/>
+          <info-value label="MAC" :value="entry.mac" type="large" withLine data-ic-test="session_history_mac"/>
+          <info-value label="BRAS" :value="entry.nas" type="large" withLine/i>
+          <info-value label="Тип трафика" :value="entry.catdescr" type="large" withLine/>
         </div>
       </template>
     </div>
-    <div class="px-16" v-if="Array.isArray(history.data) && history.data.length == 0">
-      <message-el :text="message.text" :box="true" :type="message.type"></message-el>
+    <div class="padding-left-right-16px" v-if="Array.isArray(history.data) && history.data.length == 0">
+      <message-el :text="message.text" box :type="message.type"/>
     </div>
   </modal-container-custom>`,
   props:{
@@ -253,38 +253,38 @@ Vue.component('session-history-modal',{//fix params, need create custom table
     },
   }
 });
-Vue.component('session-logs-modal', {//fix params, need create custom table
-  //template: '#session-logs-template',
-  template:`<modal-container ref='sessionLogs'>
-    <div class="mx-auto mt-8 w-75">
-      <h3 class="font--18-600 tone-900 d-center-x mb-8">
+Vue.component("session-logs-modal", {//fix params, need create custom table
+  //template: "#session-logs-template",
+  template:`<modal-container ref="sessionLogs">
+    <div class="margin-left-right-auto margin-top-8px width-75-100">
+      <h3 class="font--18-600 tone-900 display-flex justify-content-center margin-bottom-8px">
         Логи авторизации
       </h3>
     </div>
     <div>
 
       <div>
-        <div class='d-center-x px-16 py-16'>
-          <input-el :value='logs.date' label='Дата' type='date'  v-model='logs.date'/>
+        <div class="display-flex justify-content-center padding-left-right-16px padding-top-bottom-16px">
+          <input-el :value="logs.date" label="Дата" type="date"  v-model="logs.date"/>
         </div>
 
-        <div class='px-16 pb-16'>
-          <button-main @click="load" :disabled="loading" label='Загрузить' :loading='loading' size='full' buttonStyle='contained'></button-main>
+        <div class="padding-left-right-16px padding-bottom-16px">
+          <button-main @click="load" :disabled="loading" label="Загрузить" :loading="loading" size="full" buttonStyle="contained"/>
         </div>
       </div>
-      <template v-if='logs.data' v-for="entry in logs.data">
-        <devider-line></devider-line>
-        <div class='py-16'>
-          <div class='font--13-500-140 tone-900 px-16'> {{ entry.log }} ({{ entry.count }})</div>
-          <info-value :label='entry.enter_login' :value='entry.last' type='large' withLine></info-value>
-          <info-value label='MAC' :value='entry.mac' type='large' withLine></info-value>
-          <info-value label='BRAS' :value='entry.nas' type='large' withLine></info-value>
+      <template v-if="logs.data" v-for="entry in logs.data">
+        <devider-line/>
+        <div class="padding-top-bottom-16px">
+          <div class="font--13-500-140 tone-900 padding-left-right-16px"> {{ entry.log }} ({{ entry.count }})</div>
+          <info-value :label="entry.enter_login" :value="entry.last" type="large" whithLine/>
+          <info-value label="MAC" :value="entry.mac" type="large" whithLine/>
+          <info-value label="BRAS" :value="entry.nas" type="large" whithLine/>
         </div>
       </template>
     </div>
 
-    <div class='px-16' v-if="Array.isArray(logs.data) && logs.data.length == 0">
-      <message-el :text="'Авторизаций '+logs.date+' не было'" :box='true' type='info'></message-el>
+    <div class="padding-left-right-16px" v-if="Array.isArray(logs.data) && logs.data.length == 0">
+      <message-el :text="'Авторизаций '+logs.date+' не было'" box type="info"/>
     </div>
   </modal-container>`,
   props: {

@@ -1,7 +1,6 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindUserVgidActivate.js',type:'text/javascript'}));
 Vue.component('port-bind-user-vgid-elem',{//activatespd
-  template:`
-  <section>
+  template:`<section>
     <radio-el v-model="resource" :value="service" :label="vgid.login+' • '+vgid.vgid" :name="account.userid" :disabled="loading" class="port-bind-user-modal__vgid-radio"/>
     <info-text-sec v-if="state" :text="state"/>
     <div v-if="vgid.tardescr" class="port-bind-user-modal__info">{{vgid.tardescr}}</div>
@@ -10,9 +9,8 @@ Vue.component('port-bind-user-vgid-elem',{//activatespd
       <i v-else-if="!loading_activate&&result_activate" :class="'fas '+(result_activate.data==1?'fa-check':'fa-times')+' fa-lg'" :style="{color:result_activate.data==1?'#20a471':'#f16b16',width:'32px',height:'32px',lineHeight:'32px',textAlign:'center'}"></i>
       <button-main :label="activatespd?'активировать по sms':'активировать'" v-if="vgid.available_for_activation" @click="activate" :disabled="loading_activate" buttonStyle="outlined" size="content"/>
     </div>
-    <devider-line />
-  </section>
-  `,
+    <devider-line/>
+  </section>`,
   props:{
     vgid: {type:Object,required:true},
     account:{type:Object,required:true},

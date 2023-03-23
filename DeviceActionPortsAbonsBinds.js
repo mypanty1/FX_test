@@ -1,7 +1,7 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceActionPortsAbonsBinds.js',type:'text/javascript'}));
 Vue.component('device-actions',{
   //template:'#device-actions-template',
-  template:`<card-block class="device-actions">
+  template:`<CardBlock class="device-actions">
     <title-main text="Действия" :attention="attention" :opened="opened" @block-click="opened=!opened"/>
     <div v-show="opened">
       <template v-if="hasIP">
@@ -26,7 +26,7 @@ Vue.component('device-actions',{
         <DeviceActionPortsAbonsBinds :networkElement="device" class="p-all"/>
       </template>
     </div>
-  </card-block>`,
+  </CardBlock>`,
   props:{
     discovery:{type:Object},
     loading:{type:Object},

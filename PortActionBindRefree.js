@@ -26,7 +26,7 @@ Vue.component('port-bind-user-modal',{//refree
             :account="account||tmp_sample"
             :service="service"
             :cpes="cpes" :macs="mac.list"
-            :port="data.portInfo" class="mx-3"/>
+            :port="data.portInfo" class="margin-left-right-16px"/>
           
           <port-bind-user-forms 
             v-if="typeOfBind"
@@ -43,16 +43,16 @@ Vue.component('port-bind-user-modal',{//refree
 
           <div v-else-if="resource&&!typeOfBind" class="port-bind-user-modal__default-offset">
             <message-el text="Привязка этой учетной записи не осуществляется" :type="disabledCPE?'warn':'success'" box />
-            <button-main v-if="openBindCPE" :disabled="loading_cpe" @click="addCpe" label="Привязать CPE" buttonStyle="contained" size="full" class="mt-3"/>
+            <button-main v-if="openBindCPE" :disabled="loading_cpe" @click="addCpe" label="Привязать CPE" buttonStyle="contained" size="full" class="margin-top-16px"/>
           </div>
 
-          <div v-if="result" class="mt-3">
+          <div v-if="result" class="margin-top-16px">
             <div v-if="result.type==='error'" class="port-bind-user-modal__default-offset">
-              <message-el :text="result.text.slice(0,120)" type="error" box class="my-3" />
+              <message-el :text="result.text.slice(0,120)" type="error" box class="margin-top-bottom-16px" />
               <div v-if="result.refreedable"><!--add this-->
-                <message-el :text="result.refreedable_message" type="warn" box class='my-3' />
+                <message-el :text="result.refreedable_message" type="warn" box class="margin-top-bottom-16px" />
                 <div v-if="refree_result&&refree_result.refree_message">
-                  <message-el :text="refree_result.refree_message" :type="refree_result.type" box class='my-3' />
+                  <message-el :text="refree_result.refree_message" :type="refree_result.type" box class="margin-top-bottom-16px" />
                 </div>
                 <div>
                   <button-main label="освободить" @click="refree(result.refree_params)" :disabled="!!refree_loading" :loading="!!refree_loading" buttonStyle="contained" style="margin-left:auto;width:min-content;"/>
