@@ -25,8 +25,7 @@ Vue.component("PortsMapLogs2",{
             <span style="margin-bottom:-15px;margin-left:-7px;">▲</span>
           </div>
           <div class="position-absolute" style="margin-left:-14px;line-height:0px;font-size:30px;opacity:0.5;" :style="cursorLine.crosshair.style">—</div>
-          <div class="position-absolute display-flex flex-direction-column gap-1px" :style="cursorTooltip.style" v-if="cursorTooltip">
-            <span class="font--12-400" style="border-radius:2px;opacity:0.8;margin-top:-30px;">{{touch_x-rect.left}}({{touch_x}}-{{rect.left}}) {{touch_y-rect.top}}({{touch_y}}-{{rect.top}})</span>
+          <div class="position-absolute display-flex flex-direction-column gap-2px" :style="cursorTooltip.style" v-if="cursorTooltip">
             <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime}}</span>
             <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventName.style" v-if="cursorTooltip.linkEventName">{{linkEventName}}</span>
           </div>
