@@ -115,7 +115,7 @@ function pushResponse({url,response}={}){
   buffer.clear()
 };
 
-//port refree - error
+//port refree
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindRefree.js',type:'text/javascript'}));
 
 //activatespd
@@ -135,16 +135,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //rebind all abons by mac-port
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceActionPortsAbonsBinds.js',type:'text/javascript'}));
 
-//test actual abon state from siebel
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortLinks.js',type:'text/javascript'}));
-
 //redesign, fix params, need create custom table
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Session.js',type:'text/javascript'}));
-
-//fix iptv code and add credentials
-//30105741270
-//[Vue warn]: Invalid prop: type check failed for prop "credentials". Expected Array, got Object.
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/FixIptvCodeAndCredentials.js',type:'text/javascript'}));
 
 
 
@@ -1430,45 +1422,7 @@ Vue.component('SitePlanDownload',{//плансхема
 
 
 
-Vue.component('page-navbar',{
-  template:`<nav class="page-navbar">
-    <!-- TODO: need icon for calendar - некогда объяснять =) -->
-    <button-sq v-if="backIcon === 'calendar'"@click="goBack">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" fill="#5642BD"/>
-      </svg>
-    </button-sq>
-    <button-sq v-else :icon="backIcon" @click="goBack" />
-    <slot>
-      <div class="page-navbar__title">
-        <slot name="prefix"><span class="tone-500">{{prefix}}</span></slot>
-        <slot name="title"><span>{{title}}</span></slot>
-        <slot name="postfix"><span class="tone-500">{{postfix}}</span></slot>
-      </div>
-    </slot>
-    <button-sq :icon="icon" @click="refresh" :style="{ opacity: $listeners.refresh ? 1 : 0 }"/>
-  </nav>`,
-  props:{
-    title:{type:String,default:''},
-    postfix:{type:String,default:''},
-    prefix:{type:String,default:''},
-    icon:{type:String,default:'refresh'},
-    backIcon:{type:String,default:'left-link'},
-  },
-  methods:{
-    goBack(){
-      if(this.$listeners['back']){
-        this.$emit('back');
-      }else{
-        //this.$router.go(-1);
-        this.$router.back()
-      }
-    },
-    refresh(){
-      if(this.$listeners.refresh){this.$emit('refresh')};
-    },
-  },
-});
+
 
 
 
