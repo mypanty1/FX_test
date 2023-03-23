@@ -47,14 +47,16 @@ Vue.component("PortsMapLogs2",{
     touch_el:null,
     touch_x:0,
     touch_y:0,
-    rect:{},
+    rect:null,
     linkEventName:'',
   }),
   computed:{
     cursorLine(){
-      const left=this.touch_x-this.rect.left;
+      const {touch_x,touch_y,rect}=this;
+      if(!rect){return};
+      const left=touch_x-rect.left;
       if(left<=0){return};
-      const top=this.touch_y-this.rect.top;
+      const top=touch_y-rect.top;
       if(top<=0){return};
       return {
         style:{
@@ -70,6 +72,7 @@ Vue.component("PortsMapLogs2",{
     },
     cursorTooltip(){
       const {touch_y,touch_x,rect,linkEventName}=this;
+      if(!rect){return};
       let left=touch_x-rect.left;
       if(left<=0){return};
       left=left>(rect.right-rect.left)/2?left-105:left+5;
@@ -100,6 +103,7 @@ Vue.component("PortsMapLogs2",{
       if(!timeMin||!timeMax){return};
       const timeOffset=timeMax-timeMin;
       const {touch_x,rect}=this;
+      if(!rect){return};
       const time=timeMin+((timeOffset/rect.right)*(touch_x-rect.left));
       return new Date(time).toDateTimeString();
     },
@@ -220,7 +224,7 @@ Vue.component("PortsMapLogs2",{
       touch_el.removeEventListener('touchmove',this.onTouchMove);
       touch_el.removeEventListener('mousemove',this.onTouchMove);
       this.touch_el=null;
-      this.rect={};
+      this.rect=null;
       this.touch_x=0;
       this.touch_y=0;
       this.linkEventName='';
@@ -506,6 +510,22 @@ PORT_LINK_LOGS.linkEventName={
   up:'LinkUp',
   dn:'LinkDown'
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
