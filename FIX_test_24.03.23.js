@@ -255,10 +255,10 @@ async function getUserStateBufferAndSend(){
   stateBuffer.clear();
   
   function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection,platform,userAgentData}){
-    const sites={}//getSitesCache();
-    const tasks=[]//getTasksCache();
+    const sites=getSitesCache();//{}
+    const tasks=getTasksCache();//[]
     
-    //getSitesToCacheIfNotPresent({tasks,sites});
+    getSitesToCacheIfNotPresent({tasks,sites});
     
     console.log({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection,platform,userAgentData});
     sendUserState({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection,platform,userAgentData});
