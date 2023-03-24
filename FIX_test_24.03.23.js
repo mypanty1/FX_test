@@ -96,6 +96,11 @@ document.getElementById('btn_refresh')?.addEventListener('click',()=>{
   window.location.href='https://fx.mts.ru/fix';
 });
 
+//test inventory
+if(store?.state?.main?.userData?.username=='mypanty1'){
+  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`)
+};
+
 async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 const max_buffer_size=20;
 const buffer=new Map();
