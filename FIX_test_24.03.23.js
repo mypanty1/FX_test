@@ -28,7 +28,7 @@ createStyleElement('fix-test-app-css',`
 
 
 window.AppInventor.setWebViewString(`on:moduleOk:::=${FIX_test_version}`);
-window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
+//window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
 console.log(FIX_test_version,new Date().toLocaleString());
 const info={
   ...filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']),
