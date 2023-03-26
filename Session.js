@@ -165,7 +165,7 @@ Vue.component('session-history-modal',{//fix params, need create custom table
           <div class="font--13-500-140 tone-900 padding-left-right-16px"> {{ entry.elapsed || "-" }} <span class="tone-500"> • </span> {{ entry.bytes }} </div>
           <info-value label="IP" :value="entry.ip" type="large" withLine data-ic-test="session_history_ip"/>
           <info-value label="MAC" :value="entry.mac" type="large" withLine data-ic-test="session_history_mac"/>
-          <info-value label="BRAS" :value="entry.nas" type="large" withLine/i>
+          <info-value label="BRAS" :value="entry.nas" type="large" withLine/>
           <info-value label="Тип трафика" :value="entry.catdescr" type="large" withLine/>
         </div>
       </template>
