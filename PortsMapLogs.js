@@ -1,6 +1,6 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs.js',type:'text/javascript'}));
 
-if(store?.state?.main?.userData?.username=='mypanty1'){
+if(true||store?.state?.main?.userData?.username=='mypanty1'){
   Vue.component("PortsMapLogs",{
     template:`<PortsMapLogs2 v-bind="$props"/>`,
     props:{
