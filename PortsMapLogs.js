@@ -132,7 +132,7 @@ Vue.component("PortsMapLogs2",{
       }
     },
     linkEventTime_calc(){
-      if(this.linkEventTime){return this.linkEventTime};
+      //if(this.linkEventTime){return this.linkEventTime};
       const timeMin=this.portsEvents?.dateMin?.time;
       const timeMax=this.portsEvents?.dateMax?.time;
       if(!timeMin||!timeMax){return};
