@@ -43,7 +43,7 @@ Vue.component("PortsMapLogs2",{
           <div class="position-absolute margin-left--14px font-size-30px" style="line-height:0px;opacity:0.5;" :style="cursorLine.crosshair.style">—</div>
           <div v-if="cursorTooltip" class="position-absolute display-flex flex-direction-column justify-content-flex-end height-32px gap-2px" style="width:110px;" :style="cursorTooltip.style">
             <span class="font--12-400 border-radius-2px padding-left-2px" style="width:110px;opacity:0.8;" :style="cursorTooltip.linkEventName.style" v-if="cursorTooltip.linkEventName">{{linkEventName}}</span>
-            <span class="font--12-400 border-radius-2px padding-left-2px" style="width:110px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime}}</span>
+            <span class="font--12-400 border-radius-2px padding-left-2px" style="width:110px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime_calc}}</span>
           </div>
         </template>
       </div>
@@ -64,6 +64,7 @@ Vue.component("PortsMapLogs2",{
     touch_y:0,
     rect:null,
     linkEventName:'',
+    linkEventTime:'',
   }),
   computed:{
     cursorLine(){
@@ -130,7 +131,8 @@ Vue.component("PortsMapLogs2",{
         }:null
       }
     },
-    linkEventTime(){
+    linkEventTime_calc(){
+      if(this.linkEventTime){return this.linkEventTime};
       const timeMin=this.portsEvents?.dateMin?.time;
       const timeMax=this.portsEvents?.dateMax?.time;
       if(!timeMin||!timeMax){return};
@@ -235,7 +237,9 @@ Vue.component("PortsMapLogs2",{
       this.touch_x=isMouseMove?event.clientX:event.changedTouches?.[0]?.clientX||0;
       this.touch_y=isMouseMove?event.clientY:event.changedTouches?.[0]?.clientY||0;
       const elementsFromPoint=isMouseMove?document.elementsFromPoint(event.clientX,event.clientY):document.elementsFromPoint(event.changedTouches[0].clientX,event.changedTouches[0].clientY);
-      this.linkEventName=[...elementsFromPoint].find(elementFromPoint=>elementFromPoint?.attributes?.['link-event-name']?.value)?.attributes?.['link-event-name']?.value;
+      const linkEventEl=[...elementsFromPoint].find(elementFromPoint=>elementFromPoint?.attributes?.['link-event-name']?.value);
+      this.linkEventName=linkEventEl?.attributes?.['link-event-name']?.value;
+      this.linkEventTime=linkEventEl?.attributes?.['link-event-time']?.value;
       const rect=this.touch_el.getBoundingClientRect();
       if(this.touch_x>rect.right||this.touch_x<rect.left){this.touch_x=0};
       if(this.touch_y>rect.bottom||this.touch_y<rect.top){this.touch_y=0};
@@ -261,6 +265,7 @@ Vue.component("PortsMapLogs2",{
       this.touch_x=0;
       this.touch_y=0;
       this.linkEventName='';
+      this.linkEventTime='';
       //console.log('clearCursor');
     },
     parseLogPort(row=''){
@@ -405,7 +410,7 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
       <span class="font--12-400">{{linkDownCounterText||''}}</span>
     </div>
     <div class="display-flex align-items-center flex-direction-row-reverse" :style="{background:bg}">
-      <div v-for="(eventItem,index) of eventsItems" :key="index" :link-event-name="eventItem.linkEventName" :style="eventItem.style" :title="eventItem.date||''" class="min-height-20px"></div>
+      <div v-for="(eventItem,index) of eventsItems" :key="index" :link-event-name="eventItem.linkEventName" :link-event-time="eventItem.linkEventTime||''" :style="eventItem.style" class="min-height-20px"></div>
     </div>
   </div>`,
   props:{
@@ -428,16 +433,17 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
       if(!this.total){return []};
       const {bgLinkUp,bgLinkDn}=PORT_LINK_LOGS.chart;
       const {items,availPercent}=this.events.reduce((eventsItems,event,index)=>{
-        const prev=this.events[index-1];
-        const percent=prev?Math.floor((prev.time-event.time)*99/this.total)||1:0
-        const minPercent=!prev?1:percent;
-        eventsItems.availPercent=eventsItems.availPercent-minPercent;
+        const prev=this.events[index-1]||this.dateMax;
+        const duration=(prev.time-event.time)*100/this.total||1;
+        const percent=Math.ceil(duration);
+        eventsItems.availPercent=eventsItems.availPercent-percent;
         eventsItems.items.push({
           ...event,
           style:{
-            width:`${minPercent}%`,
+            width:`${percent}%`,
             background:event.state?bgLinkUp:bgLinkDn
           },
+          linkEventTime:this.events[index-1]?event.date:'',
           linkEventName:event.state?PORT_LINK_LOGS.linkEventName.up:PORT_LINK_LOGS.linkEventName.dn
         })
         return eventsItems;
@@ -447,11 +453,11 @@ Vue.component("PortsMapLogsPortLinkEventsChart2",{
       if(availPercent>0&&items.length){
         const firstState=items[items.length-1]?.state;
         items.push({
-          isFake:true,
           style:{
             width:`${availPercent}%`,
             background:!firstState?bgLinkUp:bgLinkDn
           },
+          linkEventTime:'',
           linkEventName:!firstState?PORT_LINK_LOGS.linkEventName.up:PORT_LINK_LOGS.linkEventName.dn
         })
       };
