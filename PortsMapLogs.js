@@ -1,14 +1,12 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs.js',type:'text/javascript'}));
 
-if(true||store?.state?.main?.userData?.username=='mypanty1'){
-  Vue.component("PortsMapLogs",{
-    template:`<PortsMapLogs2 v-bind="$props"/>`,
-    props:{
-      networkElement:{type:Object,default:()=>({}),required:true},
-      ports:{type:Array,default:()=>([]),required:true},
-    },
-  });
-};
+Vue.component("PortsMapLogs",{
+  template:`<PortsMapLogs2 v-bind="$props"/>`,
+  props:{
+    networkElement:{type:Object,default:()=>({}),required:true},
+    ports:{type:Array,default:()=>([]),required:true},
+  },
+});
 
 PORT_LINK_LOGS.linkEventName={
   up:'LinkUp',
@@ -17,6 +15,7 @@ PORT_LINK_LOGS.linkEventName={
 
 Vue.component("PortsMapLogs2",{
   template:`<section name="PortsMapLogs2">
+    `+(window.devVueTemplateMark||'')+`
     <link-block :actionIcon="open?'down':'up'" icon="log" text="Логи портов" :textSub="titleText" textSubClass="tone-500 font--12-400" type="large" @block-click="open=!open"/>
     <div v-show="open" class="margin-left-right-16px">
       <loader-bootstrap v-if="loading" text="получение логов с коммутатора"/>
@@ -35,14 +34,16 @@ Vue.component("PortsMapLogs2",{
           <span class="font--12-400">{{portsEvents.dateMax?.formatted}}</span>
         </div>
         <template v-if="cursorLine">
-          <div class="position-absolute display-flex flex-direction-column justify-content-space-between" style="top:12px;bottom:12px;width:2px;background:#000000;opacity:0.5;" :style="cursorLine.style">
-            <span style="margin-top:-15px;margin-left:-7px;">▼</span>
-            <span style="margin-bottom:-15px;margin-left:-7px;">▲</span>
+          <div class="position-absolute display-flex flex-direction-column justify-content-space-between width-2px" style="top:12px;bottom:12px;background:#000000;opacity:0.5;" :style="cursorLine.style">
+            <span class="margin-top--15px margin-left--7px">▼</span>
+            <span class="margin-bottom--15px margin-left--7px">▲</span>
           </div>
-          <div class="position-absolute" style="margin-left:-14px;line-height:0px;font-size:30px;opacity:0.5;" :style="cursorLine.crosshair.style">—</div>
-          <div class="position-absolute display-flex flex-direction-column gap-2px" :style="cursorTooltip.style" v-if="cursorTooltip">
-            <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime}}</span>
-            <span class="font--12-400" style="border-radius:2px;opacity:0.8;" :style="cursorTooltip.linkEventName.style" v-if="cursorTooltip.linkEventName">{{linkEventName}}</span>
+          <!--<input type="button" value="◄" class="position-absolute width-20px height-20px font-size-10px padding-left-3px" style="opacity:0.5;" :style="cursorLine.buttonLeftAdj.style">-->
+          <!--<input type="button" value="►" class="position-absolute width-20px height-20px font-size-10px padding-left-3px" style="opacity:0.5;" :style="cursorLine.buttonRightAdj.style">-->
+          <div class="position-absolute margin-left--14px font-size-30px" style="line-height:0px;opacity:0.5;" :style="cursorLine.crosshair.style">—</div>
+          <div v-if="cursorTooltip" class="position-absolute display-flex flex-direction-column justify-content-flex-end height-32px gap-2px" style="width:110px;" :style="cursorTooltip.style">
+            <span class="font--12-400 border-radius-2px padding-left-2px" style="width:110px;opacity:0.8;" :style="cursorTooltip.linkEventName.style" v-if="cursorTooltip.linkEventName">{{linkEventName}}</span>
+            <span class="font--12-400 border-radius-2px padding-left-2px" style="width:110px;opacity:0.8;" :style="cursorTooltip.linkEventTime.style">{{linkEventTime}}</span>
           </div>
         </template>
       </div>
@@ -72,6 +73,8 @@ Vue.component("PortsMapLogs2",{
       if(left<=0){return};
       const top=touch_y-rect.top;
       if(top<=0){return};
+      /*const shift=2;
+      const width=20;*/
       return {
         style:{
           left:`${left}px`,
@@ -81,21 +84,37 @@ Vue.component("PortsMapLogs2",{
             top:`${top}px`,
             left:`${left}px`,
           }
-        }
+        },
+        /*buttonLeftAdj:{
+          style:{
+            top:`${top+shift+2}px`,
+            left:`${left-width-shift}px`,
+          }
+        },
+        buttonRightAdj:{
+          style:{
+            top:`${top+shift+2}px`,
+            left:`${left+shift+2}px`,
+          }
+        },*/
       }
     },
     cursorTooltip(){
       const {touch_y,touch_x,rect,linkEventName}=this;
       if(!rect){return};
-      let left=touch_x-rect.left;
+      const left=touch_x-rect.left;
       if(left<=0){return};
-      left=left>(rect.right-rect.left)/2?left-105:left+5;
-      const top=5+touch_y-rect.top;
+      const width=110;
+      const height=32;
+      const shift=2;
+      const isHalf=left>(rect.right-rect.left)/2;
+      const shift_left=isHalf?left-width-shift:left+shift+2;//2 - cursor width
+      const top=touch_y-rect.top-height-shift;
       const {row:{cText,bgLinkUp,bgLinkDn,bgDate},linkEventName:{up}}=PORT_LINK_LOGS;
       return {
         style:{
           top:`${top}px`,
-          left:`${left}px`,
+          left:`${shift_left}px`,
         },
         linkEventTime:{
           style:{
