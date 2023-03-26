@@ -9,6 +9,7 @@ if(FIX_test_DEV){
     str:'',
   };
 };
+window.__defineGetter__('devVueTemplateMark',()=>`<tt style="position:absolute;font-size:10px;line-height:10px;color:#888888;">${new Date().toLocaleTimeString()} ${crypto.randomUUID()}</tt>`);
 
 function createScriptCrcElement(id='',src=''){
   document.getElementById(id)?.remove();
