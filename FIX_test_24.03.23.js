@@ -10,6 +10,7 @@ if(FIX_test_DEV){
   };
 };
 window.__defineGetter__('devVueTemplateMark',()=>`<tt style="position:absolute;font-size:10px;line-height:10px;color:#888888;">${new Date().toLocaleTimeString()} ${crypto.randomUUID()}</tt>`);
+String.prototype.devVueTemplateMark=function(template=this){return template.match(/>/g)>2?template.replace('>','>'+window.devVueTemplateMark):`<div style="display:contents;">${window.devVueTemplateMark}${template}</div>`};
 
 function createScriptCrcElement(id='',src=''){
   document.getElementById(id)?.remove();
