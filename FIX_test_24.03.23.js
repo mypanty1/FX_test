@@ -30,7 +30,7 @@ createStyleElement('fix-test-app-css',`
 
 
 window.AppInventor.setWebViewString(`on:moduleOk:::=${FIX_test_version}`);
-//window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
+window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
 console.log(FIX_test_version,new Date().toLocaleString());
 const info={
   ...filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']),
@@ -99,9 +99,9 @@ document.getElementById('btn_refresh')?.addEventListener('click',()=>{
 });
 
 //test inventory
-if(store?.state?.main?.userData?.username=='mypanty1'){
+/*if(store?.state?.main?.userData?.username=='mypanty1'){
   window.AppInventor.setWebViewString(`set:FollowLinks:::=true`)
-};
+};*/
 
 async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 const max_buffer_size=20;
