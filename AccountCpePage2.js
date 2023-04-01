@@ -1377,6 +1377,54 @@ Vue.component('AccountCpePage2',{
   },
 });
 
+Vue.component('equipment-header', {
+  template:`<title-main :icon="icon" textClass="font--13-500" :text="equipment.model||equipment.type_desc||equipmentTitle.type_desc" @block-click="toCpe">
+    <button-sq v-if="isCpe" icon="right-link" type="medium"/>
+    <button-sq v-if="isCpe" icon="right-link" type="medium"/>
+  </title-main>`,
+  props:{
+    equipment:{type:Object,required: true},
+    account:{type:String,default:''},
+    mr_id: {type: Number, required: true }
+  }, 
+  data:()=>({}),
+  computed:{
+    equipmentTitle(){
+      return {
+        camtv   :{icon:'tv',          type_desc:'CAM-модуль'},
+        hdtv    :{icon:'tv',          type_desc:'HD-приставка'},
+        hybrid  :{icon:'tv',          type_desc:'HD-приставка Гибрид'},
+        iptv    :{icon:'tv',          type_desc:'IPTV-приставка'},
+        sdtv    :{icon:'tv',          type_desc:'SD-приставка'},
+        ott     :{icon:'tv',          type_desc:'OTT-приставка'},
+        voip    :{icon:'phone-1',     type_desc:'VoIP роутер'},
+        wifi    :{icon:'router',      type_desc:'Wi-Fi роутер'}
+      }[this.equipment.type]||{icon:'mark-circle', type_desc:'CPE'};
+    },
+    icon(){
+      return this.equipmentTitle.icon+(this.equipment.fake?' message-el__wrapper--warn':'');
+    },
+    isCpe(){
+      return ['wifi','voip'].includes(this.equipment.type);
+    },
+  },
+  methods:{
+    toCpe(){
+      if(!this.isCpe){return};
+      if(!this.equipment.id){return};
+      if(!this.account){return};
+      this.$router.push({
+        name:'account-cpe',
+        params:{
+          mr_id:this.mr_id,
+          serial:this.equipment.id,
+          account:this.account,
+        },
+      });
+    },
+  },
+});
+
 app.$router.addRoutes([
   {
     name: 'cpe_test_2',
