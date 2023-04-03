@@ -1459,6 +1459,283 @@ TW1I111030266	D-Link DIR-825
 */
 //app.$router.push({name:'cpe_test_2',params:{mr_id:4,serial:'F172000078595',account:'60910538250'}});
 
+Vue.component('CpeFind',{
+  template:`<div name="CpeFind">
+    <title-main icon="router ic-24 main-lilac" :text="cpe.cpe_vendor" :text2="cpe.cpe_model" class="margin-top-bottom--8px padding-left-0"/>
+    <devider-line />
+    <div class="display-flex flex-direction-column gap-8px">
+      <div>
+        <link-block icon="-" v-if="abon?.acc_num" @click="toCpe(abon?.acc_num,cpe.serial_number)" :text="cpe.serial_number" actionIcon="right-link" type="medium" class="padding-left-0"/>
+
+        <info-value v-else label="Серийный номер" :value="cpe.serial_number" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="MAC адрес" v-if="cpe.mac" :value="cpe.mac" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="IP адрес" v-if="cpe.ip_address" :value="cpe.ip_address" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="Версия ПО" v-if="cpe.version" :value="cpe.version" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="Появился в сети" v-if="cpe.first_msg" :value="cpe.first_msg" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="Был в сети" v-if="cpe.last_msg" :value="cpe.last_msg" type="medium" withLine class="padding-left-right-0"/>
+        <info-value label="Был на порту" v-if="port?.last_date" :value="port?.last_date" type="medium" withLine class="padding-left-right-0"/>
+      </div>
+      <template v-if="device">
+        <info-text-sec v-if="device.device_location" :text="device.device_location" class="padding-left-0"/>
+        <link-block icon="-" @click="toDevice(device.device_name)" :text="device.device_ip||device.device_name" :text2="''" text2Class="tone-500" :textSub="device.model" textSubClass="font--13-500 tone-500" actionIcon="right-link" type="medium" class="padding-left-0">
+          <button-sq slot="prefix" @click="getDevicePing" class="margin-left--10px">
+            <span class="border-radius-4px padding-8px ic-20" :class="iconDevice"></span>
+          </button-sq>
+        </link-block>
+      </template>
+      <template v-if="port">
+        <link-block icon="-" @click="toPort(port.port_name)" :text="port.if_name" :text2="port.port_number" text2Class="tone-500" :textSub="port.if_alias" textSubClass="font--13-500 tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top--8px">
+          <button-sq slot="prefix" @click="getPortStatus" class="margin-left--10px">
+            <span class="border-radius-4px padding-8px ic-20" :class="iconPort"></span>
+          </button-sq>
+        </link-block>
+      </template>
+      <template v-if="abon">
+        <link-block icon="-" @click="toAccount(abon.acc_num)" :text="abon.acc_num" :text2="abon.flat_number?('кв. '+abon.flat_number):''" text2Class="tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top--8px">
+          <button-sq slot="prefix" @click="getPort" class="margin-left--10px">
+            <span class="border-radius-4px padding-8px ic-20" :class="iconAbon"></span>
+          </button-sq>
+        </link-block>
+      </template>
+    </div>
+  </div>`,
+  props:{
+    CPE:{type:Object,default:()=>({}),required:true},
+  },
+  data:()=>({
+    loads:{
+      device:false,
+      ping:false,
+      port_status:false,
+      port:false
+    },
+    resps:{
+      device:null,
+      ping:null,
+      port_status:null,
+      port:null,
+    }
+  }),
+  async created(){
+    this.getPort();
+    await this.getDevice();
+    if(!this.resps.device){return};
+    await this.getDevicePing();
+    if(!this.isPingOk){return};
+    this.getPortStatus();
+  },
+  computed:{
+    cpe(){
+      const cpe=Object.keys(this.CPE).reduce((cpe,key)=>({...cpe,[key.toLowerCase()]:this.CPE[key]}),{})
+      return {
+        ...cpe,
+        first_msg:new Date(Date.parse(cpe.first_msg)).toLocaleString(),
+        last_msg:new Date(Date.parse(cpe.last_msg)).toLocaleString(),
+      }
+    },
+    device(){
+      const {device_model='',device_name='',device_vendor=''}=this.cpe;
+      if(!device_name){return};
+      const {device_ip=null,device_location=null}=this;
+      return {
+        device_name,
+        device_ip,
+        device_location,
+        device_vendor,
+        device_model,
+        model:`${device_vendor} ${(device_model||'').replace('Quidway ','')}`
+      };
+    },
+    device_location(){return this.resps.device?.region?.location},
+    mr_id(){return this.resps.device?.region?.mr_id},
+    device_ip(){return this.resps.device?.ip},
+    port(){
+      const {if_name='',if_index=0,if_alias='',port_name='',port_number=0,first_date='',last_date='',amount=0,mac=''}=this.cpe;
+      if(!port_name){return};
+      return {
+        if_name,
+        if_index,
+        if_alias:((if_alias||'').includes(if_name)||(if_alias||'').includes('HUAWEI, '))?'':if_alias,
+        port_name,
+        port_number,
+        first_date:new Date(Date.parse(first_date)).toLocaleString(),
+        last_date:new Date(Date.parse(last_date)).toLocaleString(),
+        amount,
+        mac
+      };
+    },
+    abon(){
+      const {acc_num,acc_number,flat_number}=this.cpe;
+      if(!acc_num){return};
+      return {
+        acc_num,
+        acc_number,
+        flat_number,
+        //acc_state
+      };
+    },
+    acc_state(){
+      if(!this.abon){return};
+      const {acc_num='',acc_number=''}=this.abon;
+      const subscriber_list=this.resps.port?.subscriber_list;
+      if(!subscriber_list||!subscriber_list?.length){return};
+      const colsed_at=subscriber_list.find(sub=>[acc_num,acc_number].includes(sub.account))?.colsed_at;
+      if(!colsed_at){return};
+      return colsed_at.startsWith('3000-01-01')?'red':'green';
+    },
+    isPingOk(){
+      return this.resps.ping?.code==200
+    },
+    ifAdminStatus(){
+      return this.resps.port_status?.IF_ADMIN_STATUS;
+    },
+    ifOperStatus(){
+      return this.resps.port_status?.IF_OPER_STATUS;
+    },
+    ifInErrors(){
+      return parseInt(this.resps.port_status?.IF_IN_ERRORS||0);
+    },
+    iconDevice(){
+      if(this.loads.device){return 'ic-loading rotating main-lilac'};
+      if(this.loads.ping){return 'ic-loading rotating main-lilac'};
+      if(this.resps.ping){
+        if(this.isPingOk){return 'ic-switch main-green-light bg-main-green'};
+        return 'ic-switch bg-main-red tone-100';
+      }
+      return 'ic-switch tone-500';
+    },
+    iconPort(){
+      if(this.loads.port_status){return 'ic-loading rotating main-lilac'};
+      if(this.resps.port_status){
+        if(this.ifOperStatus){
+          if(this.ifInErrors){return 'ic-cable-test main-green-light bg-main-orange'};//has errors
+          return 'ic-cable-test main-green-light bg-main-green';//link up
+        };
+        if(!this.ifAdminStatus){return 'ic-cable-test bg-main-red tone-100'};//port off
+        return 'ic-cable-test tone-500 bg-tone-200-bg';//link down
+      };
+      return 'ic-cable-test tone-500';
+    },
+    iconAbon(){
+      if(this.loads.port){return 'ic-loading rotating main-lilac'};
+      switch(this.acc_state){
+        case 'red':return 'ic-person main-green';
+        case 'green':return 'ic-person main-red';
+        default:return 'ic-person tone-500';
+      };
+    },
+  },
+  methods:{
+    async getDevice(){
+      const device_name=this.device?.device_name;
+      if(!device_name){return};
+      if(this.resps.device){return};
+      this.loads.device=true;
+      this.resps.device=null;
+      const cache=this.$cache.getItem(`device/${device_name}`);
+      if(cache){
+        this.resps.device=cache;
+      }else{
+        try{
+          const response=await httpGet(buildUrl('search_ma',{pattern:device_name},'/call/v1/search/'));
+          if(response.data){
+            this.$cache.setItem(`device/${device_name}`,response.data);
+            this.resps.device=response.data;
+          };
+        }catch(error){
+          console.warn('search_ma:device.error',error);
+        };
+      };
+      this.loads.device=false;
+    },
+    async getDevicePing(){
+      if(!this.resps.device?.ip){return};
+      const {region={},ip:IP_ADDRESS}=this.resps.device;
+      const device={MR_ID:region.mr_id,SYSTEM_OBJECT_ID:null,VENDOR:null,IP_ADDRESS};
+      this.resps.ping=null;
+      this.loads.ping=true;
+      try{
+        const response=await httpPost(buildUrl('device_ping',{ip:IP_ADDRESS},'/call/hdm/'),{device},true);
+        this.resps.ping=response;
+      }catch(error){
+        console.warn('device_ping.error',error);
+      };
+      this.loads.ping=false;
+    },
+    async getPortStatus(){
+      const device=this.device?.device_name;
+      if(!device){return};
+      const port_ifindex=this.port?.if_index;
+      if(!port_ifindex){return};
+      this.loads.port_status=true;
+      this.resps.port_status=null;
+      try{
+        const response=await httpGet(buildUrl('port_status_by_ifindex',{device,port_ifindex},"/call/hdm/"));
+        if(!response.code){
+          this.resps.port_status=response;
+        };
+      }catch(error){
+        console.warn('port_status.error', error);
+      };
+      this.loads.port_status=false;
+    },
+    async getPort(){
+      const port_name=this.port?.port_name;
+      if(!port_name){return};
+      if(this.resps.port){return};
+      this.loads.port=true;
+      this.resps.port=null;
+      const cache=this.$cache.getItem(`port/${port_name}`);
+      if(cache){
+        this.resps.port=cache;
+      }else{
+        try{
+          const response=await httpGet(buildUrl('search_ma',{pattern:port_name},'/call/v1/search/'));
+          if(response.data){
+            this.$cache.setItem(`port/${port_name}`,response.data);
+            this.resps.port=response.data;
+          };
+        }catch(error){
+          console.warn('search_ma:port.error',error);
+        };
+      };
+      this.loads.port=false;
+    },
+    toCpe(account='',serial=''){
+      if(!account){return};
+      if(!serial){return};
+      this.$router.push({
+        name:'account-cpe',
+        params:{
+          mr_id:this.mr_id||4,
+          serial,
+          account,
+        },
+      });
+    },
+    toAccount(account=''){
+      if(!account){return};
+      this.$router.push({
+        name:'account-proxy',
+        params:{accountId:account},
+      });
+    },
+    toPort(port_name=''){
+      if(!port_name){return};
+      this.$router.push({
+        name:"eth-port",
+        params:{id:port_name},
+      });
+    },
+    toDevice(device_name=''){
+      if(!device_name){return};
+      this.$router.push({
+        name:"device",
+        params:{id: device_name},
+      });
+    },
+  },
+});
 
 
 
