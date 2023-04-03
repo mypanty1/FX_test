@@ -1484,14 +1484,14 @@ Vue.component('CpeFind',{
         </link-block>
       </template>
       <template v-if="port">
-        <link-block icon="-" @click="toPort(port.port_name)" :text="port.if_name" :text2="port.port_number" text2Class="tone-500" :textSub="port.if_alias" textSubClass="font--13-500 tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top--8px">
+        <link-block icon="-" @click="toPort(port.port_name)" :text="port.if_name" :text2="port.port_number" text2Class="tone-500" :textSub="port.if_alias" textSubClass="font--13-500 tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top-8px">
           <button-sq slot="prefix" @click="getPortStatus" class="margin-left--10px">
             <span class="border-radius-4px padding-8px ic-20" :class="iconPort"></span>
           </button-sq>
         </link-block>
       </template>
       <template v-if="abon">
-        <link-block icon="-" @click="toAccount(abon.acc_num)" :text="abon.acc_num" :text2="abon.flat_number?('кв. '+abon.flat_number):''" text2Class="tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top--8px">
+        <link-block icon="-" @click="toAccount(abon.acc_num)" :text="abon.acc_num" :text2="abon.flat_number?('кв. '+abon.flat_number):''" text2Class="tone-500" actionIcon="right-link" type="medium" class="padding-left-0 margin-top-8px">
           <button-sq slot="prefix" @click="getPort" class="margin-left--10px">
             <span class="border-radius-4px padding-8px ic-20" :class="iconAbon"></span>
           </button-sq>
