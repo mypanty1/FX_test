@@ -553,6 +553,17 @@ Vue.component('SitePings',{//pings chart
     'loadingSome'(loadingSome){
       this.$emit('loading-some',loadingSome);
     },
+		'networkElementsDuESwInstalled54'(networkElements){
+			if(!Object.values(networkElements).length){return};
+			const subscribes=Object.values(networkElements).map(({ip})=>{
+				return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?ip=${ip}`,{
+					headers:{
+						'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'
+					}
+				});
+			});
+			Promise.allSettled(subscribes)
+		},
   },
   computed:{
     node_id(){return this.site.node_id},
@@ -572,6 +583,18 @@ Vue.component('SitePings',{//pings chart
         },
       }) 
     },
+		networkElementsDuESwInstalled54(){
+			return select(this.networkElements,{
+				region_id:54,
+				ne_name:testByName.neIsETH,
+        node_name:testByName.nodeIsDu,
+        ne_status:testByName.neIsInstalled,
+        site_id:this.site_id,
+        node_id:this.node_id,
+        ip:(ip)=>!!ip,
+        sysObjectID:(sysObjectID)=>!!sysObjectID,
+      })
+		},
     networkElementsCount(){return Object.values(this.networkElementsFiltered).length},
     loadingSome(){
       return Object.values(this.loads).some(v=>v)
