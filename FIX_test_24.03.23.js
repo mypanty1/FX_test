@@ -556,12 +556,11 @@ Vue.component('SitePings',{//pings chart
     'networkElementsDuESwInstalled54'(networkElements){
       if(!Object.values(networkElements).length){return};
       const login=this.$root.username;
-      if(!login){return}
+      if(!login){return};
+      const {id,name,address}=this.site;
       const subscribes=Object.values(networkElements).map(({ip})=>{
-        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?ip=${ip}&login=${login}`,{
-          headers:{
-            'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'
-          }
+        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?${objectToQuery({ip,login,site:{id,name,address}})}`,{
+          headers:{'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'}
         });
       });
       Promise.allSettled(subscribes)
