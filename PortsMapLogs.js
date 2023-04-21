@@ -8,11 +8,6 @@ Vue.component("PortsMapLogs",{
   },
 });
 
-PORT_LINK_LOGS.linkEventName={
-  up:'LinkUp',
-  dn:'LinkDown'
-};
-
 Vue.component("PortsMapLogs2",{
   template:`<section name="PortsMapLogs2">
     `+(window.devVueTemplateMark||'')+`
