@@ -22,7 +22,7 @@ Vue.component('device-actions',{
       <template v-if="hasIP&&isETH">
         <devider-line/>
         <link-block icon="repeat" text="Привязка всех абонентов" actionIcon="info" @click="show.info.DeviceActionPortsAbonsBinds=!show.info.DeviceActionPortsAbonsBinds" />
-        <info-text-icon v-if="show.info.DeviceActionPortsAbonsBinds" icon="info" text="Привязка всех абонентов на порты в биллинге по соответствию мак-порт после перекоммутации/замены. Для повышения точности привязки желательно актуализировать маки на портах во вкладке [Опросить устройство] незадолго до перед тем как"/>
+        <info-text-icon v-if="show.info.DeviceActionPortsAbonsBinds" icon="info" text="Перепривязка всех абонентов на корректные порты в биллинге по соответствию мак-порт после перекоммутации/замены. Для повышения точности привязки желательно актуализировать маки на портах во вкладке [Опросить устройство] незадолго до перед тем как"/>
         <DeviceActionPortsAbonsBinds :networkElement="device" class="p-all"/>
       </template>
     </div>
