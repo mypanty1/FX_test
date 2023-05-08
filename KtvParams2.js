@@ -10,7 +10,7 @@ Vue.component('KtvParams2',{
       <button-sq :icon="loads.params?'loading rotating':'refresh'" @click="getKtvParams"/>
       <button-sq v-if="is54&&ip" :icon="$refs.KtvParamsEditModal?.loadingSome?'loading rotating':'edit'" @click="$refs.KtvParamsEditModal.open()" :disabled="loads.params||$refs.KtvParamsEditModal?.loadingSome"/>
     </title-main>
-    <KtvParamsEditModal v-if="is54&&ip" ref="KtvParamsEditModal" v-bind="{networkElement}" @onSetParamOk="getKtvParams"/>
+    <KtvParamsEditModal v-if="isOp54&&ip" ref="KtvParamsEditModal" v-bind="{networkElement}" @onSetParamOk="getKtvParams"/>
     <loader-bootstrap v-if="loads.params" height="72" text="получение параметров с устройства"/>
     <template v-else-if="parsedParams?.length">
       <div v-for="param of parsedParams" :key="param.name">
@@ -41,7 +41,7 @@ Vue.component('KtvParams2',{
     }
   },
   computed:{
-    is54(){return this.networkElement?.region?.id==54},
+    isOp54(){return this.networkElement?.region?.id==54&&/^OP/i.test(this.networkElement?.name||'')},
     ip(){return this.networkElement?.ip},
     params(){
       const {params}=this.resps;
@@ -73,7 +73,7 @@ Vue.component('KtvParams2',{
       let params=[];
       if(!this.params||!this.networkElement){return params};
       const {type}=this.networkElement;
-      if(/^(OP)/i.test(type)){
+      if(/^OP/i.test(type)){
         params=[
           'InputOpticalPower_A',
           'InputOpticalPower_B',
@@ -150,7 +150,7 @@ Vue.component('KtvParams2',{
       const {type}=this.networkElement;
       const isInputPower=/^InputOpticalPower/.test(name);
 
-      if(/^(OP)/i.test(type)&&isInputPower){
+      if(/^OP/i.test(type)&&isInputPower){
         if(int>=-5&&int<=0){return 'main-green'};
         if(int>-9&&int<=2){return 'main-orange'};
         return 'main-red';
