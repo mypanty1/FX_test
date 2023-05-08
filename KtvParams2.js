@@ -33,13 +33,7 @@ Vue.component('KtvParams2',{
   created(){
     this.getKtvParams();
   },
-  watch:{
-    'resps.params'(){
-      if(!this.$refs.KtvParamsEditModal?.resps?.getKtvParams){
-        this.$refs.KtvParamsEditModal?.getKtvParams();
-      };
-    }
-  },
+  watch:{},
   computed:{
     isOp54(){return this.networkElement?.region?.id==54&&/^OP/i.test(this.networkElement?.name||'')},
     ip(){return this.networkElement?.ip},
@@ -288,6 +282,7 @@ Vue.component('KtvParamsEditModal',{
     },
     onModalOpen(){
       this.init();
+      this.getKtvParams();
     },
     onModalClose(){
       
