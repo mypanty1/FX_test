@@ -580,8 +580,8 @@ Vue.component('FindPort2',{
     titleText2(){return `${this.selectedCount||'0'} из ${this.totalCount||'0'}`},
     titleText2Class(){return `tone-500 ${(this.selectedCount!=this.totalCount)&&'bg-main-lilac-light border-radius-4px padding-left-right-4px'}`},
     selectedTest(){return `выбрано ${this.selectedCount||'0'} из ${this.totalCount||'0'} устройств`},
-    savedText(){return `Сохранение портов прошло успешно в ${this.saveTime}, опрошено ${this.saveData.savedCount} устройств`},
-    comparedText(){return `Сравнение портов прошло успешно, изменилось ${this.saveData.changedCount} порта`},
+    savedText(){return `Сохранение портов прошло успешно в ${this.saveTime}, опрошено ${this.saveData.savedCount||0} устройств`},
+    comparedText(){return `Сравнение портов прошло успешно, изменилось ${this.saveData.changedCount||0} порта`},
   },
   methods: {
     update_port_status(prefix,device_name){
