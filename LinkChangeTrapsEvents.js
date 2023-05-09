@@ -160,7 +160,7 @@ Vue.component('LinkChangeTrapsEvents',{
       const login=this.$root.username;
       if(!login){return};
       if(!window.ws){return};
-      window.ws.send(JSON.stringify({type:'data',user:login,data})):
+      window.ws.send(JSON.stringify({type:'data',user:login,data}));
     },
     initWs(){
       const login=this.$root.username;
