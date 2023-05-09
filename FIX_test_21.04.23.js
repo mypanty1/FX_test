@@ -548,7 +548,7 @@ Vue.component('SitePings',{//pings chart
     'loadingSome'(loadingSome){
       this.$emit('loading-some',loadingSome);
     },
-    'networkElementsDuESwInstalled54'(networkElements){
+    /*'networkElementsDuESwInstalled54'(networkElements){
       if(!Object.values(networkElements).length){return};
       const login=this.$root.username;
       if(!login){return};
@@ -559,7 +559,7 @@ Vue.component('SitePings',{//pings chart
         });
       });
       Promise.allSettled(subscribes)
-    },
+    },*/
   },
   computed:{
     node_id(){return this.site.node_id},
@@ -579,7 +579,7 @@ Vue.component('SitePings',{//pings chart
         },
       }) 
     },
-    networkElementsDuESwInstalled54(){
+    /*networkElementsDuESwInstalled54(){
       return select(this.networkElements,{
         region_id:54,
         ne_name:testByName.neIsETH,
@@ -590,7 +590,7 @@ Vue.component('SitePings',{//pings chart
         ip:(ip)=>!!ip,
         sysObjectID:(sysObjectID)=>!!sysObjectID,
       })
-    },
+    },*/
     networkElementsCount(){return Object.values(this.networkElementsFiltered).length},
     loadingSome(){
       return Object.values(this.loads).some(v=>v)
