@@ -143,6 +143,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //cpe test 2
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AccountCpePage2.js',type:'text/javascript'}));
 
+//LinkChangeTrapsEvents
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LinkChangeTrapsEvents.js',type:'text/javascript'}));
+
 
 
 
