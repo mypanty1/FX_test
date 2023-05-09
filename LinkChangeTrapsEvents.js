@@ -94,7 +94,7 @@ Vue.component('LinkChangeTrapsEvents',{
     },
     textSub(){
       const count=Object.values(this.networkElementsDuESwInstalled54).length;
-      return count?`${count} ${plural(['коммутатор','коммутатора','коммутаторов'],count)}`:''
+      return count?`прослушка ${count} ${plural(['коммутатор','коммутатора','коммутаторов'],count)}`:''
     },
     traps(){
       return [...this.recived].reverse().reduce((rows,snmp_trap)=>{
