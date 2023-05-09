@@ -94,7 +94,7 @@ Vue.component('LinkChangeTrapsEvents',{
     },
     textSub(){
       const count=Object.values(this.networkElementsDuESwInstalled54).length;
-      return count?`прослушка ${count} ${plural(['коммутатор','коммутатора','коммутаторов'],count)}`:''
+      return count?`прослушка ${count} ${plural(['коммутатора','коммутаторов','коммутаторов'],count)}`:''
     },
     traps(){
       return [...this.recived].reverse().reduce((rows,snmp_trap)=>{
@@ -155,6 +155,12 @@ Vue.component('LinkChangeTrapsEvents',{
     },
     clear(){
       this.recived=[];
+    },
+    send(data=null){
+      const login=this.$root.username;
+      if(!login){return};
+      if(!window.ws){return};
+      window.ws.send(JSON.stringify({type:'data',user:login,data})):
     },
     initWs(){
       const login=this.$root.username;
@@ -243,6 +249,7 @@ Vue.component('LinkChangeTrapsEvents',{
       const {ne_name}=ne;
       const port_name=`PORT-${ne_name}/${ifIndex}`;
       this.$router.push({ name: "eth-port", params: { id: port_name } });
+      this.send({click:port_name});
       this.closeWs();
     },
     goToNe({ip}){
@@ -250,6 +257,7 @@ Vue.component('LinkChangeTrapsEvents',{
       if(!ne){return};
       const {ne_name}=ne;
       this.$router.push({ name: "network-element", params: { device_id: ne_name } });
+      this.send({click:ne_name});
       this.closeWs();
     },
   },
