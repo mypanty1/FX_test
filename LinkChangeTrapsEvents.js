@@ -1,7 +1,8 @@
 Vue.component('FindPort',{
   template:`<div name="FindPort" class="display-contents">
-    <FindPort2 v-bind="$props"/>
     <LinkChangeTrapsEvents v-bind="{site_id}"/>
+    <FindPort2 v-bind="$props"/>
+    <!--<LinkChangeTrapsEvents v-bind="{site_id}"/>-->
   </div>`,
   props:{
     devices:{type:Object,default:()=>({})},
