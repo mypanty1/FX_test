@@ -101,14 +101,14 @@ Vue.component('LinkChangeTrapsEvents',{
       return [...this.recived].reverse().reduce((rows,snmp_trap)=>{
         const {date='',time='',ip='',trap_data={},trap_id='',trap_pdu_type,trap_type}=snmp_trap;
         //if(trap_type!=='LinkChange'){return rows};
-        const {ifIndex=0,ifDescr='',ifAdminStatus='',ifOperStatus=''}=trap_data;
+        const {ifIndex=0,ifDescr='',ifName='',ifAdminStatus='',ifOperStatus=''}=trap_data;
         const port_id=`${ip}-${ifIndex}`;
         if(ifOperStatus==='down'){
-          //this.getVCT({ip,ifIndex,ifDescr,trap_id,port_id})
+          //this.getVCT({ip,ifIndex,ifDescr,ifName,trap_id,port_id})
         };
         const [_10,_221,ip2,ip3]=ip.split('.');
         const ipShort=`..${ip2}.${ip3}`;
-        const portName=ifDescr||`Port${ifIndex}`;
+        const portName=ifName||ifDescr||`Port${ifIndex}`;
         rows.push({
           date,
           time,
@@ -119,6 +119,7 @@ Vue.component('LinkChangeTrapsEvents',{
           trap_id,
           ifIndex,
           ifDescr,
+          ifName,
           ifAdminStatus,
           ifOperStatus
         })
@@ -224,15 +225,15 @@ Vue.component('LinkChangeTrapsEvents',{
         this.$set(this.resps.vct[port_id],trap_id,{prev_is_not_done:true})
         return
       };
-			this.$set(this.loads.vct[port_id],trap_id,true);
+      this.$set(this.loads.vct[port_id],trap_id,true);
       this.$set(this.resps.vct[port_id],trap_id,null)
       try{
         const resp=await fetch(`https://ping54.ru/api/v1/getVCT?${objectToQuery({ip,ifIndex,ifName:ifDescr||ifIndex,login})}`,{
           headers:{'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'}
         }).then(r=>r.json());
         if(resp/*&&!resp.error*/){//сохраняем ошибку чтобы не делать повторно
-					this.resps.vct[port_id][trap_id]=resp?.[ifIndex]?.vct||{empty:true};
-				};
+          this.resps.vct[port_id][trap_id]=resp?.[ifIndex]?.vct||{empty:true};
+        };
       }catch(error){
         console.warn('getVCT',error);
       };
