@@ -30,7 +30,7 @@ Vue.component('LinkChangeTrapsEvents',{
         </div>
         <devider-line m=0 style="grid-column:span 4;"/>
         <div class="display-contents" v-for="row of traps" :key="row.trap_id">
-          <div class="font--13-500 tone-500" style="font-stretch:ultra-condensed;font-family:sans-serif;font-size:15px !important;line-height:1;">{{row.time||row.date}}</div>
+          <div class="font--13-500 tone-500">{{row.time||row.date}}</div>
           <div @click="goToNe(row)" class="font--13-500 bg-tone-200 border-radius-2px padding-left-right-2px cursor-pointer">{{row.ipShort}}</div>
           <div @click="goToPort(row)" class="font--13-500 cursor-pointer">{{row.portName}}</div>
           <LinkLed2050 @click="goToPort(row)" :loading="loads.vct[row.port_id]?.[row.trap_id]" :error="false" :admin_state="row?.ifAdminStatus=='enable'?'up':'down'" :oper_state="row?.ifOperStatus=='up'?'up':'down'"/>
@@ -107,7 +107,7 @@ Vue.component('LinkChangeTrapsEvents',{
           //this.getVCT({ip,ifIndex,ifDescr,ifName,trap_id,port_id})
         };
         const [_10,_221,ip2,ip3]=ip.split('.');
-        const ipShort=ip||`..${ip2}.${ip3}`;
+        const ipShort=`..${ip2}.${ip3}`;
         const portName=ifName||ifDescr||`Port${ifIndex}`;
         rows.push({
           date,
