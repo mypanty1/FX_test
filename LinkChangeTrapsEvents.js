@@ -107,7 +107,7 @@ Vue.component('LinkChangeTrapsEvents',{
           //this.getVCT({ip,ifIndex,ifDescr,ifName,trap_id,port_id})
         };
         const [_10,_221,ip2,ip3]=ip.split('.');
-        const ipShort=`..${ip2}.${ip3}`;
+        const ipShort=ip||`..${ip2}.${ip3}`;
         const portName=ifName||ifDescr||`Port${ifIndex}`;
         rows.push({
           date,
