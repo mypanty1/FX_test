@@ -152,7 +152,7 @@ Vue.component('LinkChangeTrapsEvents',{
       await Promise.allSettled(subscribes);
     },
     closeWs(){
-      window.ws.close();
+      window.ws?.close();
       window.ws=null;
     },
     clear(){
