@@ -263,6 +263,9 @@ Vue.component('LinkChangeTrapsEvents',{
       this.closeWs();
     },
   },
+  beforeDestroy(){
+    this.closeWs();
+  },
 });
 Vue.component('FindPort2',{
   template:`<CardBlock name="FindPort" class="find-port">
