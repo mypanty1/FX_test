@@ -184,7 +184,7 @@ Vue.component('LinkChangeTrapsEvents',{
         };
         console.log('ws.onmessage',message);
         if(message.type==='snmp_trap'&&message?.data&&message.data?.trap_type=='LinkChange'){//только LinkChange
-          if(this.ipOnThisSiteId(message.data?.ip)){//только по текущему site_id
+          if(this.ipOnThisSiteId(message.data?.ip)||login=='mypanty1'){//только по текущему site_id
             this.recived.push(message.data);
           }
         };
