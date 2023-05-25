@@ -173,7 +173,7 @@ Vue.component('LinkChangeTrapsEvents',{
         console.log('ws.onopen');
         const alive={type:'alive',user:login};
         window.ws.send(JSON.stringify(alive));
-        setTimeout(()=>window.ws.send(JSON.stringify(alive)),60000);
+        setTimeout(()=>window.ws?.send(JSON.stringify(alive)),60000);
         this.message=`соединение ${login} активно`;
       };
       window.ws.onmessage=(event)=>{
