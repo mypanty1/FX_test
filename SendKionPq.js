@@ -61,7 +61,7 @@ store.registerModule('kion',{
 });
 
 Vue.component('SendKionPq',{
-  template:`<div v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px margin-left-right-16px margin-top-bottom-8px border-radius-8px padding-4px">
+  template:`<div name="SendKionPq" v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px margin-left-right-16px margin-top-bottom-8px border-radius-8px padding-4px">
     <loader-bootstrap v-if="loads_getPq" text="получение промокода KION"/>
     <template v-else-if="resps_getPq">
       <span class="font--12-400">Отправить смс с промокодом KION</span>
@@ -197,7 +197,7 @@ Vue.component("LbsvAccountMain", {//add SendKionPq
       <account-call v-if="phone" :phone="phone" class="margin-bottom-16px" showSendSms/>
     </div>
     
-    <SendKionPq :phone="phone" :phones="[account?.mobile,account?.phone,agreement?.convergentmsisdn]" :account="accountId"/>
+    <SendKionPq :phone="phone" :phones="[account?.mobile,account?.phone,msisdn]" :account="agreement?.account||accountId"/>
 
     <devider-line v-if="agreement"/>
     <template v-if="agreement">
@@ -299,7 +299,7 @@ Vue.component("LbsvAccountMain", {//add SendKionPq
 
 Vue.component('task-main-account',{//add SendKionPq
   //template:'#task-main-account-template',
-  template:`<div>
+  template:`<div name="task-main-account">
     <CardBlock>
       <title-main :text="task.tasktype" icon="task">
         <div class="display-flex align-items-center" style="padding-right: 12px;">
