@@ -41,7 +41,7 @@ Vue.component("PortMacCpe",{
         return
       };
       try{
-        const response=await httpPost(buildUrl('cpe_registre',{mac,mr_id},'/call/axiros/'),{mac,mr_id});
+        const response=await httpPost(buildUrl('cpe_registre',{mac,mr_id,mr:mr_id},'/call/axiros/'),{mac,mr_id,mr:mr_id});
         this.cpes=response?.length?response:[];
         this.$cache.setItem(key,this.cpes);
       }catch(error){
