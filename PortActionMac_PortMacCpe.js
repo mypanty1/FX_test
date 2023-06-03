@@ -5,10 +5,10 @@ Vue.component("PortMacCpe",{
       <info-value :label="mac" :value="text" withLine type="medium"/>
       <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
       <div class="display-flex margin-left-right-16px">
-        <info-text-sec v-if="cpe" :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+        <info-text-sec v-if="cpe" :text="cpeModelSn" @click="$router.push({name:'search',params:{text:sn}})" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
       </div>
       <div class="display-flex margin-left-right-16px">
-        <info-text-sec v-if="ne" :text="neNameModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+        <info-text-sec v-if="ne" :text="neNameModel" @click="$router.push({name:'search',params:{text:neName}})" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
       </div>
     </template> 
     <info-value v-else :label="text" value=" " type="medium"/>
