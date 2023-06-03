@@ -1,4 +1,4 @@
-//add cpe by mac
+//add cpe and ne by mac
 Vue.component("PortMacCpe",{
   template:`<div name="PortMacCpe" class="display-contents">
     <template v-if="mac">
@@ -6,6 +6,9 @@ Vue.component("PortMacCpe",{
       <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
       <div class="display-flex margin-left-right-16px">
         <info-text-sec v-if="cpe" :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+      </div>
+      <div class="display-flex margin-left-right-16px">
+        <info-text-sec v-if="ne" :text="neNameModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
       </div>
     </template> 
     <info-value v-else :label="text" value=" " type="medium"/>
@@ -19,16 +22,22 @@ Vue.component("PortMacCpe",{
   },
   data:()=>({
     cpes:[],
+    nels:[],
   }),
   created(){
     this.getCpesByMac();
+    this.getNeByMac();
   },
   computed:{
     cpe(){return this.cpes?.[0]},
-    model(){return this.cpe?.model||''},
+    cpeModel(){return this.cpe?.model||''},
     sn(){return this.cpe?.sn||''},
     vendor(){return this.cpe?.vendor||this.oui||''},
-    cpeModelSn(){return `${this.model} • ${this.sn}`},
+    cpeModelSn(){return `${this.cpeModel} • ${this.sn}`},
+    ne(){return this.nels?.[0]},
+    neModel(){return this.ne?.model||''},
+    neName(){return this.ne?.name||''},
+    neNameModel(){return `${this.neName} • ${this.neModel}`},
   },
   methods:{
     async getCpesByMac(){
@@ -46,6 +55,23 @@ Vue.component("PortMacCpe",{
         this.$cache.setItem(key,this.cpes);
       }catch(error){
         console.warn('cpe_registre.error', error);
+      };
+    },
+    async getNeByMac(){
+      const {mac,mr_id}=this;
+      if(!mac||!mr_id){return};
+      const key=`nels_by_mac-${mr_id}-${mac}`;
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.nels=cache;
+        return
+      };
+      try{
+        const response=await httpGet(buildUrl('search_ma',{pattern:mac},'/call/v1/search/'));
+        this.nels=response?.data?.ip?[response.data]:[];
+        this.$cache.setItem(key,this.ne);
+      }catch(error){
+        console.warn('search_ma.error', error);
       };
     },
   },
@@ -169,6 +195,11 @@ Vue.component("PortActionMac", {
     },
   },
 });
+
+
+
+
+
 
 
 
