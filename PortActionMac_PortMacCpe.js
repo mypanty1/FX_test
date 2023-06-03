@@ -13,7 +13,7 @@ Vue.component("PortMacCpe",{
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <div v-if="ne" @click="$router.push({name:'search',params:{text:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <info-text-sec :text="neNameIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+          <info-text-sec :text="neIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <div v-if="account" @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
@@ -68,7 +68,7 @@ Vue.component("PortMacCpe",{
     neModel(){return this.ne?.model||''},
     neName(){return this.ne?.name||''},
     neIp(){return this.ne?.ip||''},
-    neNameIpModel(){return `${this.neName} • ${this.neIp} • ${this.neModel}`},
+    neIpModel(){return `${this.neIp} • ${this.neModel}`},
     portName(){return this.neps?.[1]?.ports?.[0]?.PORT_NAME||''},
     portNeName(){return this.portName.split(/PORT-|\//gi)?.[1]||''},
     sub(){return this.port?.subscriber_list?.find(({mac:_mac})=>_mac?.match(/[0-9a-f]/gi)?.join('')?.toLowerCase()==this.mac.match(/[0-9a-f]/gi)?.join('').toLowerCase())},
