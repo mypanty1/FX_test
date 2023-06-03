@@ -4,11 +4,11 @@ Vue.component("PortMacCpe",{
     <template v-if="mac">
       <info-value :label="mac" :value="text" withLine type="medium"/>
       <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
-      <div class="display-flex margin-left-right-16px">
-        <info-text-sec v-if="cpe" :text="cpeModelSn" @click="$router.push({name:'search',params:{text:sn}})" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+      <div v-if="cpe" @click="$router.push({name:'search',params:{text:sn}})" class="display-flex margin-left-right-16px">
+        <info-text-sec :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
       </div>
-      <div class="display-flex margin-left-right-16px">
-        <info-text-sec v-if="ne" :text="neNameModel" @click="$router.push({name:'search',params:{text:neName}})" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+      <div v-if="ne" @click="$router.push({name:'search',params:{text:neName}})" class="display-flex margin-left-right-16px">
+        <info-text-sec :text="neNameIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
       </div>
     </template> 
     <info-value v-else :label="text" value=" " type="medium"/>
@@ -37,7 +37,8 @@ Vue.component("PortMacCpe",{
     ne(){return this.nels?.[0]},
     neModel(){return this.ne?.model||''},
     neName(){return this.ne?.name||''},
-    neNameModel(){return `${this.neName} • ${this.neModel}`},
+    neIp(){return this.ne?.ip||''},
+    neNameIpModel(){return `${this.neName} • ${this.neIp} • ${this.neModel}`},
   },
   methods:{
     async getCpesByMac(){
@@ -69,7 +70,7 @@ Vue.component("PortMacCpe",{
       try{
         const response=await httpGet(buildUrl('search_ma',{pattern:mac},'/call/v1/search/'));
         this.nels=response?.data?.ip?[response.data]:[];
-        this.$cache.setItem(key,this.ne);
+        this.$cache.setItem(key,this.nels);
       }catch(error){
         console.warn('search_ma.error', error);
       };
