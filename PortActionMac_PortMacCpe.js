@@ -2,13 +2,28 @@
 Vue.component("PortMacCpe",{
   template:`<div name="PortMacCpe" class="display-contents">
     <template v-if="mac">
-      <info-value :label="mac" :value="text" withLine type="medium"/>
-      <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
-      <div v-if="cpe" @click="$router.push({name:'search',params:{text:sn}})" class="display-flex margin-left-right-16px">
-        <info-text-sec :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+      <div class="display-flex gap-4px padding-left-right-16px align-items-center">
+        <div v-if="loadingSome" class="ic-16 ic-loading rotating main-lilac"></div>
+        <info-value :label="mac" :value="text" withLine type="medium" class="padding-unset width-100-100"/>
       </div>
-      <div v-if="ne" @click="$router.push({name:'search',params:{text:neName}})" class="display-flex margin-left-right-16px">
-        <info-text-sec :text="neNameIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+      <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
+      <div class="display-flex flex-direction-column gap-2px">
+        <div v-if="cpe" @click="$router.push({name:'search',params:{text:sn}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+          <info-text-sec :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
+        <div v-if="ne" @click="$router.push({name:'search',params:{text:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+          <info-text-sec :text="neNameIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
+        <div v-if="account" @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+          <info-text-sec :text="accountFlat" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
+        <div v-if="port_ne" @click="$router.push({name:'search',params:{text:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+          <info-text-sec :text="portNeIpPortName" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
+          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
       </div>
     </template> 
     <info-value v-else :label="text" value=" " type="medium"/>
@@ -22,11 +37,26 @@ Vue.component("PortMacCpe",{
   },
   data:()=>({
     cpes:[],
-    nels:[],
+    neps:[],
+    port:null,
+    port_ne:null,
+    loads:{},
   }),
   created(){
     this.getCpesByMac();
-    this.getNeByMac();
+    this.getNeOrPortByMac();
+  },
+  watch:{
+    'portName'(portName){
+      if(portName){
+        this.getPort();
+      };
+    },
+    'portNeName'(portNeName){
+      if(portNeName){
+        this.getNe();
+      };
+    },
   },
   computed:{
     cpe(){return this.cpes?.[0]},
@@ -34,20 +64,32 @@ Vue.component("PortMacCpe",{
     sn(){return this.cpe?.sn||''},
     vendor(){return this.cpe?.vendor||this.oui||''},
     cpeModelSn(){return `${this.cpeModel} • ${this.sn}`},
-    ne(){return this.nels?.[0]},
+    ne(){return this.neps?.ip?this.neps:null},
     neModel(){return this.ne?.model||''},
     neName(){return this.ne?.name||''},
     neIp(){return this.ne?.ip||''},
     neNameIpModel(){return `${this.neName} • ${this.neIp} • ${this.neModel}`},
+    portName(){return this.neps?.[1]?.ports?.[0]?.PORT_NAME||''},
+    portNeName(){return this.portName.split(/PORT-|\//gi)?.[1]||''},
+    sub(){return this.port?.subscriber_list?.find(({mac:_mac})=>_mac?.match(/[0-9a-f]/gi)?.join('')?.toLowerCase()==this.mac.match(/[0-9a-f]/gi)?.join('').toLowerCase())},
+    account(){return this.sub?.account||''},
+    flat(){return this.sub?.flat||''},
+    accountFlat(){return `${this.account} • кв.${this.flat||'?'}`},
+    portNeIp(){return this.port_ne?.ip||''},
+    portIfName(){return this.port?.snmp_name||''},
+    portNeIpPortName(){return `${this.portNeIp} • ${this.portIfName}`},
+    loadingSome(){return Object.values(this.loads).some(v=>v)},
   },
   methods:{
     async getCpesByMac(){
       const {mac,mr_id}=this;
       if(!mac||!mr_id){return};
       const key=`cpes_by_mac-${mr_id}-${mac}`;
+      this.$set(this.loads,key,true);
       const cache=this.$cache.getItem(key);
       if(cache){
         this.cpes=cache;
+        this.$set(this.loads,key,false);
         return
       };
       try{
@@ -57,24 +99,72 @@ Vue.component("PortMacCpe",{
       }catch(error){
         console.warn('cpe_registre.error', error);
       };
+      this.$set(this.loads,key,false);
     },
-    async getNeByMac(){
+    async getNeOrPortByMac(){
       const {mac,mr_id}=this;
       if(!mac||!mr_id){return};
-      const key=`nels_by_mac-${mr_id}-${mac}`;
+      const key=`neps_by_mac-${mr_id}-${mac}`;
+      this.$set(this.loads,key,true);
       const cache=this.$cache.getItem(key);
       if(cache){
-        this.nels=cache;
+        this.neps=cache;
+        this.$set(this.loads,key,false);
         return
       };
       try{
         const response=await httpGet(buildUrl('search_ma',{pattern:mac},'/call/v1/search/'));
-        this.nels=response?.data?.ip?[response.data]:[];
-        this.$cache.setItem(key,this.nels);
+        this.neps=response?.data||[];
+        this.$cache.setItem(key,this.neps);
       }catch(error){
         console.warn('search_ma.error', error);
       };
+      this.$set(this.loads,key,false);
     },
+    async getPort(){
+      const {portName}=this;
+      if(!portName){return};
+      const key=`port/${portName}`;
+      this.$set(this.loads,key,true);
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.port=cache;
+        this.$set(this.loads,key,false);
+        return
+      };
+      try{
+        const response=await httpGet(buildUrl('search_ma',{pattern:portName},'/call/v1/search/'));
+        if(response?.data){
+          this.port=response.data;
+          this.$cache.setItem(key,this.port);
+        }
+      }catch(error){
+        console.warn('search_ma.error', error);
+      };
+      this.$set(this.loads,key,false);
+    },
+    async getNe(){
+      const {portNeName}=this;
+      if(!portNeName){return};
+      const key=`device/${portNeName}`;
+      this.$set(this.loads,key,true);
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.port_ne=cache;
+        this.$set(this.loads,key,false);
+        return
+      };
+      try{
+        const response=await httpGet(buildUrl('search_ma',{pattern:portNeName},'/call/v1/search/'));
+        if(response?.data){
+          this.port_ne=response.data;
+          this.$cache.setItem(key,this.port_ne);
+        }
+      }catch(error){
+        console.warn('search_ma.error', error);
+      };
+      this.$set(this.loads,key,false);
+    }
   },
 });
 Vue.component("PortActionMac", {
