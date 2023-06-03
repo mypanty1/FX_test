@@ -8,11 +8,11 @@ Vue.component("PortMacCpe",{
       </div>
       <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
       <div class="display-flex flex-direction-column gap-2px">
-        <div v-if="cpe" @click="$router.push({name:'search',params:{text:sn}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+        <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:account||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <info-text-sec :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
-        <div v-if="ne" @click="$router.push({name:'search',params:{text:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+        <div v-if="ne" @click="$router.push({name:'network-element',params:{device_id:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <info-text-sec :text="neIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
@@ -20,7 +20,7 @@ Vue.component("PortMacCpe",{
           <info-text-sec :text="accountFlat" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
-        <div v-if="port_ne" @click="$router.push({name:'search',params:{text:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+        <div v-if="port_ne" @click="$router.push({name:'eth-port',params:{id:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <info-text-sec :text="portNeIpPortName" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
           <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
@@ -286,7 +286,6 @@ Vue.component("PortActionMac", {
     },
   },
 });
-
 
 
 
