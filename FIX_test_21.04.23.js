@@ -149,7 +149,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add cpe by mac
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionMac_PortMacCpe.js',type:'text/javascript'}));
 
-
+//add cpu/mem
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CpeSection3.js',type:'text/javascript'}));
 
 
 
