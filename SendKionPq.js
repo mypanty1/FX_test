@@ -173,11 +173,12 @@ Vue.component('SendKionPq',{
   }
 });
 
-Vue.component("LbsvAccountMain", {//add SendKionPq
-  template:`<CardBlock name="LbsvAccountMain" v-if="account">
+Vue.component("LbsvAccountMain300523", {
+  template:`<CardBlock name="LbsvAccountMain300523" v-if="account">
     <title-main>
       <div slot="prefix">
-        <span class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></span>
+        <!--<span class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></span>-->
+        <IcIcon name="status" :class="!agreement.closedon?'main-green':'main-red'"/>
       </div>
       <span slot="text" class="display-flex align-items-center gap-5px">
         <span>{{accountId}}</span>
@@ -198,7 +199,7 @@ Vue.component("LbsvAccountMain", {//add SendKionPq
     </div>
     
     <SendKionPq :phone="phone" :phones="[account?.mobile,account?.phone,msisdn]" :account="agreement?.account||accountId"/>
-
+    
     <devider-line v-if="agreement"/>
     <template v-if="agreement">
       <info-value icon="purse" :label="balanceLabel" :value="balance" :minus="agreement.balance.minus" type="extra"/>
@@ -209,6 +210,10 @@ Vue.component("LbsvAccountMain", {//add SendKionPq
       
     <link-block icon="sms" text="Смс с новым паролем" @block-click="openSendSmsModal" action-icon="expand"/>
     <send-sms-modal ref="sendSms" :account="accountId"/>
+    <template v-if="favBtnProps">
+      <devider-line/>
+      <FavBtnLinkBlock v-bind="favBtnProps"/>
+    </template>
   </CardBlock>`,
   props:{
     account:{type:Object,default:null},
@@ -228,6 +233,29 @@ Vue.component("LbsvAccountMain", {//add SendKionPq
     this.getConvergent();
   },
   computed: {
+    favBtnProps(){
+      if(!this.account||!this.agreement){return};
+      const {agreement,agreement:{account},msisdn}=this;
+      return {
+        title:`Абонент ${truncateSiteAddress(this.formatedAddress).replace(/(, )/,',')}`,
+        name:account,
+        id:account,
+        path:`/${account}`,//если открыт из наряда
+        descr:[
+          objectToTable(filterKeys(this.account,{
+            '!1':['ЛС',account],
+            name:'Абонент|-',
+            mobile:['Тлф',(m,account)=>account.mobile||account.phone],
+            '!2':['Конвергент',msisdn||'-']
+          })),
+          objectToTable(filterKeys(this.agreement,Object.values(agreement.services||{}).map(({vgroups=[]}={})=>vgroups||[]).flat().reduce((services,service)=>{
+            if(!service||service.status=='10'){return services};
+            services[service.vgid]=[`${service.serviceclassname} [${service.vgid}]`,`${([1,4,5,6].includes(service.billing_type)?`${service.login} `:'')}${service.agentdescr}`]
+            return services;
+          },{})))
+        ].join('\n'),
+      }
+    },
     addr_type2(){//0-прописки, 1-проживания, 2-доставки счетов
       if(!this.account?.vgroups?.[0]||!this.agreement){return ""};
       const addresses=this.account.vgroups.find(service=>service.agrmid==this.agreement.agrmid&&service.addresses.find(address=>address?.type==2))?.addresses||[];
