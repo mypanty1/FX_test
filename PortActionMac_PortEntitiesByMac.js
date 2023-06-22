@@ -15,7 +15,7 @@ Vue.component("PortEntitiesByMac",{
           <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{neIpModel}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
-        <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:sessionAccount||account||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+        <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:account||sessionAccount||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <div class="font--12-400 white-space-pre">роутер:</div>
           <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{cpeModelSn}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
