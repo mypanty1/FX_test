@@ -11,52 +11,52 @@ Vue.component("PortEntitiesByMac",{
           <div class="font--12-400">{{vendor}}</div>
         </div>
         <div v-if="ne" @click="$router.push({name:'network-element',params:{device_id:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <div class="font--12-400">устройство:</div>
-          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{neIpModel}}</div>
+          <div class="font--12-400 white-space-pre">СЭ:</div>
+          <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{neIpModel}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:sessionAccount||account||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <div class="font--12-400">роутер:</div>
-          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{cpeModelSn}}</div>
+          <div class="font--12-400 white-space-pre">роутер:</div>
+          <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{cpeModelSn}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <div v-if="sessionByMac" @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <div class="font--12-400"><span v-if="isGuest">гостевая </span>сессия:</div>
-          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionText}}</div>
-          <div v-if="isGuest" @click="stopGuestSession" class="ic-20 ic-close-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+          <div class="font--12-400 white-space-pre"><span v-if="isGuest">гостевая </span>сессия:</div>
+          <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionText}}</div>
+          <div v-if="isGuest" @click="stopGuestSession&&serverid&&dbsessid" class="ic-20 ic-close-1 main-lilac bg-main-lilac-light border-radius-4px" :class="[stopGuestSessionLoading&&'ic-loading rotating']"></div>
           <div v-else-if="sessionAccount" class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <template v-if="hasAccountsAndIsNotEq">
           <div @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400">сессия абонента:</div>
-            <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionAccount}}</div>
+            <div class="font--12-400 white-space-pre">сессия абонента:</div>
+            <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionAccount}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
           <div @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400">абонент:</div>
-            <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
+            <div class="font--12-400 white-space-pre">абонент по маку:</div>
+            <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
         </template>
         <template v-else>
           <div v-if="sessionAccount" @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400">сессия абонента:</div>
-            <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionAccount}}</div>
+            <div class="font--12-400 white-space-pre">сессия абонента:</div>
+            <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionAccount}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
           <div v-else-if="sessionLogin" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400">сессия абонента:</div>
-            <div class="font--13-500 bg-tone-200 padding-left-right-4px border-radius-4px">{{sessionLogin}}</div>
+            <div class="font--12-400 white-space-pre">сессия абонента:</div>
+            <div class="font--13-500 white-space-pre bg-tone-200 padding-left-right-4px border-radius-4px">{{sessionLogin}}</div>
           </div>
           <div v-if="account" @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400">абонент:</div>
-            <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
+            <div class="font--12-400 white-space-pre">абонент<span v-if="sessionAccount&&account"> по маку</span>:</div>
+            <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
         </template>
         <div v-if="neByPortByMac&&portByMacIsNotEqCurrentPort" @click="$router.push({name:'eth-port',params:{id:portByMacName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <div class="font--12-400">другой порт:</div>
-          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{portNeIpPortName}}</div>
+          <div class="font--12-400 white-space-pre">другой порт:</div>
+          <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{portNeIpPortName}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
       </div>
@@ -113,7 +113,7 @@ Vue.component("PortEntitiesByMac",{
     portByMacName(){return `${this.objectsByMac?.[1]?.ports?.[0]?.PORT_NAME||''}`},
     portByMacNeName(){return this.portByMacName.split(/PORT-|\//gi)?.[1]||''},
     sub(){return this.portByMac?.subscriber_list?.find(({mac:_mac})=>_mac?.match(/[0-9a-f]/gi)?.join('')?.toLowerCase()==this.mac.match(/[0-9a-f]/gi)?.join('').toLowerCase())},
-    account(){return `${this.sub?.account||''}`},
+    account(){return `${this.sub?.account||''}`.match(/\d/g)?.join('');},
     flat(){return this.sub?.flat||''},
     accountFlat(){return `${this.account} • кв.${this.flat||'?'}`},
     portNeIp(){return this.neByPortByMac?.ip||''},
@@ -154,17 +154,17 @@ Vue.component("PortEntitiesByMac",{
     sessionAccount(){
       const {sessionLogin}=this;
       if(![11,13].includes(sessionLogin.length)){return};
-      const account=this.sessionLogin.match(/\d/g)?.join('');
-      return account?.length==11&&account?.[0]!=7?account:'';
+      const account_11=this.sessionLogin.match(/\d/g)?.join('');
+      return account_11?.length==11&&account_11?.[0]!=7?account_11:'';
     },
     hasAccountsAndIsNotEq(){
       const {account,sessionAccount}=this;
-      const account11=(account||'').match(/\d/g)?.join('');
-      return account&&account11&&sessionAccount&&account11!==sessionAccount;
+      return account&&sessionAccount&&account!==sessionAccount;
     },
     portByMacIsNotEqCurrentPort(){
       return this.$route.params.id!==this.portByMacName
     },
+    stopGuestSessionLoading(){return this.loads.stopGuestSession},
   },
   methods:{
     goToSessionAccount(){
@@ -273,7 +273,7 @@ Vue.component("PortEntitiesByMac",{
     async stopGuestSession(){
       const {serverid,dbsessid}=this;
       if(!serverid||!dbsessid){return};
-      const key=`stop_session_radius-${serverid}-${dbsessid}`;
+      const key=`stopGuestSession`;
       if(this.loads[key]){return};
       this.$set(this.loads,key,true);
       try{
@@ -408,7 +408,6 @@ Vue.component("PortActionMac", {
     },
   },
 });
-
 
 
 
