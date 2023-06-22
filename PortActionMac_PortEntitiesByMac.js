@@ -110,7 +110,7 @@ Vue.component("PortEntitiesByMac",{
     neName(){return this.ne?.name||''},
     neIp(){return this.ne?.ip||''},
     neIpModel(){return `${this.neIp} • ${this.neModel}`},
-    portByMacName(){return this.objectsByMac?.[1]?.ports?.[0]?.PORT_NAME||''},
+    portByMacName(){return `${this.objectsByMac?.[1]?.ports?.[0]?.PORT_NAME||''}`},
     portByMacNeName(){return this.portByMacName.split(/PORT-|\//gi)?.[1]||''},
     sub(){return this.portByMac?.subscriber_list?.find(({mac:_mac})=>_mac?.match(/[0-9a-f]/gi)?.join('')?.toLowerCase()==this.mac.match(/[0-9a-f]/gi)?.join('').toLowerCase())},
     account(){return `${this.sub?.account||''}`},
