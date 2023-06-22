@@ -31,7 +31,7 @@ Vue.component("PortEntitiesByMac",{
           <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
-        <div v-if="false&&port_ne&&this.$route.params.id!==portName" @click="$router.push({name:'eth-port',params:{id:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+        <div v-if="port_ne&&this.$route.params.id!==portName" @click="$router.push({name:'eth-port',params:{id:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <div class="font--12-400">другой порт:</div>
           <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{portNeIpPortName}}</div>
           <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
