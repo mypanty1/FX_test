@@ -28,12 +28,12 @@ Vue.component("PortEntitiesByMac",{
         </div>
         <template v-if="hasAccountsAndIsNotEq">
           <div @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400 white-space-pre">|сессия абонента:</div>
+            <div class="font--12-400 white-space-pre">сессия абонента:</div>
             <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionAccount}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
           <div @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-            <div class="font--12-400 white-space-pre">|абонент по маку:</div>
+            <div class="font--12-400 white-space-pre">абонент по маку:</div>
             <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
             <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
           </div>
