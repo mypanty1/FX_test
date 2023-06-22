@@ -1,28 +1,40 @@
-//add cpe and ne by mac
-Vue.component("PortMacCpe",{
-  template:`<div name="PortMacCpe" class="display-contents">
+
+Vue.component("PortEntitiesByMac",{
+  template:`<div name="PortEntitiesByMac" class="display-contents">
     <template v-if="mac">
       <div class="display-flex gap-4px padding-left-right-16px align-items-center">
         <div v-if="loadingSome" class="ic-16 ic-loading rotating main-lilac"></div>
         <info-value :label="mac" :value="text" withLine type="medium" class="padding-unset width-100-100"/>
       </div>
-      <info-text-sec v-if="vendor" :text="vendor" class="margin-top--6px"/>
       <div class="display-flex flex-direction-column gap-2px">
-        <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:account||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <info-text-sec :text="cpeModelSn" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
-          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        <div v-if="vendor" class="display-flex margin-left-right-16px align-items-center gap-2px">
+					<div class="font--12-400">{{vendor}}</div>
         </div>
         <div v-if="ne" @click="$router.push({name:'network-element',params:{device_id:neName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <info-text-sec :text="neIpModel" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
-          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+					<div class="font--12-400">устройство:</div>
+          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{neIpModel}}</div>
+          <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
+        <div v-if="cpe" @click="$router.push({name:'account-cpe',params:{mr_id,serial:sn,account:account||'00000000000'}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+					<div class="font--12-400">роутер:</div>
+          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{cpeModelSn}}</div>
+          <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        </div>
+        <div v-if="session" @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
+					<div class="font--12-400"><span v-if="isGuest">гостевая </span>сессия:</div>
+          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionText}}</div>
+					<div v-if="isGuest" @click="stopGuestSession" class="ic-20 ic-close-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+          <div v-else-if="sessionAccount" class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <div v-if="account" @click="$router.push({name:'search',params:{text:account}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <info-text-sec :text="accountFlat" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
-          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+					<div class="font--12-400">абонент:</div>
+          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{accountFlat}}</div>
+          <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
-        <div v-if="port_ne" @click="$router.push({name:'eth-port',params:{id:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
-          <info-text-sec :text="portNeIpPortName" class="bg-main-lilac-light padding-left-right-4px border-radius-4px"/>
-          <div class="ic-16 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
+        <div v-if="port_ne&&this.$route.params.id!==portName" @click="$router.push({name:'eth-port',params:{id:portName}})" class="display-flex margin-left-right-16px align-items-center gap-2px">
+					<div class="font--12-400">порт:</div>
+          <div class="font--13-500 bg-main-lilac-light padding-left-right-4px border-radius-4px">{{portNeIpPortName}}</div>
+          <div class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
       </div>
     </template> 
@@ -33,6 +45,8 @@ Vue.component("PortMacCpe",{
     text:{type:String,required:true},
     mac:{type:String,default:''},
     mr_id:{type:[String,Number],default:0,required:true},
+		region_id:{type:[String,Number],default:0,required:true},
+		noSession:{type:Boolean,default:false},
     oui:{type:String,default:''},
   },
   data:()=>({
@@ -40,11 +54,15 @@ Vue.component("PortMacCpe",{
     neps:[],
     port:null,
     port_ne:null,
+		session:null,
     loads:{},
   }),
   created(){
     this.getCpesByMac();
     this.getNeOrPortByMac();
+		if(!this.noSession){
+			this.getSessionByMac();
+		}
   },
   watch:{
     'portName'(portName){
@@ -79,8 +97,44 @@ Vue.component("PortMacCpe",{
     portIfName(){return this.port?.snmp_name||''},
     portNeIpPortName(){return `${this.portNeIp} • ${this.portIfName}`},
     loadingSome(){return Object.values(this.loads).some(v=>v)},
+		serverid(){
+			return {
+				'2':[241],'3':[115],'12':[134],'14':[255],'16':[133],'18':[15],'22':[103],'23':[128,129,130,236],'24':[234],'25':[88],'26':[109],'27':[52],'28':[111],
+				'29':[10],'30':[27],'31':[112],'33':[70],'34':[110],'35':[9],'36':[47],'37':[3],'38':[55],'40':[6],'41':[131],'42':[137,240],'43':[116],'45':[66],
+				'46':[35],'52':[90,92,113],'53':[8],'54':[108],'55':[64],'56':[101],'57':[51],'58':[78],'59':[121],'61':[31],'62':[12],'63':[125],'64':[13,117],
+				'66':[120],'67':[34],'68':[2,82],'69':[1],'71':[83],'72':[126],'73':[65],'74':[94,100,104],'75':[54],'76':[14],'78':[75],'86':[124],'89':[127],
+			}[this.region_id]?.[0];
+		},
+		sessionid(){return this.session?.sessionid||''},
+		sessionIp(){return this.session?.ip||''},
+		dbsessid(){return this.session?.dbsessid},
+		sessionDateLocal(){
+			const {session}=this;
+      if(!session){return};
+			const {start,update_time}=session;
+      const session_date=/*update_time||*/start;
+      if(!session_date){return};
+      const date=new Date(session_date);
+      if(date=='Invalid Date'){return session_date};
+      const offset=new Date().getTimezoneOffset()/-60;
+      date.setHours(date.getHours()-3+offset);
+			function pad2(v){return `${v}`.padStart(2,0)};
+			return `${pad2(date.getHours())}:${pad2(date.getMinutes())} ${pad2(date.getDate())}.${pad2(date.getMonth()+1)}`;
+    },
+		sessionText(){return `${this.sessionIp||this.dbsessid} • ${this.sessionDateLocal}`},
+		isGuest(){return this.session&&!this.session.u_id},
+		online_login(){return this.session?.online_login},
+		sessionAccount(){
+			const account=this.online_login.match(/\d/g)?.join('');
+			return account?.length==11&&account?.[0]!=7?account:'';
+		},
   },
   methods:{
+		goToSessionAccount(){
+      const {sessionAccount}=this;
+      if(!sessionAccount){return};
+			this.$router.push({name:'search',params:{text:sessionAccount}})
+		},
     async getCpesByMac(){
       const {mac,mr_id}=this;
       if(!mac||!mr_id){return};
@@ -164,14 +218,45 @@ Vue.component("PortMacCpe",{
         console.warn('search_ma.error', error);
       };
       this.$set(this.loads,key,false);
-    }
+    },
+		async getSessionByMac(){
+			const {mac,serverid}=this;
+      if(!mac||!serverid){return};
+      const key=`get_online_sessions-${serverid}-${mac}`;
+			if(this.loads[key]){return};
+      this.$set(this.loads,key,true);
+      try{
+        const response=await httpGet(buildUrl('get_online_sessions',{serverid,mac_address:mac},'/call/aaa/'))
+        this.session=response?.data?.[0]||null;
+      }catch(error){
+        console.warn('get_online_sessions.error', error);
+      };
+      this.$set(this.loads,key,false);
+		},
+		async stopGuestSession(){
+			const {serverid,dbsessid}=this;
+      if(!serverid||!dbsessid){return};
+      const key=`stop_session_radius-${serverid}-${dbsessid}`;
+			if(this.loads[key]){return};
+      this.$set(this.loads,key,true);
+      try{
+        const response=await httpGet(buildUrl('stop_session_radius',{serverid,dbsessid},'/call/aaa/'))
+				if(response?.code==200){
+          this.session=null;
+          //setTimeout(this.getSessionByMac,5555);
+        };
+      }catch(error){
+        console.warn('get_online_sessions.error', error);
+      };
+      this.$set(this.loads,key,false);
+		}
   },
 });
 Vue.component("PortActionMac", {
   template:`<section name="PortActionMac">
-    <link-block icon="mac" text="MAC-адрес" @block-click="loadMacs" :disabled="disabledBtn" :loading="loading" actionIcon="down" data-ic-test="load_mac_btn"/>
+    <link-block icon="mac" text="MAC-адрес*" @block-click="loadMacs" :disabled="disabledBtn" :loading="loading" actionIcon="down" data-ic-test="load_mac_btn"/>
     <template v-if="!loading&&rows.length">
-      <PortMacCpe v-for="({text,mac},key) of rows" :key="key" v-bind="{text,mac}" :oui="ouis[mac]" :mr_id="networkElement.region.mr_id"/>
+      <PortEntitiesByMac v-for="({text,mac},key) of rows" :key="key" v-bind="{text,mac}" :oui="ouis[mac]" :mr_id="networkElement.region.mr_id" :region_id="networkElement.region.id" :noSession="rows.length>2"/>
     </template>
 
     <info-list v-if="text&&!loading" :text="text"/>
@@ -286,7 +371,6 @@ Vue.component("PortActionMac", {
     },
   },
 });
-
 
 
 
