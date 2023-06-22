@@ -159,7 +159,8 @@ Vue.component("PortEntitiesByMac",{
     },
     hasAccountsAndIsNotEq(){
       const {account,sessionAccount}=this;
-      return account&&sessionAccount&&account!==sessionAccount;
+      if(!account||!sessionAccount){return};
+      return account!==sessionAccount;
     },
     portByMacIsNotEqCurrentPort(){
       return this.$route.params.id!==this.portByMacName
