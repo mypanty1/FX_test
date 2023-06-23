@@ -146,8 +146,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //LinkChangeTrapsEvents
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LinkChangeTrapsEvents.js',type:'text/javascript'}));
 
-//add cpe by mac
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionMac_PortEntitiesByMac.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionReboot_PortActionDown.js',type:'text/javascript'}));
 
 //add cpu/mem
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CpeSection3.js',type:'text/javascript'}));
