@@ -20,6 +20,7 @@ Vue.component("PortActionReboot", {
   computed:{
     isAccess(){
       const {is_trunk,is_link,state}=this.port;
+      if(!state){return};//со страницы наряда модель порта не полная
       return !is_trunk&&!is_link&&!state.includes('trunk');
     },
     loadingSome(){
