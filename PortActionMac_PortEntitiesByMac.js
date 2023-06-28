@@ -23,7 +23,7 @@ Vue.component("PortEntitiesByMac",{
         <div v-if="sessionByMac" @click="goToSessionAccount" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <div class="font--12-400 white-space-pre"><span v-if="isGuest">гостевая </span>сессия:</div>
           <div class="font--13-500 white-space-pre bg-main-lilac-light padding-left-right-4px border-radius-4px">{{sessionText}}</div>
-          <div v-if="isGuest" @click="stopGuestSession&&serverid&&dbsessid" class="ic-20 ic-close-1 main-lilac bg-main-lilac-light border-radius-4px" :class="[stopGuestSessionLoading&&'ic-loading rotating']"></div>
+          <div v-if="isGuest" @click="stopGuestSession" class="ic-20 ic-close-1 main-lilac bg-main-lilac-light border-radius-4px" :class="[stopGuestSessionLoading&&'ic-loading rotating']"></div>
           <div v-else-if="sessionAccount" class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px"></div>
         </div>
         <template v-if="hasAccountsAndIsNotEq">
