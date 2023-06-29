@@ -83,7 +83,7 @@ Vue.component('WfmTaskItem',{
       </div>
     </transition>
 
-    <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
+    <LocalNotes :id="task.NumberOrder" class="margin-left-16px margin-right-8px"/>
     <devider-line m="2px 0px 8px 0px"/>
     <link-block :icon="taskStatus.icon" :text="task.status" actionIcon="-" type="medium">
       <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
@@ -314,7 +314,7 @@ Vue.component('task-main-account',{
       <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
       <devider-line/>
       
-      <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
+      <LocalNotes :id="task.NumberOrder" class="margin-left-16px margin-right-8px"/>
       <devider-line m="2px 0px 8px 0px"/>
       <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
         <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
