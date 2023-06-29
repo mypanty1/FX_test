@@ -152,7 +152,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add cpu/mem
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CpeSection3.js',type:'text/javascript'}));
 
-
+//LocalNotes
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/task_LocalNotes.js',type:'text/javascript'}));
 
 
 
