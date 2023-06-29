@@ -1,7 +1,7 @@
 
 Vue.component('LocalNotes',{
   template:`<div name="LocalNotes" class="display-flex gap-4px">
-    <IcTextArea :ictextareaid="noteKey" :rows="rows" :label="showLabel&&'записули'" v-model="text"/>
+    <IcTextArea :ictextareaid="noteKey" :rows="rows" v-model="text"/>
     <div class="display-flex flex-direction-column align-items-center gap-4px">
       <button-sq @click="clear" class="size-20px min-width-20px">
         <IcIcon :name="loading?'loading rotating':'contract-off'" color="#5642BD" size="16"/>
@@ -13,7 +13,6 @@ Vue.component('LocalNotes',{
   </div>`,
   props:{
     id:{type:[Number,String],required:true},
-    showLabel:{type:Boolean,default:false},
     rows:{type:[String, Number],default:3}
   },
   data:()=>({
@@ -315,7 +314,7 @@ Vue.component('task-main-account',{
       <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
       <devider-line/>
       
-      <LocalNotes :id="task.NumberOrder" showLabel class="margin-left-right-16px"/>
+      <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
       <devider-line m="2px 0px 8px 0px"/>
       <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
         <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
