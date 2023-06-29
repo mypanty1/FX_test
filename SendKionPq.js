@@ -325,7 +325,8 @@ Vue.component("LbsvAccountMain300523", {
   },
 });
 
-Vue.component('task-main-account',{//add SendKionPq
+//перенесено в LocalNotes
+Vue.component('task-main-account---to_LocalNotes',{//add SendKionPq
   //template:'#task-main-account-template',
   template:`<div name="task-main-account">
     <CardBlock>
