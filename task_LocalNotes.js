@@ -335,6 +335,7 @@ Vue.component('task-main-account',{
     <CardBlock>
       <title-main :text="task.customer" icon="person" style="text-transform: capitalize;" />
       <account-call :phone='task.ContactPhoneNumber' :descr="task.customer" showSendSms/>
+      <SendKionPq :phones="[task.ContactPhoneNumber]" :account="task.clientNumber"/>
       <info-list icon="timer" :text="task.Appointment" comment="(ожидания клиентом)" />
     </CardBlock>
 
