@@ -80,11 +80,8 @@ Vue.component('WfmTaskItem',{
       </div>
     </transition>
 
-    <link-block :icon="taskStatus.icon" :text="task.status" :text2="task.Assignment" actionIcon="-" type="medium">
-      <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
-        <div class="font-size-14px">Блок-фактор</div>
-        <div class="ic-20 ic-warning"></div>
-      </div>
+    <link-block :icon="taskStatus.icon" :text="task.status" :text2="task.Assignment" :actionIcon="hasBf?' ic-20 ic-warning main-orange':''" type="medium">
+      <div slot="postfix" v-if="hasBf" class="font--13-500 main-orange">Блок-фактор</div>
     </link-block>
   </li>`,
   props:{
