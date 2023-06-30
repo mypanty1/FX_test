@@ -54,8 +54,7 @@ Vue.component('LocalNotes',{
 //add LocalNotes
 Vue.component('WfmTaskItem',{
   template:`<li name="WfmTaskItem" :class="itemClass">
-    <title-main @open="opened=!opened" :text="taskType.title" :text2="task.Appointment" :text2Class="redTime">
-      <div slot="prefix" :class="taskIcon"></div>
+    <title-main :icon="taskIconClass" @open="opened=!opened" :text="taskType.title" :text2="task.Appointment" :text2Class="redTime">
       <button-sq icon="right-link" @click="goToTask"/>
     </title-main>
     <div class="font--13-500 padding-left-16px">{{task.AddressSiebel}}</div>
@@ -99,17 +98,12 @@ Vue.component('WfmTaskItem',{
     taskStatus() {
       return WFM_TASK_STATUSES.find(el => el.name === this.task.status) || {};
     },
-    taskIcon() {
+    taskIconClass() {
       if (!this.taskType) return null;
       const ICONS = ['incident', 'warning'];
       const index = this.checkTypeGroups();
       const icon = ICONS[index] || this.taskType.icon;
-      return {
-        'ic-20': true,
-        [`ic-${icon}`]: true,
-        'main-red': index === 0,
-        'main-orange': index === 1
-      }
+      return `${icon} ${{0:'main-red',1:'main-orange'}[index]} ${index}`;
     },
     operationIcons() {
       const { service } = this.task;
