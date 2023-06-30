@@ -575,12 +575,14 @@ Vue.component("ServiceRequestCommentsModal", {
 
 Vue.component('ServiceRequest',{
   template:`<div name="ServiceRequest" class="display-flex flex-direction-column gap-4px">
-    <div class="display-flex align-items-center gap-4px">
+    <div class="display-flex align-items-center gap-4px justify-content-space-between">
       <div class="font--13-500 white-space-pre height-20px min-width-50px bg-main-lilac-light border-radius-4px padding-top-bottom-2px padding-left-right-3px">{{serviceRequest.status}}</div>
-      <div class="white-space-pre font--13-500">{{serviceRequest.number}}</div>
-      <button-sq @click="copy" class="size-20px min-width-20px">
-        <IcIcon name="copy" color="#5642BD" size="16"/>
-      </button-sq>
+      <div class="display-flex align-items-center gap-4px">
+        <div class="white-space-pre font--13-500">{{serviceRequest.number}}</div>
+        <button-sq @click="copy" class="size-20px min-width-20px">
+          <IcIcon name="copy" color="#5642BD" size="16"/>
+        </button-sq>
+      </div>
     </div>
     <div class="display-flex align-items-center gap-4px justify-content-space-between">
       <div class="white-space-pre font--13-500">{{dateStart}} - {{dateEnd}}</div>
@@ -591,7 +593,7 @@ Vue.component('ServiceRequest',{
       <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
     </div>
     <info-text-sec v-if="queueName" title="Запрос" :text="queueName" class="padding-unset"/>
-    <info-text-sec v-if="description" title="Описание" :text="description" class="padding-unset"/>
+    <info-text-sec v-if="description" title="Описание запроса" :text="description" class="padding-unset"/>
   </div>`,
   props:{
     serviceRequest:{type:Object,required:true,default:()=>({})},
