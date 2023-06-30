@@ -1,7 +1,7 @@
 
 Vue.component('LocalNotes',{
   template:`<div name="LocalNotes" class="display-flex gap-4px">
-    <IcTextArea :ictextareaid="noteKey" :rows="rows" v-model="text"/>
+    <IcTextArea :ictextareaid="noteKey" placeholder="мои заметки к наряду" :rows="rows" v-model="text"/>
     <div class="display-flex flex-direction-column align-items-center gap-4px">
       <button-sq @click="clear" class="size-20px min-width-20px">
         <IcIcon :name="loading?'loading rotating':'contract-off'" color="#5642BD" size="16"/>
@@ -51,7 +51,7 @@ Vue.component('LocalNotes',{
 });
 
 
-
+//add LocalNotes
 Vue.component('WfmTaskItem',{
   template:`<li name="WfmTaskItem" :class="itemClass">
     <title-main @open="opened=!opened">
@@ -83,7 +83,7 @@ Vue.component('WfmTaskItem',{
       </div>
     </transition>
 
-    <LocalNotes :id="task.NumberOrder" class="margin-left-16px margin-right-8px"/>
+    <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
     <devider-line m="2px 0px 8px 0px"/>
     <link-block :icon="taskStatus.icon" :text="task.status" actionIcon="-" type="medium">
       <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
@@ -286,6 +286,7 @@ Vue.component('WfmTaskItem',{
   }
 });
 
+//add SendKionPq and LocalNotes and SibelServiceRequest and SibelServiceRequests
 Vue.component('task-main-account',{
   template:`<div>
     <CardBlock>
@@ -305,16 +306,23 @@ Vue.component('task-main-account',{
       </div>
       <devider-line/>
 
-      <link-block :text="task.Number_EIorNumberOrder+' (СЗ)'" type="medium" actionIcon="copy" @click="copy(task.Number_EIorNumberOrder)"/>
+      <SibelServiceRequest :srNumber="task.Number_EIorNumberOrder" class="margin-left-right-16px"/>
       <devider-line/>
 
-      <link-block :text="task.clientNumber+' (ЛС)'" @click="copy(task.clientNumber)" type="medium" actionIcon="copy"/>
+      <div class="margin-left-right-16px">
+        <link-block :text="'ЛС '+task.clientNumber" @click="copy(task.clientNumber)" type="medium" actionIcon="copy" class="padding-unset"/>
+      </div>
       <devider-line/>
 
       <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
       <devider-line/>
+
+      <template v-if="task.clientNumber!='Потенциальный'">
+        <SibelServiceRequests :agrNumber="task.clientNumber" :srNumberCurrent="task.Number_EIorNumberOrder"/>
+        <devider-line/>
+      </template>
       
-      <LocalNotes :id="task.NumberOrder" class="margin-left-16px margin-right-8px"/>
+      <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
       <devider-line m="2px 0px 8px 0px"/>
       <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
         <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
@@ -492,4 +500,254 @@ Vue.component('task-main-account',{
     },
   },
 });
+
+
+//siebel components
+
+Vue.component("ServiceRequestCommentsModal", {
+  template:`<modal-container-custom name="ServiceRequestCommentsModal" ref="modal" :footer="false" :wrapperStyle="{'min-height':'auto','margin-top':'4px'}">
+    <div class="padding-left-right-16px">
+      <div class="display-flex flex-direction-column gap-8px">
+        <div class="font--15-600 text-align-center">Комментарии к {{srNumber}}</div>
+        
+        <loader-bootstrap v-if="loading" text="получение сервисного запроса"/>
+        <message-el v-else-if="!serviceRequestComments?.length" text="Нет комментариев" box type="info"/>
+        <div v-else class="display-flex flex-direction-column">
+          <template v-for="({id,createDate,text},index) of serviceRequestComments">
+            <devider-line v-if="index"/>
+            <info-text-sec :title="formatDate(createDate)" :text="text" :key="id" class="padding-unset"/>
+          </template>
+        </div>
+      </div>
+      <div class="margin-top-16px display-flex justify-content-space-around">
+        <button-main label="Закрыть" @click="close" buttonStyle="outlined" size="medium"/>
+      </div>
+    </div>
+  </modal-container-custom>`,
+  props:{
+    srNumber:{type:String,required:true,default:''},
+  },
+  data:()=>({
+    loading:false,
+    serviceRequestComments:null,
+  }),
+  computed:{
+    number(){
+      let id=this.srNumber;
+      if(id.length!==14){id=`1-${parseInt(id.match(/[0-9a-z]{8}/gi)?.[0],36)}`}
+      return id.length==14?id:''
+    },
+  },
+  methods:{
+    open(links){//public
+      this.$refs.modal.open();
+      this.getServiceRequestComments();
+    },
+    close(){//public
+      this.$refs.modal.close();
+    },
+    formatDate(value){
+      const date=new Date(value);
+      return (!value||!date||date=='Invalid Date')?'':date.toLocaleString();
+    },
+    async getServiceRequestComments(){
+      const {number}=this;
+      if(!number){return}
+      const method='service_request_comments';
+      const key=atok(method,number)
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.serviceRequestComments=cache;
+        return;
+      };
+      this.loading=true;
+      try {
+        const response=await httpGet(buildUrl(method,{id:number},'/call/v1/siebel/'));
+        if(Array.isArray(response)){
+          this.$cache.setItem(key,this.serviceRequestComments=response);
+        }
+      }catch(error){
+        console.warn('getServiceRequestComments.error',error);
+      }
+      this.loading=!true;
+    },
+  },
+});
+
+Vue.component('ServiceRequest',{
+  template:`<div name="ServiceRequest" class="display-flex flex-direction-column gap-4px">
+    <div class="display-flex align-items-center gap-4px">
+      <div class="font--13-500 white-space-pre height-20px min-width-50px bg-main-lilac-light border-radius-4px padding-top-bottom-2px padding-left-right-3px">{{serviceRequest.status}}</div>
+      <div class="white-space-pre font--13-500">{{serviceRequest.number}}</div>
+      <button-sq @click="copy" class="size-20px min-width-20px">
+        <IcIcon name="copy" color="#5642BD" size="16"/>
+      </button-sq>
+    </div>
+    <div class="display-flex align-items-center gap-4px justify-content-space-between">
+      <div class="white-space-pre font--13-500">{{dateStart}} - {{dateEnd}}</div>
+      <button-main @click="$refs.ServiceRequestCommentsModal.open()" label="комментарии" buttonStyle="outlined" size="medium" class="height-24px padding-4px width-100px"/>
+    </div>
+    <ServiceRequestCommentsModal ref="ServiceRequestCommentsModal" :srNumber="serviceRequest.number"/>
+    <div class="display-flex flex-direction-column">
+      <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
+    </div>
+  </div>`,
+  props:{
+    serviceRequest:{type:Object,required:true,default:()=>({})},
+  },
+  computed:{
+    dateStart(){return new Date(this.serviceRequest.createDate).toLocaleDateString()},
+    dateEnd(){const {closeDate,dueDate,lastUpdateDate}=this.serviceRequest;return new Date(closeDate||dueDate||lastUpdateDate).toLocaleDateString()},
+    rows(){
+      return filterKeys(this.serviceRequest||{},{
+        channel:              ['Тип обращения',(v,o)=>[...new Set([o.channel,o.type])].filter(v=>v).join('.')],//"Звонок",//"Жалоба",
+        theme:                ['Тема'],//"Телевидение",
+        subTheme:             ['Обращение'],//"ЦТВ: отсутствие сигнала",
+        terminationReasonCode:['Код решения'],//"ЕИ",
+        incidentType:         ['Тип действия'],//"Заявка ТБ",
+        ownerLogin:           ['Владелец СЗ'],//"REMEDY_WEB",
+      })
+    }
+  },
+  methods:{
+    copy(){
+      copyToBuffer(this.serviceRequest.number);
+    }
+  }
+});
+
+Vue.component('SibelServiceRequest',{
+  template:`<div name="SibelServiceRequest">
+    <loader-bootstrap v-if="loading" text="получение сервисного запроса"/>
+    <template v-else-if="serviceRequest">
+      <div class="font--13-500 tone-500">Сервисный запрос</div>
+      <ServiceRequest v-bind="{serviceRequest}"/>
+    </template>
+    <link-block v-else :text="srNumber" class="padding-unset" type="medium" actionIcon="copy" @click="copy(srNumber)"/>
+  </div>`,
+  props:{
+    srNumber:{type:String,required:true,default:''},
+  },
+  data:()=>({
+    loading:false,
+    serviceRequest:null,
+  }),
+  created(){
+    this.getServiceRequest();
+  },
+  computed:{
+    number(){
+      let id=this.srNumber;
+      if(id.length!==14){id=`1-${parseInt(id.match(/[0-9a-z]{8}/gi)?.[0],36)}`}
+      return id.length==14?id:''
+    },
+  },
+  methods:{
+    async getServiceRequest(){
+      const {number}=this;
+      if(!number){return}
+      const method='siebel_sr_service_request';
+      const key=atok(method,number)
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.serviceRequest=cache;
+        return;
+      };
+      this.loading=true;
+      try {
+        const response=await httpGet(buildUrl(method,{'serviceRequest.number':number},'/call/v1/siebel/'));
+        if(response?.id){
+          this.$cache.setItem(key,this.serviceRequest=response);
+        }
+      }catch(error){
+        console.warn('getServiceRequest.error',error);
+      }
+      this.loading=!true;
+    },
+    copy(text){
+      copyToBuffer(text);
+    },
+  },
+});
+
+Vue.component('SibelServiceRequests',{
+  template:`<DropdownBlock name="SibelServiceRequests" :title="{icon:'info',text:'Обращения абонента',text2:serviceRequestsFilteredCount?serviceRequestsFilteredCount:'',text2Class:'tone-500'}">
+    <div class="margin-left-right-16px">
+      <loader-bootstrap v-if="loading" text="получение недавних обращений"/>
+      <message-el v-if="!serviceRequestsFilteredCount" text="Нет недавних обращений" box type="info"/>
+      <div v-else class="display-flex flex-direction-column gap-4px">
+        <template v-for="(serviceRequest,index) of serviceRequestsFiltered">
+          <devider-line v-if="index"/>
+          <ServiceRequest v-bind="{serviceRequest}" :key="index"/>
+        </template>
+      </div>
+    </div>
+  </DropdownBlock>`,
+  props:{
+    agrNumber:{type:String,required:true,default:''},
+    srNumberCurrent:{type:String,default:''},
+  },
+  data:()=>({
+    loading:false,
+    serviceRequests:null,
+  }),
+  created(){
+    this.getServiceRequests();
+  },
+  computed:{
+    agreementNum(){
+      const {agrNumber}=this;
+      return agrNumber.match(/\d/g)?.join('')||'';
+    },
+    serviceRequestsFiltered(){
+      const {serviceRequests,srNumberCurrent}=this;
+      return srNumberCurrent?(serviceRequests||[]).filter(({number})=>number!==srNumberCurrent):serviceRequests;
+    },
+    serviceRequestsFilteredCount(){
+      return this.serviceRequestsFiltered.length;
+    }
+  },
+  methods:{
+    async getServiceRequests(){
+      const {agrNumber}=this;
+      if(!agrNumber){return};
+      const startDate=new Date(new Date().setDate(-1)).toISOString().replace(/.\d\d\dZ$/,'Z');
+      const endDate=new Date().toISOString().replace(/.\d\d\dZ$/,'Z');
+      const method='siebel_sr_service_requests';
+      const key=atok(method,agrNumber)
+      const cache=this.$cache.getItem(key);
+      if(cache){
+        this.serviceRequests=cache;
+        return;
+      };
+      this.loading=true;
+      try {
+        const responses=await Promise.allSettled([...new Set([
+          agrNumber,
+          agrNumber.match(/\d/g)?.join('')||''
+        ])].filter(v=>v).map(agreementNum=>{
+          return httpGet(buildUrl(method,{'customerIdentification.agreementNum':agreementNum,startDate,endDate},'/call/v1/siebel/'))
+        }));
+        const response=responses.reduce((responses,response)=>[...responses,...Array.isArray(response.value)?response.value:[]],[]);
+        if(Array.isArray(response)){
+          this.$cache.setItem(key,this.serviceRequests=response);
+        }
+      }catch(error){
+        console.warn('getServiceRequests.error',error);
+      }
+      this.loading=!true;
+    },
+  },
+});
+
+
+
+
+
+
+
+
+
+
+
 
