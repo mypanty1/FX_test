@@ -80,11 +80,11 @@ Vue.component('WfmTaskItem',{
           <span>{{task.Appointment}}</span>
         </div>
         <devider-line/>
+        <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
+        <devider-line m="2px 0px 8px 0px"/>
       </div>
     </transition>
 
-    <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
-    <devider-line m="2px 0px 8px 0px"/>
     <link-block :icon="taskStatus.icon" :text="task.status" actionIcon="-" type="medium">
       <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
         <div class="font-size-14px">Блок-фактор</div>
