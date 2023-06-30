@@ -503,7 +503,6 @@ Vue.component('task-main-account',{
 
 
 //siebel components
-
 Vue.component("ServiceRequestCommentsModal", {
   template:`<modal-container-custom name="ServiceRequestCommentsModal" ref="modal" :footer="false" :wrapperStyle="{'min-height':'auto','margin-top':'4px'}">
     <div class="padding-left-right-16px">
@@ -591,6 +590,8 @@ Vue.component('ServiceRequest',{
     <div class="display-flex flex-direction-column">
       <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
     </div>
+    <info-text-sec v-if="queueName" title="Запрос" :text="queueName" class="padding-unset"/>
+    <info-text-sec v-if="description" title="Описание" :text="description" class="padding-unset"/>
   </div>`,
   props:{
     serviceRequest:{type:Object,required:true,default:()=>({})},
@@ -598,6 +599,8 @@ Vue.component('ServiceRequest',{
   computed:{
     dateStart(){return new Date(this.serviceRequest.createDate).toLocaleDateString()},
     dateEnd(){const {closeDate,dueDate,lastUpdateDate}=this.serviceRequest;return new Date(closeDate||dueDate||lastUpdateDate).toLocaleDateString()},
+    queueName(){return this.serviceRequest.queueName},
+    description(){return this.serviceRequest.description},
     rows(){
       return filterKeys(this.serviceRequest||{},{
         channel:              ['Тип обращения',(v,o)=>[...new Set([o.channel,o.type])].filter(v=>v).join('.')],//"Звонок",//"Жалоба",
@@ -605,6 +608,7 @@ Vue.component('ServiceRequest',{
         subTheme:             ['Обращение'],//"ЦТВ: отсутствие сигнала",
         terminationReasonCode:['Код решения'],//"ЕИ",
         incidentType:         ['Тип действия'],//"Заявка ТБ",
+        product:              ['Продукт'],//"Интернет+ЦТВ",
         ownerLogin:           ['Владелец СЗ'],//"REMEDY_WEB",
       })
     }
@@ -671,7 +675,7 @@ Vue.component('SibelServiceRequest',{
 });
 
 Vue.component('SibelServiceRequests',{
-  template:`<DropdownBlock name="SibelServiceRequests" :title="{icon:'info',text:'Обращения абонента',text2:serviceRequestsFilteredCount?serviceRequestsFilteredCount:'',text2Class:'tone-500'}">
+  template:`<DropdownBlock name="SibelServiceRequests" :title="{icon:'info',text:'Другие обращения абонента',text2:serviceRequestsFilteredCount?serviceRequestsFilteredCount:'',text2Class:'tone-500'}">
     <div class="margin-left-right-16px">
       <loader-bootstrap v-if="loading" text="получение недавних обращений"/>
       <message-el v-if="!serviceRequestsFilteredCount" text="Нет недавних обращений" box type="info"/>
