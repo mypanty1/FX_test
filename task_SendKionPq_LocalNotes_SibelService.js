@@ -841,7 +841,7 @@ Vue.component('SibelServiceRequests',{
   },
   computed:{
     title(){
-      return `${this.srNumberCurrent?'Другие обращения':'Обращения'} абонента`
+      return this.srNumberCurrent?'Другие обращения абонента':'Недавние обращения'
     },
     agreementNum(){
       const {agrNumber}=this;
