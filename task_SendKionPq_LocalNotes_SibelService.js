@@ -54,11 +54,8 @@ Vue.component('LocalNotes',{
 //add LocalNotes
 Vue.component('WfmTaskItem',{
   template:`<li name="WfmTaskItem" :class="itemClass">
-    <title-main @open="opened=!opened">
+    <title-main @open="opened=!opened" :text="taskType.title" :text2="task.Appointment" :text2Class="redTime">
       <div slot="prefix" :class="taskIcon"></div>
-      <div slot="text">
-        <span>{{taskType.title}} • </span><span :class="redTime">{{task.Assignment}}</span>
-      </div>
       <button-sq icon="right-link" @click="goToTask"/>
     </title-main>
     <div class="font--13-500 padding-left-16px">{{task.AddressSiebel}}</div>
@@ -66,26 +63,24 @@ Vue.component('WfmTaskItem',{
 
     <transition v-if="opened" name="slide-down" mode="out-in" appear>
       <div>
-        <div class="font--13-500 tone-500 padding-left-16px">
-          <span v-if="operationIcons.tv" class="ic-16 ic-tv"></span>
-          <span v-if="operationIcons.internet" class="ic-16 ic-eth"></span>
-          <span v-if="operationIcons.phone" class="ic-16 ic-sim"></span>
-          <span v-if="operationIcons.any"> • </span>
-          <span>{{task.NumberOrder}}</span>
+        <div class="padding-left-16px">
+          <span class="font--13-500 tone-500">{{task.NumberOrder}}</span>
+          <span v-if="operationIcons.any" class="font--13-500 tone-500"> • </span>
+          <span v-if="operationIcons.tv" class="ic-16 ic-tv tone-500"></span>
+          <span v-if="operationIcons.internet" class="ic-16 ic-eth tone-500"></span>
+          <span v-if="operationIcons.phone" class="ic-16 ic-sim tone-500"></span>
+        </div>
+        <div class="padding-left-16px">
+          <span class="font--13-500 tone-500">{{task.Number_EIorNumberOrder}}</span>
         </div>
         <devider-line/>
 
-        <div class="font--13-500 tone-500 padding-left-16px">
-          <span  class="ic-16 ic-timer"></span>
-          <span>{{task.Appointment}}</span>
-        </div>
-        <devider-line/>
         <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
         <devider-line m="2px 0px 8px 0px"/>
       </div>
     </transition>
 
-    <link-block :icon="taskStatus.icon" :text="task.status" actionIcon="-" type="medium">
+    <link-block :icon="taskStatus.icon" :text="task.status" :text2="task.Assignment" actionIcon="-" type="medium">
       <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
         <div class="font-size-14px">Блок-фактор</div>
         <div class="ic-20 ic-warning"></div>
@@ -380,7 +375,7 @@ Vue.component('task-main-account',{
         descr:objectToTable(filterKeys(this.task,{
           NumberOrder           :'Наряд',
           tasktype              :'Тип',
-          Number_EIorNumberOrder:['СЗ/ЕИ','-'],
+          Number_EIorNumberOrder:['СЗ/MSK','-'],
           OperationConcatenation:['Операции','-'],
           AddressSiebel         :['Адрес','-'],
           customer              :['Абонент','-'],
@@ -500,7 +495,6 @@ Vue.component('task-main-account',{
     },
   },
 });
-
 
 //siebel components
 Vue.component("ServiceRequestCommentsModal", {
