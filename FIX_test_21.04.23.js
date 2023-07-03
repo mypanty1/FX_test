@@ -158,6 +158,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add ifLastChange to PortLayout
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortLayout2_ifLastChange.js',type:'text/javascript'}));
 
+//ref Foris
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Foris.js',type:'text/javascript'}));
 
 
 
