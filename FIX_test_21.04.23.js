@@ -155,8 +155,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //SendKionPq_LocalNotes_SibelService
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/task_SendKionPq_LocalNotes_SibelService.js',type:'text/javascript'}));
 
-
-
+//add ifLastChange to PortLayout
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortLayout2_ifLastChange.js',type:'text/javascript'}));
 
 
 
