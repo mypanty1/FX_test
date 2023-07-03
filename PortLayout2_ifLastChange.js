@@ -7,10 +7,11 @@ Vue.component("PortLayout2", {
       <device-info v-else-if="networkElement?.name" :networkElement="networkElement" showLocation hideEntrances autoSysInfo/>
     </CardBlock>
     <CardBlock>
-      <title-main :text="port?.snmp_name||''" :textSub="titleSpeedText" textSubClass="font--13-500 tone-500 white-space-pre">
+      <title-main :text="port?.snmp_name||''" :textSub="status?.IF_OPER_STATUS?(status?.IF_SPEED||''):''" textSubClass="font--13-500 tone-500 white-space-pre">
         <LinkLed2050 slot="icon" @click="getPortLink" :loading="loads.getPortLink" :error="!status?.IF_SPEED" :admin_state="status?.admin_state" :oper_state="status?.oper_state"/>
         <button-sq :icon="(loads.getPortLink||loadingSome)?'loading rotating':'refresh'" @click="getPortLink" :disabled="loadingSome||loads.getPortLink"/>
       </title-main>
+      <info-text-sec v-if="ifLastChange" :title="ifLastChangeText"/>
       <info-text-sec v-if="ifAlias" :title="ifAlias"/>
       <devider-line/>
       <link-block icon="-" :text="loads.doPortErrorsClean?'сброс ошибок ...':loads.getPortLink?'проверка ошибок ...':port_errors_text" :text2="(loads.getPortLink||loads.doPortErrorsClean)?'':'ошибки порта'" :text1Class="(loads.getPortLink||loads.doPortErrorsClean)?'font--13-500 tone-500':''" text2Class="font--13-500 tone-500">
@@ -158,13 +159,18 @@ Vue.component("PortLayout2", {
       const {uptime_instance=0}=this.status;
       return new Date(Date.now()-uptime_instance*1000).toLocaleString();
     },
-    titleSpeedText(){
+    ifLastChangeText(){
+      if(!this.status){return};
+      const {ifLastChange,status:{IF_OPER_STATUS}}=this;
+      return ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:';
+    },
+    /*titleSpeedText(){
       if(!this.status){return};
       const {ifLastChange,status:{IF_OPER_STATUS,IF_SPEED}}=this;
       const ifLastChangeText=ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:'';
       const speedText=IF_OPER_STATUS?(IF_SPEED||''):'';
       return `${speedText} ${ifLastChangeText}`;
-    },
+    },*/
     loadingSome(){return Object.values(this.loads).some(l=>l)},
     hasPortSfp(){return this.port?.is_sfp_ddm||this.port?.is_trunk},
     hasPortLbd(){return !this.port?.is_trunk},
