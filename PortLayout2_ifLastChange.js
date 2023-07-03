@@ -156,7 +156,9 @@ Vue.component("PortLayout2", {
     ifAlias(){return (/^HUAWEI,\s/.test(this.port?.snmp_description||'')||(this.port?.snmp_description||'').includes(this.port?.snmp_name))?'':this.port?.snmp_description||''},
     ifLastChange(){
       if(!this.status){return};
-      const {uptime_instance=0}=this.status;
+      const {uptime_instance,last_change}=this.status;
+      if(!last_change){return};
+      const now=Date.now();
       return new Date(Date.now()-uptime_instance*1000).toLocaleString();
     },
     ifLastChangeText(){
@@ -164,13 +166,6 @@ Vue.component("PortLayout2", {
       const {ifLastChange,status:{IF_OPER_STATUS}}=this;
       return ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:'';
     },
-    /*titleSpeedText(){
-      if(!this.status){return};
-      const {ifLastChange,status:{IF_OPER_STATUS,IF_SPEED}}=this;
-      const ifLastChangeText=ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:'';
-      const speedText=IF_OPER_STATUS?(IF_SPEED||''):'';
-      return `${speedText} ${ifLastChangeText}`;
-    },*/
     loadingSome(){return Object.values(this.loads).some(l=>l)},
     hasPortSfp(){return this.port?.is_sfp_ddm||this.port?.is_trunk},
     hasPortLbd(){return !this.port?.is_trunk},
@@ -230,6 +225,7 @@ Vue.component("PortLayout2", {
       if(!this.port?.snmp_number){return};
       this.loads.getPortLink=true;
       this.resps.getPortLink=null;
+      //this.getCmtsDeviceInfo();
       try{
         const response=await httpGet(buildUrl('port_status_by_ifindex',{
           device:this.port.device_name,
@@ -509,7 +505,6 @@ router.beforeEach((to,from,next)=>{
     next()
   };
 })
-
 
 
 
