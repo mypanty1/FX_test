@@ -162,7 +162,7 @@ Vue.component("PortLayout2", {
     ifLastChangeText(){
       if(!this.status){return};
       const {ifLastChange,status:{IF_OPER_STATUS}}=this;
-      return ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:';
+      return ifLastChange?`${IF_OPER_STATUS?'LinkUp':'LinkDown'} at ${ifLastChange}`:'';
     },
     /*titleSpeedText(){
       if(!this.status){return};
