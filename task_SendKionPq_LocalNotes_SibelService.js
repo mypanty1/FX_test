@@ -488,8 +488,8 @@ Vue.component('task-main-account',{
 });
 
 //add SendKionPq and SibelServiceRequests
-Vue.component("LbsvAccountMain300523", {
-  template:`<CardBlock name="LbsvAccountMain300523" v-if="account">
+Vue.component("LbsvAccountMain", {
+  template:`<CardBlock name="LbsvAccountMain" v-if="account">
     <title-main>
       <div slot="prefix">
         <!--<span class="ic-20 ic-status" :class="!agreement.closedon?'main-green':'main-red'"></span>-->
