@@ -966,11 +966,12 @@ Vue.component("SearchPageContent",{
       this.error = "";
       if (!text || this.loading.search) return;
       
+      const srNumber=text.match(/1-\d{12}/g)?.[0];
       if(text.startsWith("CMTS")){
         this.goToDocsis(text);
         return;
-      }else if(/^1-\d{12}$/i.test(text)){//поиск СЗ
-        this.goToSibelServiceRequest(text);
+      }else if(srNumber){//поиск СЗ
+        this.goToSibelServiceRequest(srNumber);
         return;
       }else if(/^\d{1,3}[бю.,./]\d{1,3}$/i.test(text)&&this.br_oam_prefix){//поиск СЭ по двум последним октетам
         text=text.replace(/[бю.,./]/gi,'.');
@@ -1081,10 +1082,10 @@ Vue.component("SearchPageContent",{
         this.error=`исключение для "${pattern}" [${key}(${type})]`;
       }
     },
-    goToSibelServiceRequest(text){
+    goToSibelServiceRequest(srNumber){
       this.$router.replace({
         name: "sr",
-        params: { srNumber: text},
+        params: { srNumber },
       });
     },
     goToDocsis(text) {
