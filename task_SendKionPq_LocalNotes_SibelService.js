@@ -728,21 +728,23 @@ Vue.component('ServiceRequest',{
       <button-main @click="$refs.ServiceRequestCommentsModal.open()" label="комментарии" buttonStyle="outlined" size="medium" class="height-24px padding-4px width-100px"/>
     </div>
     <ServiceRequestCommentsModal ref="ServiceRequestCommentsModal" :srNumber="serviceRequest.number"/>
-    <div class="display-flex flex-direction-column">
-      <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
-    </div>
-    <devider-line/>
-    <info-text-sec title="Абонент" class="padding-unset"/>
-    <div class="display-flex flex-direction-column">
-      <info-value v-for="(value,label,key) in rows2" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine>
-        <template slot="action">
-          <button-sq @click="copy(value)" class="size-20px min-width-20px margin-left-4px">
-            <IcIcon name="copy" color="#5642BD" size="16"/>
-          </button-sq>
-        </template>
-      </info-value>
-    </div>
-    <devider-line/>
+    <template v-if="hasRows">
+      <div class="display-flex flex-direction-column">
+        <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
+      </div>
+    </template>
+    <template v-if="hasRows2">
+      <info-text-sec title="Абонент" class="padding-unset"/>
+      <div class="display-flex flex-direction-column">
+        <info-value v-for="(value,label,key) in rows2" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine>
+          <template slot="action">
+            <button-sq @click="copy(value)" class="size-20px min-width-20px margin-left-4px">
+              <IcIcon name="copy" color="#5642BD" size="16"/>
+            </button-sq>
+          </template>
+        </info-value>
+      </div>
+    </template>
     <info-text-sec v-if="queueName" title="Запрос" :text="queueName" class="padding-unset"/>
     <info-text-sec v-if="description" title="Описание запроса" :text="description" class="padding-unset"/>
   </div>`,
@@ -765,13 +767,15 @@ Vue.component('ServiceRequest',{
         ownerLogin:           ['Владелец СЗ'],//"REMEDY_WEB",
       })
     },
+    hasRows(){return Object.values(this.rows).some(v=>v)},
     rows2(){
       return filterKeys(this.serviceRequest.customerIdentification||{},{
         msisdn:       ['MSISDN'],//"76540004439",
         accountNum:   ['ЛС'],//"254310071197",
         agreementNum: ['Договор'],//"154310071196",
       })
-    }
+    },
+    hasRows2(){return Object.values(this.rows2).some(v=>v)},
   },
   methods:{
     copy(text){
