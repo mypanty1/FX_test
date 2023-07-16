@@ -648,7 +648,7 @@ Vue.component("ServiceRequestCommentsModal", {
       <div class="display-flex flex-direction-column gap-8px">
         <div class="font--15-600 text-align-center">Комментарии к {{srNumber}}</div>
         
-        <loader-bootstrap v-if="loading" text="получение сервисного запроса"/>
+        <loader-bootstrap v-if="loading" text="получение комментариев"/>
         <message-el v-else-if="!serviceRequestComments?.length" text="Нет комментариев" box type="info"/>
         <div v-else class="display-flex flex-direction-column">
           <template v-for="({id,createDate,text},index) of serviceRequestComments">
@@ -718,7 +718,7 @@ Vue.component('ServiceRequest',{
       <div class="font--13-500 white-space-pre height-20px min-width-50px bg-main-lilac-light border-radius-4px padding-top-bottom-2px padding-left-right-3px">{{serviceRequest.status}}</div>
       <div class="display-flex align-items-center gap-4px">
         <div class="white-space-pre font--13-500">{{serviceRequest.number}}</div>
-        <button-sq @click="copy" class="size-20px min-width-20px">
+        <button-sq @click="copy(serviceRequest.number)" class="size-20px min-width-20px">
           <IcIcon name="copy" color="#5642BD" size="16"/>
         </button-sq>
       </div>
@@ -731,6 +731,18 @@ Vue.component('ServiceRequest',{
     <div class="display-flex flex-direction-column">
       <info-value v-for="(value,label,key) in rows" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine/>
     </div>
+    <devider-line/>
+    <info-text-sec title="Абонент" class="padding-unset"/>
+    <div class="display-flex flex-direction-column">
+      <info-value v-for="(value,label,key) in rows2" :key="key" v-if="value" v-bind="{label,value}" class="padding-unset" type="large" withLine>
+        <template slot="action">
+          <button-sq @click="copy(value)" class="size-20px min-width-20px margin-left-4px">
+            <IcIcon name="copy" color="#5642BD" size="16"/>
+          </button-sq>
+        </template>
+      </info-value>
+    </div>
+    <devider-line/>
     <info-text-sec v-if="queueName" title="Запрос" :text="queueName" class="padding-unset"/>
     <info-text-sec v-if="description" title="Описание запроса" :text="description" class="padding-unset"/>
   </div>`,
@@ -752,11 +764,18 @@ Vue.component('ServiceRequest',{
         product:              ['Продукт'],//"Интернет+ЦТВ",
         ownerLogin:           ['Владелец СЗ'],//"REMEDY_WEB",
       })
+    },
+    rows2(){
+      return filterKeys(this.serviceRequest.customerIdentification||{},{
+        msisdn:       ['MSISDN'],//"76540004439",
+        accountNum:   ['ЛС'],//"254310071197",
+        agreementNum: ['Договор'],//"154310071196",
+      })
     }
   },
   methods:{
-    copy(){
-      copyToBuffer(this.serviceRequest.number);
+    copy(text){
+      copyToBuffer(text);
     }
   }
 });
