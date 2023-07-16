@@ -769,10 +769,13 @@ Vue.component('ServiceRequest',{
     },
     hasRows(){return Object.values(this.rows).some(v=>v)},
     rows2(){
-      return filterKeys(this.serviceRequest.customerIdentification||{},{
+      const {customerIdentification={}}=this.serviceRequest;
+      const {clientBase,agreementNum}=customerIdentification;
+      return filterKeys(customerIdentification||{},{
         msisdn:       ['MSISDN'],//"76540004439",
         accountNum:   ['ЛС'],//"254310071197",
-        agreementNum: ['Договор'],//"154310071196",
+        agreementNum: [`Договор ${clientBase}`,agreementNum],//"F_CONV","LBSV"
+        //agreementNum: ['Договор'],//"154310071196","6-091-0557804"
       })
     },
     hasRows2(){return Object.values(this.rows2).some(v=>v)},
