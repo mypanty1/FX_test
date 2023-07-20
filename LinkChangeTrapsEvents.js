@@ -48,6 +48,7 @@ Vue.component('LinkChangeTrapsEvents',{
       show:false,
     },
     recived:[],
+    ws:null,
     message:'',
     loads:{
       vct:{},
@@ -152,8 +153,8 @@ Vue.component('LinkChangeTrapsEvents',{
       await Promise.allSettled(subscribes);
     },
     closeWs(){
-      window.ws?.close();
-      window.ws=null;
+      this.ws?.close();
+      this.ws=null;
     },
     clear(){
       this.recived=[];
@@ -161,22 +162,23 @@ Vue.component('LinkChangeTrapsEvents',{
     send(data=null){
       const login=this.$root.username;
       if(!login){return};
-      if(!window.ws){return};
-      window.ws.send(JSON.stringify({type:'data',user:login,data}));
+      if(!this.ws){return};
+      this.ws.send(JSON.stringify({type:'data',user:login,data}));
     },
     initWs(){
       const login=this.$root.username;
       if(!login){return};
+      if(this.ws){return};
       this.message=`установка соединения ${login}`;
-      window.ws=window.ws||new WebSocket(`wss://ping54.ru/wstest`,[login]);
-      window.ws.onopen=(event)=>{
+      this.ws=new WebSocket(`wss://ping54.ru/wstest`,[login]);
+      this.ws.onopen=(event)=>{
         console.log('ws.onopen');
         const alive={type:'alive',user:login};
-        window.ws.send(JSON.stringify(alive));
-        setTimeout(()=>window.ws?.send(JSON.stringify(alive)),60000);
+        this.ws.send(JSON.stringify(alive));
+        setTimeout(()=>this.ws?.send(JSON.stringify(alive)),60000);
         this.message=`соединение ${login} активно`;
       };
-      window.ws.onmessage=(event)=>{
+      this.ws.onmessage=(event)=>{
         let message=event.data;
         try{
           message=JSON.parse(message);
@@ -195,8 +197,8 @@ Vue.component('LinkChangeTrapsEvents',{
           this.message=`соединение активно ${new Date().toLocaleString()}`;
         }
       };
-      window.ws.onclose=(event)=>{
-        window.ws=null;
+      this.ws.onclose=(event)=>{
+        this.ws=null;
         if(event.wasClean){
           console.log('ws.onclose.wasClean',event.code,event.reason);
           this.message=`соединение закрыто`;
@@ -206,7 +208,7 @@ Vue.component('LinkChangeTrapsEvents',{
           setTimeout(()=>this.initWs(),4000);//reconnect after 4sec
         };
       };
-      window.ws.onerror=(error)=>{
+      this.ws.onerror=(error)=>{
         console.log('ws.onerror',error.message);
       };
     },
