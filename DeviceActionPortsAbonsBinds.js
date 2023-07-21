@@ -71,12 +71,12 @@ Vue.component('DeviceActionPortsAbonsBinds',{
       <template>
         <div></div><div></div><div></div><div></div>
       </template>
-      <template v-for="({port,ifName,flat,account,status,message,error,statusStyle},key) in rows">
+      <template v-for="({port,ifName,flat,account,status,errorMessage,error,statusStyle,success},key) in rows">
         <div class="white-space-pre">{{ifName||port}}</div>
         <div>{{flat}}</div>
         <div class="white-space-pre">{{account}}</div>
         <div class="white-space-pre text-align-center" :style="statusStyle">{{status}}</div>
-        <div v-if="message||error" full class="white-space-pre margin-bottom-4px bg-attention-warning border-radius-4px">{{message||error}}</div>
+        <div v-if="errorMessage||error" full class="white-space-pre margin-bottom-4px border-radius-4px" :class="error?'bg-attention-warning':success?'bg-attention-success':''">{{errorMessage||error}}</div>
       </template>
     </div>
     <div style="display:inline-flex;gap:4px;width:100%;justify-content:center;margin-top:8px;">
@@ -146,9 +146,9 @@ Vue.component('DeviceActionPortsAbonsBinds',{
       return Object.entries(this.results).reduce((rows,[_account,result])=>{
         const cp=this.abons[_account]?.cp;if(!cp){return rows};
         const {port,flat,mac,account,ifName}=cp;
-        const {message,error,success,loading}=result;
+        const {errorMessage,infoMessage,error,success,loading}=result;
         rows[port]={
-          port,flat,mac,account,ifName,message,error,
+          port,flat,mac,account,ifName,errorMessage,infoMessage,error,success,
           status:success?'✔':error?'✘':loading?'...':'',
           statusStyle:success?'font-weight:700;color:#478f22;':error?'font-weight:700;color:#d17a60;':loading?'font-weight:900;color:#5642bd;':''
         }
@@ -194,7 +194,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                 let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
                 if(!contract){
                   console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,login,contract,error:response_set_bind.text||'contract error',step:'port_contract'});
-                  this.$set(this.results,account,{error:'contract error',message:response_set_bind?.text});
+                  this.$set(this.results,account,{error:'contract error',errorMessage:response_set_bind?.text});
                   continue
                 };
                 contract=contract.toString();
@@ -203,18 +203,18 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                   const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid:contract,serverid,type_of_bind});
                   if(response_refree?.type=='error'){
                     console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_refree?.text||'refree error',step:'port_refree_vgid'});
-                    this.$set(this.results,account,{error:'refree error',message:response_refree?.text});
+                    this.$set(this.results,account,{error:'refree error',errorMessage:response_refree?.text});
                     continue
                   }else{
                     try{
                       const response_set_bind_2=await httpPost(`/call/service_mix/set_bind`,{ip,port,vgid,serverid,type_of_bind});
                       if(response_set_bind_2?.type=='error'){
                         console.warn({name,ip,port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_set_bind_2?.text||'set_bind 2 error',step:'port_bind_vgid_2'});
-                        this.$set(this.results,account,{error:'set_bind 2 error',message:response_set_bind_2?.text});
+                        this.$set(this.results,account,{error:'set_bind 2 error',errorMessage:response_set_bind_2?.text});
                         continue
                       }else{
                         console.log({port,flat,mac,account,serverid,type_of_bind,vgid,contract,success:true,step:'port_bind_vgid_2'});
-                        this.$set(this.results,account,{success:true});
+                        this.$set(this.results,account,{success:true,infoMessage:response_set_bind_2?.InfoMessage});
                       };
                     }catch(error){
                       this.$set(this.results,account,{error:'unexpected set_bind 2 error'});
@@ -227,11 +227,11 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                 }
               }else{
                 console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,login,error:response_set_bind?.text||'set_bind error',step:'port_bind_vgid'});
-                this.$set(this.results,account,{error:'set_bind error',message:response_set_bind?.text});
+                this.$set(this.results,account,{error:'set_bind error',errorMessage:response_set_bind?.text});
               }
             }else{
               console.log({port,flat,mac,account,serverid,type_of_bind,vgid,login,success:true,step:'port_bind_vgid'});
-              this.$set(this.results,account,{success:true});
+              this.$set(this.results,account,{success:true,infoMessage:response_set_bind?.InfoMessage});
             };
           }catch(error){
             console.log(account,error);
@@ -274,7 +274,6 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     }
   },
 });
-
 
 
 
