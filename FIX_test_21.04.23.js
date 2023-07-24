@@ -732,13 +732,11 @@ Vue.component('SitePlanDownload',{//плансхема
           switch(name){
             case 'nodes':
               result[site_id].nodes=results[name].length?(results[name][0].type!=='building_list'?[results[name][0].data]:results[name][0].data):[];
-
-              gets.push(httpGet(buildUrl('get_nioss_object',{object_id:site_id,object:'site'},'/call/nioss/')));
-              dict[gets.length-1]='_sites/'+site_id+'/nioss';
-
+              //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:site_id,object:'site'},'/call/nioss/')));
+              //dict[gets.length-1]='_sites/'+site_id+'/nioss';
               for(const node of result[site_id].nodes){
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:node.uzel_id,object:'node'},'/call/nioss/')));
-                dict[gets.length-1]='_nodes/'+node.uzel_id+'/nioss';
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:node.uzel_id,object:'node'},'/call/nioss/')));
+                //dict[gets.length-1]='_nodes/'+node.uzel_id+'/nioss';
               };
             break;
             case 'entrances':
@@ -763,44 +761,36 @@ Vue.component('SitePlanDownload',{//плансхема
                     return floor;
                   });
                 };
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:entrance.id,object:'entrance'},'/call/nioss/')));
-                dict[gets.length-1]=name+'/'+entrance.id+'/nioss';
-
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:entrance.id,object:'entrance'},'/call/nioss/')));
+                //dict[gets.length-1]=name+'/'+entrance.id+'/nioss';
                 result[site_id][name][entrance.id]=entrance;
               };
             break;
             case 'devices':
               for(const device of results[name]){
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.nioss_id,object:'device'},'/call/nioss/')));
-                dict[gets.length-1]=name+'/'+device.nioss_id+'/nioss';
-
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.nioss_id,object:'device'},'/call/nioss/')));
+                //dict[gets.length-1]=name+'/'+device.nioss_id+'/nioss';
                 if(['ETH','OP','CPE','FAMP','SBE','FTRM','IP','MPLS','OLT','MBH'].includes(device.name.split('_')[0].split('-')[0])){
                   gets.push(httpGet(buildUrl('search_ma',{pattern:device.name},'/call/v1/search/')));
                   dict[gets.length-1]=name+'/'+device.nioss_id;
                 };
-
                 gets.push(httpGet(buildUrl('get_dismantled_devices',{device_name:device.name},'/call/v1/device/')));
                 dict[gets.length-1]=name+'/'+device.nioss_id+'/devices';
-
                 if(['ETH','MPLS','MBH','OLT'].includes(device.name.split('_')[0].split('-')[0])){
                   if(!hideTS){
                     gets.push(httpGet(buildUrl('device_port_list',{device:device.name},'/call/device/')));
                     dict[gets.length-1]=name+'/'+device.nioss_id+'/ports';
-                    /*
-                    gets.push(httpGet(buildUrl('get_history_conn_point_list',{device_id:643651,region_id:54},'/call/v1/device/')));
-                    dict[gets.length-1]=name+'/'+device.nioss_id+'/conn_point_list';
-                    */
+                    //gets.push(httpGet(buildUrl('get_history_conn_point_list',{device_id:643651,region_id:54},'/call/v1/device/')));
+                    //dict[gets.length-1]=name+'/'+device.nioss_id+'/conn_point_list';
                   };
                 };
-
                 result[site_id][name][device.nioss_id]=device;
               };
             break;
             case 'unmount_devices':
               for(const device of results[name]){
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.device_nioss_id,object:'device'},'/call/nioss/')));
-                dict[gets.length-1]=name+'/'+device.device_nioss_id+'/nioss';
-
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.device_nioss_id,object:'device'},'/call/nioss/')));
+                //dict[gets.length-1]=name+'/'+device.device_nioss_id+'/nioss';
                 result[site_id][name][device.device_nioss_id]={
                   site_id:device.site_id,
                   uzel:{id:device.uzel_id,name:device.uzel_name},
@@ -826,17 +816,15 @@ Vue.component('SitePlanDownload',{//плансхема
             break;
             case 'racks':
               for(const rack of results[name].filter(item=>!item.nioss_error)){
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:rack.id,object:'rack'},'/call/nioss/')));
-                dict[gets.length-1]=name+'/'+rack.id+'/nioss';
-
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:rack.id,object:'rack'},'/call/nioss/')));
+                //dict[gets.length-1]=name+'/'+rack.id+'/nioss';
                 result[site_id][name][rack.id]=rack;
               };
             break;
             case 'ppanels':
               for(const pp of results[name].filter(item=>!item.nioss_error)){
-                gets.push(httpGet(buildUrl('get_nioss_object',{object_id:pp.id,object:'plint'},'/call/nioss/')));
-                dict[gets.length-1]=name+'/'+pp.id+'/nioss';
-
+                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:pp.id,object:'plint'},'/call/nioss/')));
+                //dict[gets.length-1]=name+'/'+pp.id+'/nioss';
                 result[site_id][name][pp.id]=pp;
               };
             break;
