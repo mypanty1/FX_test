@@ -82,6 +82,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     <div style="display:inline-flex;gap:4px;width:100%;justify-content:center;margin-top:8px;">
       <button-main @click="clear" label="clear" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="outlined" size="medium"/>
       <button-main @click="start" label="start" :loading="loadingSome" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
+      <button-main @click="release" label="release" :loading="loadingSome" :disabled="!is54||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
     </div>
   </div>`,
   props:{
@@ -135,7 +136,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     }());
   },
   computed:{
-    //is54(){return this.networkElement?.region?.id==54},
+    is54(){return this.networkElement?.region?.id==54},
     isValidRegion(){return [54,58].includes(this.networkElement?.region?.id)},
     name(){return this.networkElement.name},
     isETH(){return /^eth/i.test(this.name||'')},
@@ -157,7 +158,10 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     }
   },
   methods:{
-    async start(){
+    release(){
+      this.start('release');
+    },
+    async start(release=false){
       await this.getDevicePorts();
       this.loading=true;
       for(const {number:port,flat,subscriber_list=[],state='',snmp_name:ifName=''/*,last_mac:{value:mac=''}={}*/} of this.ports){
@@ -188,7 +192,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
           };
           const {ip}=this;
           try{
-            const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port,vgid,login,serverid,type_of_bind});
+            const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port:(release?vgid:port),vgid,login,serverid,type_of_bind});
             if(response_set_bind?.type=='error'){
               if(response_set_bind?.text?.length>0&&response_set_bind.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
                 let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
