@@ -82,7 +82,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     <div style="display:inline-flex;gap:4px;width:100%;justify-content:center;margin-top:8px;">
       <button-main @click="clear" label="clear" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="outlined" size="medium"/>
       <button-main @click="start" label="start" :loading="loadingSome" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
-      <button-main @click="release" label="release" :loading="loadingSome" :disabled="!is54||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
+      <button-main v-if="false" @click="release" label="release" :loading="loadingSome" :disabled="!is54||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
     </div>
   </div>`,
   props:{
