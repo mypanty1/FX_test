@@ -192,7 +192,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
           };
           const {ip}=this;
           try{
-            const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port:(release?vgid:port),vgid,login,serverid,type_of_bind});
+            const response_set_bind=await httpPost(`/call/service_mix/set_bind`,{ip,port/*:(release?vgid:port)*/,vgid,login,serverid,type_of_bind});
             if(response_set_bind?.type=='error'){
               if(response_set_bind?.text?.length>0&&response_set_bind.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
                 let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
