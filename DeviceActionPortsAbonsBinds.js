@@ -178,7 +178,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
         this.$set(this.results,account,{loading:true});
         try{
           const abon_lbsv=this.abons[account]?.abon_lbsv||await httpGet("/call/v1/search/search_ma?pattern="+account);
-          if(!abon_lbsv?.data?.lbsv?.data?.agreements){return};
+          if(!abon_lbsv?.data?.lbsv?.data?.agreements){continue};
           this.$set(this.abons,account,{cp:{port,flat,mac,account,ifName},abon_lbsv});
           const {agreements=[]}=abon_lbsv.data.lbsv.data;
           const agreement=agreements.find(agreement=>agreement.account==account);
