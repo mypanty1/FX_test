@@ -71,18 +71,17 @@ Vue.component('DeviceActionPortsAbonsBinds',{
       <template>
         <div></div><div></div><div></div><div></div>
       </template>
-      <template v-for="({port,ifName,flat,account,status,errorMessage,error,statusStyle,success},key) in rows">
-        <div class="white-space-pre">{{ifName||port}}</div>
+      <template v-for="({port,flat,account,statusIcon,statusStyle,message,messageClass},key) in rows">
+        <div class="white-space-pre">{{port}}</div>
         <div>{{flat}}</div>
         <div class="white-space-pre">{{account}}</div>
-        <div class="white-space-pre text-align-center" :style="statusStyle">{{status}}</div>
-        <div v-if="errorMessage||error" full class="white-space-pre margin-bottom-4px border-radius-4px" :class="error?'bg-attention-warning':success?'bg-attention-success':''">{{errorMessage||error}}</div>
+        <div class="white-space-pre text-align-center" :style="statusStyle">{{statusIcon}}</div>
+        <div v-if="message" full class="white-space-pre margin-bottom-4px border-radius-4px" :class="messageClass">{{message}}</div>
       </template>
     </div>
     <div style="display:inline-flex;gap:4px;width:100%;justify-content:center;margin-top:8px;">
       <button-main @click="clear" label="clear" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="outlined" size="medium"/>
       <button-main @click="start" label="start" :loading="loadingSome" :disabled="!isValidRegion||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
-      <button-main v-if="false&&username=='mypanty1'" @click="release" label="release" :loading="loadingSome" :disabled="!is54||!isETH||loadingSome" buttonStyle="contained" size="medium"/>
     </div>
   </div>`,
   props:{
@@ -148,22 +147,23 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     loadingSome(){return Object.values(this.loads).some(v=>v)||this.loading},
     rows(){
       return Object.entries(this.results).reduce((rows,[_account,result])=>{
-        const cp=this.abons[_account]?.cp;if(!cp){return rows};
-        const {port,flat,mac,account,ifName}=cp;
-        const {errorMessage,infoMessage,error,success,loading}=result;
+        const abon=this.abons[_account]?.abon;if(!abon){return rows};
+        const {port,flat,account,ifName}=abon;
+        const {message,error,success,loading,stop}=result;
         rows[port]={
-          port,flat,mac,account,ifName,errorMessage,infoMessage,error,success,
-          status:success?'✔':error?'✘':loading?'...':'',
-          statusStyle:success?'font-weight:700;color:#478f22;':error?'font-weight:700;color:#d17a60;':loading?'font-weight:900;color:#5642bd;':''
+          port:ifName||port,
+          flat,
+          account,
+          message,
+          messageClass:error?'bg-attention-warning':success?'bg-attention-success':'',
+          statusIcon:stop?'?':success?'✔':error?'✘':loading?'...':'',
+          statusStyle:stop?'font-weight:900;color:#d17a60;':success?'font-weight:700;color:#478f22;':error?'font-weight:700;color:#d17a60;':loading?'font-weight:900;color:#5642bd;':''
         }
         return rows
       },{});
     }
   },
   methods:{
-    release(){
-      //this.start('release');
-    },
     async start(){
       await this.getDevicePorts();
       this.loading=true;
@@ -178,8 +178,12 @@ Vue.component('DeviceActionPortsAbonsBinds',{
         this.$set(this.results,account,{loading:true});
         try{
           const abon_lbsv=this.abons[account]?.abon_lbsv||await httpGet("/call/v1/search/search_ma?pattern="+account);
-          if(!abon_lbsv?.data?.lbsv?.data?.agreements){continue};
-          this.$set(this.abons,account,{cp:{port,flat,mac,account,ifName},abon_lbsv});
+          if(!abon_lbsv?.data?.lbsv?.data?.agreements){
+            this.$set(this.abons,account,{abon:{port,flat,mac,account,ifName},abon_lbsv});
+            this.$set(this.results,account,{stop:'account not found'});
+            continue
+          };
+          this.$set(this.abons,account,{abon:{port,flat,mac,account,ifName},abon_lbsv});
           const {agreements=[]}=abon_lbsv.data.lbsv.data;
           const agreement=agreements.find(agreement=>agreement.account==account);
           if(!agreement){
@@ -201,7 +205,7 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                 let contract=parseInt(response_set_bind.text.replace('Мы не можем отобрать порт у контракта ',''));
                 if(!contract){
                   console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,login,contract,error:response_set_bind.text||'contract error',step:'port_contract'});
-                  this.$set(this.results,account,{error:'contract error',errorMessage:response_set_bind?.text});
+                  this.$set(this.results,account,{error:'contract error',message:response_set_bind?.text});
                   continue
                 };
                 contract=contract.toString();
@@ -210,18 +214,18 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                   const response_refree=await httpPost(`/call/service_mix/set_bind`,{ip,port:contract,vgid:contract,serverid,type_of_bind});
                   if(response_refree?.type=='error'){
                     console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_refree?.text||'refree error',step:'port_refree_vgid'});
-                    this.$set(this.results,account,{error:'refree error',errorMessage:response_refree?.text});
+                    this.$set(this.results,account,{error:'refree error',message:response_refree?.text});
                     continue
                   }else{
                     try{
                       const response_set_bind_2=await httpPost(`/call/service_mix/set_bind`,{ip,port,vgid,serverid,type_of_bind});
                       if(response_set_bind_2?.type=='error'){
                         console.warn({name,ip,port,flat,mac,account,serverid,type_of_bind,vgid,contract,error:response_set_bind_2?.text||'set_bind 2 error',step:'port_bind_vgid_2'});
-                        this.$set(this.results,account,{error:'set_bind 2 error',errorMessage:response_set_bind_2?.text});
+                        this.$set(this.results,account,{error:'set_bind 2 error',message:response_set_bind_2?.text});
                         continue
                       }else{
                         console.log({port,flat,mac,account,serverid,type_of_bind,vgid,contract,success:true,step:'port_bind_vgid_2'});
-                        this.$set(this.results,account,{success:true,infoMessage:response_set_bind_2?.InfoMessage});
+                        this.$set(this.results,account,{success:true,InfoMessage:response_set_bind_2?.InfoMessage});
                       };
                     }catch(error){
                       this.$set(this.results,account,{error:'unexpected set_bind 2 error'});
@@ -234,11 +238,11 @@ Vue.component('DeviceActionPortsAbonsBinds',{
                 }
               }else{
                 console.warn({port,flat,mac,account,serverid,type_of_bind,vgid,login,error:response_set_bind?.text||'set_bind error',step:'port_bind_vgid'});
-                this.$set(this.results,account,{error:'set_bind error',errorMessage:response_set_bind?.text});
+                this.$set(this.results,account,{error:'set_bind error',message:response_set_bind?.text});
               }
             }else{
               console.log({port,flat,mac,account,serverid,type_of_bind,vgid,login,success:true,step:'port_bind_vgid'});
-              this.$set(this.results,account,{success:true,infoMessage:response_set_bind?.InfoMessage});
+              this.$set(this.results,account,{success:true,InfoMessage:response_set_bind?.InfoMessage});
             };
           }catch(error){
             console.log(account,error);
@@ -281,7 +285,6 @@ Vue.component('DeviceActionPortsAbonsBinds',{
     }
   },
 });
-
 
 
 
