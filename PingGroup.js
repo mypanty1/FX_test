@@ -147,7 +147,7 @@ Vue.component('PingGroup',{
     networkElementsFiltered(){
       if(!this.noItems){
         return Object.values(this.items).reduce((items,item)=>{
-          const {mr_id,ip,modelText};
+          const {mr_id,ip,modelText}=item||{};
           if(!mr_id||!ip){return items};
           items[ip]={mr_id,ip,modelText};
           return items;
