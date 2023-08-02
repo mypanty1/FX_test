@@ -60,10 +60,28 @@ Vue.component('SitePlanDownload',{//плансхема
     openOptions:false,
   }),
   mounted(){
-    createStyleElement('SitePlanDownload-css',`
-    .spd-loader{width:18px;height:18px;border:2px dashed cadetblue;border-left-color:crimson;border-right-color:coral;border-top-color:cornflowerblue;border-radius:50%;animation:spd-loader-spinner 0.99s linear infinite;}
-    @keyframes spd-loader-spinner{to{transform:rotate(360deg)}}
-    `)
+    (function(id='SitePlanDownload'){
+      document.getElementById(id)?.remove();
+      const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+      el.appendChild(document.createTextNode(`
+        .spd-loader {
+          width:18px;
+          height:18px;
+          border:2px dashed cadetblue;
+          border-left-color:crimson;
+          border-right-color:coral;
+          border-top-color:cornflowerblue;
+          border-radius:50%;
+          animation:spd-loader-spinner 0.99s linear infinite;
+        }
+        @keyframes spd-loader-spinner {
+          to {
+            transform:rotate(360deg)
+          }
+        }
+      `));
+      document.body.insertAdjacentElement('afterBegin',el);
+    }());
   },
   computed:{},
   methods:{
