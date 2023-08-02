@@ -87,9 +87,9 @@ Vue.component('PingGroup',{
       <template v-if="networkElementsCount">
         <BtnSq :loading="loadingSome" @click="pingAll" :disabled="running"/>
         <div class="display-flex gap-4px" style="grid-column: span 2">
-          <button-main @click="clear" label="clear" buttonStyle="outlined" size="medium" class="width-50px height-20px border-radius-4px"/>
-          <button-main @click="start" label="start" :loading="running" :disabled="running" buttonStyle="contained" size="medium" class="width-50px height-20px border-radius-4px"/>
-          <button-main @click="stop" label="stop" buttonStyle="outlined" size="medium" class="width-50px height-20px border-radius-4px"/>
+          <button-main @click="clear" label="clear" buttonStyle="outlined" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
+          <button-main @click="start" label="start" :loading="running" :disabled="running" buttonStyle="contained" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
+          <button-main @click="abort" label="abort" buttonStyle="outlined" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
           <div class="font--13-500 tone-500">{{count||''}}</div>
         </div>
       </template>
@@ -185,7 +185,7 @@ Vue.component('PingGroup',{
       return await Promise.allSettled(pings);
     },
     clear(){
-      this.stop();
+      this.abort();
       this.results={};
       this.max_count=100;
       this.count=0;
@@ -201,13 +201,13 @@ Vue.component('PingGroup',{
         this.count++;
         await this.pingAll();
         if(this.max_count<=0){
-          this.stop();
+          this.abort();
         }else if(this.running){
           this.next();
         }
       },this.timeout);
     },
-    stop(){
+    abort(){
       this.running=false;
       clearTimeout(this.timer);
     },
