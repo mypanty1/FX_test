@@ -5,10 +5,9 @@ Vue.component('SideBarExtModal2',{
         <div class="font--15-600 text-align-center">Дополнительно</div>
         
         <div class="display-flex flex-direction-column">
-          <select-el ref="Selector" label="Виджеты" :items="widgets" itemKey="name" @input="addItem" clearable/>
+          <select-el ref="Selector" label="Добавить виджет" :items="widgets" itemKey="name" @input="addItem" clearable/>
           <devider-line v-if="items.length"/>
-          
-          <div class="display-flex flex-direction-column gap-8px">
+          <div v-if="items.length" class="display-flex flex-direction-column-reverse gap-8px">
             <template v-for="(item,index) of items">
               <SectionBorder class="padding-8px" :key="index">
                 <div class="display-flex justify-content-space-between gap-8px">
@@ -18,9 +17,9 @@ Vue.component('SideBarExtModal2',{
                 <component :key="item.name" :is="item.is" v-bind="item.props" ref="Widgets"/>
               </SectionBorder>
             </template>
-            <div v-if="!items.length" class="font--16-500 tone-300 text-align-center height-100px display-flex flex-direction-column justify-content-center">
-              Добавить виджет
-            </div>
+          </div>
+          <div v-else class="font--16-500 tone-300 text-align-center height-100px display-flex flex-direction-column justify-content-center">
+            Добавить виджет
           </div>
         </div>
       </div>
