@@ -131,8 +131,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PingGroup.js',type:'text/javascript'}));
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteExt.js',type:'text/javascript'}));
 
-//portsmap logs add cursor
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortsMapLogs2.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SideBarExtModal.js',type:'text/javascript'}));
 
 //user ip ping and go
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceActionPing.js',type:'text/javascript'}));
