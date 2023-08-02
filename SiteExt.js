@@ -22,7 +22,7 @@ Vue.component('SiteExt',{
         </div>
       </link-block>
       <div v-show="open_pings" class="padding-left-right-16px">
-        <PingGroup v-bind="{site,site_id}" @count-not-online="countOfflineOrError=$event" @count-online="countOnline=$event" @loading-some="loadingSomePing=$event"/>
+        <PingGroup ref="PingGroup" :items="items" @count-not-online="countOfflineOrError=$event" @count-online="countOnline=$event" @loading-some="loadingSomePing=$event"/>
       </div>
       <devider-line />
     </template>
@@ -40,6 +40,34 @@ Vue.component('SiteExt',{
     countOnline:false,
     loadingSomePing:false,
   }),
+  created(){
+    const {site_id}=this;
+    this.getSiteNetworkElements({site_id});
+  },
+  computed:{
+    ...mapGetters({
+      getNetworkElementsBySiteId:'site/getNetworkElementsBySiteId',
+    }),
+    networkElements(){return this.getNetworkElementsBySiteId(this.site_id)},
+    items(){
+      const {site_id,site:{node_id}={},networkElements}=this;
+      console.log(site_id,node_id,networkElements);
+      return Object.values(select(networkElements,{
+        site_id,
+        node_id,
+        ip:(ip)=>!!ip,
+      })).reduce((items,ne)=>{
+        const {mr_id,ip,vendor,model,sysObjectID}=ne;
+        items[ip]={ip,mr_id,text:getModelText(vendor,model,sysObjectID)};
+        return items;
+      },{})
+    },
+  },
+  methods:{
+    ...mapActions({
+      getSiteNetworkElements:'site/getSiteNetworkElements',
+    }),
+  }
 });
 
 Vue.component('SitePlanDownload',{//плансхема
