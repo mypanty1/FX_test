@@ -1,4 +1,4 @@
-Vue.component('BtnSq',{//new btn
+Vue.component('BtnSq',{
   template:`<button type="button" name="BtnSq" :style="{width:size+'px',minWidth:size+'px',height:size+'px'}" v-on="$listeners">    
     <slot><span :class="iconClass"></span></slot>    
   </button>`,
@@ -84,7 +84,7 @@ Vue.component('PingGroup',{
   template:`<div name="PingGroup">
     <div class="display-grid row-gap-2px col-gap-4px" style="grid-template-columns:repeat(2,max-content) 1fr">
       
-      <template v-if="networkElementsCount">
+      <template v-if="itemsCount">
         <BtnSq :loading="loadingSome" @click="pingAll" :disabled="running"/>
         <div class="display-flex gap-4px" style="grid-column: span 2">
           <button-main @click="clear" label="clear" buttonStyle="outlined" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
@@ -94,10 +94,10 @@ Vue.component('PingGroup',{
         </div>
       </template>
       
-      <template v-for="({ip,mr_id,modelText}) in networkElementsFiltered">
-        <PingLed :key="ip" v-bind="{ip,mr_id}" noPingOnCreatedddd ref="PingLeds" @on-result="onResult(ip,$event)" @loading="$set(loads,ip,$event)"/>
+      <template v-for="({ip,mr_id,text},key) in items">
+        <PingLed :key="key" v-bind="{ip,mr_id}" ref="PingLeds" @on-result="onResult(ip,$event)" @loading="$set(loads,ip,$event)"/>
         <div class="font--13-500">{{ip}}</div>
-        <div class="font--13-500 tone-500">{{modelText}}</div>
+        <div class="font--13-500 tone-500">{{text}}</div>
         
         <div></div>
         <LedsBarChart class="position-relative" style="grid-column: span 2;bottom:7px;" :items="results[ip]"/>
@@ -106,9 +106,7 @@ Vue.component('PingGroup',{
     </div>
   </div>`,
   props:{
-    site:{type:Object,default:null,required:true},
-    site_id:{type:String,default:'',required:true},
-    items:{type:[Object,Array],default:null},
+    items:{type:[Object,Array],default:()=>({})},//{ip,mr_id,text}
   },
   data:()=>({
     loads:{},
@@ -120,12 +118,6 @@ Vue.component('PingGroup',{
     running:false,
     states:{},
   }),
-  created(){
-    const {noItems,site_id}=this;
-    if(noItems){
-      this.getSiteNetworkElements({site_id});
-    }
-  },
   watch:{
     'countNotOnline'(countNotOnline){
       this.$emit('count-not-online',countNotOnline);
@@ -138,34 +130,7 @@ Vue.component('PingGroup',{
     },
   },
   computed:{
-    node_id(){return this.site?.node_id},
-    ...mapGetters({
-      getNetworkElementsBySiteId:'site/getNetworkElementsBySiteId',
-    }),
-    networkElements(){return this.getNetworkElementsBySiteId(this.site_id)},
-    noItems(){return isEmpty(this.items)},
-    networkElementsFiltered(){
-      if(!this.noItems){
-        return Object.values(this.items).reduce((items,item)=>{
-          const {mr_id,ip,modelText}=item||{};
-          if(!mr_id||!ip){return items};
-          items[ip]={mr_id,ip,modelText};
-          return items;
-        },{})
-      }else{
-        return select(this.networkElements,{
-          site_id:this.site_id,
-          node_id:this.node_id,
-          ip:(ip)=>!!ip,
-          sysObjectID:(sysObjectID,item)=>{
-            const {vendor,model}=item;
-            item.modelText=getModelText(vendor,model,sysObjectID);
-            return true
-          },
-        })
-      }
-    },
-    networkElementsCount(){return Object.values(this.networkElementsFiltered).length},
+    itemsCount(){return Object.values(this.items).length},
     loadingSome(){
       return Object.values(this.loads).some(v=>v)
     },
@@ -177,9 +142,6 @@ Vue.component('PingGroup',{
     }
   },
   methods:{
-    ...mapActions({
-      getSiteNetworkElements:'site/getSiteNetworkElements',
-    }),
     async pingAll(){
       const pings=(this.$refs.PingLeds||[]).map(led=>led.ping());
       return await Promise.allSettled(pings);
@@ -229,6 +191,6 @@ Vue.component('PingGroup',{
         item.title=ms
       };
       this.$set(this.results[ip],date,item);
-    }
+    },
   },
 });
