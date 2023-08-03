@@ -158,23 +158,17 @@ Vue.component('WidgetPing',{
 
 Vue.component('WidgetUser',{
   template:`<div name="WidgetUser">
-    <input-el placeholder="username" label="username" v-model="username" class="margin-bottom-8px">
+    <input-el placeholder="username" label="username" v-model="username" :disabled="!$store.getters['main/userData']"/>
   </div>`,
   computed:{
     username:{
-      get:function(){
+      get(){
         return this.$store.getters['main/username'];
       },
-      set:function(username){
-        if(!this.$store.state.userData){
-          this.$set(this.$store.state,'userData',{});
-        };
-        this.$set(this.$store.state.userData,'username',username);
+      set(username){
+        this.$store.commit('main/set_userData',{...this.$store.getters['main/userData'],username})
       }
     },
-    ...mapGetters({
-      username:'main/username',
-    }),
   },
   methods:{
     close(){//public
