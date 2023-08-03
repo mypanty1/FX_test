@@ -303,6 +303,11 @@ Vue.component('task-main-account',{
       <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
       <devider-line/>
 
+      <template v-if="/^1-/.test(task.Number_EIorNumberOrder)">
+        <UrlLink :url="urlToWfmEdo"/>
+        <devider-line/>
+      </template>
+
       <template v-if="task.clientNumber!='Потенциальный'">
         <SibelServiceRequests :agrNumber="task.clientNumber" :srNumberCurrent="task.Number_EIorNumberOrder"/>
         <devider-line/>
@@ -356,6 +361,16 @@ Vue.component('task-main-account',{
     entrance:null,
   }),
   computed:{
+    ...mapGetters({
+      isApp:'app/isApp',
+    }),
+    urlToWfmEdo(){
+      return {
+        url:`https://wfmmobile.mts.ru/WfmClientContractWeb/?taskCallId=${this.task.Number_EIorNumberOrder}`,
+        title:'WFM ЭДО',
+        description:this.isApp?'*переход из приложения пока может не работать\n(можно скопировать)':''
+      }
+    },
     favBtnProps(){
       if(!this.task){return};
       const {NumberOrder,Number_EIorNumberOrder,tasktype,AddressSiebel}=this.task;
