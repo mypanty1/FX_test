@@ -31,6 +31,7 @@ Vue.component('SideBarExtModal2',{
   data:()=>({
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
+      {name:'User',is:'WidgetUser'},
     ],
     items:[]
   }),
@@ -152,5 +153,35 @@ Vue.component('WidgetPing',{
   },
   beforeDestroy() {
     this.abort();
+  },
+});
+
+Vue.component('WidgetUser',{
+  template:`<div name="WidgetUser">
+    <input-el placeholder="username" label="username" v-model="username" class="margin-bottom-8px">
+  </div>`,
+  computed:{
+    username:{
+      get:function(){
+        return this.$store.getters['main/username'];
+      },
+      set:function(username){
+        if(!this.$store.state.userData){
+          this.$set(this.$store.state,'userData',{});
+        };
+        this.$set(this.$store.state.userData,'username',username);
+      }
+    },
+    ...mapGetters({
+      username:'main/username',
+    }),
+  },
+  methods:{
+    close(){//public
+      
+    },
+  },
+  beforeDestroy() {
+    
   },
 });
