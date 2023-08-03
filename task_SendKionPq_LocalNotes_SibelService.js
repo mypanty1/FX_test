@@ -303,11 +303,6 @@ Vue.component('task-main-account',{
       <info-text-sec title="Описание работ" :rows="[task.ProductOffering]" :text="task.description||'нет описания работ'"/>
       <devider-line/>
 
-      <template v-if="/^1-/.test(task.Number_EIorNumberOrder)">
-        <UrlLink :url="urlToWfmEdo"/>
-        <devider-line/>
-      </template>
-
       <template v-if="task.clientNumber!='Потенциальный'">
         <SibelServiceRequests :agrNumber="task.clientNumber" :srNumberCurrent="task.Number_EIorNumberOrder"/>
         <devider-line/>
@@ -315,6 +310,12 @@ Vue.component('task-main-account',{
       
       <LocalNotes :id="task.NumberOrder" class="margin-left-right-16px"/>
       <devider-line m="2px 0px 8px 0px"/>
+
+      <template v-if="/^1-/.test(task.Number_EIorNumberOrder)">
+        <UrlLink :url="urlToWfmEdo"/>
+        <devider-line/>
+      </template>
+      
       <link-block icon="task-status" :text="task.status" :actionIcon="hasBf?'right-link':'-'" @block-click="slideToEntrance" type="medium">
         <div slot="postfix" class="display-flex gap-4px main-orange" v-if="hasBf">
           <div>
