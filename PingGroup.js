@@ -91,7 +91,7 @@ Vue.component('PingGroup',{
           <button-main @click="start" label="start" :loading="running" :disabled="running" buttonStyle="contained" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
           <button-main @click="abort" label="abort" buttonStyle="outlined" size="medium" class="width-50px height-20px padding-left-right-4px border-radius-4px"/>
           <div class="font--13-500 tone-500 width-30px">{{count||''}}</div>
-          <TabSelector v-if="$root.username=='mypanty1'" :items="[{name:'list'},{name:'link'}]" @onSelect="listMode=$event"/>
+          <TabSelector v-if="$root.username=='mypanty1'" :items="[{name:'list'},{name:'link'}]" @onSelect="listMode=$event" class="height-20px border-radius-4px"/>
         </div>
       </template>
       
