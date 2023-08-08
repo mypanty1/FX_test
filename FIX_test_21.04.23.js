@@ -90,11 +90,11 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
   };
 });
 
-document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
+/*document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
 document.getElementById('btn_refresh')?.addEventListener('click',()=>{
   window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
   window.location.href='https://fx.mts.ru/fix';
-});
+});*/
 
 //test inventory
 /*if(store?.state?.main?.userData?.username=='mypanty1'){
