@@ -5,27 +5,6 @@ Vue.component('SiteExt',{
       <SitePlanDownload v-bind="$props"/>
     </div>
     <devider-line />
-    <template v-if="!entrance_id">
-      <link-block :actionIcon="open_pings?'up':'down'" icon="factors" text="доступность" type="large" @block-click="open_pings=!open_pings">
-        <div slot="postfix" class="display-flex align-items-center gap-4px">
-          <span v-if="loadingSomePing" class="ic-20 ic-loading rotating tone-500"></span>
-          <template v-else>
-            <div v-if="countOfflineOrError" class="display-flex align-items-center gap-2px">
-              <span class="font--13-500 tone-500">{{countOfflineOrError}}</span>
-              <span class="ic-20 ic-warning main-orange"></span>
-            </div>
-            <div v-if="countOnline" class="display-flex align-items-center gap-2px">
-              <span class="font--13-500 tone-500">{{countOnline}}</span>
-              <span class="ic-20 ic-status main-green"></span>
-            </div>
-          </template>
-        </div>
-      </link-block>
-      <div v-show="open_pings" class="padding-left-right-16px">
-        <PingGroup ref="PingGroup" :items="items" @count-not-online="countOfflineOrError=$event" @count-online="countOnline=$event" @loading-some="loadingSomePing=$event"/>
-      </div>
-      <devider-line />
-    </template>
   </div>`,
   props:{
     site:{type:Object,default:null,required:true},
@@ -35,39 +14,10 @@ Vue.component('SiteExt',{
   },
   data:()=>({
     open_ext:false,
-    open_pings:false,
-    countOfflineOrError:false,
-    countOnline:false,
-    loadingSomePing:false,
   }),
-  created(){
-    const {site_id}=this;
-    this.getSiteNetworkElements({site_id});
-  },
-  computed:{
-    ...mapGetters({
-      getNetworkElementsBySiteId:'site/getNetworkElementsBySiteId',
-    }),
-    networkElements(){return this.getNetworkElementsBySiteId(this.site_id)},
-    items(){
-      const {site_id,site:{node_id}={},networkElements}=this;
-      console.log(site_id,node_id,networkElements);
-      return Object.values(select(networkElements,{
-        site_id,
-        node_id,
-        ip:(ip)=>!!ip,
-      })).reduce((items,ne)=>{
-        const {mr_id,ip,vendor,model,sysObjectID}=ne;
-        items[ip]={ip,mr_id,text:getModelText(vendor,model,sysObjectID)};
-        return items;
-      },{})
-    },
-  },
-  methods:{
-    ...mapActions({
-      getSiteNetworkElements:'site/getSiteNetworkElements',
-    }),
-  }
+  created(){},
+  computed:{},
+  methods:{}
 });
 
 Vue.component('SitePlanDownload',{//плансхема
