@@ -1,8 +1,19 @@
-Vue.component('SideBarExtModal2',{
-  template:`<modal-container-custom name="SideBarExtModal2" ref="modal" :footer="false" :wrapperStyle="{'min-height':'auto','margin-top':'4px'}">
-    <div class="padding-left-right-16px">
-      <div class="display-flex flex-direction-column gap-8px">
-        <div class="font--15-600 text-align-center">Дополнительно</div>
+Vue.component('ToolsPageContent',{
+  template:`<div name="ToolsPageContent" class="display-contents">
+    <CardBlock>
+      <div class="display-flex align-items-center justify-content-space-between gap-8px margin-left-right-12px height-32px">
+        <div slot="prefix">
+          
+        </div>
+        <div slot="content">
+          <span class="font--15-600">Инструменты</span>
+        </div>
+        <div slot="postfix">
+          
+        </div>
+      </div>
+      <devider-line/>
+      <div class="padding-left-right-8px">
         
         <div class="display-flex flex-direction-column">
           <select-el ref="Selector" label="Добавить виджет" :items="widgets" itemKey="name" @input="addItem" clearable/>
@@ -22,30 +33,23 @@ Vue.component('SideBarExtModal2',{
             Добавить виджет
           </div>
         </div>
+        
       </div>
-      <div class="margin-top-16px display-flex justify-content-space-around">
-        <button-main label="Закрыть" @click="close" buttonStyle="outlined" size="medium"/>
-      </div>
-    </div>
-  </modal-container-custom>`,
+    </CardBlock>
+  </div>`,
   data:()=>({
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
-      {name:'User',is:'WidgetUser'},
+      {name:'Dev',is:'WidgetDev'},
     ],
     items:[]
   }),
+  created(){},
+  watch:{},
   computed:{
     someSelected(){return !isEmpty(this.items)},
   },
   methods:{
-    open(){//public
-      this.$refs.modal.open();
-    },
-    close(){//public
-      this.$refs.modal.close();
-      this.$refs.Widgets.forEach(widget=>widget?.close())
-    },
     addItem(item){
       if(item){
         this.items.push(item)
@@ -53,7 +57,7 @@ Vue.component('SideBarExtModal2',{
       };
     }
   },
-})
+});
 
 Vue.component('WidgetPing',{
   template:`<div name="WidgetPing">
@@ -151,31 +155,49 @@ Vue.component('WidgetPing',{
       this.abort();
     },
   },
-  beforeDestroy() {
+  beforeDestroy(){
     this.abort();
   },
 });
 
-Vue.component('WidgetUser',{
+Vue.component('WidgetDev',{
   template:`<div name="WidgetUser">
-    <input-el placeholder="username" label="username" v-model="username" :disabled="!$store.getters['main/userData']"/>
+    <input-el placeholder="wfm_username" label="wfm_username" v-model="wfm_username"/>
+    <input-el placeholder="fav_username" label="fav_username" v-model="fav_username"/>
   </div>`,
   computed:{
-    username:{
-      get(){
-        return this.$store.getters['main/username'];
-      },
-      set(username){
-        this.$store.commit('main/set_userData',{...this.$store.getters['main/userData'],username})
-      }
+    ...mapGetters({
+      getVar:'dev/getVar'
+    }),
+    wfm_username:{
+      get(){return this.getVar('wfm_username')},
+      set(wfm_username){this.setVar({wfm_username})}
+    },
+    fav_username:{
+      get(){return this.getVar('fav_username')},
+      set(fav_username){this.setVar({fav_username})}
+    },
+    wfm_username:{
+      get(){return this.getVar('wfm_username')},
+      set(wfm_username){this.setVar({wfm_username})}
     },
   },
   methods:{
     close(){//public
       
     },
+    ...mapActions({
+      setVar:'dev/setVar'
+    }),
   },
-  beforeDestroy() {
+  beforeDestroy(){
     
   },
 });
+
+
+
+
+
+
+
