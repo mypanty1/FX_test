@@ -1,7 +1,7 @@
 
 Vue.component('SiteLinkChangeTraps',{
   template:`<CardBlock name="LinkChangeTrapsEvents">
-    <title-main text="Трапы Link-Change" :text2="text2" text2Class="font--13-500 tone-500" :textSub="textSub" textSubClass="font--13-500 tone-500" @open="show=!show">
+    <title-main text="Трапы LinkChange" :text2="text2" text2Class="font--13-500 tone-500" :textSub="textSub" textSubClass="font--13-500 tone-500" @open="show=!show">
       <button-sq icon="mark-circle" type="large" @click="help.show=!help.show"/>
     </title-main>
     <info-text-icon v-if="help.show" icon="info" :text="help.text"/>
