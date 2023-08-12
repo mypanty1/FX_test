@@ -102,7 +102,7 @@ Vue.component('WidgetPing',{
       mr:'main/mr',
     }),
     label(){return this.mr?`IP (МР ${this.mr.name})`:`IP`},
-    valid(){return this.mr_id&&this.ip.split('.').length===4},
+    valid(){return this.mr_id&&this.ip.split('.').filter(Boolean).length===4},
     received(){return this.pings.filter(ping=>ping.values[0]>=0).length},
     lost(){return this.pings.filter(ping=>ping.values[0]<0).length},
   },
@@ -204,7 +204,7 @@ Vue.component('WidgetSnmpTest',{
       </div>
     </input-el>
     
-    <div v-if="ne" class="display-flex flex-direction-column">
+    <div v-if="ne&&ne.ip==ip" class="display-flex flex-direction-column">
       <component v-for="([is,props],key) of info" :key="key" :is="is" v-bind="props" class="padding-unset"/>
     </div>
     
@@ -227,7 +227,7 @@ Vue.component('WidgetSnmpTest',{
     }),
     placeholder(){return `${this.region?.br_oam_prefix||'10.221'}.xxx.xxx`},
     label(){return this.mr?`IP (МР ${this.mr.name})`:`IP`},
-    valid(){return this.mr_id&&this.ip.split('.').length===4},
+    valid(){return this.mr_id&&this.ip.split('.').filter(Boolean).length===4},
     info(){
       const {ne}=this;if(!ne){return []};
       const {type,ip,region:{location},name,model,vendor,system_object_id,firmware,description,snmp:{version,community},discovery:{date,status}}=ne;
@@ -255,7 +255,7 @@ Vue.component('WidgetSnmpTest',{
     }),
     onChangeIp(){
       const {ip,valid,ne}=this;
-      if(ne?.ip!==ip){this.ne=null};
+      //if(ne?.ip!==ip){this.ne=null};
       if(!ip||!valid){return};
       this.searchByIp();
     },
@@ -278,13 +278,15 @@ Vue.component('WidgetSnmpTest',{
         const response=this.$cache.getItem(ne_name)||await httpGet(buildUrl('search_ma',{pattern:ne_name},'/call/v1/search/'));
         if(!response?.data){return};
         this.$cache.setItem(ne_name,response)
-        this.ne=response.data;
+        if(this.ip==response.data.ip){
+          this.ne=response.data;
+        }
       }catch(error){
         console.warn('search_ma.error',error)
       }
     },
     close(){//public
-      this.abort();
+      
     },
   },
   beforeDestroy(){
