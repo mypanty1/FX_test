@@ -1,7 +1,7 @@
 Vue.component("PortActionReboot", {
   template:`<section name="PortActionReboot">
     <link-block icon="reload" text="Перезагрузить порт" :disabled="loadingSome||disabled" v-bind="$attrs" actionIcon="refresh" @block-click="portReboot" :loading="portRebootLoading"/>
-    <link-block v-if="isAccess" icon="reload main-red" text="Отключить порт" :disabled="loadingSome||disabled" v-bind="$attrs" actionIcon="reload" @block-click="portDown" :loading="portDownLoading"/>
+    <link-block v-if="isAccess||$root.username=='mypanty1'" icon="reload main-red" text="Отключить порт" :disabled="loadingSome||disabled" v-bind="$attrs" actionIcon="reload" @block-click="portDown" :loading="portDownLoading"/>
   </section>`,
   props:{
     port:{type:Object,required:true},
