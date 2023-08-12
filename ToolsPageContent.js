@@ -203,8 +203,9 @@ Vue.component('WidgetSnmpTest',{
         <PingLed v-bind="{ip,mr_id}"/>
       </div>
     </input-el>
-    
-    <div v-if="ne&&ne.ip==ip" class="display-flex flex-direction-column">
+
+    <loader-bootstrap v-if="loading" text="поиск СЭ по IP"/>
+    <div v-else-if="ne&&ne.ip==ip" class="display-flex flex-direction-column">
       <component v-for="([is,props],key) of info" :key="key" :is="is" v-bind="props" class="padding-unset"/>
     </div>
     
@@ -212,6 +213,7 @@ Vue.component('WidgetSnmpTest',{
   data:()=>({
     ip:'',
     ne:null,
+    loads:{},
   }),
   watch:{
     'ip'(ip){
@@ -228,6 +230,7 @@ Vue.component('WidgetSnmpTest',{
     placeholder(){return `${this.region?.br_oam_prefix||'10.221'}.xxx.xxx`},
     label(){return this.mr?`IP (МР ${this.mr.name})`:`IP`},
     valid(){return this.mr_id&&this.ip.split('.').filter(Boolean).length===4},
+    loading(){return this.loads[this.ip]},
     info(){
       const {ne}=this;if(!ne){return []};
       const {type,ip,region:{location},name,model,vendor,system_object_id,firmware,description,snmp:{version,community},discovery:{date,status}}=ne;
@@ -261,29 +264,33 @@ Vue.component('WidgetSnmpTest',{
     },
     async searchByIp(){
       const {ip,region_id}=this;
+      this.$set(this.loads,ip,true);
       let ne_name;
       try {
         const response=this.$cache.getItem(ip)||await httpGet(buildUrl('search_ma',{pattern:`@D_IP:${ip}`},'/call/v1/search/'));
-        if(!Array.isArray(response?.data)){return};
-        this.$cache.setItem(ip,response)
-        const nes=response.data.length?response.data.find(d=>d.devices)?.devices:[response.data];
-        const ne=nes.find(device=>device.region.id===region_id);
-        if(!ne){return};
-        ne_name=ne.name;
+        if(Array.isArray(response?.data)){
+         this.$cache.setItem(ip,response)
+         const nes=response.data.length?response.data.find(d=>d.devices)?.devices:[response.data];
+         const ne=nes.find(device=>device.region.id===region_id);
+         if(ne){ne_name=ne.name};
+        };
       }catch(error){
         console.warn('search_ma.error',error)
       }
-      if(!ne_name){return};
-      try {
-        const response=this.$cache.getItem(ne_name)||await httpGet(buildUrl('search_ma',{pattern:ne_name},'/call/v1/search/'));
-        if(!response?.data){return};
-        this.$cache.setItem(ne_name,response)
-        if(this.ip==response.data.ip){
-          this.ne=response.data;
+      if(ne_name){
+        try {
+          const response=this.$cache.getItem(ne_name)||await httpGet(buildUrl('search_ma',{pattern:ne_name},'/call/v1/search/'));
+          if(response?.data){
+            this.$cache.setItem(ne_name,response)
+            if(this.ip==response.data.ip){
+              this.ne=response.data;
+            }
+          }
+        }catch(error){
+          console.warn('search_ma.error',error)
         }
-      }catch(error){
-        console.warn('search_ma.error',error)
       }
+      this.$set(this.loads,ip,!true);
     },
     close(){//public
       
