@@ -41,6 +41,7 @@ Vue.component('ToolsPageContent',{
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
       {name:'Dev',is:'WidgetDev'},
+      {name:'Device IP',is:'WidgetSnmpTest'},
     ],
     items:[]
   }),
@@ -195,7 +196,101 @@ Vue.component('WidgetDev',{
   },
 });
 
-
+Vue.component('WidgetSnmpTest',{
+  template:`<div name="WidgetSnmpTest">
+    <input-el :placeholder="placeholder" :label="label" v-model="ip" class="margin-bottom-8px">
+      <div v-if="valid" slot="postfix" class="margin-left-right-8px display-flex">
+        <PingLed v-bind="{ip,mr_id}"/>
+      </div>
+    </input-el>
+    
+    <div v-if="ne" class="display-flex flex-direction-column">
+      <component v-for="([is,props],key) of info" :key="key" :is="is" v-bind="props" class="padding-unset"/>
+    </div>
+    
+  </div>`,
+  data:()=>({
+    ip:'',
+    ne:null,
+  }),
+  watch:{
+    'ip'(ip){
+      this.onChangeIp();
+    },
+  },
+  computed:{
+    ...mapGetters({
+      region_id:'main/region_id',
+      region:'main/region',
+      mr_id:'main/mr_id',
+      mr:'main/mr',
+    }),
+    placeholder(){return `${this.region?.br_oam_prefix||'10.221'}.xxx.xxx`},
+    label(){return this.mr?`IP (МР ${this.mr.name})`:`IP`},
+    valid(){return this.mr_id&&this.ip.split('.').length===4},
+    info(){
+      const {ne}=this;if(!ne){return []};
+      const {type,ip,region:{location},name,model,vendor,system_object_id,firmware,description,snmp:{version,community},discovery:{date,status}}=ne;
+      const modelText=getModelText(vendor,model,system_object_id);
+      const title=getNetworkElementReference(type).title;// || type (if unknown)
+      const address=truncateSiteAddress(location);
+      return [
+        title             &&  ['info-text-sec', {text:title}],
+        address           &&  ['info-text-sec', {text:address}],
+        ip                &&  ['info-value',    {label:'IP',                value:ip,               withLine:true}],
+        name              &&  ['info-value',    {label:'Имя',               value:name,             withLine:true}],
+        modelText         &&  ['info-value',    {label:'Model',             value:modelText,        withLine:true}],
+        version           &&  ['info-value',    {label:'SNMP Version',          value:version,          withLine:true}],
+        community         &&  ['info-value',    {label:'SNMP Community',         value:community,        withLine:true}],
+        date              &&  ['info-value',    {label:'Dscv date',         value:date,        withLine:true}],
+        status            &&  ['info-value',    {label:'Dscv status',         value:status,        withLine:true}],
+        description       &&  ['info-text-sec', {text:description}],
+        firmware && !new RegExp(firmware).test(description)          &&  ['info-text-sec', {text:firmware}],
+      ].filter(v=>v);
+    },
+  },
+  methods:{
+    ...mapActions({
+      doPing:'dnm/doPing',
+    }),
+    onChangeIp(){
+      const {ip,valid,ne}=this;
+      if(ne?.ip!==ip){this.ne=null};
+      if(!ip||!valid){return};
+      this.searchByIp();
+    },
+    async searchByIp(){
+      const {ip,region_id}=this;
+      let ne_name;
+      try {
+        const response=this.$cache.getItem(ip)||await httpGet(buildUrl('search_ma',{pattern:`@D_IP:${ip}`},'/call/v1/search/'));
+        if(!Array.isArray(response?.data)){return};
+        this.$cache.setItem(ip,response)
+        const nes=response.data.length?response.data.find(d=>d.devices)?.devices:[response.data];
+        const ne=nes.find(device=>device.region.id===region_id);
+        if(!ne){return};
+        ne_name=ne.name;
+      }catch(error){
+        console.warn('search_ma.error',error)
+      }
+      if(!ne_name){return};
+      try {
+        const response=this.$cache.getItem(ne_name)||await httpGet(buildUrl('search_ma',{pattern:ne_name},'/call/v1/search/'));
+        if(!response?.data){return};
+        this.$cache.setItem(ne_name,response)
+        this.ne=response.data;
+      }catch(error){
+        console.warn('search_ma.error',error)
+      }
+    },
+    close(){//public
+      this.abort();
+    },
+  },
+  beforeDestroy(){
+    
+  },
+});
 
 
 
