@@ -204,7 +204,7 @@ Vue.component('WidgetSnmpTest',{
       </div>
     </input-el>
 
-    <loader-bootstrap v-if="loading" text="поиск СЭ по IP"/>
+    <loader-bootstrap v-if="loading" :text="'поиск СЭ по IP '+ip"/>
     <div v-else-if="ne&&ne.ip==ip" class="display-flex flex-direction-column">
       <component v-for="([is,props],key) of info" :key="key" :is="is" v-bind="props" class="padding-unset"/>
     </div>
