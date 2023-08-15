@@ -148,8 +148,8 @@ if(app?.$store?.getters?.['main/username']=='mypanty1'){
   app.$store.dispatch('dev/setVar',{showToolsPage:true})
 }
 
-
-
+//IrdetoSmartCard
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/IrdetoSmartCard.js',type:'text/javascript'}));
 
 
 
