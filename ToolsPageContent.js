@@ -538,20 +538,20 @@ Vue.component('EventsMap',{
           new window.ymaps.control.TypeSelector({
             //mapTypes:['yandex#map','yandex#satellite','yandex#hybrid'],
             options:{
-              position:{top:8,right:8},
+              position:{top:8,right:40},
               size:'small',
               panoramasItemMode:'off',
             },
           }),
           new window.ymaps.control.GeolocationControl({
             options:{
-              position:{top:40,right:8},
+              position:{top:8,right:8},
               size:'small',
             },
           }),
           new window.ymaps.control.ZoomControl({
             options:{
-              position:{top:72,right:8},
+              position:{top:40,right:8},
               size:'large',
             },
           }),
