@@ -1,3 +1,7 @@
+if(app?.$store?.getters?.['main/username']=='mypanty1'){
+  app.$store.dispatch('dev/setVar',{showToolsPage:true})
+}
+
 Vue.component('ToolsPageContent',{
   template:`<div name="ToolsPageContent" class="display-contents">
     <CardBlock>
@@ -16,7 +20,7 @@ Vue.component('ToolsPageContent',{
       <div class="padding-left-right-8px">
         
         <div class="display-flex flex-direction-column">
-          <select-el ref="Selector" label="Добавить виджет" :items="widgets" itemKey="name" @input="addItem" clearable/>
+          <select-el ref="Selector" label="Добавить виджет" :items="widgetsItems" itemKey="name" @input="addItem" clearable/>
           <devider-line v-if="items.length"/>
           <div v-if="items.length" class="display-flex flex-direction-column-reverse gap-8px">
             <template v-for="(item,index) of items">
@@ -40,15 +44,24 @@ Vue.component('ToolsPageContent',{
   data:()=>({
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
-      {name:'Dev',is:'WidgetDev'},
+      {name:'Dev',is:'WidgetDev',isDev:true},
       {name:'Device IP',is:'WidgetSnmpTest'},
+      {name:'ToggleEventsMapMode',is:'ToggleEventsMapMode',isDev:true},
     ],
     items:[]
   }),
   created(){},
   watch:{},
   computed:{
+    ...mapGetters({
+      username:'main/username',
+    }),
     someSelected(){return !isEmpty(this.items)},
+    isDev(){return this.username=='mypanty1'},
+    widgetsItems(){
+      const {widgets,isDev}=this;
+      return isDev?widgets:widgets.filter(({isDev})=>!isDev);
+    }
   },
   methods:{
     addItem(item){
@@ -300,6 +313,374 @@ Vue.component('WidgetSnmpTest',{
     
   },
 });
+
+
+
+Vue.component('ToggleEventsMapMode',{
+  template:`<div name="ToggleEventsMapMode">
+    <input-el placeholder="templateId" label="templateId" v-model="templateId" :disabled="!isDev"/>
+    <link-block icon="amount" text="ToggleEventsMapMode" @block-click="$router.push({name:'events-map',params:{templateId}})" actionIcon="right-link" type="medium"/>
+  </div>`,
+  data:()=>({
+    templateId:'nsk_gpon_test2'
+  }),
+  created(){},
+  computed:{
+    ...mapGetters({
+      region_id:'main/region_id',
+      username:'main/username',
+    }),
+    isDev(){return this.username=='mypanty1'},
+  },
+  methods:{
+    close(){//public
+      
+    },
+  },
+  beforeDestroy(){
+    
+  },
+});
+
+Vue.component("EventsMapPage",{
+  template:`<EventsMap v-bind="$props"/>`,
+  props:{
+    templateId:{type:[String,Number],default:'',required:true}
+  },
+  data:()=>({
+    isYmaps:false
+  }),
+  beforeRouteEnter(to,from,next){
+    document.querySelector('#ptvtb-app').style.maxWidth='unset';
+    document.querySelector('#ptvtb-app > div[name="AppLogo"] > a').style.display='none';
+    document.querySelector('#ptvtb-app > header[name="TheAppHeader"]').style.display='none';
+    next(vm=>{
+      vm.isYmaps=vm.addYmapsSrc();
+    });
+  },
+  beforeRouteUpdate(to,from,next){
+    this.isYmaps=this.addYmapsSrc();
+    next()
+  },
+  methods:{
+    addYmapsSrc(){
+      if(document.querySelector('#ya-map')){return true};
+      const src=document.querySelector('meta[name="mapuri"]')?.content;
+      if(!src){
+        console.warn('Not found ymaps uri');
+        return;
+      };
+      return document.querySelector('head').appendChild(Object.assign(document.createElement('script'),{
+        type:'text/javascript',
+        src,
+        id:'ya-map',
+      }));
+    },
+  },
+  beforeRouteLeave(to,from,next){
+    document.querySelector('#ptvtb-app').style.maxWidth='';
+    document.querySelector('#ptvtb-app > div[name="AppLogo"] > a').style.display='';
+    document.querySelector('#ptvtb-app > header[name="TheAppHeader"]').style.display='';
+    //document.querySelector('#ya-map')?.remove();
+    next()
+  },
+});
+
+app.$router.addRoutes([{
+  path:'/events-map/:templateId',
+  name:'events-map',
+  component:Vue.component("EventsMapPage"),
+  props:true,
+}]);
+
+//app.$router.push({name:'events-map',params:{templateId:'nsk_gpon_test2'}})
+class EventsMapTemplate {
+  constructor({layout,controlListBox}={}){
+    this.layout=layout||[]
+    this.controlListBox=controlListBox||null
+  }
+}
+const EVENTS_MAP_TEMPLATES={
+  nsk_gpon_test2:new EventsMapTemplate({
+    layout:[],
+    controlListBox:{
+      content:`Не выбран`,
+      items:[
+        {content:'OLT_KR_54_02757_1'},
+        {content:'OLT_KR_54_02757_2'},
+        null,//separator
+        {content:'OLT_KR_54_01799_1'},
+      ]
+    },
+  })
+};
+
+Vue.component('EventsMap',{
+  template:`<div name="EventsMap" class="position-relative" style="height:100vh;width:100vw;">
+    <div name="YMap" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
+    <component v-for="({is,props,listeners},key) of eventsMapTemplate.layout" :key="key" :is="is" v-bind="props" v-on="listeners"/>
+  </div>`,
+  props:{
+    templateId:{type:[String,Number],default:'',required:true}
+  },
+  mounted(){
+    this.awaitYmapsReady();
+  },
+  data:()=>({
+    ymapsReadyTimer:null,
+    isYmapsReady:false,
+    isYmapsInit:false,
+    ymap:null,
+    type:'yandex#map',
+    center:[55.19882141102037, 82.82566161923812],
+    zoom:16,
+    geocodeLoading:false,
+    address:'',
+    addressInfoButton:null,
+    controlListBox:null,
+    bounds:null,
+    objectManager1:null,
+    objectManager2:null,
+    cursor:null,
+  }),
+  created(){},
+  watch:{
+    'type'(type){
+      this.ymap.setType(type)
+    },
+    'center'(newCenter){
+      this.ymap.setCenter(newCenter,this.zoom);
+      this.setAddressByCoordinates(newCenter);
+    },
+    'zoom'(newZoom){
+      this.ymap.setCenter(this.center,newZoom);
+      this.setAddressByCoordinates(this.center);
+    },
+    'address'(address){
+      this.addressInfoButton.data.set('content',address);
+    }
+  },
+  computed:{
+    eventsMapTemplate(){
+      return EVENTS_MAP_TEMPLATES[this.templateId]||new EventsMapTemplate();
+    },
+  },
+  methods:{
+    awaitYmapsReady(){
+      setTimeout(()=>{
+        if(!Boolean(window.ymaps)){return this.awaitYmapsReady()};
+        if(this.ymap){return};
+        window.ymaps.ready(()=>{
+          this.initYmaps();
+        });
+      },111);
+    },
+    initYmaps(){
+      const {type,center,zoom,address,eventsMapTemplate}=this;
+      this.addressInfoButton=new window.ymaps.control.Button({
+        data:{
+          content:address,
+        },
+        options:{
+          position:{top:8,left:8},
+          size:'small',
+          maxWidth:'unset',
+          selectOnClick:false,
+        },
+        state:{
+          enabled:false,
+        },
+      });
+      if(eventsMapTemplate.controlListBox){
+        const {content,items}=eventsMapTemplate.controlListBox;
+        this.controlListBox=new window.ymaps.control.ListBox({
+          data:{
+            content:content||'',
+            selectedItems:items.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item.content]:false}):selectedItems,{}),
+          },
+          items:items.map(item=>{
+            const {content}=item||{};
+            return !item?new window.ymaps.control.ListBoxItem({
+              options:{
+                type:'separator'
+              }
+            }):new window.ymaps.control.ListBoxItem({
+              data:{
+                content,
+              },
+            })
+          }),
+          options:{
+            position:{top:40,left:8},
+            size:'small',
+            maxWidth:'unset',
+          },
+        });
+        this.controlListBox.events.add(['select','deselect'],(event)=>{
+          const listBoxItem=event.get('target');
+          const content=listBoxItem.data.get('content');
+          const selected=listBoxItem.state.get('selected');
+          console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
+          const listBox=event.originalEvent.currentTarget;
+          const selectedItems=Object.assign(listBox.data.get('selectedItems'),{[content]:selected});
+          const count=Object.values(selectedItems).filter(Boolean).length;
+          listBox.data.set('content',count?`Выбрано ${count}`:`Не выбран`);
+        });
+      };
+      
+      this.ymap=new window.ymaps.Map(document.querySelector('div[name="YMap"]'),{
+        type,
+        center,
+        zoom,
+        controls:[
+          this.addressInfoButton,
+          this.controlListBox,
+          new window.ymaps.control.TypeSelector({
+            //mapTypes:['yandex#map','yandex#satellite','yandex#hybrid'],
+            options:{
+              position:{top:8,right:8},
+              size:'small',
+              panoramasItemMode:'off',
+            },
+          }),
+          new window.ymaps.control.GeolocationControl({
+            options:{
+              position:{top:40,right:8},
+              size:'small',
+            },
+          }),
+          new window.ymaps.control.ZoomControl({
+            options:{
+              position:{top:72,right:8},
+              size:'large',
+            },
+          }),
+          new window.ymaps.control.RulerControl({
+            options:{
+              position:{bottom:8,right:8},
+              size:'small',
+            },
+          }),
+        ].filter(Boolean),
+      },{
+        autoFitToViewport:'always',
+        avoidFractionalZoom:false,
+        maxZoom:19,
+        minZoom:12,//14,
+        //restrictMapArea:[[],[]],
+        yandexMapAutoSwitch:false,
+      });
+      
+      document.querySelector('.ymaps-2-1-79-copyrights-pane')?.remove();
+      
+      this.ymap.events.add('boundschange',(event)=>{
+        const newCenter=event.get('newCenter');console.log('ymap.boundschange.newCenter',newCenter);
+        const newZoom=event.get('newZoom');console.log('ymap.boundschange.newZoom',newZoom);
+        this.center=newCenter;
+        this.zoom=newZoom;
+      });
+      
+      this.ymap.events.add('mouseenter',(event)=>{
+        this.cursor=event.originalEvent.map.cursors.push('crosshair');
+      });
+      this.ymap.events.add('mousemove',(event)=>{
+        const coords=event.get('coords');console.log('ymap.mousemove.coords',coords);
+        this.setAddressByCoordinates(coords);
+      });
+      this.ymap.events.add('mouseleave',(event)=>{
+        this.cursor?.remove();
+      });
+      
+      this.ymap.events.add('typechange',(event)=>{
+        const type=event.originalEvent.map.getType();console.log('ymap.typechange.type',type);
+        this.type=type;
+      });
+      this.ymap.events.add('click',(event)=>{
+        const coords=event.get('coords');console.log('ymap.click.coords',coords);
+        this.center=coords;
+      });
+      this.ymap.events.add('contextmenu',(event)=>{//rclick
+        const coords=event.get('coords');console.log('ymap.contextmenu.coords',coords);
+      });
+      
+      this.objectManager1=new window.ymaps.ObjectManager({});
+      this.objectManager1.properties.set('objectId',randcode(20));
+      this.objectManager1.objects.events.add('click',(event)=>{
+        this.ymap.balloon.close();
+        const objectId=event.get('objectId');
+        const {geometry:{coordinates},properties,options}=this.objectManager1.objects.getById(objectId);
+        console.log('ymap.objectManager1.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
+      });
+      this.addGeoObject(this.objectManager1);
+
+      this.objectManager2=new window.ymaps.ObjectManager({});
+      this.objectManager2.properties.set('objectId',randcode(20));
+      this.objectManager2.objects.events.add('click',(event)=>{
+        this.ymap.balloon.close();
+        const objectId=event.get('objectId');
+        const {geometry:{coordinates},properties,options}=this.objectManager2.objects.getById(objectId);
+        console.log('ymap.objectManager2.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
+      });
+      this.addGeoObject(this.objectManager2);
+    },
+    async getSampleAddressCoordinates(sample){
+      class GeocodeResult {
+        constructor(sample,response){
+          this.sample=sample
+          this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
+          this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
+          console.log(this)
+        }
+      };
+      if(!window.ymaps){return new GeocodeResult(sample)};
+      this.geocodeLoading=true;
+      const response=await window.ymaps.geocode(sample,{json:true,results:1});
+      this.geocodeLoading=!true;
+      return new GeocodeResult(sample,response)
+    },
+    async setAddressByCoordinates(coordinates){
+      if(this.geocodeLoading){return};
+      const {address}=await this.getSampleAddressCoordinates(coordinates);
+      this.address=address;
+    },
+    getBounds(){
+      return this.bounds=this.ymap.getBounds();
+    },
+    addGeoObject(geoObject){
+      if(!geoObject){return};
+      this.ymap.geoObjects.add(geoObject);
+    },
+    delGeoObject(geoObject){
+      if(!geoObject){return};
+      this.ymap.geoObjects.remove(geoObject);
+    },
+  },
+  beforeDestroy(){
+    this.ymap?.destroy();
+  },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
