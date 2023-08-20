@@ -46,7 +46,7 @@ Vue.component('ToolsPageContent',{
       {name:'Пинг СЭ',is:'WidgetPing'},
       {name:'Dev',is:'WidgetDev',isDev:true},
       {name:'Device IP',is:'WidgetSnmpTest'},
-      {name:'ToggleEventsMapMode',is:'ToggleEventsMapMode',isDev:true},
+      {name:'ToEventsMap',is:'ToEventsMap',isDev:true},
     ],
     items:[]
   }),
@@ -314,15 +314,15 @@ Vue.component('WidgetSnmpTest',{
   },
 });
 
+const TEMPLATE_ID='nsk_gpon_test2';
 
-
-Vue.component('ToggleEventsMapMode',{
-  template:`<div name="ToggleEventsMapMode">
+Vue.component('ToEventsMap',{
+  template:`<div name="ToEventsMap">
     <input-el placeholder="templateId" label="templateId" v-model="templateId" :disabled="!isDev"/>
-    <link-block icon="amount" text="ToggleEventsMapMode" @block-click="$router.push({name:'events-map',params:{templateId}})" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="ToEventsMap" @block-click="$router.push({name:'events-map',params:{templateId}})" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
-    templateId:'nsk_gpon_test2'
+    templateId:TEMPLATE_ID
   }),
   created(){},
   computed:{
@@ -393,32 +393,342 @@ app.$router.addRoutes([{
   props:true,
 }]);
 
-//app.$router.push({name:'events-map',params:{templateId:'nsk_gpon_test2'}})
-class EventsMapTemplate {
-  constructor({layout,controlListBox}={}){
-    this.layout=layout||[]
-    this.controlListBox=controlListBox||null
+//app.$router.push({name:'events-map',params:{templateId:TEMPLATE_ID}})
+
+const NSK_OLT_LIST=[
+  'OLT_KR_54_10907_1',
+  null,//separator
+  'OLT_KR_54_02758_1',
+  null,//separator
+  'OLT_KR_54_02757_1',
+  'OLT_KR_54_02757_2',
+  null,//separator
+  'OLT_KR_54_02546_1',
+  null,//separator
+  'OLT_KR_54_01832_1',
+  null,//separator
+  'OLT_KR_54_01799_1',
+  null,//separator
+  'OLT_KR_54_0760_1',
+  null,//separator
+  'OLT_KR_54_0513_1',
+];
+const NSK_OLTs=NSK_OLT_LIST.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item]:null}):selectedItems,{});
+
+const CACHE_1HOUR=60;
+const CACHE_1DAY=CACHE_1HOUR*24;
+
+class SubscriberPort {
+  constructor(sample,response){
+    this.sample=sample
+    this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
+    this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
+    console.log(this)
   }
-}
-const EVENTS_MAP_TEMPLATES={
-  nsk_gpon_test2:new EventsMapTemplate({
-    layout:[],
-    controlListBox:{
-      content:`Не выбран`,
-      items:[
-        {content:'OLT_KR_54_02757_1'},
-        {content:'OLT_KR_54_02757_2'},
-        null,//separator
-        {content:'OLT_KR_54_01799_1'},
-      ]
-    },
-  })
 };
+class GeocodeResult {
+  constructor(sample,response){
+    this.sample=sample
+    this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
+    this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
+    console.log(this)
+  }
+};
+class FeatureCollection {
+  constructor(features){
+    this.type='FeatureCollection'
+    this.features=features
+  }
+};
+class PointGeometry {
+  constructor(coordinates){
+    this.type='Point'
+    this.coordinates=coordinates
+  }
+};
+class CircleIconShape {
+  constructor(radius){
+    this.type='Circle'
+    this.coordinates=[0, 0]
+    this.radius=radius
+  }
+};
+class RectangleIconShape {
+  constructor(half){
+    this.type='Rectangle'
+    this.coordinates=[[-half,-half],[half,half]]
+  }
+};
+class IconImageSizeOffset {
+  #size;
+  constructor(_size=48){
+    const size=this.#size=_size||48
+    const offset=-size/2
+    this.iconImageSize=[size,size]
+    this.iconImageOffset=[offset,offset]
+    console.log(this)
+  }
+  get size(){
+    return this.#size
+  }
+  get radius(){
+    return this.#size / 2
+  }
+};
+const EVENTS_MAP_ZINDEX={
+  ONT:100,
+  OLT:20,
+  AREA:10,
+};
+const EVENTS_MAP_ICONS={
+  OLT:'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTUuNTk3IDU1LjU5NyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTUuNTk3IDU1LjU5NzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0YzRDU1QjsiIHBvaW50cz0iMjcuNTk3LDcuNzkgMy41OTcsNDkuNzkgNTIuNTk3LDQ5Ljc5ICIvPg0KPHBhdGggc3R5bGU9ImZpbGw6IzU1NjA4MDsiIGQ9Ik01NS40NTgsNTAuMzA3TDQ0LjE5NiwzMS4wODZsLTAuNzctMS4zMTRMMjguNDksNC4yODJjLTAuMzg2LTAuNjU5LTEuMzM5LTAuNjU2LTEuNzIxLDAuMDA1DQoJTDEyLjM2MywyOS4xOGwtMS4yMTQsMi4wOTdMMC4xMzUsNTAuMzEyYy0wLjM4NCwwLjY2NCwwLjA5NSwxLjQ5NSwwLjg2MiwxLjQ5NWgyNi42MjdoMjYuOTc0DQoJQzU1LjM2OSw1MS44MDcsNTUuODQ4LDUwLjk3MSw1NS40NTgsNTAuMzA3eiBNNi40NDYsNDcuODA3bDguMDk5LTEzLjk5NWw0Ljk1Mi04LjU1OWw4LjM4OS0xNC40OTdsOC41NjMsMTQuNjEzbDQuODQ5LDguMjc0DQoJbDguMjk5LDE0LjE2NEg2LjQ0NnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNFNkU3RTg7IiBkPSJNNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3Yy05LjM3Myw5LjM3My0yNC41NjksOS4zNzMtMzMuOTQxLDBsMCwwbDAsMA0KCUMxOS45NjksMjEuNDA1LDM1LjE2NSwyMS40MDUsNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3eiIvPg0KPGNpcmNsZSBzdHlsZT0iZmlsbDojNDhBMERDOyIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSI2Ii8+DQo8Y2lyY2xlIHN0eWxlPSJmaWxsOiM1NTYwODA7IiBjeD0iMjcuNTk3IiBjeT0iMzAuNzkiIHI9IjMiLz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K',
+  ONT:'data:image/svg+xml;base64,PHN2ZyBjbGFzcz0ic3ZnLWljb24iIHN0eWxlPSJ3aWR0aDogMWVtOyBoZWlnaHQ6IDFlbTt2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlO2ZpbGw6IGN1cnJlbnRDb2xvcjtvdmVyZmxvdzogaGlkZGVuOyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04MzcuODE4MTgyIDc5MS4yNzI3MjdjMCAyNS42Njk4MTgtMjAuODc1NjM2IDQ2LjU0NTQ1NS00Ni41NDU0NTUgNDYuNTQ1NDU1SDIzMi43MjcyNzNjLTI1LjY2OTgxOCAwLTQ2LjU0NTQ1NS0yMC44NzU2MzYtNDYuNTQ1NDU1LTQ2LjU0NTQ1NXYtOTMuMDkwOTA5aDY1MS42MzYzNjR2OTMuMDkwOTA5ek0yNDguNTc2IDIyNi4wMjQ3MjdBNDYuNzc4MTgyIDQ2Ljc3ODE4MiAwIDAgMSAyOTQuNjMyNzI3IDE4Ni4xODE4MThoNDM0LjczNDU0NmE0Ni43NzgxODIgNDYuNzc4MTgyIDAgMCAxIDQ2LjA1NjcyNyAzOS44NDI5MDlMODM3LjMyOTQ1NSA2NTEuNjM2MzY0SDE4Ni42NzA1NDVsNjEuOTA1NDU1LTQyNS42MTE2Mzd6IG01NzIuOTA0NzI3LTYuNzAyNTQ1QTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgNzI5LjM2NzI3MyAxMzkuNjM2MzY0SDI5NC42MzI3MjdhOTMuMDkwOTA5IDkzLjA5MDkwOSAwIDAgMC05Mi4xMTM0NTQgNzkuNjg1ODE4TDEzOS42MzYzNjQgNjUxLjYzNjM2NHYxMzkuNjM2MzYzYTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5IDkzLjA5MDkwOWg1NTguNTQ1NDU0YTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5LTkzLjA5MDkwOXYtMTM5LjYzNjM2M0w4MjEuNDgwNzI3IDIxOS4zMjIxODJ6IiBmaWxsPSIjMjFBM0REIiAvPjxwYXRoIGQ9Ik0yNTYgNzQ0LjcyNzI3M2g0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6IG05My4wOTA5MDkgMGg0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6TTQ1NC44NDIxODIgNTAwLjMxNzA5MWMtMTIuNDA0MzY0IDguNjEwOTA5LTI2Ljc2MzYzNiAxMi44OTMwOTEtNDMuMTI0MzY0IDEyLjg5MzA5MS0yMC40OCAwLTM2LjAyNjE4Mi03LjAyODM2NC00Ni42NjE4MTgtMjEuMDYxODE4LTEwLjYzNTYzNi0xNC4wMzM0NTUtMTUuOTY1MDkxLTM0LjM1MDU0NS0xNS45NjUwOTEtNjAuOTUxMjczIDAtMjUuNjkzMDkxIDUuMTQzMjczLTQ1LjgwMDcyNyAxNS40NTMwOTEtNjAuMzIyOTA5IDEwLjMwOTgxOC0xNC41MjIxODIgMjYuMDQyMTgyLTIxLjc4MzI3MyA0Ny4xNzM4MTgtMjEuNzgzMjczIDcuNjEwMTgyIDAgMTUuMTUwNTQ1IDAuOTc3NDU1IDIyLjYyMTA5MSAyLjkwOTA5MSA3LjQ3MDU0NSAxLjk1NDkwOSAxMy40OTgxODIgNC41MTQ5MDkgMTguMDM2MzY0IDcuNzI2NTQ1bC02LjA1MDkwOSAxNC40NTIzNjRhNjguOTMzODE4IDY4LjkzMzgxOCAwIDAgMC0zNC42MDY1NDYtOC45NmMtMTQuNTY4NzI3IDAtMjUuMzkwNTQ1IDUuMjgyOTA5LTMyLjQ4ODcyNyAxNS44NDg3MjctNy4wOTgxODIgMTAuNTY1ODE4LTEwLjYzNTYzNiAyNy4yNzU2MzYtMTAuNjM1NjM2IDUwLjEyOTQ1NSAwIDQzLjkxNTYzNiAxNC4zNTkyNzMgNjUuODYxODE4IDQzLjEyNDM2MyA2NS44NjE4MTggMTIuMTcxNjM2IDAgMjQuNjQ1ODE4LTMuNzIzNjM2IDM3LjM5OTI3My0xMS4xNzA5MDlsNS43MjUwOTEgMTQuNDI5MDkxeiBtMjMuMTA5ODE4LTE0OC4yMDA3MjdoNDAuMDk4OTA5YzE1LjE1MDU0NSAwIDI3LjI5ODkwOSAzLjgxNjcyNyAzNi4zOTg1NDYgMTEuNDAzNjM2IDkuMTIyOTA5IDcuNjMzNDU1IDEzLjY4NDM2NCAxOC4xNTI3MjcgMTMuNjg0MzYzIDMxLjUxMTI3MyAwIDEzLjQyODM2NC00LjUzODE4MiAyNC4xNTcwOTEtMTMuNjE0NTQ1IDMyLjE4NjE4Mi05LjA3NjM2NCA4LjAyOTA5MS0yMC45Njg3MjcgMTIuMDU1MjczLTM1LjY3NzA5MSAxMi4wNTUyNzJoLTIyLjUyOHY3MC45MTJoLTE4LjM4NTQ1NVYzNTIuMTE2MzY0eiBtMTguMzg1NDU1IDcxLjE0NDcyN2gxOS45MjE0NTRjMjEuNTczODE4IDAgMzIuMzcyMzY0LTkuMDUzMDkxIDMyLjM3MjM2NC0yNy4xMTI3MjcgMC04LjM3ODE4Mi0yLjkzMjM2NC0xNS4xMjcyNzMtOC43OTcwOTEtMjAuMjkzODE5LTUuODY0NzI3LTUuMTQzMjczLTEzLjQyODM2NC03LjcyNjU0NS0yMi42OTA5MDktNy43MjY1NDVoLTIwLjgyOTA5MXY1NS4xMzMwOTF6TTY3NC45MDkwOTEgNTEwLjE4NDcyN2gtODIuNTcxNjM2VjM1Mi4xMTYzNjRoODEuOTJ2MTYuMDExNjM2aC02My41MzQ1NDZ2NDguOTY1ODE4aDYxLjA0NDM2NHYxNi4wMTE2MzdoLTYxLjA0NDM2NHY2MS4wNDQzNjNINjc0LjkwOTA5MXYxNi4wMzQ5MDl6IiBmaWxsPSIjMjFBM0REIiAvPjwvc3ZnPg==',
+  
+};
+class OltSiteNodePoint {
+  #objectId;
+  constructor(deviceSiteNodeId,coordinates,other={}){
+    const {options={},properties={}}=other
+    this.type='Feature'
+    this.id=this.#objectId=deviceSiteNodeId;
+    this.geometry=new PointGeometry(coordinates)
+    this.properties={
+      deviceSiteNodeId,
+      ...properties,
+    }
+    this.options={
+      balloonPanelMaxMapArea:0,
+      hideIconOnBalloonOpen:false,
+      zIndex:EVENTS_MAP_ZINDEX.OLT,
+      iconLayout:'default#image',
+      iconImageHref:EVENTS_MAP_ICONS.OLT,
+      iconShape:new CircleIconShape(24),
+      ...new IconImageSizeOffset(48),
+      ...options,
+    }
+  }
+  get objectId(){
+    return this.#objectId
+  }
+};
+class OntPoint {
+  #objectId;
+  constructor(account,coordinates,other={}){
+    const {options={},properties={}}=other
+    this.type='Feature'
+    this.id=this.#objectId=account;
+    this.geometry=new PointGeometry(coordinates)
+    this.properties={
+      account,
+      ...properties,
+    }
+    this.options={
+      balloonPanelMaxMapArea:0,
+      hideIconOnBalloonOpen:false,
+      zIndex:EVENTS_MAP_ZINDEX.ONT,
+      iconLayout:'default#image',
+      iconImageHref:EVENTS_MAP_ICONS.ONT,
+      iconShape:new RectangleIconShape(24),
+      ...new IconImageSizeOffset(48),
+      ...options,
+    }
+  }
+  get objectId(){
+    return this.#objectId
+  }
+};
+
+store.registerModule(TEMPLATE_ID,{
+  namespaced:true,
+  state:()=>({
+    loads:{},
+    deviceInfo:{},
+    siteNodeInfo:{},
+    ports:{},
+    subscriberLbsvInfo:{},
+    subscriberLocationInfo:{},
+  }),
+  getters:{
+    loads:state=>state.loads,
+    deviceInfo:state=>state.deviceInfo,
+    siteNodeInfo:state=>state.siteNodeInfo,
+    ports:state=>state.ports,
+    getDeviceSubscribers:state=>(neName)=>(state.ports[neName]||[]).reduce((subscriber,_port)=>{
+      const {subscriber_list,name,snmp_name,snmp_number,snmp_description,device_name}=_port;
+      const port={
+        neName:device_name,
+        nePortName:name,
+        ifIndex:snmp_number,
+        ifName:snmp_name,
+        ifAlias:snmp_description,
+      };
+      for(const {account,mac} of subscriber_list){
+        subscriber[account]={account,mac,...port};
+      };
+      return subscriber
+    },{}),
+    subscriberLbsvInfo:state=>state.subscriberLbsvInfo,
+    subscriberLocationInfo:state=>state.subscriberLocationInfo,
+  },
+  mutations:{
+    setVal(state,[key,value]){
+      if(!key){return};
+      Vue.set(state,key,value);
+    },
+    setItem(state,[path,value]){
+      const [section,key]=path.split('/');
+      if(!key){return};
+      Vue.set(state[section],key,value);
+    },
+  },
+  actions:{
+    async pushDevice({getters,commit,dispatch},neName){
+      const loadKey=`pushOlt-${neName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,true]);
+      const device=await dispatch('getDeviceInfo',neName);
+      if(device){
+        const {site_id:siteId,uzel:{name:nodeName}}=device;
+        await Promise.allSettled([
+          dispatch('getSiteNodeInfo',{siteId,nodeName}),
+          dispatch('getPortsList',neName)
+        ]);
+        const subscribers=getters.getDeviceSubscribers(neName);
+        await Promise.allSettled(Object.keys(subscribers).map(account=>dispatch('getSubscriberLbsvInfo',account)));
+        //await Promise.allSettled(Object.keys(subscribers).map(account=>dispatch('getSubscriberLocationInfo',{account,nodeName})));
+        for(const account of Object.keys(subscribers)){
+          await dispatch('getSubscriberLocationInfo',{account,nodeName})
+        };
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+    },
+    async getDeviceInfo({getters,commit},neName){
+      if(getters.deviceInfo[neName]){return getters.deviceInfo[neName]};
+      const loadKey=`oltDeviceInfo-${neName}`;
+      commit('setItem',['loads/'+loadKey,true]);
+      const cache=localStorageCache.getItem(`device/${neName}`);
+      if(cache){
+        commit('setItem',['deviceInfo/'+neName,Object.freeze(cache)]);
+      }else{
+        try{
+          const response=await httpGet(buildUrl('search_ma',{pattern:neName},'/call/v1/search/'));
+          if(response?.data){
+            localStorageCache.setItem(`device/${neName}`,response.data,CACHE_1HOUR);
+            commit('setItem',['deviceInfo/'+neName,Object.freeze(response.data)]);
+          };
+        }catch(error){
+          console.warn('search_ma.error',error);
+        };
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+      return getters.deviceInfo[neName]
+    },
+    async getSiteNodeInfo({getters,commit},{siteId,nodeName}){
+      if(getters.siteNodeInfo[nodeName]){return getters.siteNodeInfo[nodeName]};
+      const loadKey=`siteNodeInfo-${nodeName}`;
+      commit('setItem',['loads/'+loadKey,true]);
+      const cache=localStorageCache.getItem(`siteNode-${siteId}-${nodeName}`);
+      if(cache){
+        commit('setItem',['siteNodeInfo/'+nodeName,Object.freeze(cache)]);
+      }else{
+        try{
+          const response=await httpGet(buildUrl('search_ma',{pattern:nodeName},'/call/v1/search/'));
+          if(response?.data?.id){
+            localStorageCache.setItem(`siteNode-${siteId}-${nodeName}`,response.data,CACHE_1DAY);
+            commit('setItem',['siteNodeInfo/'+nodeName,Object.freeze(response.data)]);
+          };
+        }catch(error){
+          console.warn('search_ma.error',error);
+        };
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+      return getters.siteNodeInfo[nodeName]
+    },
+    async getPortsList({getters,commit},neName){
+      if(getters.ports[neName]){return getters.ports[neName]};
+      const loadKey=`ports-${neName}`;
+      commit('setItem',['loads/'+loadKey,true]);
+      const cache=localStorageCache.getItem(`device_port_list/${neName}`)||localStorageCache.getItem(`ports-map:device_port_list/${neName}`);
+      if(cache?.response){
+        commit('setItem',['ports/'+neName,Object.freeze(cache.response)]);
+      }else{
+        try{
+          const response=await httpGet(buildUrl('device_port_list',{device:neName},'/call/device/'));
+          if(Array.isArray(response)){
+            const cache={date:new Date(),response};
+            localStorageCache.setItem(`device_port_list/${neName}`,cache,CACHE_1HOUR);
+            localStorageCache.setItem(`ports-map:device_port_list/${neName}`,cache,CACHE_1HOUR);
+            for(const port of response){//т.к структура идентичная сваливаем порты в кэш
+              localStorageCache.setItem(`pon/PORT-${port.device_name}/${port.snmp_number}`,port);
+              localStorageCache.setItem(`port/PORT-${port.device_name}/${port.snmp_number}`,port);
+            };
+            commit('setItem',['ports/'+neName,Object.freeze(response)]);
+          };
+        }catch(error){
+          console.warn('device_port_list.error',error);
+        };
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+      return getters.ports[neName]
+    },
+    async getSubscriberLbsvInfo({getters,commit},account){
+      if(getters.subscriberLbsvInfo[account]){return getters.subscriberLbsvInfo[account]};
+      const loadKey=`subscriberLbsvInfo-${account}`;
+      commit('setItem',['loads/'+loadKey,true]);
+      const cache=localStorageCache.getItem(`account-${account}`);
+      if(cache){
+        commit('setItem',['subscriberLbsvInfo/'+account,Object.freeze(cache.data.lbsv.data)]);
+      }else{
+        try{
+          const response=await httpGet(buildUrl('search_ma',{pattern:account},'/call/v1/search/'));
+          if(response?.data?.lbsv?.data?.serverid){
+            localStorageCache.setItem(`account-${account}`,response,CACHE_1DAY);
+            commit('setItem',['subscriberLbsvInfo/'+account,Object.freeze(response.data.lbsv.data)]);
+          };
+        }catch(error){
+          console.warn('search_ma.error',error);
+        };
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+      return getters.subscriberLbsvInfo[account]
+    },
+    async getSubscriberLocationInfo({getters,commit},{account,nodeName}){
+      if(getters.subscriberLocationInfo[account]){return getters.subscriberLocationInfo[account]};
+      const loadKey=`subscriberLocationInfo-${account}`;
+      commit('setItem',['loads/'+loadKey,true]);
+      const cache=localStorageCache.getItem(`location-${account}`);
+      if(cache){
+        commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(cache)]);
+      }else if(getters.subscriberLbsvInfo[account]){
+        const address_type1=getters.subscriberLbsvInfo[account].addresses.find(({type})=>type==1)?.address||'';
+        if(address_type1){
+          const [_russia,_area,_sub,_empty,snt,ul,dom]=address_type1.split(',');
+          const sample=`Новосибирск ${snt} ${ul} ${dom}`;
+          try{
+            const response=await window.ymaps.geocode(sample,{json:true,results:1});
+            const geocodeResult=new GeocodeResult(sample,response);
+            localStorageCache.setItem(`location-${account}`,geocodeResult,CACHE_1DAY);
+            commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(geocodeResult)]);
+          }catch(error){
+            console.warn('geocode.error',error);
+          };
+        };
+        if(!getters.subscriberLocationInfo[account]?.coordinates&&getters.siteNodeInfo[nodeName]){
+          const {coordinates:{latitude,longitude},address}=getters.siteNodeInfo[nodeName];
+          const geocodeResult={address:address_type1||address,coordinates:[latitude,longitude],sample:[latitude,longitude]}
+          localStorageCache.setItem(`location-${account}`,geocodeResult,CACHE_1DAY);
+          commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(geocodeResult)]);
+        }
+      };
+      commit('setItem',['loads/'+loadKey,!true]);
+      return getters.subscriberLocationInfo[account];
+    },
+  },
+});
 
 Vue.component('EventsMap',{
   template:`<div name="EventsMap" class="position-relative" style="height:100vh;width:100vw;">
     <div name="YMap" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
-    <component v-for="({is,props,listeners},key) of eventsMapTemplate.layout" :key="key" :is="is" v-bind="props" v-on="listeners"/>
   </div>`,
   props:{
     templateId:{type:[String,Number],default:'',required:true}
@@ -442,6 +752,7 @@ Vue.component('EventsMap',{
     objectManager1:null,
     objectManager2:null,
     cursor:null,
+    selectedDevices:NSK_OLTs,
   }),
   created(){},
   watch:{
@@ -451,21 +762,37 @@ Vue.component('EventsMap',{
     'center'(newCenter){
       this.ymap.setCenter(newCenter,this.zoom);
       this.setAddressByCoordinates(newCenter);
+      this.setFilter();
     },
     'zoom'(newZoom){
       this.ymap.setCenter(this.center,newZoom);
       this.setAddressByCoordinates(this.center);
+      this.setFilter();
     },
     'address'(address){
       this.addressInfoButton.data.set('content',address);
+    },
+    'selectedDevices'(){
+      this.setFilter();
     }
   },
   computed:{
-    eventsMapTemplate(){
-      return EVENTS_MAP_TEMPLATES[this.templateId]||new EventsMapTemplate();
-    },
+    ...mapGetters({
+      deviceInfo:`${TEMPLATE_ID}/deviceInfo`,
+      siteNodeInfo:`${TEMPLATE_ID}/siteNodeInfo`,
+      getDeviceSubscribers:`${TEMPLATE_ID}/getDeviceSubscribers`,
+    }),
+    selectedDevicesList(){return Object.entries(this.selectedDevices).filter(([neName,selected])=>selected).map(([neName])=>neName)},
+    selectedDevicesCount(){return this.selectedDevicesList.length},
   },
   methods:{
+    ...mapActions({
+      getDeviceInfo:`${TEMPLATE_ID}/getDeviceInfo`,
+      getSiteNodeInfo:`${TEMPLATE_ID}/getSiteNodeInfo`,
+      pushDevice:`${TEMPLATE_ID}/pushDevice`,
+      getSubscriberLbsvInfo:`${TEMPLATE_ID}/getSubscriberLbsvInfo`,
+      getSubscriberLocationInfo:`${TEMPLATE_ID}/getSubscriberLocationInfo`,
+    }),
     awaitYmapsReady(){
       setTimeout(()=>{
         if(!Boolean(window.ymaps)){return this.awaitYmapsReady()};
@@ -476,7 +803,7 @@ Vue.component('EventsMap',{
       },111);
     },
     initYmaps(){
-      const {type,center,zoom,address,eventsMapTemplate}=this;
+      const {type,center,zoom,address}=this;
       this.addressInfoButton=new window.ymaps.control.Button({
         data:{
           content:address,
@@ -491,42 +818,44 @@ Vue.component('EventsMap',{
           enabled:false,
         },
       });
-      if(eventsMapTemplate.controlListBox){
-        const {content,items}=eventsMapTemplate.controlListBox;
-        this.controlListBox=new window.ymaps.control.ListBox({
-          data:{
-            content:content||'',
-            selectedItems:items.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item.content]:false}):selectedItems,{}),
-          },
-          items:items.map(item=>{
-            const {content}=item||{};
-            return !item?new window.ymaps.control.ListBoxItem({
-              options:{
-                type:'separator'
-              }
-            }):new window.ymaps.control.ListBoxItem({
-              data:{
-                content,
-              },
-            })
-          }),
-          options:{
-            position:{top:40,left:8},
-            size:'small',
-            maxWidth:'unset',
-          },
-        });
-        this.controlListBox.events.add(['select','deselect'],(event)=>{
-          const listBoxItem=event.get('target');
-          const content=listBoxItem.data.get('content');
-          const selected=listBoxItem.state.get('selected');
-          console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
-          const listBox=event.originalEvent.currentTarget;
-          const selectedItems=Object.assign(listBox.data.get('selectedItems'),{[content]:selected});
-          const count=Object.values(selectedItems).filter(Boolean).length;
-          listBox.data.set('content',count?`Выбрано ${count}`:`Не выбран`);
-        });
-      };
+      
+      this.controlListBox=new window.ymaps.control.ListBox({
+        data:{
+          content:`Не выбран`,
+        },
+        items:NSK_OLT_LIST.map(item=>{
+          return !item?new window.ymaps.control.ListBoxItem({
+            options:{
+              type:'separator'
+            }
+          }):new window.ymaps.control.ListBoxItem({
+            data:{
+              content:item,
+              neName:item
+            },
+          })
+        }),
+        options:{
+          position:{top:40,left:8},
+          size:'small',
+          maxWidth:'unset',
+        },
+      });
+      this.controlListBox.events.add(['select','deselect'],(event)=>{
+        const listBoxItem=event.get('target');
+        const neName=listBoxItem.data.get('neName');
+        if(!neName){return};
+        const content=listBoxItem.data.get('content');
+        const selected=listBoxItem.state.get('selected');
+        console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
+        const listBox=event.originalEvent.currentTarget;
+        this.$set(this.selectedDevices,neName,selected);
+        const {selectedDevicesCount}=this;
+        listBox.data.set('content',selectedDevicesCount?`Выбрано ${selectedDevicesCount}`:`Не выбран`);
+        if(neName&&selected){
+          this.pushDevice(neName);
+        };
+      });
       
       this.ymap=new window.ymaps.Map(document.querySelector('div[name="YMap"]'),{
         type,
@@ -624,14 +953,6 @@ Vue.component('EventsMap',{
       this.addGeoObject(this.objectManager2);
     },
     async getSampleAddressCoordinates(sample){
-      class GeocodeResult {
-        constructor(sample,response){
-          this.sample=sample
-          this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
-          this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
-          console.log(this)
-        }
-      };
       if(!window.ymaps){return new GeocodeResult(sample)};
       this.geocodeLoading=true;
       const response=await window.ymaps.geocode(sample,{json:true,results:1});
@@ -653,6 +974,79 @@ Vue.component('EventsMap',{
     delGeoObject(geoObject){
       if(!geoObject){return};
       this.ymap.geoObjects.remove(geoObject);
+    },
+    async setFilter(){
+      const {selectedDevicesList}=this;
+      if(this.objectManager1){
+        await this.setOLTs();
+        this.objectManager1.setFilter((object)=>{
+          return selectedDevicesList.includes(object.properties.neName)
+        });
+      };
+      if(this.objectManager2){
+        await this.setONTs();
+        this.objectManager2.setFilter((object)=>{
+          return selectedDevicesList.includes(object.properties.neName)
+        });
+      };
+    },
+    async setOLTs(){
+      const {selectedDevices}=this;
+      /*for(const object of this.objectManager1.objects.getAll()){
+        if(!selectedDevices[object.properties.neName]){
+          this.objectManager1.remove(object);
+        }
+      };*/
+      for(const [neName,selected] of Object.entries(selectedDevices)){
+        if(!selected){continue};
+        const deviceInfo=await this.getDeviceInfo(neName);
+        if(!deviceInfo){continue};
+        const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
+        if(!siteNodeInfo){continue};
+        const {name:siteName,node:nodeName,coordinates:{latitude,longitude}}=siteNodeInfo;
+        const deviceSiteNodeId=atok(siteName,nodeName,neName);
+        if(!this.objectManager1.objects.getById(deviceSiteNodeId)){
+          this.objectManager1.add(new FeatureCollection([new OltSiteNodePoint(deviceSiteNodeId,[latitude,longitude],{
+            properties:{
+              neName,nodeName,siteName,
+            },
+          })]));
+        }else{
+          //this.objectManager1.objects.setObjectOptions(deviceSiteNodeId)
+        }
+      };
+    },
+    async setONTs(){
+      const {selectedDevices}=this;
+      /*for(const object of this.objectManager2.objects.getAll()){
+        if(!selectedDevices[object.properties.neName]){
+          this.objectManager2.remove(object);
+        }
+      };*/
+      for(const [neName,selected] of Object.entries(selectedDevices)){
+        if(!selected){continue};
+        const deviceInfo=await this.getDeviceInfo(neName);
+        if(!deviceInfo){continue};
+        const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
+        if(!siteNodeInfo){continue};
+        const {node:nodeName}=siteNodeInfo;
+        for(const {account} of Object.values(this.getDeviceSubscribers(neName))){
+          const subscriberLbsvInfo=await this.getSubscriberLbsvInfo(account);
+          if(!subscriberLbsvInfo){continue};
+          const subscriberLocationInfo=await this.getSubscriberLocationInfo({account,nodeName});
+          if(!subscriberLocationInfo){continue};
+          const {coordinates}=subscriberLocationInfo
+          if(!this.objectManager2.objects.getById(account)){
+            this.objectManager2.add(new FeatureCollection([new OntPoint(account,coordinates,{
+              properties:{
+                account,neName,nodeName,
+              },
+            })]));
+          }else{
+            //this.objectManager2.objects.setObjectOptions(account)
+          }
+        };
+      };
     },
   },
   beforeDestroy(){
