@@ -223,13 +223,13 @@ Vue.component('SitePlanDownload',{//плансхема
       document.getElementById('loader_generatePL').style.display='inline-table';
 
       const siteObj=await this.getSite(site_id,hideTS);
-      const user=this.$root.username||'<username>';
+      const username=this.$root.username||'<username>';
       const site_name=siteObj[site_id].nodes[0].name;
       const address=siteObj[site_id].nodes[0].address;
       const date=new Date();
-      const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+date.getTime().toString(16)+' '+user;
+      const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+date.getTime().toString(16)+' '+username;
       const bodyObj={
-        username:user,
+        username,
         node_id,
         sitename:site_name,site_name,
         address,
@@ -239,22 +239,20 @@ Vue.component('SitePlanDownload',{//плансхема
         html:'',
       };
 
-      if(!FIX_test_DEV){
-        if(user&&user!=='<username>'){
-          fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
-            method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-            body:JSON.stringify(bodyObj)
-          });
-        }else{
-          return;
-        };
-      }else{
+      if(FIX_test_DEV){
         const json=new Blob([bodyObj.json],{type:'text/plain'});
         const a=document.createElement('a');
         a.href=URL.createObjectURL(json);
         a.download=bodyObj.title+'.json';
         a.click();
         a.remove();
+      }else{
+        if(username&&username!=='<username>'){
+          fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
+            method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+            body:JSON.stringify(bodyObj)
+          });
+        };
       };
 
       //document.getElementById('btn_generatePL').removeAttribute('disabled');
