@@ -95,6 +95,11 @@ document.getElementById('btn_refresh')?.addEventListener('click',()=>{
   window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
   window.location.href='https://fx.mts.ru/fix';
 });*/
+document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="${window.node_id}" style="position:absolute;top:0;right:0;height:16px;font-size:12px;line-height:10px;"/>`);
+document.getElementById('btn_refresh')?.addEventListener('click',()=>{
+  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
+  window.location.href='https://fx.mts.ru/fix';
+});
 
 //test inventory
 /*if(store?.state?.main?.userData?.username=='mypanty1'){
