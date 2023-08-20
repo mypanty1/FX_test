@@ -348,53 +348,53 @@ Vue.component('port-bind-user-modal',{//refree
     },
     async serviceMixQuery(method,params){//replace this method
       this.result={};
-			this.refree_result={};
+      this.refree_result={};
       if(params.mac){
-				params.get_mac={
-					port:this.data.portParams,
-					device:this.data.deviceParams
-				};
+        params.get_mac={
+          port:this.data.portParams,
+          device:this.data.deviceParams
+        };
       };
-			
+      
       this.loading=true;
-			const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=params;
-			let log_props=Object.assign({method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
+      const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=params;
+      let log_props=Object.assign({method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
       
       try{
-				//const response=await httpPost(`/call/service_mix/${method}`,params);
+        //const response=await httpPost(`/call/service_mix/${method}`,params);
         const response=await CustomRequest.post(`/call/service_mix/${method}`,params);
-				this.result=response;
-				
-				if(this.result?.type=='error'&&this.result?.text?.length>0&&this.result.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
-					//Мы не можем отобрать порт у контракта 2495985 так-как он активен.
-					let contract=parseInt(this.result.text.replace('Мы не можем отобрать порт у контракта ',''));
-					if(contract>0){
-						contract=contract.toString();
+        this.result=response;
+        
+        if(this.result?.type=='error'&&this.result?.text?.length>0&&this.result.text.indexOf('Мы не можем отобрать порт у контракта ')>=0){
+          //Мы не можем отобрать порт у контракта 2495985 так-как он активен.
+          let contract=parseInt(this.result.text.replace('Мы не можем отобрать порт у контракта ',''));
+          if(contract>0){
+            contract=contract.toString();
             log_props=Object.assign(log_props,{contract});
             this.$set(this.result,'refreedable',true);
             
-						if(this.data.portInfo){
+            if(this.data.portInfo){
               const date_last=this.data.portInfo?.last_mac?.last_at?Date.parse(this.data.portInfo.last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now();
               const date_last_text=new Date(date_last).toISOString().slice(0,10);//.toLocaleDateString();
-							
-							this.$set(this.result,'refreedable_message',{
-								'busy'    :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
-								'hub'     :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
-								'closed'  :`контракт ${contract} расторгнут, порт можно освободить`,
-								'expired' :`неактивен более 3 мес, возможно порт можно освободить`,
-								'double'  :`абонент "переехал" на другой порт, возможно порт можно освободить`,
-								'new'     :`на порту просто новый мак, возможно порт можно освободить`,
-								'free'    :`на порту никогда небыло активности, возможно порт можно освободить`,
-							}[this.data.portInfo.state]||`статус порта: ${this.data.portInfo.state||'error'} , нужно проверить`);
-							
+              
+              this.$set(this.result,'refreedable_message',{
+                'busy'    :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
+                'hub'     :`последняя активность ${date_last_text} , есть риск отжать порт у действующего абонента`,
+                'closed'  :`контракт ${contract} расторгнут, порт можно освободить`,
+                'expired' :`неактивен более 3 мес, возможно порт можно освободить`,
+                'double'  :`абонент "переехал" на другой порт, возможно порт можно освободить`,
+                'new'     :`на порту просто новый мак, возможно порт можно освободить`,
+                'free'    :`на порту никогда небыло активности, возможно порт можно освободить`,
+              }[this.data.portInfo.state]||`статус порта: ${this.data.portInfo.state||'error'} , нужно проверить`);
+              
               log_props=Object.assign(log_props,{state:this.data.portInfo.state,date_last:date_last_text});
             }else{
               this.$set(this.result,'refreedable_message',`невозможно определить активность, нужно проверить`);
             };
-						
+            
             log_props=Object.assign(log_props,{user_message:this.result.refreedable_message});
            
-					 this.$set(this.result,'refree_params',{
+           this.$set(this.result,'refree_params',{
               method:method,
               params:{
                 ip:params.ip,
@@ -407,7 +407,7 @@ Vue.component('port-bind-user-modal',{//refree
                 mac:'0000.0000.0000',//for omsk serverid 64
               },
             });
-						
+            
             httpGet(buildUrl('get_user_rate',{serverid:params.serverid,vgid:contract},'/call/aaa/')).then(response=>{//for omsk serverid 64
               this.result.refree_params={
                 ...this.result.refree_params,
@@ -418,57 +418,57 @@ Vue.component('port-bind-user-modal',{//refree
               };
             });
           };
-					
-					
-				}else{
+          
+          
+        }else{
           this.result={
-						...this.result,
-						result_message:(this.result?.InfoMessage||'')+(this.result?.Data?.IP?(' IP:'+this.result?.Data?.IP):'')
-					};
-				};
-				
-				log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
-				
-				try{
-					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
-						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-						body:JSON.stringify({
-							username:this.$root.username||'<username>',
-							node_id:window.node_id||'<node_id>',
-							action:'bind',
-							method:method+'_'+params.serverid,
-							props:log_props,
-						})
-					});
-					console.log({
-            username:'<username>',
-            node_id:'<node_id>',
+            ...this.result,
+            result_message:(this.result?.InfoMessage||'')+(this.result?.Data?.IP?(' IP:'+this.result?.Data?.IP):'')
+          };
+        };
+        
+        log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
+        
+        try{
+          fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+            method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+            body:JSON.stringify({
+              username:this.$root.username||'<username>',
+              node_id:window.node_id||'<node_id>',
+              action:'bind',
+              method:method+'_'+params.serverid,
+              props:log_props,
+            })
+          });
+          console.log({
+            username:this.$root.username||'<username>',
+            node_id:window.node_id||'<node_id>',
             action:'bind',
             method:method+'_'+params.serverid,
             props:log_props,
-				  })
-				}catch(error){
-					console.warn('log',error)
-				};
-				
-			}catch(error){
-				console.warn('service_mix.error',error);
-				this.result={
+          })
+        }catch(error){
+          console.warn('log',error)
+        };
+        
+      }catch(error){
+        console.warn('service_mix.error',error);
+        this.result={
           text:`ошибка при обращении к ServiceMix`,
           type:'error'
         };
-			};
-			this.loading=false;
+      };
+      this.loading=false;
     },
     async refree(data){//add this method
       this.refree_loading=true;
       this.refree_result={};
-			const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=data.params
-			let log_props=Object.assign({method:data.method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
-			try{
-				//const response=await httpPost(`/call/service_mix/${data.method}`,data.params);
+      const {ip,port,mac,account,login,vgid,serverid,type_of_bind}=data.params
+      let log_props=Object.assign({method:data.method},{ip,port,mac,account,login,vgid,serverid,type_of_bind});
+      try{
+        //const response=await httpPost(`/call/service_mix/${data.method}`,data.params);
         const response=await CustomRequest.post(`/call/service_mix/${data.method}`,data.params);
-				if(!response||response?.type=='error'){
+        if(!response||response?.type=='error'){
           this.refree_result={
             type:'error',
             refree_message:`освободить не удалось`,
@@ -476,46 +476,45 @@ Vue.component('port-bind-user-modal',{//refree
         }else{
           this.refree_result={
             type:'success',
-						refree_message:`порт освобожден!${((response?.Data?.IP)?(' тут был абонент с IP:'+response?.Data?.IP):'')}`,
+            refree_message:`порт освобожден!${((response?.Data?.IP)?(' тут был абонент с IP:'+response?.Data?.IP):'')}`,
           };
         };
-				log_props=Object.assign(log_props,{user_message:this.refree_result.refree_message});
+        log_props=Object.assign(log_props,{user_message:this.refree_result.refree_message});
         log_props=Object.assign(log_props,{type:this.result.type,text:this.result.text,IsError:this.result.IsError,InfoMessage:this.result.InfoMessage});
-				
-				try{
-					fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
-						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-						body:JSON.stringify({
-							username:this.$root.username||'<username>',
-							node_id:window.node_id||'<node_id>',
-							action:'refree',
-							method:data.method+'_'+data.params.serverid,
-							props:log_props,
-						})
-					});
-					console.log({
-            username:'<username>',
-            node_id:node_id||'<node_id>',
+        
+        try{
+          fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+            method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+            body:JSON.stringify({
+              username:this.$root.username||'<username>',
+              node_id:window.node_id||'<node_id>',
+              action:'refree',
+              method:data.method+'_'+data.params.serverid,
+              props:log_props,
+            })
+          });
+          console.log({
+            username:this.$root.username||'<username>',
+            node_id:window.node_id||'<node_id>',
             action:'refree',
             method:data.method+'_'+data.params.serverid,
             props:log_props,
-				  })
-				}catch(error){
-					console.warn('log',error)
-				};
-				
-			}catch(error){
-				console.warn('service_mix.error',error);
-				this.refree_result={
+          })
+        }catch(error){
+          console.warn('log',error)
+        };
+        
+      }catch(error){
+        console.warn('service_mix.error',error);
+        this.refree_result={
           text:`ошибка при обращении к ServiceMix`,
           type:'error'
         };
-			}
-			this.refree_loading=false;
+      }
+      this.refree_loading=false;
     },
   },
 });
-
 
 
 
