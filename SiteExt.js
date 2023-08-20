@@ -230,7 +230,7 @@ Vue.component('SitePlanDownload',{//плансхема
       const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+date.getTime().toString(16)+' '+username;
       const bodyObj={
         username,
-        node_id,
+        node_id:window.node_id,
         sitename:site_name,site_name,
         address,
         siteid:site_id,site_id,
@@ -239,21 +239,21 @@ Vue.component('SitePlanDownload',{//плансхема
         html:'',
       };
 
-      if(FIX_test_DEV){
+      /*if(FIX_test_DEV){
         const json=new Blob([bodyObj.json],{type:'text/plain'});
         const a=document.createElement('a');
         a.href=URL.createObjectURL(json);
         a.download=bodyObj.title+'.json';
         a.click();
         a.remove();
-      }else{
+      }else{*/
         if(username&&username!=='<username>'){
           fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
             method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
             body:JSON.stringify(bodyObj)
           });
         };
-      };
+      /*};*/
 
       //document.getElementById('btn_generatePL').removeAttribute('disabled');
       document.getElementById('btn_generatePL_woTS').removeAttribute('disabled');
