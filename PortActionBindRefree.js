@@ -434,19 +434,19 @@ Vue.component('port-bind-user-modal',{//refree
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
-							node_id:node_id||'<node_id>',
+							node_id:window.node_id||'<node_id>',
 							action:'bind',
 							method:method+'_'+params.serverid,
 							props:log_props,
 						})
 					});
 					console.log({
-							username:'<username>',
-							node_id:'<node_id>',
-							action:'bind',
-							method:method+'_'+params.serverid,
-							props:log_props,
-						})
+            username:'<username>',
+            node_id:'<node_id>',
+            action:'bind',
+            method:method+'_'+params.serverid,
+            props:log_props,
+				  })
 				}catch(error){
 					console.warn('log',error)
 				};
@@ -487,19 +487,19 @@ Vue.component('port-bind-user-modal',{//refree
 						method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
 						body:JSON.stringify({
 							username:this.$root.username||'<username>',
-							node_id:node_id||'<node_id>',
+							node_id:window.node_id||'<node_id>',
 							action:'refree',
 							method:data.method+'_'+data.params.serverid,
 							props:log_props,
 						})
 					});
 					console.log({
-							username:'<username>',
-							node_id:node_id||'<node_id>',
-							action:'refree',
-							method:data.method+'_'+data.params.serverid,
-							props:log_props,
-						})
+            username:'<username>',
+            node_id:node_id||'<node_id>',
+            action:'refree',
+            method:data.method+'_'+data.params.serverid,
+            props:log_props,
+				  })
 				}catch(error){
 					console.warn('log',error)
 				};
