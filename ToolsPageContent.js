@@ -418,14 +418,6 @@ const NSK_OLTs=NSK_OLT_LIST.reduce((selectedItems,item)=>item?Object.assign(sele
 const CACHE_1HOUR=60;
 const CACHE_1DAY=CACHE_1HOUR*24;
 
-class SubscriberPort {
-  constructor(sample,response){
-    this.sample=sample
-    this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
-    this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
-    console.log(this)
-  }
-};
 class GeocodeResult {
   constructor(sample,response){
     this.sample=sample
@@ -715,7 +707,11 @@ store.registerModule(TEMPLATE_ID,{
         };
         if(!getters.subscriberLocationInfo[account]?.coordinates&&getters.siteNodeInfo[nodeName]){
           const {coordinates:{latitude,longitude},address}=getters.siteNodeInfo[nodeName];
-          const geocodeResult={address:address_type1||address,coordinates:[latitude,longitude],sample:[latitude,longitude]}
+          const coordinates=[latitude,longitude].map(c=>{
+            const r=Math.random()*0.003
+            return c+(Math.random()>0.5?r:-r)
+          });
+          const geocodeResult={address:address_type1||address,coordinates,sample:coordinates}
           localStorageCache.setItem(`location-${account}`,geocodeResult,CACHE_1DAY);
           commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(geocodeResult)]);
         }
@@ -1012,7 +1008,7 @@ Vue.component('EventsMap',{
             },
           })]));
         }else{
-          //this.objectManager1.objects.setObjectOptions(deviceSiteNodeId)
+          
         }
       };
     },
@@ -1043,7 +1039,8 @@ Vue.component('EventsMap',{
               },
             })]));
           }else{
-            //this.objectManager2.objects.setObjectOptions(account)
+            const object=this.objectManager2.objects.getById(account);
+            object.geometry.coordinates=coordinates;
           }
         };
       };
@@ -1053,7 +1050,6 @@ Vue.component('EventsMap',{
     this.ymap?.destroy();
   },
 });
-
 
 
 
