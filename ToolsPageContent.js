@@ -485,6 +485,8 @@ class OltSiteNodePoint {
     this.id=this.#objectId=deviceSiteNodeId;
     this.geometry=new PointGeometry(coordinates)
     this.properties={
+      hintObjectId:this.id,
+      balloonObjectId:this.id,
       deviceSiteNodeId,
       ...properties,
     }
@@ -505,13 +507,15 @@ class OltSiteNodePoint {
 };
 class OntPoint {
   #objectId;
-  constructor(account,coordinates,other={}){
+  constructor(accountId,coordinates,other={}){
     const {options={},properties={}}=other
     this.type='Feature'
-    this.id=this.#objectId=account;
+    this.id=this.#objectId=accountId;
     this.geometry=new PointGeometry(coordinates)
     this.properties={
-      account,
+      hintObjectId:this.id,
+      balloonObjectId:this.id,
+      accountId,
       ...properties,
     }
     this.options={
@@ -539,28 +543,31 @@ store.registerModule(TEMPLATE_ID,{
     ports:{},
     subscriberLbsvInfo:{},
     subscriberLocationInfo:{},
+    subscriberInfo:{},
   }),
   getters:{
     loads:state=>state.loads,
     deviceInfo:state=>state.deviceInfo,
     siteNodeInfo:state=>state.siteNodeInfo,
     ports:state=>state.ports,
-    getDeviceSubscribers:state=>(neName)=>(state.ports[neName]||[]).reduce((subscriber,_port)=>{
+    getDeviceSubscribers:state=>(deviceName)=>(state.ports[deviceName]||[]).reduce((subscriber,_port)=>{
       const {subscriber_list,name,snmp_name,snmp_number,snmp_description,device_name}=_port;
       const port={
-        neName:device_name,
-        nePortName:name,
+        deviceName:device_name,
+        devicePortName:name,
         ifIndex:snmp_number,
         ifName:snmp_name,
         ifAlias:snmp_description,
       };
-      for(const {account,mac} of subscriber_list){
-        subscriber[account]={account,mac,...port};
+      for(const {account:accountId,mac} of subscriber_list){
+        subscriber[accountId]={accountId,mac,...port};
       };
       return subscriber
     },{}),
-    subscriberLbsvInfo:state=>state.subscriberLbsvInfo,
-    subscriberLocationInfo:state=>state.subscriberLocationInfo,
+    /*subscriberLbsvInfo:state=>state.subscriberLbsvInfo,
+    subscriberLocationInfo:state=>state.subscriberLocationInfo,*/
+    subscriberInfo:state=>state.subscriberInfo,
+    getSubscriberInfo:(state,getters)=>(accountId)=>getters.subscriberInfo[accountId],
   },
   mutations:{
     setVal(state,[key,value]){
@@ -574,46 +581,47 @@ store.registerModule(TEMPLATE_ID,{
     },
   },
   actions:{
-    async pushDevice({getters,commit,dispatch},neName){
-      const loadKey=`pushOlt-${neName}`;
+    async pushDevice({getters,commit,dispatch},deviceName){
+      const loadKey=`pushOlt-${deviceName}`;
       if(getters.loads[loadKey]){return};
       commit('setItem',['loads/'+loadKey,true]);
-      const device=await dispatch('getDeviceInfo',neName);
+      const device=await dispatch('getDeviceInfo',deviceName);
       if(device){
         const {site_id:siteId,uzel:{name:nodeName}}=device;
         await Promise.allSettled([
           dispatch('getSiteNodeInfo',{siteId,nodeName}),
-          dispatch('getPortsList',neName)
+          dispatch('getDevicePortsList',deviceName)
         ]);
-        const subscribers=getters.getDeviceSubscribers(neName);
-        await Promise.allSettled(Object.keys(subscribers).map(account=>dispatch('getSubscriberLbsvInfo',account)));
-        //await Promise.allSettled(Object.keys(subscribers).map(account=>dispatch('getSubscriberLocationInfo',{account,nodeName})));
-        for(const account of Object.keys(subscribers)){
-          await dispatch('getSubscriberLocationInfo',{account,nodeName})
-        };
+        const subscribers=getters.getDeviceSubscribers(deviceName);
+        /*await Promise.allSettled(Object.keys(subscribers).map(accountId=>dispatch('getSubscriberLbsvInfo',accountId)));
+        //await Promise.allSettled(Object.keys(subscribers).map(accountId=>dispatch('getSubscriberLocationInfo',{accountId,nodeName})));
+        for(const accountId of Object.keys(subscribers)){
+          await dispatch('getSubscriberLocationInfo',{accountId,nodeName})
+        };*/
+        dispatch('getSubscriberInfo',Object.keys(subscribers))
       };
       commit('setItem',['loads/'+loadKey,!true]);
     },
-    async getDeviceInfo({getters,commit},neName){
-      if(getters.deviceInfo[neName]){return getters.deviceInfo[neName]};
-      const loadKey=`oltDeviceInfo-${neName}`;
+    async getDeviceInfo({getters,commit},deviceName){
+      if(getters.deviceInfo[deviceName]){return getters.deviceInfo[deviceName]};
+      const loadKey=`oltDeviceInfo-${deviceName}`;
       commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`device/${neName}`);
+      const cache=localStorageCache.getItem(`device/${deviceName}`);
       if(cache){
-        commit('setItem',['deviceInfo/'+neName,Object.freeze(cache)]);
+        commit('setItem',['deviceInfo/'+deviceName,Object.freeze(cache)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('search_ma',{pattern:neName},'/call/v1/search/'));
+          const response=await httpGet(buildUrl('search_ma',{pattern:deviceName},'/call/v1/search/'));
           if(response?.data){
-            localStorageCache.setItem(`device/${neName}`,response.data,CACHE_1HOUR);
-            commit('setItem',['deviceInfo/'+neName,Object.freeze(response.data)]);
+            localStorageCache.setItem(`device/${deviceName}`,response.data,CACHE_1HOUR);
+            commit('setItem',['deviceInfo/'+deviceName,Object.freeze(response.data)]);
           };
         }catch(error){
           console.warn('search_ma.error',error);
         };
       };
       commit('setItem',['loads/'+loadKey,!true]);
-      return getters.deviceInfo[neName]
+      return getters.deviceInfo[deviceName]
     },
     async getSiteNodeInfo({getters,commit},{siteId,nodeName}){
       if(getters.siteNodeInfo[nodeName]){return getters.siteNodeInfo[nodeName]};
@@ -636,91 +644,207 @@ store.registerModule(TEMPLATE_ID,{
       commit('setItem',['loads/'+loadKey,!true]);
       return getters.siteNodeInfo[nodeName]
     },
-    async getPortsList({getters,commit},neName){
-      if(getters.ports[neName]){return getters.ports[neName]};
-      const loadKey=`ports-${neName}`;
+    async getDevicePortsList({getters,commit},deviceName){
+      if(getters.ports[deviceName]){return getters.ports[deviceName]};
+      const loadKey=`ports-${deviceName}`;
       commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`device_port_list/${neName}`)||localStorageCache.getItem(`ports-map:device_port_list/${neName}`);
+      const cache=localStorageCache.getItem(`device_port_list/${deviceName}`)||localStorageCache.getItem(`ports-map:device_port_list/${deviceName}`);
       if(cache?.response){
-        commit('setItem',['ports/'+neName,Object.freeze(cache.response)]);
+        commit('setItem',['ports/'+deviceName,Object.freeze(cache.response)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('device_port_list',{device:neName},'/call/device/'));
+          const response=await httpGet(buildUrl('device_port_list',{device:deviceName},'/call/device/'));
           if(Array.isArray(response)){
             const cache={date:new Date(),response};
-            localStorageCache.setItem(`device_port_list/${neName}`,cache,CACHE_1HOUR);
-            localStorageCache.setItem(`ports-map:device_port_list/${neName}`,cache,CACHE_1HOUR);
+            localStorageCache.setItem(`device_port_list/${deviceName}`,cache,CACHE_1HOUR);
+            //localStorageCache.setItem(`ports-map:device_port_list/${deviceName}`,cache,CACHE_1HOUR);
             for(const port of response){//т.к структура идентичная сваливаем порты в кэш
-              localStorageCache.setItem(`pon/PORT-${port.device_name}/${port.snmp_number}`,port);
+              //localStorageCache.setItem(`pon/PORT-${port.device_name}/${port.snmp_number}`,port);
               localStorageCache.setItem(`port/PORT-${port.device_name}/${port.snmp_number}`,port);
             };
-            commit('setItem',['ports/'+neName,Object.freeze(response)]);
+            commit('setItem',['ports/'+deviceName,Object.freeze(response)]);
           };
         }catch(error){
           console.warn('device_port_list.error',error);
         };
       };
       commit('setItem',['loads/'+loadKey,!true]);
-      return getters.ports[neName]
+      return getters.ports[deviceName]
     },
-    async getSubscriberLbsvInfo({getters,commit},account){
-      if(getters.subscriberLbsvInfo[account]){return getters.subscriberLbsvInfo[account]};
-      const loadKey=`subscriberLbsvInfo-${account}`;
+    async getSubscriberInfo({getters,commit},accountId=''){
+      const accounts=Array.isArray(accountId)?accountId:accountId?.split(',');
+      for(const accountId of accounts){
+        const loadKey=`subscriberInfo-${accountId}`;
+        commit('setItem',['loads/'+loadKey,true]);
+      };
+      try{
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?action=select_accountId&accountId=${accounts.join(',')}`).then(r=>r.json())
+        if(response){
+          for(const [accountId,info] of Object.entries(response)){
+            commit('setItem',['subscriberInfo/'+accountId,info]);
+          };
+        };
+      }catch(error){
+        console.warn('search_ma.error',error);
+      };
+      for(const accountId of accounts){
+        const loadKey=`subscriberInfo-${accountId}`;
+        commit('setItem',['loads/'+loadKey,!true]);
+      };
+    }
+    /*async getSubscriberLbsvInfo({getters,commit},accountId){
+      if(getters.subscriberLbsvInfo[accountId]){return getters.subscriberLbsvInfo[accountId]};
+      const loadKey=`subscriberLbsvInfo-${accountId}`;
       commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`account-${account}`);
+      const cache=localStorageCache.getItem(`account-${accountId}`);
       if(cache){
-        commit('setItem',['subscriberLbsvInfo/'+account,Object.freeze(cache.data.lbsv.data)]);
+        commit('setItem',['subscriberLbsvInfo/'+accountId,Object.freeze(cache.data.lbsv.data)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('search_ma',{pattern:account},'/call/v1/search/'));
+          const response=await httpGet(buildUrl('search_ma',{pattern:accountId},'/call/v1/search/'));
           if(response?.data?.lbsv?.data?.serverid){
-            localStorageCache.setItem(`account-${account}`,response,CACHE_1DAY);
-            commit('setItem',['subscriberLbsvInfo/'+account,Object.freeze(response.data.lbsv.data)]);
+            localStorageCache.setItem(`account-${accountId}`,response,CACHE_1DAY);
+            commit('setItem',['subscriberLbsvInfo/'+accountId,Object.freeze(response.data.lbsv.data)]);
           };
         }catch(error){
           console.warn('search_ma.error',error);
         };
       };
       commit('setItem',['loads/'+loadKey,!true]);
-      return getters.subscriberLbsvInfo[account]
-    },
-    async getSubscriberLocationInfo({getters,commit},{account,nodeName}){
-      if(getters.subscriberLocationInfo[account]){return getters.subscriberLocationInfo[account]};
-      const loadKey=`subscriberLocationInfo-${account}`;
+      return getters.subscriberLbsvInfo[accountId]
+    },*/
+    /*async getSubscriberLocationInfo({getters,commit},{accountId,nodeName}){
+      if(getters.subscriberLocationInfo[accountId]){return getters.subscriberLocationInfo[accountId]};
+      const loadKey=`subscriberLocationInfo-${accountId}`;
       commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`location-${account}`);
+      const cache=localStorageCache.getItem(`location-${accountId}`);
       if(cache){
-        commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(cache)]);
-      }else if(getters.subscriberLbsvInfo[account]){
-        const address_type1=getters.subscriberLbsvInfo[account].addresses.find(({type})=>type==1)?.address||'';
-        if(address_type1){
-          const [_russia,_area,_sub,_empty,snt,ul,dom]=address_type1.split(',');
+        commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(cache)]);
+      }else if(getters.subscriberLbsvInfo[accountId]?.addresses){
+        const lbsvInfo=getters.subscriberLbsvInfo[accountId];
+        const lbsvAddress=(lbsvInfo.addresses?.find?lbsvInfo.addresses.find(({type})=>type==1):lbsvInfo.addresses)?.address||'';
+        if(lbsvAddress){
+          const [_russia,_area,_sub,_empty,snt,ul,dom]=lbsvAddress.split(',');
           const sample=`Новосибирск ${snt} ${ul} ${dom}`;
           try{
             const response=await window.ymaps.geocode(sample,{json:true,results:1});
             const geocodeResult=new GeocodeResult(sample,response);
-            localStorageCache.setItem(`location-${account}`,geocodeResult,CACHE_1DAY);
-            commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(geocodeResult)]);
+            localStorageCache.setItem(`location-${accountId}`,geocodeResult,CACHE_1DAY);
+            commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(geocodeResult)]);
           }catch(error){
             console.warn('geocode.error',error);
           };
         };
-        if(!getters.subscriberLocationInfo[account]?.coordinates&&getters.siteNodeInfo[nodeName]){
+        if(!getters.subscriberLocationInfo[accountId]?.coordinates&&getters.siteNodeInfo[nodeName]){
           const {coordinates:{latitude,longitude},address}=getters.siteNodeInfo[nodeName];
           const coordinates=[latitude,longitude].map(c=>{
             const r=Math.random()*0.003
             return c+(Math.random()>0.5?r:-r)
           });
-          const geocodeResult={address:address_type1||address,coordinates,sample:coordinates}
-          localStorageCache.setItem(`location-${account}`,geocodeResult,CACHE_1DAY);
-          commit('setItem',['subscriberLocationInfo/'+account,Object.freeze(geocodeResult)]);
+          const geocodeResult={address:lbsvAddress||address,coordinates,sample:coordinates}
+          localStorageCache.setItem(`location-${accountId}`,geocodeResult,CACHE_1DAY);
+          commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(geocodeResult)]);
         }
       };
       commit('setItem',['loads/'+loadKey,!true]);
-      return getters.subscriberLocationInfo[account];
-    },
+      return getters.subscriberLocationInfo[accountId];
+    },*/
   },
 });
+
+(function(id='balloon-and-hint-css'){
+  document.getElementById(id)?.remove();
+  const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+  el.appendChild(document.createTextNode(`
+    .hint-app{
+      width: 200px;
+      height: auto;
+      background: #ffffffdd;
+      border-radius: 4px;
+      border: 1px solid #1d1ad7;
+      padding: 4px;
+      font-family: auto;
+      font-size: 11px;
+      line-height: 12px;
+    }
+    .balloon-app{
+      width: 300px;
+      height: 200px;
+      background: #ffffffdd;
+      border-radius: 4px;
+      border: 1px solid #1d1ad7;
+      padding: 4px;
+      font-family: auto;
+      font-size: 11px;
+      line-height: 12px;
+    }
+  `));
+  document.body.insertAdjacentElement('afterBegin',el);
+}());
+
+
+function mountBalloonApp(balloonId/*,balloonObjectId*/){
+  return new Vue({
+    store,
+    template:`<div class="balloon-app" :id="balloonId">
+      <div>balloonId: {{balloonId}}</div>
+      <div>balloonObjectId: {{balloonObjectId}}</div>
+    </div>`,
+    data:()=>({
+      balloonId,
+      balloonObjectId:null,
+    }),
+    computed:{
+      
+    },
+    created(){
+      this.balloonObjectId=this.balloonObjectId||document.querySelector(`[balloon-object-id]`)?.getAttribute(`balloon-object-id`); 
+      console.log(`balloonApp ${this.balloonId} created `);
+    },
+    mounted(){
+      console.log(`balloonApp ${this.balloonId} mounted for ${this.balloonObjectId}`);
+      const {width,height}=this.$el.getBoundingClientRect();
+      Object.assign(this.$el.parentElement.parentElement.style,{width:`${width}px`,height:`${height}px`});
+      Object.assign(this.$el.parentElement.parentElement.parentElement.style,{padding:'unset',margin:'unset'});
+      Object.assign(this.$el.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.style,{width:'20px',height:'20px',margin:'2px'});
+      Object.assign(this.$el.parentElement.parentElement.parentElement.parentElement.parentElement.style,{top:`${-height-10}px`,padding:'unset'});
+    },
+    destroyed(){
+      console.log(`balloonApp ${this.balloonId} destroyed for ${this.balloonObjectId}`);
+    },
+  }).$mount(`[balloon-id="${balloonId}"]`);
+};
+function mountHintApp(hintId){
+  return new Vue({
+    store,
+    template:`<div class="hint-app" :id="hintId">
+      <div>hintId: {{hintId}}</div>
+      <div>hintObjectId: {{hintObjectId}}</div>
+    </div>`,
+    data:()=>({
+      hintId:null,
+      hintObjectId:null,
+    }),
+    computed:{
+      
+    },
+    created(){
+      this.hintObjectId=document.querySelector(`[hint-object-id]`)?.getAttribute(`hint-object-id`);      
+      this.hintId=document.querySelector(`[hint-id]`)?.getAttribute(`hint-id`);
+      const {hintId,hintObjectId}=this;
+      console.log(`hintApp ${hintId} created `,{hintId,hintObjectId});
+      //console.log(document.querySelector('.ymaps-2-1-79-outerHint-pane').outerHTML)
+    },
+    mounted(){
+      const {hintId,hintObjectId}=this;
+      console.log(`hintApp ${hintId} mounted for ${hintObjectId}`);
+      //console.log(document.querySelector('.ymaps-2-1-79-outerHint-pane').outerHTML)
+    },
+    destroyed(){
+      console.log(`hintApp destroyed for ${this.hintObjectId}`);
+    },
+  }).$mount(`[hint-id="${hintId}"]`);
+};
 
 Vue.component('EventsMap',{
   template:`<div name="EventsMap" class="position-relative" style="height:100vh;width:100vw;">
@@ -749,6 +873,11 @@ Vue.component('EventsMap',{
     objectManager2:null,
     cursor:null,
     selectedDevices:NSK_OLTs,
+    balloonId:'balloonId_111',
+    balloonApp:null,
+    hintId:'hintId_111',
+    hintApp:null,
+    hintLayout:null,
   }),
   created(){},
   watch:{
@@ -777,6 +906,7 @@ Vue.component('EventsMap',{
       deviceInfo:`${TEMPLATE_ID}/deviceInfo`,
       siteNodeInfo:`${TEMPLATE_ID}/siteNodeInfo`,
       getDeviceSubscribers:`${TEMPLATE_ID}/getDeviceSubscribers`,
+      getSubscriberInfo:`${TEMPLATE_ID}/getSubscriberInfo`,
     }),
     selectedDevicesList(){return Object.entries(this.selectedDevices).filter(([neName,selected])=>selected).map(([neName])=>neName)},
     selectedDevicesCount(){return this.selectedDevicesList.length},
@@ -786,8 +916,8 @@ Vue.component('EventsMap',{
       getDeviceInfo:`${TEMPLATE_ID}/getDeviceInfo`,
       getSiteNodeInfo:`${TEMPLATE_ID}/getSiteNodeInfo`,
       pushDevice:`${TEMPLATE_ID}/pushDevice`,
-      getSubscriberLbsvInfo:`${TEMPLATE_ID}/getSubscriberLbsvInfo`,
-      getSubscriberLocationInfo:`${TEMPLATE_ID}/getSubscriberLocationInfo`,
+      //getSubscriberLbsvInfo:`${TEMPLATE_ID}/getSubscriberLbsvInfo`,
+      //getSubscriberLocationInfo:`${TEMPLATE_ID}/getSubscriberLocationInfo`,
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -798,8 +928,29 @@ Vue.component('EventsMap',{
         });
       },111);
     },
-    initYmaps(){
-      const {type,center,zoom,address}=this;
+    async initYmaps(){
+      const {type,center,zoom,address,hintId,balloonId}=this;
+      
+      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div hint-id="${hintId}" hint-object-id="{{properties.hintObjectId}}"></div>`,{
+        getShape:function(){//сдвиг от края
+          const el=this.getElement();
+          if(!el){return}
+          const {offsetWidth,offsetHeight}=el.firstChild;
+          return new window.ymaps.shape.Rectangle(new window.ymaps.geometry.pixel.Rectangle([[0,0],[offsetWidth,offsetHeight]]));
+        },
+        hintApp:null,
+        build:function(){
+          console.log(`build hint ${hintId}`);
+          this.constructor.superclass.build.call(this);
+          this.hintApp=mountHintApp(hintId);
+        },
+        clear:function(){
+          console.log(`clear hint ${hintId}`);
+          this.hintApp?.$destroy();
+          this.constructor.superclass.clear.call(this);
+        },
+      });
+      
       this.addressInfoButton=new window.ymaps.control.Button({
         data:{
           content:address,
@@ -827,7 +978,7 @@ Vue.component('EventsMap',{
           }):new window.ymaps.control.ListBoxItem({
             data:{
               content:item,
-              neName:item
+              deviceName:item
             },
           })
         }),
@@ -839,17 +990,17 @@ Vue.component('EventsMap',{
       });
       this.controlListBox.events.add(['select','deselect'],(event)=>{
         const listBoxItem=event.get('target');
-        const neName=listBoxItem.data.get('neName');
-        if(!neName){return};
+        const deviceName=listBoxItem.data.get('deviceName');
+        if(!deviceName){return};
         const content=listBoxItem.data.get('content');
         const selected=listBoxItem.state.get('selected');
         console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
         const listBox=event.originalEvent.currentTarget;
-        this.$set(this.selectedDevices,neName,selected);
+        this.$set(this.selectedDevices,deviceName,selected);
         const {selectedDevicesCount}=this;
         listBox.data.set('content',selectedDevicesCount?`Выбрано ${selectedDevicesCount}`:`Не выбран`);
-        if(neName&&selected){
-          this.pushDevice(neName);
+        if(deviceName&&selected){
+          this.pushDevice(deviceName);
         };
       });
       
@@ -928,23 +1079,37 @@ Vue.component('EventsMap',{
         const coords=event.get('coords');console.log('ymap.contextmenu.coords',coords);
       });
       
+      this.ymap.balloon.events.add('close',(event)=>{
+        console.log('ymap.balloon.close',event);
+        this.balloonApp?.$destroy();
+      });
+      this.ymap.balloon.events.add('open',(event)=>{
+        console.log('ymap.balloon.open',event);
+      });
+      
       this.objectManager1=new window.ymaps.ObjectManager({});
       this.objectManager1.properties.set('objectId',randcode(20));
-      this.objectManager1.objects.events.add('click',(event)=>{
+      this.objectManager1.objects.events.add('click',async(event)=>{
         this.ymap.balloon.close();
         const objectId=event.get('objectId');
         const {geometry:{coordinates},properties,options}=this.objectManager1.objects.getById(objectId);
         console.log('ymap.objectManager1.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
+        
+        await this.ymap.balloon.open(coordinates,`<div balloon-id="${this.balloonId}" balloon-object-id="${objectId}"></div>`);
+        this.balloonApp=mountBalloonApp(this.balloonId/*,objectId*/);
       });
       this.addGeoObject(this.objectManager1);
 
       this.objectManager2=new window.ymaps.ObjectManager({});
       this.objectManager2.properties.set('objectId',randcode(20));
-      this.objectManager2.objects.events.add('click',(event)=>{
+      this.objectManager2.objects.events.add('click',async(event)=>{
         this.ymap.balloon.close();
         const objectId=event.get('objectId');
         const {geometry:{coordinates},properties,options}=this.objectManager2.objects.getById(objectId);
         console.log('ymap.objectManager2.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
+        
+        await this.ymap.balloon.open(coordinates,`<div balloon-id="${this.balloonId}" balloon-object-id="${objectId}"></div>`);
+        this.balloonApp=mountBalloonApp(this.balloonId/*,objectId*/);
       });
       this.addGeoObject(this.objectManager2);
     },
@@ -976,71 +1141,77 @@ Vue.component('EventsMap',{
       if(this.objectManager1){
         await this.setOLTs();
         this.objectManager1.setFilter((object)=>{
-          return selectedDevicesList.includes(object.properties.neName)
+          return selectedDevicesList.includes(object.properties.deviceName)
         });
       };
       if(this.objectManager2){
         await this.setONTs();
         this.objectManager2.setFilter((object)=>{
-          return selectedDevicesList.includes(object.properties.neName)
+          return selectedDevicesList.includes(object.properties.deviceName)
         });
       };
     },
     async setOLTs(){
-      const {selectedDevices}=this;
+      const {selectedDevices,hintLayout}=this;
       /*for(const object of this.objectManager1.objects.getAll()){
-        if(!selectedDevices[object.properties.neName]){
+        if(!selectedDevices[object.properties.deviceName]){
           this.objectManager1.remove(object);
         }
       };*/
-      for(const [neName,selected] of Object.entries(selectedDevices)){
+      for(const [deviceName,selected] of Object.entries(selectedDevices)){
         if(!selected){continue};
-        const deviceInfo=await this.getDeviceInfo(neName);
+        const deviceInfo=await this.getDeviceInfo(deviceName);
         if(!deviceInfo){continue};
         const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
         if(!siteNodeInfo){continue};
         const {name:siteName,node:nodeName,coordinates:{latitude,longitude}}=siteNodeInfo;
-        const deviceSiteNodeId=atok(siteName,nodeName,neName);
+        const deviceSiteNodeId=atok(siteName,nodeName,deviceName);
         if(!this.objectManager1.objects.getById(deviceSiteNodeId)){
           this.objectManager1.add(new FeatureCollection([new OltSiteNodePoint(deviceSiteNodeId,[latitude,longitude],{
             properties:{
-              neName,nodeName,siteName,
+              deviceName,nodeName,siteName,
             },
+            options:{
+              hintLayout,
+            }
           })]));
         }else{
-          
+          const object=this.objectManager1.objects.getById(deviceSiteNodeId);
+          object.geometry.coordinates=[latitude,longitude];
         }
       };
     },
     async setONTs(){
-      const {selectedDevices}=this;
+      const {selectedDevices,hintLayout}=this;
       /*for(const object of this.objectManager2.objects.getAll()){
-        if(!selectedDevices[object.properties.neName]){
+        if(!selectedDevices[object.properties.deviceName]){
           this.objectManager2.remove(object);
         }
       };*/
-      for(const [neName,selected] of Object.entries(selectedDevices)){
+      for(const [deviceName,selected] of Object.entries(selectedDevices)){
         if(!selected){continue};
-        const deviceInfo=await this.getDeviceInfo(neName);
+        const deviceInfo=await this.getDeviceInfo(deviceName);
         if(!deviceInfo){continue};
         const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
         if(!siteNodeInfo){continue};
         const {node:nodeName}=siteNodeInfo;
-        for(const {account} of Object.values(this.getDeviceSubscribers(neName))){
-          const subscriberLbsvInfo=await this.getSubscriberLbsvInfo(account);
-          if(!subscriberLbsvInfo){continue};
-          const subscriberLocationInfo=await this.getSubscriberLocationInfo({account,nodeName});
-          if(!subscriberLocationInfo){continue};
-          const {coordinates}=subscriberLocationInfo
-          if(!this.objectManager2.objects.getById(account)){
-            this.objectManager2.add(new FeatureCollection([new OntPoint(account,coordinates,{
+        for(const {accountId} of Object.values(this.getDeviceSubscribers(deviceName))){
+          const subscriberInfo=this.getSubscriberInfo(accountId);
+          if(!subscriberInfo){continue};
+          const {latitude,longitude}=subscriberInfo;
+          if(!latitude||!longitude){continue};
+          if(!this.objectManager2.objects.getById(accountId)){
+            this.objectManager2.add(new FeatureCollection([new OntPoint(accountId,[latitude,longitude],{
               properties:{
-                account,neName,nodeName,
+                accountId,deviceName,nodeName,
+              },
+              options:{
+                hintLayout,
               },
             })]));
           }else{
-            const object=this.objectManager2.objects.getById(account);
-            object.geometry.coordinates=coordinates;
+            const object=this.objectManager2.objects.getById(accountId);
+            object.geometry.coordinates=[latitude,longitude];
           }
         };
       };
@@ -1050,7 +1221,6 @@ Vue.component('EventsMap',{
     this.ymap?.destroy();
   },
 });
-
 
 
 
