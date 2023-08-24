@@ -179,28 +179,30 @@ Vue.component('TestAppLink',{
   template:`<div name="TestAppLink">
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
-    <devider-line/>
-    <link-block icon="amount" text="goToMtsMaster" @block-click="goToMtsMaster" actionIcon="right-link" type="medium"/>
-    <devider-line/>
+    <link-block icon="amount" text="goToMtsMaster_wfmKey" @block-click="goToMtsMaster_wfmKey" actionIcon="right-link" type="medium"/>
     <link-block icon="amount" text="StartActivity2_Action_MpMaster" @block-click="StartActivity2_Action_MpMaster" actionIcon="right-link" type="medium"/>
-    <devider-line/>
     <link-block icon="amount" text="StartActivity2_Action_Ping54" @block-click="StartActivity2_Action_Ping54" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="StartActivity2_Ping54" @block-click="StartActivity2_Ping54" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="StartActivity2_Ping54_Extras" @block-click="StartActivity2_Ping54_Extras" actionIcon="right-link" type="medium"/>
     <devider-line/>
-    <link-block icon="amount" text="StartActivity2" @block-click="StartActivity2" actionIcon="right-link" type="medium"/>
-    <devider-line/>
-    <link-block icon="amount" text="StartActivity2_Extras" @block-click="StartActivity2_Extras" actionIcon="right-link" type="medium"/>
+    <textarea-el label="js" v-model="js" rows="3" class="padding-unset"/>
+    <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
+    <textarea-el label="jsResult" v-model="jsResultText" rows="3" class="padding-unset"/>
   </div>`,
   data:()=>({
     wfmKey:'WFM000026678167',
+    js:'',
+    jsResult:null,
   }),
   computed:{
     tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
+    jsResultText(){return JSON.stringify(this.jsResult,0,2)},
   },
   methods:{
     close(){//public
       
     },
-    goToMtsMaster(){
+    goToMtsMaster_wfmKey(){
       window.AppInventor.setWebViewString(`do:goToMtsMaster:::=${this.wfmKey}`);
     },
     StartActivity2_Action_MpMaster(){
@@ -211,18 +213,21 @@ Vue.component('TestAppLink',{
       const dataUri=`https://ping54.ru`;
       window.AppInventor.setWebViewString(`do:StartActivity2_Action_android.intent.action.VIEW:::=${dataUri}`);
     },
-    StartActivity2(){
+    StartActivity2_Ping54(){
       const dataUri=`https://ping54.ru`;
       window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
       window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
-    StartActivity2_Extras(){
+    StartActivity2_Ping54_Extras(){
       const dataUri=`https://ping54.ru/#/device-10.221.45.168`;
       window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
       window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
+    eval(){
+      this.jsResult=eval(this.js);
+    }
   },
   beforeDestroy(){
     
