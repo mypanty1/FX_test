@@ -220,10 +220,9 @@ Vue.component('TestAppLink',{
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
     StartActivity2_Extras(){
-      const dataUri=`https://ping54.ru`;
+      const dataUri=`https://ping54.ru?ip=10.221.45.168`;
       window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
       window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
-      window.AppInventor.setWebViewString(`set:ActivityStarter2:Extras::=ip=10.221.45.168`);
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
   },
