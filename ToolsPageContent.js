@@ -1,4 +1,4 @@
-if(app?.$store?.getters?.['main/username']=='mypanty1'||app?.$store?.getters?.['main/username']=='aikrasi1'){
+if(app?.$store?.getters?.['main/username']=='mypanty1'){
   app.$store.dispatch('dev/setVar',{showToolsPage:true})
 }
 
@@ -48,7 +48,6 @@ Vue.component('ToolsPageContent',{
       {name:'Device IP',is:'WidgetSnmpTest'},
       {name:'ToEventsMap',is:'ToEventsMap',isDev:false},
       {name:'TestAppLink',is:'TestAppLink',isDev:true},
-      {name:'TestAppLink2',is:'TestAppLink2',isDev:false},
     ],
     items:[]
   }),
@@ -178,90 +177,54 @@ Vue.component('WidgetPing',{
 
 Vue.component('TestAppLink',{
   template:`<div name="TestAppLink">
-    <link-block icon="amount" text="setFollowLinks" @block-click="setFollowLinks" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setRefreshLink" @block-click="setRefreshLink" actionIcon="right-link" type="medium"/>
-    <devider-line/>
-    <input-el placeholder="url" label="url" v-model="url" class="padding-unset"/>
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
-    window.location.href={{url+wfmKey}}
-    <link-block icon="amount" text="setAppLink" @block-click="setAppLink" actionIcon="right-link" type="medium"/>
-    <devider-line/>
-    <textarea-el label="JS" v-model="js" rows="3" class="padding-unset"/>
-    <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
-    <textarea-el label="returnData" v-model="returnDataText" rows="3" class="padding-unset"/>
-  </div>`,
-  data:()=>({
-    url:'mtsmaster://task?wfmKey=',
-    wfmKey:'WFM000026678167',
-    js:'',
-    returnData:'',
-  }),
-  computed:{
-    tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
-    returnDataText(){return JSON.stringify(this.returnData)},
-  },
-  methods:{
-    close(){//public
-      
-    },
-    setFollowLinks(){
-      window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-    },
-    setRefreshLink(){
-      window.location.href='https://fx.mts.ru/fix';
-    },
-    setAppLink(){
-      window.location.href=this.url+this.wfmKey;
-    },
-    eval(){
-      this.returnData=eval(this.js)
-    },
-  },
-  beforeDestroy(){
-    
-  },
-});
-
-Vue.component('TestAppLink2',{
-  template:`<div name="TestAppLink2">
-    <link-block icon="amount" text="setFollowLinks" @block-click="setFollowLinks" actionIcon="right-link" type="medium"/>
-    <devider-line/>
-    <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
-    <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
-    <devider-line/>
-    <link-block icon="amount" text="setAppLink_system" @block-click="setAppLink('_system')" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setAppLink_self" @block-click="setAppLink('_self')" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setAppLink_blank" @block-click="setAppLink('_blank')" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setAppLink_parent" @block-click="setAppLink('_parent')" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setAppLink_top" @block-click="setAppLink('_top')" actionIcon="right-link" type="medium"/>
     <devider-line/>
     <link-block icon="amount" text="goToMpMaster" @block-click="goToMpMaster" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="goToMpMasterKey" @block-click="goToMpMaster(wfmKey)" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <link-block icon="amount" text="StartActivity2_Action_MpMaster" @block-click="StartActivity2_Action_MpMaster" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <link-block icon="amount" text="StartActivity2_Action_Ping54" @block-click="StartActivity2_Action_Ping54" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <link-block icon="amount" text="StartActivity2" @block-click="StartActivity2" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <link-block icon="amount" text="StartActivity2_Extras" @block-click="StartActivity2_Extras" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
     wfmKey:'WFM000026678167',
   }),
   computed:{
     tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
-    returnDataText(){return JSON.stringify(this.returnData)},
   },
   methods:{
     close(){//public
       
     },
-    goToMpMaster(wfmKey=''){
-      if(wfmKey){
-        window.AppInventor.setWebViewString(`do:goToMpMaster:::=`+'mtsmaster://task?wfmKey='+wfmKey);
-      }else{
-        window.AppInventor.setWebViewString(`do:goToMpMaster:::=`)
-      }
+    goToMpMaster(){
+      //window.AppInventor.setWebViewString(`do:goToMpMaster:::=${dataUri}`);
+      window.AppInventor.setWebViewString(`do:goToMpMaster:::=${this.wfmKey}`);
+      //window.AppInventor.setWebViewString(`do:StartActivity:android.intent.action.VIEW::=${dataUri}`);
     },
-    setFollowLinks(){
-      window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
+    StartActivity2_Action_MpMaster(){
+      const dataUri=`mtsmaster://task?wfmKey=${this.wfmKey}`;
+      window.AppInventor.setWebViewString(`do:StartActivity2_Action_android.intent.action.VIEW:::=${dataUri}`);
     },
-    setAppLink(target){
-      window.open('mtsmaster://task?wfmKey='+this.wfmKey, target)
+    StartActivity2_Action_Ping54(){
+      const dataUri=`https://ping54.ru`;
+      window.AppInventor.setWebViewString(`do:StartActivity2_Action_android.intent.action.VIEW:::=${dataUri}`);
+    },
+    StartActivity2(){
+      const dataUri=`https://ping54.ru`;
+      window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
+      window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
+      window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
+    },
+    StartActivity2_Extras(){
+      const dataUri=`https://ping54.ru`;
+      window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
+      window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
+      window.AppInventor.setWebViewString(`set:ActivityStarter2:Extras::=ip=10.221.45.168`);
+      window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
   },
   beforeDestroy(){
