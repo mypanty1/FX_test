@@ -235,6 +235,9 @@ Vue.component('TestAppLink2',{
     <link-block icon="amount" text="setAppLink_blank" @block-click="setAppLink('_blank')" actionIcon="right-link" type="medium"/>
     <link-block icon="amount" text="setAppLink_parent" @block-click="setAppLink('_parent')" actionIcon="right-link" type="medium"/>
     <link-block icon="amount" text="setAppLink_top" @block-click="setAppLink('_top')" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <link-block icon="amount" text="goToMpMaster" @block-click="goToMpMaster" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="goToMpMasterKey" @block-click="goToMpMaster(wfmKey)" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
     wfmKey:'WFM000026678167',
@@ -246,6 +249,9 @@ Vue.component('TestAppLink2',{
   methods:{
     close(){//public
       
+    },
+    goToMpMaster(wfmKey=''){
+      window.AppInventor.setWebViewString(`set:goToMpMaster:::=`+wfmKey);
     },
     setFollowLinks(){
       window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
