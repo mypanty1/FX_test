@@ -180,7 +180,7 @@ Vue.component('TestAppLink',{
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
     <devider-line/>
-    <link-block icon="amount" text="goToMpMaster" @block-click="goToMpMaster" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="goToMtsMaster" @block-click="goToMtsMaster" actionIcon="right-link" type="medium"/>
     <devider-line/>
     <link-block icon="amount" text="StartActivity2_Action_MpMaster" @block-click="StartActivity2_Action_MpMaster" actionIcon="right-link" type="medium"/>
     <devider-line/>
@@ -200,10 +200,8 @@ Vue.component('TestAppLink',{
     close(){//public
       
     },
-    goToMpMaster(){
-      //window.AppInventor.setWebViewString(`do:goToMpMaster:::=${dataUri}`);
-      window.AppInventor.setWebViewString(`do:goToMpMaster:::=${this.wfmKey}`);
-      //window.AppInventor.setWebViewString(`do:StartActivity:android.intent.action.VIEW::=${dataUri}`);
+    goToMtsMaster(){
+      window.AppInventor.setWebViewString(`do:goToMtsMaster:::=${this.wfmKey}`);
     },
     StartActivity2_Action_MpMaster(){
       const dataUri=`mtsmaster://task?wfmKey=${this.wfmKey}`;
@@ -220,7 +218,7 @@ Vue.component('TestAppLink',{
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
     },
     StartActivity2_Extras(){
-      const dataUri=`https://ping54.ru?ip=10.221.45.168`;
+      const dataUri=`https://ping54.ru/#/device-10.221.45.168`;
       window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
       window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
       window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
