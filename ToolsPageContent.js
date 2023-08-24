@@ -47,6 +47,7 @@ Vue.component('ToolsPageContent',{
       {name:'Dev',is:'WidgetDev',isDev:true},
       {name:'Device IP',is:'WidgetSnmpTest'},
       {name:'ToEventsMap',is:'ToEventsMap',isDev:true},
+      {name:'TestAppLink',is:'TestAppLink',isDev:true},
     ],
     items:[]
   }),
@@ -171,6 +172,53 @@ Vue.component('WidgetPing',{
   },
   beforeDestroy(){
     this.abort();
+  },
+});
+
+Vue.component('TestAppLink',{
+  template:`<div name="TestAppLink">
+    <link-block icon="amount" text="setFollowLinks" @block-click="setFollowLinks" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setRefreshLink" @block-click="setRefreshLink" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <input-el placeholder="url" label="url" v-model="url" class="padding-unset"/>
+    <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
+    <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
+    window.location.href={{url+wfmKey}}
+    <link-block icon="amount" text="setAppLink" @block-click="setAppLink" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <textarea-el label="JS" v-model="js" rows="3" class="padding-unset"/>
+    <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
+    <textarea-el label="returnData" v-model="returnDataText" rows="3" class="padding-unset"/>
+  </div>`,
+  data:()=>({
+    url:'mtsmaster://task?wfmKey=',
+    wfmKey:'WFM000026678167',
+    js:'',
+    returnData:'',
+  }),
+  computed:{
+    tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
+    returnDataText(){return JSON.stringify(this.returnData)},
+  },
+  methods:{
+    close(){//public
+      
+    },
+    setFollowLinks(){
+      window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
+    },
+    setRefreshLink(){
+      window.location.href='https://fx.mts.ru/fix';
+    },
+    setAppLink(){
+      window.location.href=this.url+this.wfmKey;
+    },
+    eval(){
+      this.returnData=eval(this.js)
+    },
+  },
+  beforeDestroy(){
+    
   },
 });
 
