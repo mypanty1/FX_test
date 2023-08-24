@@ -1,4 +1,4 @@
-if(app?.$store?.getters?.['main/username']=='mypanty1'){
+if(app?.$store?.getters?.['main/username']=='mypanty1'||app?.$store?.getters?.['main/username']=='aikrasi1'){
   app.$store.dispatch('dev/setVar',{showToolsPage:true})
 }
 
@@ -46,8 +46,9 @@ Vue.component('ToolsPageContent',{
       {name:'Пинг СЭ',is:'WidgetPing'},
       {name:'Dev',is:'WidgetDev',isDev:true},
       {name:'Device IP',is:'WidgetSnmpTest'},
-      {name:'ToEventsMap',is:'ToEventsMap',isDev:true},
+      {name:'ToEventsMap',is:'ToEventsMap',isDev:false},
       {name:'TestAppLink',is:'TestAppLink',isDev:true},
+      {name:'TestAppLink2',is:'TestAppLink2',isDev:false},
     ],
     items:[]
   }),
@@ -215,6 +216,41 @@ Vue.component('TestAppLink',{
     },
     eval(){
       this.returnData=eval(this.js)
+    },
+  },
+  beforeDestroy(){
+    
+  },
+});
+
+Vue.component('TestAppLink2',{
+  template:`<div name="TestAppLink2">
+    <link-block icon="amount" text="setFollowLinks" @block-click="setFollowLinks" actionIcon="right-link" type="medium"/>
+    <devider-line/>
+    <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
+    <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
+    <devider-line/>
+    <link-block icon="amount" text="setRefreshLink" @block-click="setRefreshLink" actionIcon="right-link" type="medium"/>
+  </div>`,
+  data:()=>({
+    wfmKey:'WFM000026678167',
+  }),
+  computed:{
+    tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
+    returnDataText(){return JSON.stringify(this.returnData)},
+  },
+  methods:{
+    close(){//public
+      
+    },
+    setFollowLinks(){
+      window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
+    },
+    setRefreshLink(){
+      window.location.href='https://fx.mts.ru/fix';
+    },
+    setAppLink(){
+      window.location.href='mtsmaster://task?wfmKey='+this.wfmKey;
     },
   },
   beforeDestroy(){
