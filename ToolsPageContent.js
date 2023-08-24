@@ -230,6 +230,7 @@ Vue.component('TestAppLink2',{
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
     <devider-line/>
+    <link-block icon="amount" text="setAppLink" @block-click="setAppLink" actionIcon="right-link" type="medium"/>
     <link-block icon="amount" text="setRefreshLink" @block-click="setRefreshLink" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
