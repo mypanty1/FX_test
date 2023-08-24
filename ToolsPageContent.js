@@ -252,9 +252,9 @@ Vue.component('TestAppLink2',{
     },
     goToMpMaster(wfmKey=''){
       if(wfmKey){
-        window.AppInventor.setWebViewString(`set:goToMpMaster:::=`+'mtsmaster://task?wfmKey='+wfmKey);
+        window.AppInventor.setWebViewString(`do:goToMpMaster:::=`+'mtsmaster://task?wfmKey='+wfmKey);
       }else{
-        window.AppInventor.setWebViewString(`set:goToMpMaster:::=`)
+        window.AppInventor.setWebViewString(`do:goToMpMaster:::=`)
       }
     },
     setFollowLinks(){
