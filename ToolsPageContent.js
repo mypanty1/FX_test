@@ -177,6 +177,7 @@ Vue.component('WidgetPing',{
 
 Vue.component('TestAppLink',{
   template:`<div name="TestAppLink">
+    <div class="font-13--500">test app link</div>
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
     <link-block icon="amount" text="goToMtsMaster_wfmKey" @block-click="goToMtsMaster_wfmKey" actionIcon="right-link" type="medium"/>
@@ -185,14 +186,24 @@ Vue.component('TestAppLink',{
     <link-block icon="amount" text="StartActivity2_Ping54" @block-click="StartActivity2_Ping54" actionIcon="right-link" type="medium"/>
     <link-block icon="amount" text="StartActivity2_Ping54_Extras" @block-click="StartActivity2_Ping54_Extras" actionIcon="right-link" type="medium"/>
     <devider-line/>
+    <div class="font-13--500">eval</div>
     <textarea-el label="js" v-model="js" rows="3" class="padding-unset"/>
     <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
     <textarea-el label="jsResult" v-model="jsResultText" rows="3" class="padding-unset"/>
+    <devider-line/>
+    <div class="font-13--500">toggleStatusBarColor</div>
+    <div class="display-flex gap-4px justify-content-center">
+      <button-main @click="start" label="start" :loading="running" :disabled="running" buttonStyle="contained" size="medium"/>
+      <button-main @click="abort" label="abort" buttonStyle="outlined" size="medium"/>
+    </div>
   </div>`,
   data:()=>({
     wfmKey:'WFM000026678167',
     js:'',
     jsResult:null,
+    timer:null,
+    running:false,
+    colorOn:false,
   }),
   computed:{
     tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
@@ -200,7 +211,23 @@ Vue.component('TestAppLink',{
   },
   methods:{
     close(){//public
-      
+      this.abort()
+    },
+    start(){
+      this.running=true;
+      this.timer=setInterval(this.toggleColor,777)
+    },
+    abort(){
+      clearTimeout(this.timer);
+      this.running=false;
+    },
+    toggleColor(){
+      if(this.colorOn){
+        window.AppInventor.setWebViewString(`set:Color:StatusBarColor:RGBA:=56,66,189`);
+      }else{
+        window.AppInventor.setWebViewString(`set:Color:StatusBarColor::=-47872`);
+      };
+      this.colorOn=!this.colorOn;
     },
     goToMtsMaster_wfmKey(){
       window.AppInventor.setWebViewString(`do:goToMtsMaster:::=${this.wfmKey}`);
@@ -230,7 +257,7 @@ Vue.component('TestAppLink',{
     }
   },
   beforeDestroy(){
-    
+    this.abort()
   },
 });
 
