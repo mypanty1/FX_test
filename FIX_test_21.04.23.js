@@ -1,4 +1,3 @@
-//216319221605
 window.FIX_test_version='FIX_test_21.04.23';
 window.FIX_test_app_version='FIX_test v1.6.2';
 window.FIX_test_DEV=!Boolean(window.AppInventor);
@@ -82,7 +81,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
       current_app_version=appVersion;
       if(current_app_version/*&&userAgent&&window.navigator.userAgent===userAgent*/){
         if(!document.getElementById('app_version_label')){
-          document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;${FIX_test_app_version!==current_app_version?'background:#00000022;':''}">${current_app_version} ${FIX_test_app_version!==current_app_version?'(требуется обновление!)':''}</div>`)
+          document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;${window.FIX_test_app_version!==current_app_version?'background:#00000022;':''}">${current_app_version} ${window.FIX_test_app_version!==current_app_version?'(требуется обновление!)':''}</div>`)
         }
       }
     })
@@ -385,7 +384,6 @@ async function getUserStateBufferAndSend(){
     }
   };
 };
-
 
 
 
