@@ -81,7 +81,7 @@ Vue.component('IrdetoSmartCard', {
         
         <div class="display-flex flex-direction-column gap-4px">
           <SectionBorder class="padding-4px">
-            <info-text-sec title="Повторная активация" class="padding-unset"/>
+            <info-text-sec title="Повторная активация с ChipID:" class="padding-unset"/>
             <selector-mini :items="cardChipIdList" @input="chip=$event" :value="chip" class="margin-bottom-4px"/>
             <button-main label="Повторная активация" @click="doSmartCardAction('recovery',{chip})" :disabled="loadingSome||!chip" :loading="loads.recovery" size="full" buttonStyle="outlined"/>
             <message-el v-if="resps.recovery" v-bind="getActionResultProps('recovery')" box class="margin-top-4px"/>
