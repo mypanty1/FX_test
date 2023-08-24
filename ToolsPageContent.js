@@ -230,8 +230,11 @@ Vue.component('TestAppLink2',{
     <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
     <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
     <devider-line/>
-    <link-block icon="amount" text="setAppLink" @block-click="setAppLink" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="setRefreshLink" @block-click="setRefreshLink" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setAppLink_system" @block-click="setAppLink('_system')" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setAppLink_self" @block-click="setAppLink('_self')" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setAppLink_blank" @block-click="setAppLink('_blank')" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setAppLink_parent" @block-click="setAppLink('_parent')" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="setAppLink_top" @block-click="setAppLink('_top')" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
     wfmKey:'WFM000026678167',
@@ -247,11 +250,8 @@ Vue.component('TestAppLink2',{
     setFollowLinks(){
       window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
     },
-    setRefreshLink(){
-      window.location.href='https://fx.mts.ru/fix';
-    },
-    setAppLink(){
-      window.location.href='mtsmaster://task?wfmKey='+this.wfmKey;
+    setAppLink(target){
+      window.open('mtsmaster://task?wfmKey='+this.wfmKey, target)
     },
   },
   beforeDestroy(){
