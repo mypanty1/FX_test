@@ -140,8 +140,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 //IrdetoSmartCard
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/IrdetoSmartCard.js',type:'text/javascript'}));
-
-
+//test v1.6.2
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/app_PhoneCall_and_UrlLink.js',type:'text/javascript'}));
 
 
 
