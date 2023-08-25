@@ -89,7 +89,8 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
             document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_slim_app_update" value="установить" style="position:absolute;top:0;right:0;height:16px;font-size:12px;line-height:10px;"/>`);
             document.getElementById('btn_slim_app_update')?.addEventListener('click',()=>{
               window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-              window.location.href=window.FIX_test_app_url;
+              //window.location.href=window.FIX_test_app_url;
+              window.open(window.FIX_test_app_url,'_top');
             });
           }
         }
