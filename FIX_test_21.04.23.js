@@ -53,6 +53,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
   if(resp?.data?.username){
     const {data:user_data={}}=resp;
     username=user_data.username;
+    window.AppInventor.setWebViewString(`set:username:::=${username}`);
     const {latitude,longitude,location,privileges}=user_data;
     fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{//inform on start
       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
