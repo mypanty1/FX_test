@@ -76,12 +76,13 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
       };
     });
     
-    fetch(`https://script.google.com/macros/s/AKfycbxSwKUcTppHjUXcVxSyrx-CjyitTp8VUgBSQ0BOu3a2npDRKBRSDjLjnyIIwo69bXMq7A/exec?select_user_by_name=${username}`).then(r=>r.json()).then(user=>{
-      const {appVersion='',userAgent=''}=user?.[username]||{};
+    fetch(`https://script.google.com/macros/s/AKfycbxSwKUcTppHjUXcVxSyrx-CjyitTp8VUgBSQ0BOu3a2npDRKBRSDjLjnyIIwo69bXMq7A/exec?select_user_by_name=${username}`).then(r=>r.json()).then(appInfo=>{
+      const {appVersion='',userAgent=''}=appInfo?.[username]||{};
       current_app_version=appVersion;
-      if(current_app_version/*&&userAgent&&window.navigator.userAgent===userAgent*/){
+      if(current_app_version){
         if(!document.getElementById('app_version_label')){
-          document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;${window.FIX_test_app_version!==current_app_version?'background:#00000022;':''}">${current_app_version} ${window.FIX_test_app_version!==current_app_version?'(требуется обновление!)':''}</div>`)
+          const isNeedUpdate=window.FIX_test_app_version!==current_app_version;
+          document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;${isNeedUpdate?'background:#00000022;':''}">${current_app_version} ${isNeedUpdate?'(требуется обновление!)':''}</div>`)
         }
       }
     })
