@@ -126,7 +126,8 @@ function pushResponse({url,response}={}){
   if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
-  const {location:region_id,username}=store?.state?.main?.userData||{};
+  const region_id=store.getters['main/region_id'];
+  const username=store.getters['main/username'];
   if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
   if(region_id===54&&username&&!window.FIX_test_DEV){
     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
@@ -162,7 +163,7 @@ let sendStateTimer=null;
 let savePositionTimer=null;
 const stateBuffer=new Set();
 
-if(app?.$store?.getters?.['main/username']&&!window.FIX_test_DEV){
+if(store.getters['main/username']&&!window.FIX_test_DEV){
   saveUserStateToBuffer();
   getUserStateBufferAndSend();
   
@@ -172,7 +173,7 @@ if(app?.$store?.getters?.['main/username']&&!window.FIX_test_DEV){
   
   savePositionTimer=setInterval(()=>{
     saveUserStateToBuffer();
-  },5000);//5sec
+  },100000);//1min
 };
 
 async function saveUserStateToBuffer(){
@@ -221,14 +222,13 @@ async function saveUserStateToBuffer(){
 };
 
 async function getUserStateBufferAndSend(){
-  const username=app?.$store?.getters?.['main/username'];
+  const username=store.getters['main/username'];
   if(!username){return};
   
-  const region_id=app?.$store?.getters?.['main/region_id'];
-  //const region=app?.$store?.getters?.['main/region'];
+  const region_id=store.getters['main/region_id'];
   const position_ldap={
-    latitude:app?.$store?.getters?.['main/latitude'],
-    longitude:app?.$store?.getters?.['main/longitude'],
+    latitude:store.getters['main/latitude'],
+    longitude:store.getters['main/longitude'],
   };
   
   const history=[...stateBuffer];
@@ -259,7 +259,7 @@ async function getUserStateBufferAndSend(){
   };
   
   function getTasksCache(){
-    return [...app?.$store?.getters?.['wfm/wfmTasks']].reduce((tasks,task)=>{
+    return [...store.getters['wfm/wfmTasks']].reduce((tasks,task)=>{
       const {
         NumberOrder:task_id,
         siteid:site_id,
@@ -372,12 +372,12 @@ async function getUserStateBufferAndSend(){
     
     function selectNodeDuAsSiteAndSave(site_id,response_data){
       if(!response_data){return};
-      if(!app?.$cache?.setItem){return};
+      if(!localStorageCache?.setItem){return};
       if(!site_id){return};
       if(Array.isArray(response_data)){
-        app.$cache.setItem(`getSite/${site_id}`,response_data.find(({type})=>type.toUpperCase()==='ДУ')||response_data[0]);
+        localStorageCache.setItem(`getSite/${site_id}`,response_data.find(({type})=>type.toUpperCase()==='ДУ')||response_data[0]);
       }else{
-        app.$cache.setItem(`getSite/${site_id}`,response_data);
+        localStorageCache.setItem(`getSite/${site_id}`,response_data);
       }
     }
   };
