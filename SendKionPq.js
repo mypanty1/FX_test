@@ -92,27 +92,32 @@ Vue.component('SendKionPq',{
     phone:'',
     items:[],
   }),
-  mounted(){
-    createStyleElement('SendKionPq-css',`
-    .background-color-d1dfed,.kion-bg{background-color:#d1dfed;}
-    .background-color-284059,.kion-bg-btn{background-color:#284059;}
-    .background-color-97a8b9,.kion-bg-btn-disabled{background-color: #97a8b9;}
-    .background-color-efdbcf,.kion-bg-no-pq{background-color: #efdbcf;}
-    .cursor-pointer{cursor:pointer;}
-    .send-kion-pq-custom-selector-el.select-el{padding: unset;width: 150px;height: 25px;background: unset;}
-    .send-kion-pq-custom-selector-el .select-el__label{height: 25px;}
-    .send-kion-pq-custom-selector-el .select-el__input{padding: unset;margin-left: 4px;}
-    .send-kion-pq-custom-selector-el .select-el__icon{padding: unset;}
-    .send-kion-pq-custom-selector-el.select-el--open .select-el__list{top: 26px;padding: unset;}
-    .send-kion-pq-custom-selector-el .select-el__item{height: 25px;min-height: 25px;padding: unset;padding-left: 4px;padding-right: 2px;}
-    `)
-  },
   created(){
     if(!this.pq&&!this.loads_getPq){
       this.getPq();
     };
     this.items=[...new Set([this.phone,...this.items,...this.phonesValid].filter(s=>s))];
     this.selected=this.selected||this.phone||this.items[0];
+  },
+  mounted(){
+    (function(id='SendKionPq-css'){
+      document.getElementById(id)?.remove();
+      const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+      el.appendChild(document.createTextNode(`
+        .background-color-d1dfed,.kion-bg{background-color:#d1dfed;}
+        .background-color-284059,.kion-bg-btn{background-color:#284059;}
+        .background-color-97a8b9,.kion-bg-btn-disabled{background-color: #97a8b9;}
+        .background-color-efdbcf,.kion-bg-no-pq{background-color: #efdbcf;}
+        .cursor-pointer{cursor:pointer;}
+        .send-kion-pq-custom-selector-el.select-el{padding: unset;width: 150px;height: 25px;background: unset;}
+        .send-kion-pq-custom-selector-el .select-el__label{height: 25px;}
+        .send-kion-pq-custom-selector-el .select-el__input{padding: unset;margin-left: 4px;}
+        .send-kion-pq-custom-selector-el .select-el__icon{padding: unset;}
+        .send-kion-pq-custom-selector-el.select-el--open .select-el__list{top: 26px;padding: unset;}
+        .send-kion-pq-custom-selector-el .select-el__item{height: 25px;min-height: 25px;padding: unset;padding-left: 4px;padding-right: 2px;}
+      `));
+      document.body.insertAdjacentElement('afterBegin',el);
+    }());
   },
   watch:{
     'selected'(selected){
