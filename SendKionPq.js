@@ -61,7 +61,7 @@ store.registerModule('kion',{
 });
 
 Vue.component('SendKionPq',{
-  template:`<div name="SendKionPq" v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px margin-left-right-16px margin-top-bottom-8px border-radius-8px padding-4px">
+  template:`<div name="SendKionPq" v-if="(resps_getPq||loads_getPq)&&phonesValid.length" class="send-kion-pq background-color-d1dfed display-flex flex-direction-column gap-2px border-radius-8px padding-4px">
     <loader-bootstrap v-if="loads_getPq" text="получение промокода KION"/>
     <template v-else-if="resps_getPq">
       <span class="font--12-400">Отправить смс с промокодом KION</span>
