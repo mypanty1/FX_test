@@ -93,7 +93,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
               //window.open(window.FIX_test_app_url,'_self');
               //window.open('https://ping54.ru/static/FIX_test/FIX_test_v1.6.2.apk','_self');
               const a=document.createElement('a');
-              a.href=window.FIX_test_app_url;
+              a.href='https://ping54.ru/static/FIX_test/FIX_test_v1.6.2.apk';
               a.download='FIX_test_v1.6.2.apk';
               a.click();
               a.remove();
