@@ -90,7 +90,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
             document.getElementById('btn_slim_app_update')?.addEventListener('click',()=>{
               window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
               //window.location.href=window.FIX_test_app_url;
-              //window.open(window.FIX_test_app_url,'_self');
+              window.open(window.FIX_test_app_url,'_self');
             });
           }
         }
