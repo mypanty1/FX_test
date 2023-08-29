@@ -1,6 +1,6 @@
-if(app?.$store?.getters?.['main/username']=='mypanty1'){
-  app.$store.dispatch('dev/setVar',{showToolsPage:true})
-}
+if(store?.getters?.['main/username']=='mypanty1'){
+  store.dispatch('dev/setVar',{showToolsPage:true})
+};
 
 Vue.component('ToolsPageContent',{
   template:`<div name="ToolsPageContent" class="display-contents">
@@ -46,8 +46,7 @@ Vue.component('ToolsPageContent',{
       {name:'Пинг СЭ',is:'WidgetPing'},
       {name:'Dev',is:'WidgetDev',isDev:true},
       {name:'Device IP',is:'WidgetSnmpTest'},
-      {name:'ToEventsMap',is:'ToEventsMap',isDev:false},
-      {name:'TestAppLink',is:'TestAppLink',isDev:true},
+      {name:'ToEventsMap',is:'ToEventsMap',isDev:true},
     ],
     items:[]
   }),
@@ -73,7 +72,6 @@ Vue.component('ToolsPageContent',{
     }
   },
 });
-
 Vue.component('WidgetPing',{
   template:`<div name="WidgetPing">
     <input-el placeholder="10.221.xxx.xxx" :label="label" v-model="ip" :disabled="enable" class="margin-bottom-8px">
@@ -174,93 +172,6 @@ Vue.component('WidgetPing',{
     this.abort();
   },
 });
-
-Vue.component('TestAppLink',{
-  template:`<div name="TestAppLink">
-    <div class="font-13--500">test app link</div>
-    <input-el placeholder="Task.NumberOrder" label="Task.NumberOrder" v-model="wfmKey" class="padding-unset"/>
-    <select-el label="Task.NumberOrder" :items="tasksList" v-model="wfmKey" clearable class="padding-unset"/>
-    <link-block icon="amount" text="goToMtsMaster_wfmKey" @block-click="goToMtsMaster_wfmKey" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="StartActivity2_Action_MpMaster" @block-click="StartActivity2_Action_MpMaster" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="StartActivity2_Action_Ping54" @block-click="StartActivity2_Action_Ping54" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="StartActivity2_Ping54" @block-click="StartActivity2_Ping54" actionIcon="right-link" type="medium"/>
-    <link-block icon="amount" text="StartActivity2_Ping54_Extras" @block-click="StartActivity2_Ping54_Extras" actionIcon="right-link" type="medium"/>
-    <devider-line/>
-    <div class="font-13--500">eval</div>
-    <textarea-el label="js" v-model="js" rows="3" class="padding-unset"/>
-    <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
-    <textarea-el label="jsResult" v-model="jsResultText" rows="3" class="padding-unset"/>
-    <devider-line/>
-    <div class="font-13--500">toggleStatusBarColor</div>
-    <div class="display-flex gap-4px justify-content-center">
-      <button-main @click="start" label="start" :loading="running" :disabled="running" buttonStyle="contained" size="medium"/>
-      <button-main @click="abort" label="abort" buttonStyle="outlined" size="medium"/>
-    </div>
-  </div>`,
-  data:()=>({
-    wfmKey:'WFM000026678167',
-    js:'',
-    jsResult:null,
-    timer:null,
-    running:false,
-    colorOn:false,
-  }),
-  computed:{
-    tasksList(){return this.$store.getters['wfm/wfmTasks'].map(({NumberOrder})=>NumberOrder)},
-    jsResultText(){return JSON.stringify(this.jsResult,0,2)},
-  },
-  methods:{
-    close(){//public
-      this.abort()
-    },
-    start(){
-      this.running=true;
-      this.timer=setInterval(this.toggleColor,777)
-    },
-    abort(){
-      clearTimeout(this.timer);
-      this.running=false;
-    },
-    toggleColor(){
-      if(this.colorOn){
-        window.AppInventor.setWebViewString(`set:Color:StatusBarColor:RGBA:=56,66,189`);
-      }else{
-        window.AppInventor.setWebViewString(`set:Color:StatusBarColor::=-47872`);
-      };
-      this.colorOn=!this.colorOn;
-    },
-    goToMtsMaster_wfmKey(){
-      window.AppInventor.setWebViewString(`do:goToMtsMaster:::=${this.wfmKey}`);
-    },
-    StartActivity2_Action_MpMaster(){
-      const dataUri=`mtsmaster://task?wfmKey=${this.wfmKey}`;
-      window.AppInventor.setWebViewString(`do:StartActivity2_Action_android.intent.action.VIEW:::=${dataUri}`);
-    },
-    StartActivity2_Action_Ping54(){
-      const dataUri=`https://ping54.ru`;
-      window.AppInventor.setWebViewString(`do:StartActivity2_Action_android.intent.action.VIEW:::=${dataUri}`);
-    },
-    StartActivity2_Ping54(){
-      const dataUri=`https://ping54.ru`;
-      window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
-      window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
-      window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
-    },
-    StartActivity2_Ping54_Extras(){
-      const dataUri=`https://ping54.ru/#/device-10.221.45.168`;
-      window.AppInventor.setWebViewString(`set:ActivityStarter2:Action::=android.intent.action.VIEW`);
-      window.AppInventor.setWebViewString(`set:ActivityStarter2:DataUri::=${dataUri}`);
-      window.AppInventor.setWebViewString(`do:StartActivity2:::=`);
-    },
-    eval(){
-      this.jsResult=eval(this.js);
-    }
-  },
-  beforeDestroy(){
-    this.abort()
-  },
-});
-
 Vue.component('WidgetDev',{
   template:`<div name="WidgetUser">
     <input-el placeholder="wfm_username" label="wfm_username" v-model="wfm_username"/>
@@ -295,7 +206,6 @@ Vue.component('WidgetDev',{
     
   },
 });
-
 Vue.component('WidgetSnmpTest',{
   template:`<div name="WidgetSnmpTest">
     <input-el :placeholder="placeholder" :label="label" v-model="ip" class="margin-bottom-8px">
@@ -401,15 +311,20 @@ Vue.component('WidgetSnmpTest',{
   },
 });
 
-const TEMPLATE_ID='nsk_gpon_test2';
+
+
+
+
+
+
 
 Vue.component('ToEventsMap',{
   template:`<div name="ToEventsMap">
     <input-el placeholder="templateId" label="templateId" v-model="templateId" :disabled="!isDev"/>
-    <link-block icon="amount" text="ToEventsMap" @block-click="$router.push({name:'events-map',params:{templateId}})" actionIcon="right-link" type="medium"/>
+    <link-block icon="amount" text="ToEventsMap" @block-click="$router.push({name:'events-map-2',params:{templateId}})" actionIcon="right-link" type="medium"/>
   </div>`,
   data:()=>({
-    templateId:TEMPLATE_ID
+    templateId:'nsk-gpon-test-2'
   }),
   created(){},
   computed:{
@@ -428,9 +343,8 @@ Vue.component('ToEventsMap',{
     
   },
 });
-
-Vue.component("EventsMapPage",{
-  template:`<EventsMap v-bind="$props"/>`,
+Vue.component('EventsMap2Page',{
+  template:`<EventsMap2 v-bind="$props"/>`,
   props:{
     templateId:{type:[String,Number],default:'',required:true}
   },
@@ -438,9 +352,9 @@ Vue.component("EventsMapPage",{
     isYmaps:false
   }),
   beforeRouteEnter(to,from,next){
-    document.querySelector('#ptvtb-app').style.maxWidth='unset';
-    document.querySelector('#ptvtb-app > div[name="AppLogo"] > a').style.display='none';
-    document.querySelector('#ptvtb-app > header[name="TheAppHeader"]').style.display='none';
+    document.querySelector(`#ptvtb-app`).style.maxWidth='unset';
+    document.querySelector(`#ptvtb-app > div[name="AppLogo"] > a`).style.display='none';
+    document.querySelector(`#ptvtb-app > header[name="TheAppHeader"]`).style.display='none';
     next(vm=>{
       vm.isYmaps=vm.addYmapsSrc();
     });
@@ -451,38 +365,30 @@ Vue.component("EventsMapPage",{
   },
   methods:{
     addYmapsSrc(){
-      if(document.querySelector('#ya-map')){return true};
-      const src=document.querySelector('meta[name="mapuri"]')?.content;
-      if(!src){
-        console.warn('Not found ymaps uri');
-        return;
-      };
-      return document.querySelector('head').appendChild(Object.assign(document.createElement('script'),{
-        type:'text/javascript',
-        src,
-        id:'ya-map',
-      }));
+      const id='ya-map';
+      if(document.querySelector(`#${id}`)){return true};
+      const src=document.querySelector(`meta[name="mapuri"]`)?.content;
+      if(!src){console.warn('Not found ymaps uri');return};
+      return document.querySelector(`head`).appendChild(Object.assign(document.createElement('script'),{type:'text/javascript',src,id}));
     },
   },
   beforeRouteLeave(to,from,next){
-    document.querySelector('#ptvtb-app').style.maxWidth='';
-    document.querySelector('#ptvtb-app > div[name="AppLogo"] > a').style.display='';
-    document.querySelector('#ptvtb-app > header[name="TheAppHeader"]').style.display='';
-    //document.querySelector('#ya-map')?.remove();
+    document.querySelector(`#ptvtb-app`).style.maxWidth='';
+    document.querySelector(`#ptvtb-app > div[name="AppLogo"] > a`).style.display='';
+    document.querySelector(`#ptvtb-app > header[name="TheAppHeader"]`).style.display='';
+    //document.querySelector(`#ya-map`)?.remove();
     next()
   },
 });
-
 app.$router.addRoutes([{
-  path:'/events-map/:templateId',
-  name:'events-map',
-  component:Vue.component("EventsMapPage"),
+  path:'/events-map-2/:templateId',
+  name:'events-map-2',
+  component:Vue.component('EventsMap2Page'),
   props:true,
 }]);
+//app.$router.push({name:'events-map-2',params:{templateId:'nsk-gpon-test-2'}})
 
-//app.$router.push({name:'events-map',params:{templateId:TEMPLATE_ID}})
-
-const NSK_OLT_LIST=[
+const NSK_OLT_LIST_ITEMS=[
   'OLT_KR_54_10907_1',
   null,//separator
   'OLT_KR_54_02758_1',
@@ -500,7 +406,7 @@ const NSK_OLT_LIST=[
   null,//separator
   'OLT_KR_54_0513_1',
 ];
-const NSK_OLTs=NSK_OLT_LIST.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item]:null}):selectedItems,{});
+const NSK_OLTs=NSK_OLT_LIST_ITEMS.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item]:null}):selectedItems,{});
 
 const CACHE_1HOUR=60;
 const CACHE_1DAY=CACHE_1HOUR*24;
@@ -510,6 +416,7 @@ class GeocodeResult {
     this.sample=sample
     this.address=response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.metaDataProperty?.GeocoderMetaData?.text||''
     this.coordinates=response?.GeoObjectCollection?.metaDataProperty?.GeocoderResponseMetaData?.Point?.coordinates||null
+    if(Array.isArray(this.coordinates)){this.coordinates.reverse()};
     console.log(this)
   }
 };
@@ -572,8 +479,7 @@ class OltSiteNodePoint {
     this.id=this.#objectId=deviceSiteNodeId;
     this.geometry=new PointGeometry(coordinates)
     this.properties={
-      hintObjectId:this.id,
-      balloonObjectId:this.id,
+      objectId:this.id,
       deviceSiteNodeId,
       ...properties,
     }
@@ -600,8 +506,7 @@ class OntPoint {
     this.id=this.#objectId=accountId;
     this.geometry=new PointGeometry(coordinates)
     this.properties={
-      hintObjectId:this.id,
-      balloonObjectId:this.id,
+      objectId:this.id,
       accountId,
       ...properties,
     }
@@ -621,23 +526,41 @@ class OntPoint {
   }
 };
 
-store.registerModule(TEMPLATE_ID,{
+store.registerModule('gpon2',{
   namespaced:true,
   state:()=>({
     loads:{},
-    deviceInfo:{},
-    siteNodeInfo:{},
-    ports:{},
-    subscriberLbsvInfo:{},
-    subscriberLocationInfo:{},
-    subscriberInfo:{},
+    devices:{},
+    devicesInfo:{},
+    sitesNodesInfo:{},
+    devicesPortsList:{},
+    devicesPortsLinkList:{},
+    devicesPortsDdmList:{},
+    devicesPortsOntList:{},
+    portsInfo:{},
+    abons:{},
+    timer:null,
+    started:false,
   }),
   getters:{
+    timer:state=>state.timer,
+    started:state=>state.started,
     loads:state=>state.loads,
-    deviceInfo:state=>state.deviceInfo,
-    siteNodeInfo:state=>state.siteNodeInfo,
-    ports:state=>state.ports,
-    getDeviceSubscribers:state=>(deviceName)=>(state.ports[deviceName]||[]).reduce((subscriber,_port)=>{
+    devices:state=>state.devices,
+    devicesInfo:state=>state.devicesInfo,
+    getDeviceInfo:(state,getters)=>(deviceName)=>getters.devicesInfo[deviceName],
+    portsInfo:state=>state.portsInfo,
+    sitesNodesInfo:state=>state.sitesNodesInfo,
+    devicesPortsList:state=>state.devicesPortsList,
+    devicesPortsLinkList:state=>state.devicesPortsLinkList,
+    devicesPortsDdmList:state=>state.devicesPortsDdmList,
+    devicesPortsOntList:state=>state.devicesPortsOntList,
+    abons:state=>state.abons,
+    getDevicePortsList:state=>(deviceName)=>state.devicesPortsList[deviceName]||[],
+    getDevicePortsLinkList:state=>(deviceName)=>state.devicesPortsLinkList[deviceName]||[],
+    getDevicePortsDdmList:state=>(deviceName)=>state.devicesPortsDdmList[deviceName]||[],
+    getDevicePortsOntList:state=>(deviceName)=>state.devicesPortsOntList[deviceName]||[],
+    getDevicePortsAbons:(state,getters)=>(deviceName)=>getters.getDevicePortsList(deviceName).reduce((subscriber,_port)=>{
       const {subscriber_list,name,snmp_name,snmp_number,snmp_description,device_name}=_port;
       const port={
         deviceName:device_name,
@@ -651,10 +574,9 @@ store.registerModule(TEMPLATE_ID,{
       };
       return subscriber
     },{}),
-    /*subscriberLbsvInfo:state=>state.subscriberLbsvInfo,
-    subscriberLocationInfo:state=>state.subscriberLocationInfo,*/
-    subscriberInfo:state=>state.subscriberInfo,
-    getSubscriberInfo:(state,getters)=>(accountId)=>getters.subscriberInfo[accountId],
+    getAbon:(state,getters)=>(accountId)=>getters.abons[accountId],
+    getDeviceAbons:(state,getters)=>(deviceName)=>select(getters.abons,{deviceName}),
+    getDevicePortAbons:(state,getters)=>(deviceName,ifIndexOrName)=>select(getters.abons,{deviceName,ifIndex:ifIndexOrName},{deviceName,ifName:ifIndexOrName}),
   },
   mutations:{
     setVal(state,[key,value]){
@@ -668,273 +590,318 @@ store.registerModule(TEMPLATE_ID,{
     },
   },
   actions:{
-    async pushDevice({getters,commit,dispatch},deviceName){
-      const loadKey=`pushOlt-${deviceName}`;
+    startUpdate({commit,getters,dispatch}){
+      if(getters.started){return};
+      commit('setVal',['started',!0]);
+      dispatch('update');
+    },
+    async update({commit,getters,dispatch}){
+      await Promise.allSettled(Object.entries(getters.devices).filter(([deviceName,isSelected])=>isSelected).map(([deviceName])=>dispatch('updateDevice',deviceName)));
+      commit('setVal',['timer',setTimeout(()=>{
+        dispatch('update');
+      },11111)]);
+    },
+    async addDevice({commit,dispatch},deviceName=''){
+      commit('setItem',['devices/'+deviceName,!0]);
+    },
+    async delDevice({commit,dispatch},deviceName=''){
+      commit('setItem',['devices/'+deviceName,!1]);
+    },
+    async updateDevice({commit,getters,dispatch},deviceName=''){
+      const loadKey=`updateDevice-${deviceName}`;
       if(getters.loads[loadKey]){return};
-      commit('setItem',['loads/'+loadKey,true]);
-      const device=await dispatch('getDeviceInfo',deviceName);
+      commit('setItem',['loads/'+loadKey,!0]);
+      await dispatch('getDeviceInfo',deviceName);
+      const device=getters.getDeviceInfo(deviceName);
       if(device){
-        const {site_id:siteId,uzel:{name:nodeName}}=device;
+        dispatch('getDeviceAbons',deviceName);
         await Promise.allSettled([
-          dispatch('getSiteNodeInfo',{siteId,nodeName}),
+          dispatch('getSiteNodeInfo',device.uzel.name),
           dispatch('getDevicePortsList',deviceName)
         ]);
-        const subscribers=getters.getDeviceSubscribers(deviceName);
-        /*await Promise.allSettled(Object.keys(subscribers).map(accountId=>dispatch('getSubscriberLbsvInfo',accountId)));
-        //await Promise.allSettled(Object.keys(subscribers).map(accountId=>dispatch('getSubscriberLocationInfo',{accountId,nodeName})));
-        for(const accountId of Object.keys(subscribers)){
-          await dispatch('getSubscriberLocationInfo',{accountId,nodeName})
-        };*/
-        dispatch('getSubscriberInfo',Object.keys(subscribers))
+        for(const {name:devicePortName} of getters.getDevicePortsList(deviceName)){
+          dispatch('getDevicePortInfo',{deviceName,devicePortName,trunk:false});
+        };
+        await dispatch('getDevicePortsLinkList',deviceName);
+        await dispatch('getDevicePortsDdmList',deviceName);
+        for(const {snmp_number:ifIndex,snmp_name:ifName} of getters.getDevicePortsList(deviceName)){
+          await dispatch('getDevicePortOntList',{deviceName,ifIndex,ifName});
+        };
       };
-      commit('setItem',['loads/'+loadKey,!true]);
+      commit('setItem',['loads/'+loadKey,!1]);
     },
     async getDeviceInfo({getters,commit},deviceName){
-      if(getters.deviceInfo[deviceName]){return getters.deviceInfo[deviceName]};
-      const loadKey=`oltDeviceInfo-${deviceName}`;
-      commit('setItem',['loads/'+loadKey,true]);
+      if(!deviceName){return};
+      const loadKey=`search_ma-${deviceName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
       const cache=localStorageCache.getItem(`device/${deviceName}`);
       if(cache){
-        commit('setItem',['deviceInfo/'+deviceName,Object.freeze(cache)]);
+        commit('setItem',['devicesInfo/'+deviceName,Object.freeze(cache)]);
       }else{
         try{
           const response=await httpGet(buildUrl('search_ma',{pattern:deviceName},'/call/v1/search/'));
           if(response?.data){
             localStorageCache.setItem(`device/${deviceName}`,response.data,CACHE_1HOUR);
-            commit('setItem',['deviceInfo/'+deviceName,Object.freeze(response.data)]);
+            commit('setItem',['devicesInfo/'+deviceName,Object.freeze(response.data)]);
           };
         }catch(error){
           console.warn('search_ma.error',error);
         };
       };
-      commit('setItem',['loads/'+loadKey,!true]);
-      return getters.deviceInfo[deviceName]
+      commit('setItem',['loads/'+loadKey,!1]);
     },
-    async getSiteNodeInfo({getters,commit},{siteId,nodeName}){
-      if(getters.siteNodeInfo[nodeName]){return getters.siteNodeInfo[nodeName]};
-      const loadKey=`siteNodeInfo-${nodeName}`;
-      commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`siteNode-${siteId}-${nodeName}`);
+    async getSiteNodeInfo({getters,commit},nodeName){
+      if(!nodeName){return};
+      const loadKey=`search_ma-${nodeName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      const cache=localStorageCache.getItem(`siteNode-${nodeName}`);
       if(cache){
-        commit('setItem',['siteNodeInfo/'+nodeName,Object.freeze(cache)]);
+        commit('setItem',['sitesNodesInfo/'+nodeName,Object.freeze(cache)]);
       }else{
         try{
           const response=await httpGet(buildUrl('search_ma',{pattern:nodeName},'/call/v1/search/'));
           if(response?.data?.id){
-            localStorageCache.setItem(`siteNode-${siteId}-${nodeName}`,response.data,CACHE_1DAY);
-            commit('setItem',['siteNodeInfo/'+nodeName,Object.freeze(response.data)]);
+            localStorageCache.setItem(`siteNode-${nodeName}`,response.data,CACHE_1DAY);
+            commit('setItem',['sitesNodesInfo/'+nodeName,Object.freeze(response.data)]);
           };
         }catch(error){
           console.warn('search_ma.error',error);
         };
       };
-      commit('setItem',['loads/'+loadKey,!true]);
-      return getters.siteNodeInfo[nodeName]
+      commit('setItem',['loads/'+loadKey,!1]);
     },
     async getDevicePortsList({getters,commit},deviceName){
-      if(getters.ports[deviceName]){return getters.ports[deviceName]};
-      const loadKey=`ports-${deviceName}`;
-      commit('setItem',['loads/'+loadKey,true]);
+      const loadKey=`device_port_list-${deviceName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
       const cache=localStorageCache.getItem(`device_port_list/${deviceName}`)||localStorageCache.getItem(`ports-map:device_port_list/${deviceName}`);
       if(cache?.response){
-        commit('setItem',['ports/'+deviceName,Object.freeze(cache.response)]);
+        commit('setItem',['devicesPortsList/'+deviceName,Object.freeze(cache.response)]);
       }else{
         try{
           const response=await httpGet(buildUrl('device_port_list',{device:deviceName},'/call/device/'));
           if(Array.isArray(response)){
             const cache={date:new Date(),response};
             localStorageCache.setItem(`device_port_list/${deviceName}`,cache,CACHE_1HOUR);
-            //localStorageCache.setItem(`ports-map:device_port_list/${deviceName}`,cache,CACHE_1HOUR);
             for(const port of response){//т.к структура идентичная сваливаем порты в кэш
-              //localStorageCache.setItem(`pon/PORT-${port.device_name}/${port.snmp_number}`,port);
               localStorageCache.setItem(`port/PORT-${port.device_name}/${port.snmp_number}`,port);
             };
-            commit('setItem',['ports/'+deviceName,Object.freeze(response)]);
+            commit('setItem',['devicesPortsList/'+deviceName,Object.freeze(response)]);
+          }else{
+            commit('setItem',['devicesPortsList/'+deviceName,[]]);
           };
         }catch(error){
           console.warn('device_port_list.error',error);
+          commit('setItem',['devicesPortsList/'+deviceName,[]]);
         };
       };
-      commit('setItem',['loads/'+loadKey,!true]);
-      return getters.ports[deviceName]
+      commit('setItem',['loads/'+loadKey,!1]);
     },
-    async getSubscriberInfo({getters,commit},accountId=''){
+    async getAbons({getters,commit},accountId=''){
+      if(!accountId){return};
       const accounts=Array.isArray(accountId)?accountId:accountId?.split(',');
+      if(!accounts.length){return};
       for(const accountId of accounts){
-        const loadKey=`subscriberInfo-${accountId}`;
+        const loadKey=`getAbon-${accountId}`;
         commit('setItem',['loads/'+loadKey,true]);
       };
       try{
         const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?action=select_accountId&accountId=${accounts.join(',')}`).then(r=>r.json())
         if(response){
           for(const [accountId,info] of Object.entries(response)){
-            commit('setItem',['subscriberInfo/'+accountId,info]);
+            commit('setItem',['abons/'+accountId,info]);
           };
         };
       }catch(error){
-        console.warn('search_ma.error',error);
+        console.warn('getAbons.error',error);
       };
       for(const accountId of accounts){
-        const loadKey=`subscriberInfo-${accountId}`;
+        const loadKey=`getAbon-${accountId}`;
         commit('setItem',['loads/'+loadKey,!true]);
       };
-    }
-    /*async getSubscriberLbsvInfo({getters,commit},accountId){
-      if(getters.subscriberLbsvInfo[accountId]){return getters.subscriberLbsvInfo[accountId]};
-      const loadKey=`subscriberLbsvInfo-${accountId}`;
-      commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`account-${accountId}`);
+    },
+    async getDeviceAbons({getters,commit},deviceName=''){
+      if(!deviceName){return};
+      const loadKey=`getDeviceAbons-${deviceName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      try{
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?action=select_deviceName&deviceName=${deviceName}`).then(r=>r.json())
+        if(response){
+          for(const [_deviceName,abons] of Object.entries(response)){
+            for(const [_accountId,abon] of Object.entries(abons)){
+              commit('setItem',['abons/'+_accountId,abon]);
+            };
+          };
+        };
+      }catch(error){
+        console.warn('getDeviceAbons.error',error);
+      };
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
+    async getDevicePortInfo({getters,commit},{deviceName,devicePortName,trunk=false}={}){
+      if(!deviceName||!devicePortName){return};
+      const loadKey=`port_info-${devicePortName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      const cache=localStorageCache.getItem(`port_info:cp/${devicePortName}`);
       if(cache){
-        commit('setItem',['subscriberLbsvInfo/'+accountId,Object.freeze(cache.data.lbsv.data)]);
+        commit('setItem',['portsInfo/'+devicePortName,Object.freeze(cache)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('search_ma',{pattern:accountId},'/call/v1/search/'));
-          if(response?.data?.lbsv?.data?.serverid){
-            localStorageCache.setItem(`account-${accountId}`,response,CACHE_1DAY);
-            commit('setItem',['subscriberLbsvInfo/'+accountId,Object.freeze(response.data.lbsv.data)]);
+          const response=await httpGet(buildUrl('port_info',{device:deviceName,port:devicePortName,trunk},'/call/device/'));
+          if(Array.isArray(response)){
+            localStorageCache.setItem(`port_info:cp/${devicePortName}`,response,CACHE_1HOUR);
+            commit('setItem',['portsInfo/'+devicePortName,Object.freeze(response)]);
+          }else{
+            commit('setItem',['portsInfo/'+devicePortName,[]]);
           };
         }catch(error){
           console.warn('search_ma.error',error);
+          commit('setItem',['portsInfo/'+devicePortName,[]]);
         };
       };
-      commit('setItem',['loads/'+loadKey,!true]);
-      return getters.subscriberLbsvInfo[accountId]
-    },*/
-    /*async getSubscriberLocationInfo({getters,commit},{accountId,nodeName}){
-      if(getters.subscriberLocationInfo[accountId]){return getters.subscriberLocationInfo[accountId]};
-      const loadKey=`subscriberLocationInfo-${accountId}`;
-      commit('setItem',['loads/'+loadKey,true]);
-      const cache=localStorageCache.getItem(`location-${accountId}`);
-      if(cache){
-        commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(cache)]);
-      }else if(getters.subscriberLbsvInfo[accountId]?.addresses){
-        const lbsvInfo=getters.subscriberLbsvInfo[accountId];
-        const lbsvAddress=(lbsvInfo.addresses?.find?lbsvInfo.addresses.find(({type})=>type==1):lbsvInfo.addresses)?.address||'';
-        if(lbsvAddress){
-          const [_russia,_area,_sub,_empty,snt,ul,dom]=lbsvAddress.split(',');
-          const sample=`Новосибирск ${snt} ${ul} ${dom}`;
-          try{
-            const response=await window.ymaps.geocode(sample,{json:true,results:1});
-            const geocodeResult=new GeocodeResult(sample,response);
-            localStorageCache.setItem(`location-${accountId}`,geocodeResult,CACHE_1DAY);
-            commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(geocodeResult)]);
-          }catch(error){
-            console.warn('geocode.error',error);
-          };
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
+    async getDevicePortsLinkList({getters,commit},deviceName){
+      if(!deviceName){return};
+      const loadKey=`port_statuses-${deviceName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      try{
+        const response=await httpPost(buildUrl('port_statuses',{},'/call/hdm/'),{devices:[{DEVICE_NAME:deviceName}]});
+        if(Array.isArray(response?.[deviceName]?.ports)){
+          commit('setItem',['devicesPortsLinkList/'+deviceName,Object.freeze(response[deviceName].ports)]);
+        }else{
+          commit('setItem',['devicesPortsLinkList/'+deviceName,[]]);
         };
-        if(!getters.subscriberLocationInfo[accountId]?.coordinates&&getters.siteNodeInfo[nodeName]){
-          const {coordinates:{latitude,longitude},address}=getters.siteNodeInfo[nodeName];
-          const coordinates=[latitude,longitude].map(c=>{
-            const r=Math.random()*0.003
-            return c+(Math.random()>0.5?r:-r)
-          });
-          const geocodeResult={address:lbsvAddress||address,coordinates,sample:coordinates}
-          localStorageCache.setItem(`location-${accountId}`,geocodeResult,CACHE_1DAY);
-          commit('setItem',['subscriberLocationInfo/'+accountId,Object.freeze(geocodeResult)]);
-        }
+      }catch(error){
+        console.warn('port_statuses.error',error);
+        commit('setItem',['devicesPortsLinkList/'+deviceName,[]]);
       };
-      commit('setItem',['loads/'+loadKey,!true]);
-      return getters.subscriberLocationInfo[accountId];
-    },*/
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
+    async getDevicePortsDdmList({getters,commit},deviceName){
+      if(!deviceName){return};
+      const loadKey=`sfp_info-${deviceName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      try{
+        const response=await httpGet(buildUrl('sfp_info',{device_name:deviceName},'/call/hdm/'));
+        if(Array.isArray(response)){
+          commit('setItem',['devicesPortsDdmList/'+deviceName,Object.freeze(response)]);
+        }else{
+          commit('setItem',['devicesPortsDdmList/'+deviceName,[]]);
+        };
+      }catch(error){
+        console.warn('sfp_info.error',error);
+        commit('setItem',['devicesPortsDdmList/'+deviceName,[]]);
+      };
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
+    async getDevicePortOntList({getters,commit},{deviceName,ifIndex,ifName}={}){
+      if(!deviceName||!ifIndex||!ifName){return};
+      const loadKey=`onu_info-${deviceName}-${ifIndex}-${ifName}`;
+      if(getters.loads[loadKey]){return};
+      commit('setItem',['loads/'+loadKey,!0]);
+      try{
+        const response=await httpGet(buildUrl('onu_info',{device_name:deviceName,port:ifName,port_index:ifIndex},'/call/hdm/'));
+        if(Array.isArray(response)){
+          commit('setItem',['devicesPortsOntList/'+deviceName,Object.freeze(response)]);
+        }else{
+          commit('setItem',['devicesPortsOntList/'+deviceName,[]]);
+        };
+      }catch(error){
+        console.warn('sfp_info.error',error);
+        commit('setItem',['devicesPortsOntList/'+deviceName,[]]);
+      };
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
   },
 });
 
-(function(id='balloon-and-hint-css'){
-  document.getElementById(id)?.remove();
-  const el=Object.assign(document.createElement('style'),{type:'text/css',id});
-  el.appendChild(document.createTextNode(`
-    .hint-app{
-      width: 200px;
-      height: auto;
-      background: #ffffffdd;
-      border-radius: 4px;
-      border: 1px solid #1d1ad7;
-      padding: 4px;
-      font-family: auto;
-      font-size: 11px;
-      line-height: 12px;
-    }
-    .balloon-app{
-      width: 300px;
-      height: 200px;
-      background: #ffffffdd;
-      border-radius: 4px;
-      border: 1px solid #1d1ad7;
-      padding: 4px;
-      font-family: auto;
-      font-size: 11px;
-      line-height: 12px;
-    }
-  `));
-  document.body.insertAdjacentElement('afterBegin',el);
-}());
-
-
-function mountBalloonApp(balloonId/*,balloonObjectId*/){
+function customBalloon($el){
+  const {width,height}=$el.getBoundingClientRect();
+  Object.assign($el.parentElement.parentElement.style,{width:`${width}px`,height:`${height}px`});
+  Object.assign($el.parentElement.parentElement.parentElement.style,{padding:'unset',margin:'unset'});
+  Object.assign($el.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.style,{width:'20px',height:'20px',margin:'2px'});
+  Object.assign($el.parentElement.parentElement.parentElement.parentElement.parentElement.style,{top:`${-height-10}px`,padding:'unset'});
+};
+function mountBalloonView(){
   return new Vue({
     store,
-    template:`<div class="balloon-app" :id="balloonId">
-      <div>balloonId: {{balloonId}}</div>
-      <div>balloonObjectId: {{balloonObjectId}}</div>
+    template:`<div name="YMapsBalloon">
+      <div>objectId: {{objectId}}</div>
     </div>`,
     data:()=>({
-      balloonId,
-      balloonObjectId:null,
+      objectId:null,
     }),
-    computed:{
-      
-    },
     created(){
-      this.balloonObjectId=this.balloonObjectId||document.querySelector(`[balloon-object-id]`)?.getAttribute(`balloon-object-id`); 
-      console.log(`balloonApp ${this.balloonId} created `);
+      (function(id=`YMapsBalloon-css`){
+        document.getElementById(id)?.remove();
+        const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+        el.appendChild(document.createTextNode(`
+          [name="YMapsBalloon"]{
+            width: 300px;
+            height: 200px;
+            background: #ffffffdd;
+            border-radius: 4px;
+            border: 1px solid #1d1ad7;
+            padding: 4px;
+            font-family: auto;
+            font-size: 11px;
+            line-height: 12px;
+          }
+        `));
+        document.body.insertAdjacentElement('afterBegin',el);
+      }());
+      this.objectId=this.objectId||document.querySelector(`[name="YMapsBalloon"][object-id]`)?.getAttribute(`object-id`);
     },
-    mounted(){
-      console.log(`balloonApp ${this.balloonId} mounted for ${this.balloonObjectId}`);
-      const {width,height}=this.$el.getBoundingClientRect();
-      Object.assign(this.$el.parentElement.parentElement.style,{width:`${width}px`,height:`${height}px`});
-      Object.assign(this.$el.parentElement.parentElement.parentElement.style,{padding:'unset',margin:'unset'});
-      Object.assign(this.$el.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.style,{width:'20px',height:'20px',margin:'2px'});
-      Object.assign(this.$el.parentElement.parentElement.parentElement.parentElement.parentElement.style,{top:`${-height-10}px`,padding:'unset'});
-    },
-    destroyed(){
-      console.log(`balloonApp ${this.balloonId} destroyed for ${this.balloonObjectId}`);
-    },
-  }).$mount(`[balloon-id="${balloonId}"]`);
+    mounted(){customBalloon(this.$el)},
+    computed:{},
+    destroyed(){},
+  }).$mount(`[name="YMapsBalloon"]`);
 };
-function mountHintApp(hintId){
+function mountHintView(){
   return new Vue({
     store,
-    template:`<div class="hint-app" :id="hintId">
-      <div>hintId: {{hintId}}</div>
-      <div>hintObjectId: {{hintObjectId}}</div>
+    template:`<div name="YMapsHint">
+      <div>objectId: {{objectId}}</div>
     </div>`,
     data:()=>({
-      hintId:null,
-      hintObjectId:null,
+      objectId:null,
     }),
-    computed:{
-      
-    },
     created(){
-      this.hintObjectId=document.querySelector(`[hint-object-id]`)?.getAttribute(`hint-object-id`);      
-      this.hintId=document.querySelector(`[hint-id]`)?.getAttribute(`hint-id`);
-      const {hintId,hintObjectId}=this;
-      console.log(`hintApp ${hintId} created `,{hintId,hintObjectId});
-      //console.log(document.querySelector('.ymaps-2-1-79-outerHint-pane').outerHTML)
+      (function(id=`YMapsHint-css`){
+        document.getElementById(id)?.remove();
+        const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+        el.appendChild(document.createTextNode(`
+          [name="YMapsHint"]{
+            width: 200px;
+            height: auto;
+            background: #ffffffdd;
+            border-radius: 4px;
+            border: 1px solid #1d1ad7;
+            padding: 4px;
+            font-family: auto;
+            font-size: 11px;
+            line-height: 12px;
+          }
+        `));
+        document.body.insertAdjacentElement('afterBegin',el);
+      }());
+      this.objectId=document.querySelector(`[name="YMapsHint"][object-id]`)?.getAttribute(`object-id`);
     },
-    mounted(){
-      const {hintId,hintObjectId}=this;
-      console.log(`hintApp ${hintId} mounted for ${hintObjectId}`);
-      //console.log(document.querySelector('.ymaps-2-1-79-outerHint-pane').outerHTML)
-    },
-    destroyed(){
-      console.log(`hintApp destroyed for ${this.hintObjectId}`);
-    },
-  }).$mount(`[hint-id="${hintId}"]`);
+    mounted(){},
+    computed:{},
+    destroyed(){},
+  }).$mount(`[name="YMapsHint"]`);
 };
-
-Vue.component('EventsMap',{
-  template:`<div name="EventsMap" class="position-relative" style="height:100vh;width:100vw;">
+//app.$children[3].$children[0].ymap.balloon
+Vue.component('EventsMap2',{
+  template:`<div name="EventsMap2" class="position-relative" style="height:100vh;width:100vw;">
     <div name="YMap" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
   </div>`,
   props:{
@@ -960,13 +927,11 @@ Vue.component('EventsMap',{
     objectManager2:null,
     cursor:null,
     selectedDevices:NSK_OLTs,
-    balloonId:'balloonId_111',
-    balloonApp:null,
-    hintId:'hintId_111',
-    hintApp:null,
     hintLayout:null,
   }),
-  created(){},
+  created(){
+    this.startUpdate();
+  },
   watch:{
     'type'(type){
       this.ymap.setType(type)
@@ -974,37 +939,32 @@ Vue.component('EventsMap',{
     'center'(newCenter){
       this.ymap.setCenter(newCenter,this.zoom);
       this.setAddressByCoordinates(newCenter);
-      this.setFilter();
+      //this.setFilter();
     },
     'zoom'(newZoom){
       this.ymap.setCenter(this.center,newZoom);
       this.setAddressByCoordinates(this.center);
-      this.setFilter();
+      //this.setFilter();
     },
     'address'(address){
       this.addressInfoButton.data.set('content',address);
     },
     'selectedDevices'(){
-      this.setFilter();
+      //this.setFilter();
     }
   },
   computed:{
     ...mapGetters({
-      deviceInfo:`${TEMPLATE_ID}/deviceInfo`,
-      siteNodeInfo:`${TEMPLATE_ID}/siteNodeInfo`,
-      getDeviceSubscribers:`${TEMPLATE_ID}/getDeviceSubscribers`,
-      getSubscriberInfo:`${TEMPLATE_ID}/getSubscriberInfo`,
+      
     }),
     selectedDevicesList(){return Object.entries(this.selectedDevices).filter(([neName,selected])=>selected).map(([neName])=>neName)},
     selectedDevicesCount(){return this.selectedDevicesList.length},
   },
   methods:{
     ...mapActions({
-      getDeviceInfo:`${TEMPLATE_ID}/getDeviceInfo`,
-      getSiteNodeInfo:`${TEMPLATE_ID}/getSiteNodeInfo`,
-      pushDevice:`${TEMPLATE_ID}/pushDevice`,
-      //getSubscriberLbsvInfo:`${TEMPLATE_ID}/getSubscriberLbsvInfo`,
-      //getSubscriberLocationInfo:`${TEMPLATE_ID}/getSubscriberLocationInfo`,
+      startUpdate:'gpon2/startUpdate',
+      addDevice:'gpon2/addDevice',
+      delDevice:'gpon2/delDevice',
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -1016,24 +976,23 @@ Vue.component('EventsMap',{
       },111);
     },
     async initYmaps(){
-      const {type,center,zoom,address,hintId,balloonId}=this;
+      const {type,center,zoom,address}=this;
       
-      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div hint-id="${hintId}" hint-object-id="{{properties.hintObjectId}}"></div>`,{
+      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="{{properties.objectId}}"></div>`,{
         getShape:function(){//сдвиг от края
           const el=this.getElement();
           if(!el){return}
           const {offsetWidth,offsetHeight}=el.firstChild;
           return new window.ymaps.shape.Rectangle(new window.ymaps.geometry.pixel.Rectangle([[0,0],[offsetWidth,offsetHeight]]));
         },
-        hintApp:null,
+        customView:null,
         build:function(){
-          console.log(`build hint ${hintId}`);
           this.constructor.superclass.build.call(this);
-          this.hintApp=mountHintApp(hintId);
+          this.customView=mountHintView();
+          console.log(this)
         },
         clear:function(){
-          console.log(`clear hint ${hintId}`);
-          this.hintApp?.$destroy();
+          this.customView?.$destroy();
           this.constructor.superclass.clear.call(this);
         },
       });
@@ -1057,7 +1016,7 @@ Vue.component('EventsMap',{
         data:{
           content:`Не выбран`,
         },
-        items:NSK_OLT_LIST.map(item=>{
+        items:NSK_OLT_LIST_ITEMS.map(item=>{
           return !item?new window.ymaps.control.ListBoxItem({
             options:{
               type:'separator'
@@ -1082,16 +1041,17 @@ Vue.component('EventsMap',{
         const content=listBoxItem.data.get('content');
         const selected=listBoxItem.state.get('selected');
         console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
-        const listBox=event.originalEvent.currentTarget;
         this.$set(this.selectedDevices,deviceName,selected);
-        const {selectedDevicesCount}=this;
-        listBox.data.set('content',selectedDevicesCount?`Выбрано ${selectedDevicesCount}`:`Не выбран`);
-        if(deviceName&&selected){
-          this.pushDevice(deviceName);
+        if(selected){
+          this.addDevice(deviceName);
+        }else{
+          this.delDevice(deviceName);
         };
+        const {selectedDevicesCount}=this;
+        event.originalEvent.currentTarget.data.set('content',selectedDevicesCount?`Выбрано ${selectedDevicesCount}`:`Не выбран`);
       });
       
-      this.ymap=new window.ymaps.Map(document.querySelector('div[name="YMap"]'),{
+      this.ymap=new window.ymaps.Map(document.querySelector(`div[name="YMap"]`),{
         type,
         center,
         zoom,
@@ -1134,15 +1094,15 @@ Vue.component('EventsMap',{
         yandexMapAutoSwitch:false,
       });
       
-      document.querySelector('.ymaps-2-1-79-copyrights-pane')?.remove();
+      document.querySelector(`.ymaps-2-1-79-copyrights-pane`)?.remove();
       
+      //ymap.events
       this.ymap.events.add('boundschange',(event)=>{
         const newCenter=event.get('newCenter');console.log('ymap.boundschange.newCenter',newCenter);
         const newZoom=event.get('newZoom');console.log('ymap.boundschange.newZoom',newZoom);
         this.center=newCenter;
         this.zoom=newZoom;
       });
-      
       this.ymap.events.add('mouseenter',(event)=>{
         this.cursor=event.originalEvent.map.cursors.push('crosshair');
       });
@@ -1153,7 +1113,6 @@ Vue.component('EventsMap',{
       this.ymap.events.add('mouseleave',(event)=>{
         this.cursor?.remove();
       });
-      
       this.ymap.events.add('typechange',(event)=>{
         const type=event.originalEvent.map.getType();console.log('ymap.typechange.type',type);
         this.type=type;
@@ -1166,14 +1125,36 @@ Vue.component('EventsMap',{
         const coords=event.get('coords');console.log('ymap.contextmenu.coords',coords);
       });
       
+      //ymap.balloon.events
+      this.ymap.balloon.events.add('click',(event)=>{
+        console.log('ymap.balloon.click',event);
+      });
+      this.ymap.balloon.events.add('contextmenu',(event)=>{//rclick
+        console.log('ymap.balloon.contextmenu',event);
+      });
       this.ymap.balloon.events.add('close',(event)=>{
         console.log('ymap.balloon.close',event);
-        this.balloonApp?.$destroy();
+        this.ymap.balloon.customView?.$destroy();
       });
       this.ymap.balloon.events.add('open',(event)=>{
         console.log('ymap.balloon.open',event);
       });
       
+      //ymap.hint.events
+      this.ymap.hint.events.add('click',(event)=>{
+        console.log('ymap.hint.click',event);
+      });
+      this.ymap.hint.events.add('contextmenu',(event)=>{//rclick
+        console.log('ymap.hint.contextmenu',event);
+      });
+      this.ymap.hint.events.add('close',(event)=>{
+        console.log('ymap.hint.close',event);
+      });
+      this.ymap.hint.events.add('open',(event)=>{
+        console.log('ymap.hint.open',event);
+      });
+      
+      //OLTs
       this.objectManager1=new window.ymaps.ObjectManager({});
       this.objectManager1.properties.set('objectId',randcode(20));
       this.objectManager1.objects.events.add('click',async(event)=>{
@@ -1182,11 +1163,12 @@ Vue.component('EventsMap',{
         const {geometry:{coordinates},properties,options}=this.objectManager1.objects.getById(objectId);
         console.log('ymap.objectManager1.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
         
-        await this.ymap.balloon.open(coordinates,`<div balloon-id="${this.balloonId}" balloon-object-id="${objectId}"></div>`);
-        this.balloonApp=mountBalloonApp(this.balloonId/*,objectId*/);
+        await this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}"></div>`);
+        this.ymap.balloon.customView=mountBalloonView();
       });
       this.addGeoObject(this.objectManager1);
-
+      
+      //ONTs
       this.objectManager2=new window.ymaps.ObjectManager({});
       this.objectManager2.properties.set('objectId',randcode(20));
       this.objectManager2.objects.events.add('click',async(event)=>{
@@ -1195,8 +1177,8 @@ Vue.component('EventsMap',{
         const {geometry:{coordinates},properties,options}=this.objectManager2.objects.getById(objectId);
         console.log('ymap.objectManager2.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
         
-        await this.ymap.balloon.open(coordinates,`<div balloon-id="${this.balloonId}" balloon-object-id="${objectId}"></div>`);
-        this.balloonApp=mountBalloonApp(this.balloonId/*,objectId*/);
+        await this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}"></div>`);
+        this.ymap.balloon.customView=mountBalloonView();
       });
       this.addGeoObject(this.objectManager2);
     },
@@ -1246,7 +1228,7 @@ Vue.component('EventsMap',{
         }
       };*/
       for(const [deviceName,selected] of Object.entries(selectedDevices)){
-        if(!selected){continue};
+        /*if(!selected){continue};
         const deviceInfo=await this.getDeviceInfo(deviceName);
         if(!deviceInfo){continue};
         const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
@@ -1265,7 +1247,7 @@ Vue.component('EventsMap',{
         }else{
           const object=this.objectManager1.objects.getById(deviceSiteNodeId);
           object.geometry.coordinates=[latitude,longitude];
-        }
+        }*/
       };
     },
     async setONTs(){
@@ -1276,7 +1258,7 @@ Vue.component('EventsMap',{
         }
       };*/
       for(const [deviceName,selected] of Object.entries(selectedDevices)){
-        if(!selected){continue};
+        /*if(!selected){continue};
         const deviceInfo=await this.getDeviceInfo(deviceName);
         if(!deviceInfo){continue};
         const siteNodeInfo=await this.getSiteNodeInfo({siteId:deviceInfo.site_id,nodeName:deviceInfo.uzel.name});
@@ -1300,15 +1282,15 @@ Vue.component('EventsMap',{
             const object=this.objectManager2.objects.getById(accountId);
             object.geometry.coordinates=[latitude,longitude];
           }
-        };
+        };*/
       };
     },
   },
   beforeDestroy(){
+    this.ymap.balloon.customView?.$destroy();
     this.ymap?.destroy();
   },
 });
-
 
 
 
