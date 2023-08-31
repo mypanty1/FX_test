@@ -540,12 +540,14 @@ store.registerModule('gpon2',{
     abons:{},
     timer:null,
     started:false,
-    pause:false,
+    userPause:false,
+    abonPause:false,
   }),
   getters:{
     timer:state=>state.timer,
     started:state=>state.started,
-    pause:state=>state.pause,
+    userPause:state=>state.userPause,
+    abonPause:state=>state.abonPause,
     loads:state=>state.loads,
     sites:state=>state.sites,
     devices:state=>state.devices,
@@ -603,12 +605,16 @@ store.registerModule('gpon2',{
       commit('setVal',['started',!0]);
       dispatch('update',setMapObjects);
     },
-    setPause({commit},value){
-      commit('setVal',['pause',Boolean(value)]);
-      console.log('pause',Boolean(value))
+    setUserPause({commit},value){
+      commit('setVal',['userPause',Boolean(value)]);
+      console.log('userPause',Boolean(value))
+    },
+    setAbonPause({commit},value){
+      commit('setVal',['abonPause',Boolean(value)]);
+      console.log('abonPause',Boolean(value))
     },
     async update({commit,getters,dispatch},setMapObjects){
-      if(getters.pause){
+      if(getters.userPause||getters.abonPause){
         await new Promise(resolve=>setTimeout(resolve,22222));
       }else{
         await Promise.allSettled(getters.devicesList.map(deviceName=>dispatch('updateDevice',{deviceName,setMapObjects})));
@@ -841,6 +847,7 @@ store.registerModule('gpon2',{
       if(!accountId){return};
       const abon=getAbon(accountId);
       if(!abon){return};
+      dispatch('setAbonPause',!0);
       commit('setItem',['abons/'+accountId,{...abon,...props}]);
       const loadKey=`setAbon-${accountId}`;
       commit('setItem',['loads/'+loadKey,!0]);
@@ -855,6 +862,7 @@ store.registerModule('gpon2',{
         console.warn('setAbon.error',error);
       };
       commit('setItem',['loads/'+loadKey,!1]);
+      dispatch('setAbonPause',!1);
     },
   },
 });
@@ -1031,7 +1039,7 @@ Vue.component('EventsMapGpon2',{
   methods:{
     ...mapActions({
       startUpdate:'gpon2/startUpdate',
-      setPause:'gpon2/setPause',
+      setUserPause:'gpon2/setUserPause',
       addDevice:'gpon2/addDevice',
       delDevice:'gpon2/delDevice',
       setAbon:'gpon2/setAbon',
@@ -1359,7 +1367,7 @@ Vue.component('EventsMapGpon2',{
             
             markers[accountId].events.add('dragstart',(event)=>{
               console.log('marker.events.dragstart.target');
-              this.setPause(!0);
+              this.setUserPause(!0);
             });
             markers[accountId].events.add('drag',(event)=>{
               console.log('marker.events.drag.target');
@@ -1369,7 +1377,7 @@ Vue.component('EventsMapGpon2',{
               const coordinates=target.geometry.getCoordinates();
               console.log('marker.events.dragend.target',coordinates);
               this.setAbon({accountId,coordinates});
-              this.setPause(!1);
+              this.setUserPause(!1);
             });
             
             /*markers[accountId].events.add('balloonopen',(event)=>{
