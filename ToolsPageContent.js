@@ -540,10 +540,12 @@ store.registerModule('gpon2',{
     abons:{},
     timer:null,
     started:false,
+    pause:false,
   }),
   getters:{
     timer:state=>state.timer,
     started:state=>state.started,
+    pause:state=>state.pause,
     loads:state=>state.loads,
     sites:state=>state.sites,
     devices:state=>state.devices,
@@ -601,11 +603,19 @@ store.registerModule('gpon2',{
       commit('setVal',['started',!0]);
       dispatch('update',setMapObjects);
     },
+    setPause({commit},value){
+      commit('setVal',['pause',Boolean(value)]);
+      console.log('pause',Boolean(value))
+    },
     async update({commit,getters,dispatch},setMapObjects){
-      await Promise.allSettled(getters.devicesList.map(deviceName=>dispatch('updateDevice',{deviceName,setMapObjects})));
+      if(getters.pause){
+        await new Promise(resolve=>setTimeout(resolve,22222));
+      }else{
+        await Promise.allSettled(getters.devicesList.map(deviceName=>dispatch('updateDevice',{deviceName,setMapObjects})));
+      };
       commit('setVal',['timer',setTimeout(()=>{
         dispatch('update',setMapObjects);
-      },11111)]);
+      },22222)]);
     },
     async addDevice({commit,dispatch},deviceName=''){
       commit('setItem',['devices/'+deviceName,!0]);
@@ -827,6 +837,25 @@ store.registerModule('gpon2',{
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
+    async setAbon({getters:{getAbon},commit,dispatch},{accountId='',...props}={}){
+      if(!accountId){return};
+      const abon=getAbon(accountId);
+      if(!abon){return};
+      commit('setItem',['abons/'+accountId,{...abon,...props}]);
+      const loadKey=`setAbon-${accountId}`;
+      commit('setItem',['loads/'+loadKey,!0]);
+      try{
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec`,{
+          method:'POST',mode:'no-cors',
+          headers:{'Content-Type':'application/json;charset=utf-8'},
+          body:JSON.stringify({accountId,...props})
+        });
+        dispatch('getAbons',accountId);
+      }catch(error){
+        console.warn('setAbon.error',error);
+      };
+      commit('setItem',['loads/'+loadKey,!1]);
+    },
   },
 });
 
@@ -844,9 +873,13 @@ function mountBalloonView(){
     store,
     template:`<div name="YMapsBalloon">
       <div>objectId: {{objectId}}</div>
+      <div>objectType: {{objectType}}</div>
+      <pre v-if="abon">{{abon}}</pre>
+      <pre v-if="device">{{device}}</pre>
     </div>`,
     data:()=>({
       objectId:null,
+      objectType:null,
     }),
     created(){
       (function(id=`YMapsBalloon-css`){
@@ -868,9 +901,17 @@ function mountBalloonView(){
         document.body.insertAdjacentElement('afterBegin',el);
       }());
       this.objectId=this.objectId||document.querySelector(`[name="YMapsBalloon"][object-id]`)?.getAttribute(`object-id`);
+      this.objectType=document.querySelector(`[name="YMapsBalloon"][object-type]`)?.getAttribute(`object-type`);
     },
     mounted(){customBalloonAndHint(this.$el)},
-    computed:{},
+    computed:{
+      ...mapGetters({
+        getDeviceInfo:'gpon2/getDeviceInfo',
+        getAbon:'gpon2/getAbon',
+      }),
+      abon(){return this.objectType=='account'?this.getAbon(this.objectId):null},
+      device(){return this.objectType=='device'?this.getDeviceInfo(this.objectId):null},
+    },
     destroyed(){},
   }).$mount(`[name="YMapsBalloon"]`);
 };
@@ -879,9 +920,16 @@ function mountHintView(){
     store,
     template:`<div name="YMapsHint">
       <div>objectId: {{objectId}}</div>
+      <div>objectType: {{objectType}}</div>
+      <template v-if="abon">
+        <pre>lbsvAddress: {{abon.lbsvAddress}}</pre>
+        <pre>decription: {{abon.decription}}</pre>
+      </template>
+      <pre v-if="device">{{device}}</pre>
     </div>`,
     data:()=>({
       objectId:null,
+      objectType:null,
     }),
     created(){
       (function(id=`YMapsHint-css`){
@@ -889,7 +937,7 @@ function mountHintView(){
         const el=Object.assign(document.createElement('style'),{type:'text/css',id});
         el.appendChild(document.createTextNode(`
           [name="YMapsHint"]{
-            width: 200px;
+            min-width: 200px;
             height: auto;
             background: #ffffffdd;
             border-radius: 4px;
@@ -903,9 +951,17 @@ function mountHintView(){
         document.body.insertAdjacentElement('afterBegin',el);
       }());
       this.objectId=document.querySelector(`[name="YMapsHint"][object-id]`)?.getAttribute(`object-id`);
+      this.objectType=document.querySelector(`[name="YMapsHint"][object-type]`)?.getAttribute(`object-type`);
     },
     mounted(){customBalloonAndHint(this.$el)},
-    computed:{},
+    computed:{
+      ...mapGetters({
+        getDeviceInfo:'gpon2/getDeviceInfo',
+        getAbon:'gpon2/getAbon',
+      }),
+      abon(){return this.objectType=='account'?this.getAbon(this.objectId):null},
+      device(){return this.objectType=='device'?this.getDeviceInfo(this.objectId):null},
+    },
     destroyed(){},
   }).$mount(`[name="YMapsHint"]`);
 };
@@ -934,7 +990,6 @@ Vue.component('EventsMapGpon2',{
     controlListBox:null,
     bounds:null,
     objectManager1:null,
-    //objectManager2:null,
     cursor:null,
     hintLayout:null,
     markers:{},
@@ -976,8 +1031,10 @@ Vue.component('EventsMapGpon2',{
   methods:{
     ...mapActions({
       startUpdate:'gpon2/startUpdate',
+      setPause:'gpon2/setPause',
       addDevice:'gpon2/addDevice',
       delDevice:'gpon2/delDevice',
+      setAbon:'gpon2/setAbon',
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -991,7 +1048,7 @@ Vue.component('EventsMapGpon2',{
     async initYmaps(){
       const {type,center,zoom,address}=this;
       
-      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="{{properties.objectId}}"></div>`,{
+      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="{{properties.objectId}}" object-type="device"></div>`,{
         getShape:function(){//сдвиг от края
           const el=this.getElement();
           if(!el){return}
@@ -1178,9 +1235,9 @@ Vue.component('EventsMapGpon2',{
         const {geometry:{coordinates},properties,options}=this.objectManager1.objects.getById(objectId);
         console.log('ymap.objectManager1.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
         
-        //await this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}"></div>`);
+        //await this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}" object-type="device"></div>`);
         //this.ymap.balloon.customView=mountBalloonView();
-        this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}"></div>`)
+        this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}" object-type="device"></div>`)
       });
       this.addGeoObject(this.objectManager1);
     },
@@ -1220,7 +1277,8 @@ Vue.component('EventsMapGpon2',{
           return devicesList.includes(object.properties.deviceName)
         });*/
       };
-      this.setAbons()
+      this.setAbons();
+      //https://yandex.ru/dev/maps/jsbox/2.1/polygon
     },
     async setOLTs(){
       const {devicesList,hintLayout}=this;
@@ -1240,8 +1298,8 @@ Vue.component('EventsMapGpon2',{
             },
             options:{
               //hintLayout,
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${deviceName}"></div>`),
-              //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${deviceName}"></div>`),
+              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${deviceName}" object-type="device"></div>`),
+              //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${deviceName}" object-type="device"></div>`),
               openEmptyBalloon:true,
             }
           })]));
@@ -1257,22 +1315,24 @@ Vue.component('EventsMapGpon2',{
       for(const [deviceName,isSelected] of Object.entries(devices)){
         const abons=this.getDeviceAbons(deviceName);
         for(const [_accountId,abon] of Object.entries(abons)){
-          const {accountId}=abon;
+          const {accountId,coordinates}=abon;
           
           if(!isSelected){
             this.delGeoObject(markers[accountId]);
             continue
           };
           
-          let {latitude,longitude}=abons;
+          let [latitude,longitude]=coordinates||[];
           if(!latitude||!longitude){
             const coordinates=this.getDeviceSiteCoords(deviceName);
             if(!coordinates){continue};
             const [_latitude,_longitude]=coordinates;
-            const lat=Math.random()*0.01;
-            const lon=Math.random()*0.02;
-            latitude=_latitude+(Math.random()>0.5?lat:-lat);
-            longitude=_longitude+(Math.random()>0.5?lon:-lon);
+            //const lat=Math.random()*0.01;
+            //const lon=Math.random()*0.02;
+            //latitude=_latitude+(Math.random()>0.5?lat:-lat);
+            //longitude=_longitude+(Math.random()>0.5?lon:-lon);
+            latitude=_latitude+0.001;
+            longitude=_longitude+0.002;
           };
           if(!latitude||!longitude){continue};
           
@@ -1291,24 +1351,25 @@ Vue.component('EventsMapGpon2',{
               iconShape:new RectangleIconShape(24),
               ...new IconImageSizeOffset(48),
               //hintLayout,
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${accountId}"></div>`),
+              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${accountId}" object-type="account"></div>`),
               draggable:true,
               openEmptyBalloon:true,
-              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${accountId}"></div>`),
+              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${accountId}" object-type="account"></div>`),
             }));
             
             markers[accountId].events.add('dragstart',(event)=>{
-              const target=event.get('target');
-              console.log('marker.events.dragstart.target',target.geometry.getCoordinates())
+              console.log('marker.events.dragstart.target');
+              this.setPause(!0);
             });
             markers[accountId].events.add('drag',(event)=>{
-              const target=event.get('target');
-              //target.properties.set('balloonContentBody',target.geometry.getCoordinates());
-              console.log('marker.events.drag.target',target.geometry.getCoordinates())
+              console.log('marker.events.drag.target');
             });
             markers[accountId].events.add('dragend',(event)=>{
               const target=event.get('target');
-              console.log('marker.events.dragend.target',target.geometry.getCoordinates())
+              const coordinates=target.geometry.getCoordinates();
+              console.log('marker.events.dragend.target',coordinates);
+              this.setAbon({accountId,coordinates});
+              this.setPause(!1);
             });
             
             /*markers[accountId].events.add('balloonopen',(event)=>{
