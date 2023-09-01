@@ -365,7 +365,7 @@ Vue.component('EventsMapPage',{
   },
   methods:{
     addYmapsSrc(){
-      const id='ya-map';
+      const id=`ya-map`;
       if(document.querySelector(`#${id}`)){return true};
       const src=document.querySelector(`meta[name="mapuri"]`)?.content;
       if(!src){console.warn('Not found ymaps uri');return};
@@ -463,7 +463,7 @@ class IconImageSizeOffset {
 const EVENTS_MAP_ZINDEX={
   ONT:100,
   OLT:20,
-  AREA:10,
+  GGO:10,
 };
 const EVENTS_MAP_ICONS={
   OLT:'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTUuNTk3IDU1LjU5NyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTUuNTk3IDU1LjU5NzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0YzRDU1QjsiIHBvaW50cz0iMjcuNTk3LDcuNzkgMy41OTcsNDkuNzkgNTIuNTk3LDQ5Ljc5ICIvPg0KPHBhdGggc3R5bGU9ImZpbGw6IzU1NjA4MDsiIGQ9Ik01NS40NTgsNTAuMzA3TDQ0LjE5NiwzMS4wODZsLTAuNzctMS4zMTRMMjguNDksNC4yODJjLTAuMzg2LTAuNjU5LTEuMzM5LTAuNjU2LTEuNzIxLDAuMDA1DQoJTDEyLjM2MywyOS4xOGwtMS4yMTQsMi4wOTdMMC4xMzUsNTAuMzEyYy0wLjM4NCwwLjY2NCwwLjA5NSwxLjQ5NSwwLjg2MiwxLjQ5NWgyNi42MjdoMjYuOTc0DQoJQzU1LjM2OSw1MS44MDcsNTUuODQ4LDUwLjk3MSw1NS40NTgsNTAuMzA3eiBNNi40NDYsNDcuODA3bDguMDk5LTEzLjk5NWw0Ljk1Mi04LjU1OWw4LjM4OS0xNC40OTdsOC41NjMsMTQuNjEzbDQuODQ5LDguMjc0DQoJbDguMjk5LDE0LjE2NEg2LjQ0NnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNFNkU3RTg7IiBkPSJNNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3Yy05LjM3Myw5LjM3My0yNC41NjksOS4zNzMtMzMuOTQxLDBsMCwwbDAsMA0KCUMxOS45NjksMjEuNDA1LDM1LjE2NSwyMS40MDUsNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3eiIvPg0KPGNpcmNsZSBzdHlsZT0iZmlsbDojNDhBMERDOyIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSI2Ii8+DQo8Y2lyY2xlIHN0eWxlPSJmaWxsOiM1NTYwODA7IiBjeD0iMjcuNTk3IiBjeT0iMzAuNzkiIHI9IjMiLz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K',
@@ -555,7 +555,7 @@ store.registerModule('gpon2',{
     devicesCount:(state,getters)=>getters.devicesList.length,
     devicesInfo:state=>state.devicesInfo,
     getDeviceInfo:(state,getters)=>(deviceName)=>getters.devicesInfo[deviceName],
-    getDeviceSiteCoords:(state,getters)=>(deviceName)=>{
+    getDeviceSiteCoordinates:(state,getters)=>(deviceName)=>{
       const site=getters.sites[getters.getDeviceInfo(deviceName)?.site_id];
       if(!site){return};
       return [parseFloat(site.LatitudeWGS),parseFloat(site.LongitudeWGS)]
@@ -566,11 +566,88 @@ store.registerModule('gpon2',{
     devicesPortsDdmList:state=>state.devicesPortsDdmList,
     devicesPortsOntList:state=>state.devicesPortsOntList,
     abons:state=>state.abons,
-    getDevicePortsList:state=>(deviceName)=>state.devicesPortsList[deviceName]||[],
-    getDevicePortsLinkList:state=>(deviceName)=>state.devicesPortsLinkList[deviceName]||[],
-    getDevicePortsDdmList:state=>(deviceName)=>state.devicesPortsDdmList[deviceName]||[],
-    getDevicePortsOntList:state=>(deviceName)=>state.devicesPortsOntList[deviceName]||[],
-    getDevicePortsAbons:(state,getters)=>(deviceName)=>getters.getDevicePortsList(deviceName).reduce((subscriber,_port)=>{
+    getDevicePorts:state=>(deviceName)=>state.devicesPortsList[deviceName]||[],
+    getDevicePort:(state,getters)=>(deviceName,devicePortName)=>getters.getDevicePorts(deviceName).find(({name})=>name===devicePortName),
+    getDeviceAbons:(state,getters)=>(deviceName)=>{
+      return getters.getDevicePorts(deviceName).reduce((abons,{subscriber_list=[],name,snmp_name,snmp_number,snmp_description,device_name})=>{
+        const portInfo={
+          deviceName:device_name,
+          devicePortName:name,
+          ifIndex:snmp_number,
+          ifName:snmp_name,
+          ifAlias:snmp_description,
+        };
+        for(const {account:accountId,mac,flat:flatNumber,name:abonName,type:abonType} of subscriber_list){
+          abons.push({accountId,mac,flatNumber,abonName,abonType,...portInfo});
+        };
+        return abons
+      },[])
+    },
+    getAbonInfo:(state,getters)=>(accountId)=>getters.abons[accountId],
+    getDevicePortAbons:(state,getters)=>(deviceName,devicePortName)=>{
+      const port=getters.getDevicePort(deviceName,devicePortName);
+      if(!port){return []};
+      const {subscriber_list=[],name,snmp_name,snmp_number,snmp_description,device_name}=port;
+      const portInfo={
+        deviceName:device_name,
+        devicePortName:name,
+        ifIndex:snmp_number,
+        ifName:snmp_name,
+        ifAlias:snmp_description,
+      };
+      return port.subscriber_list.map(({account:accountId,mac,flat:flatNumber,name:abonName,type:abonType})=>{
+        return {accountId,mac,flatNumber,abonName,abonType,...portInfo};
+      });
+    },
+    getDeviceAbonsInfo:(state,getters)=>(deviceName)=>select(getters.abons,{deviceName}),
+    getDevicePortCoordinates:(state,getters)=>(deviceName,devicePortName)=>{
+      const abonsInfo=getters.getDeviceAbonsInfo(deviceName);
+      const abons=getters.getDevicePortAbons(deviceName,devicePortName);
+      
+      const points=abons.reduce((points,{accountId})=>{
+        const [lat,lon]=abonsInfo[accountId]?.coordinates||[];
+        if(!lat||!lon){return points};
+        points.push([lat,lon]);
+        return points;
+      },[]);
+      
+      function centroid_order(points=[]){
+        const centroid_x = points.reduce((sum,[x])=>sum+x,0) / points.length;
+        const centroid_y = points.reduce((sum,[,y])=>sum+y,0) / points.length;
+        function order(centroid_x, centroid_y, points){
+          const lst=[];
+          for(const [x, y] of points){
+            const adjacent = x - centroid_x;
+            const opposite = y - centroid_y;
+            const hypotenuse = Math.sqrt(adjacent**2 + opposite**2);
+            const sine = Math.abs(opposite) / hypotenuse;
+            let angle = (Math.asin(sine) * 180.0) / Math.PI;//rad to deg
+
+            if(adjacent < 0 && opposite > 0){
+              angle = 180 - angle
+            }else if(adjacent < 0 && opposite < 0){
+              angle += 180
+            }else if(adjacent > 0 && opposite < 0){
+              angle = 360 - angle
+            }
+            lst.push([angle, hypotenuse, x, y])
+          }
+          lst.sort(([a1,h1],[a2,h2])=>a1-a2+h1-h2);//Сортируем по углу и расстоянию от центра до точки
+          lst.push(lst[0]);//Замыкаем фигуру, чтобы была линия от последней точки к первой
+
+          return lst.map(([angle, hypotenuse, x, y])=>[x, y]);
+        };
+        const ordered_points = order(centroid_x, centroid_y, points)
+        return ordered_points
+      };
+      
+      return [centroid_order(points),[]];
+      
+    },
+    //getDevicePortsLinksList:state=>(deviceName)=>state.devicesPortsLinkList[deviceName]||[],
+    //getDevicePortsDdmList:state=>(deviceName)=>state.devicesPortsDdmList[deviceName]||[],
+    //getDevicePortsOntList:state=>(deviceName)=>state.devicesPortsOntList[deviceName]||[],
+    /*getDeviceAbonsPorts:(state,getters)=>(deviceName)=>getters.getDevicePorts(deviceName).reduce((subscriber,_port)=>{
       const {subscriber_list,name,snmp_name,snmp_number,snmp_description,device_name}=_port;
       const port={
         deviceName:device_name,
@@ -583,10 +660,11 @@ store.registerModule('gpon2',{
         subscriber[accountId]={accountId,mac,...port};
       };
       return subscriber
-    },{}),
-    getAbon:(state,getters)=>(accountId)=>getters.abons[accountId],
-    getDeviceAbons:(state,getters)=>(deviceName)=>select(getters.abons,{deviceName}),
-    getDevicePortAbons:(state,getters)=>(deviceName,ifIndexOrName)=>select(getters.abons,{deviceName,ifIndex:ifIndexOrName},{deviceName,ifName:ifIndexOrName}),
+    },{}),*/
+    //getAbon:(state,getters)=>(accountId)=>getters.abons[accountId],
+    //getDeviceAbons:(state,getters)=>(deviceName)=>select(getters.abons,{deviceName}),
+    //getDeviceAbonsList:(state,getters)=>(deviceName)=>Object.keys(select(getters.abons,{deviceName})),
+    //getDevicePortAbons:(state,getters)=>(deviceName,ifIndexOrName)=>select(getters.abons,{deviceName,ifIndex:ifIndexOrName},{deviceName,ifName:ifIndexOrName}),
   },
   mutations:{
     setVal(state,[key,value]){
@@ -615,13 +693,13 @@ store.registerModule('gpon2',{
     },
     async update({commit,getters,dispatch},setMapObjects){
       if(getters.userPause||getters.abonPause){
-        await new Promise(resolve=>setTimeout(resolve,22222));
+        //await new Promise(resolve=>setTimeout(resolve,22222));
       }else{
         await Promise.allSettled(getters.devicesList.map(deviceName=>dispatch('updateDevice',{deviceName,setMapObjects})));
       };
       commit('setVal',['timer',setTimeout(()=>{
         dispatch('update',setMapObjects);
-      },22222)]);
+      },10000)]);
     },
     async addDevice({commit,dispatch},deviceName=''){
       commit('setItem',['devices/'+deviceName,!0]);
@@ -636,6 +714,7 @@ store.registerModule('gpon2',{
       await dispatch('getDeviceInfo',deviceName);
       const device=getters.getDeviceInfo(deviceName);
       if(device){
+        setMapObjects();
         await dispatch('getDeviceAbons',deviceName);
         setMapObjects();
         await Promise.allSettled([
@@ -843,13 +922,13 @@ store.registerModule('gpon2',{
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
-    async setAbon({getters:{getAbon},commit,dispatch},{accountId='',...props}={}){
+    async setAbonInfo({getters:{getAbonInfo},commit,dispatch},{accountId='',...props}={}){
       if(!accountId){return};
-      const abon=getAbon(accountId);
+      const abon=getAbonInfo(accountId);
       if(!abon){return};
       dispatch('setAbonPause',!0);
       commit('setItem',['abons/'+accountId,{...abon,...props}]);
-      const loadKey=`setAbon-${accountId}`;
+      const loadKey=`setAbonInfo-${accountId}`;
       commit('setItem',['loads/'+loadKey,!0]);
       try{
         const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec`,{
@@ -859,7 +938,7 @@ store.registerModule('gpon2',{
         });
         dispatch('getAbons',accountId);
       }catch(error){
-        console.warn('setAbon.error',error);
+        console.warn('setAbonInfo.error',error);
       };
       commit('setItem',['loads/'+loadKey,!1]);
       dispatch('setAbonPause',!1);
@@ -867,23 +946,27 @@ store.registerModule('gpon2',{
   },
 });
 
-function customBalloonAndHint($el){
-  const {width,height}=$el.getBoundingClientRect();
-  Object.assign($el.parentElement.parentElement.style,{width:`${width}px`,height:`${height}px`});//balloon
-  Object.assign($el.parentElement.parentElement.parentElement.style,{padding:'unset',margin:'unset'});//balloon
-  Object.assign($el.parentElement.parentElement.parentElement.parentElement.style,{'background':'unset'});//balloon only
-  Object.assign($el.parentElement.parentElement.parentElement.parentElement.style,{'box-shadow':'unset','-webkit-box-shadow':'unset','-moz-box-shadow':'unset'});//hint only
-  Object.assign($el.parentElement.parentElement.parentElement.parentElement.firstChild.firstChild.style,{width:'20px',height:'20px',margin:'2px'});//balloon
-  Object.assign($el.parentElement.parentElement.parentElement.parentElement.parentElement.style,{top:`${-height-10}px`,padding:'unset'});//balloon
-};
 function mountBalloonView(){
   return new Vue({
     store,
     template:`<div name="YMapsBalloon">
       <div>objectId: {{objectId}}</div>
       <div>objectType: {{objectType}}</div>
-      <pre v-if="abon">{{abon}}</pre>
-      <pre v-if="device">{{device}}</pre>
+      <template v-if="abon">
+        <pre>lbsvAddress: {{abon.lbsvAddress}}</pre>
+        <pre>decription: {{abon.decription}}</pre>
+      </template>
+      <template v-if="device">
+        <pre>name: {{device.name}}</pre>
+        <pre>location: {{device.region.location}}</pre>
+        <pre>ip: {{device.ip}}</pre>
+        <pre>model: {{device.model}}</pre>
+      </template>
+      <template v-if="port">
+        <pre>snmp_number: {{port.snmp_number}}</pre>
+        <pre>snmp_name: {{port.snmp_name}}</pre>
+        <pre>snmp_description: {{port.snmp_description}}</pre>
+      </template>
     </div>`,
     data:()=>({
       objectId:null,
@@ -893,17 +976,14 @@ function mountBalloonView(){
       (function(id=`YMapsBalloon-css`){
         document.getElementById(id)?.remove();
         const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+        //нужно задать размеры начально
         el.appendChild(document.createTextNode(`
           [name="YMapsBalloon"]{
-            width: 300px;
-            height: 200px;
-            background: #ffffffdd;
-            border-radius: 4px;
-            border: 1px solid #1d1ad7;
-            padding: 4px;
-            font-family: auto;
-            font-size: 11px;
-            line-height: 12px;
+            width:300px;
+            height:200px;
+            font-family:auto;
+            font-size:11px;
+            line-height:12px;
           }
         `));
         document.body.insertAdjacentElement('afterBegin',el);
@@ -911,14 +991,16 @@ function mountBalloonView(){
       this.objectId=this.objectId||document.querySelector(`[name="YMapsBalloon"][object-id]`)?.getAttribute(`object-id`);
       this.objectType=document.querySelector(`[name="YMapsBalloon"][object-type]`)?.getAttribute(`object-type`);
     },
-    mounted(){customBalloonAndHint(this.$el)},
+    mounted(){},
     computed:{
       ...mapGetters({
         getDeviceInfo:'gpon2/getDeviceInfo',
-        getAbon:'gpon2/getAbon',
+        getAbonInfo:'gpon2/getAbonInfo',
+        getDevicePort:'gpon2/getDevicePort',
       }),
-      abon(){return this.objectType=='account'?this.getAbon(this.objectId):null},
+      abon(){return this.objectType=='abon'?this.getAbonInfo(this.objectId):null},
       device(){return this.objectType=='device'?this.getDeviceInfo(this.objectId):null},
+      port(){return this.objectType=='port'?this.getDevicePort(this.objectId.replace('PORT-','').split('/')[0],this.objectId):null},
     },
     destroyed(){},
   }).$mount(`[name="YMapsBalloon"]`);
@@ -933,7 +1015,17 @@ function mountHintView(){
         <pre>lbsvAddress: {{abon.lbsvAddress}}</pre>
         <pre>decription: {{abon.decription}}</pre>
       </template>
-      <pre v-if="device">{{device}}</pre>
+      <template v-if="device">
+        <pre>name: {{device.name}}</pre>
+        <pre>location: {{device.region.location}}</pre>
+        <pre>ip: {{device.ip}}</pre>
+        <pre>model: {{device.model}}</pre>
+      </template>
+      <template v-if="port">
+        <pre>snmp_number: {{port.snmp_number}}</pre>
+        <pre>snmp_name: {{port.snmp_name}}</pre>
+        <pre>snmp_description: {{port.snmp_description}}</pre>
+      </template>
     </div>`,
     data:()=>({
       objectId:null,
@@ -945,15 +1037,13 @@ function mountHintView(){
         const el=Object.assign(document.createElement('style'),{type:'text/css',id});
         el.appendChild(document.createTextNode(`
           [name="YMapsHint"]{
-            min-width: 200px;
-            height: auto;
-            background: #ffffffdd;
-            border-radius: 4px;
-            border: 1px solid #1d1ad7;
-            padding: 4px;
-            font-family: auto;
-            font-size: 11px;
-            line-height: 12px;
+            min-width:200px;
+            min-height:100px;
+            width:fit-content;
+            height:fit-content;
+            font-family:auto;
+            font-size:11px;
+            line-height:12px;
           }
         `));
         document.body.insertAdjacentElement('afterBegin',el);
@@ -961,19 +1051,22 @@ function mountHintView(){
       this.objectId=document.querySelector(`[name="YMapsHint"][object-id]`)?.getAttribute(`object-id`);
       this.objectType=document.querySelector(`[name="YMapsHint"][object-type]`)?.getAttribute(`object-type`);
     },
-    mounted(){customBalloonAndHint(this.$el)},
+    mounted(){},
     computed:{
       ...mapGetters({
         getDeviceInfo:'gpon2/getDeviceInfo',
-        getAbon:'gpon2/getAbon',
+        getAbonInfo:'gpon2/getAbonInfo',
+        getDevicePort:'gpon2/getDevicePort',
       }),
-      abon(){return this.objectType=='account'?this.getAbon(this.objectId):null},
+      abon(){return this.objectType=='abon'?this.getAbonInfo(this.objectId):null},
       device(){return this.objectType=='device'?this.getDeviceInfo(this.objectId):null},
+      port(){return this.objectType=='port'?this.getDevicePort(this.objectId.replace('PORT-','').split('/')[0],this.objectId):null},
     },
     destroyed(){},
   }).$mount(`[name="YMapsHint"]`);
 };
 //app.$children[3].$children[0].ymap.balloon
+
 Vue.component('EventsMapGpon2',{
   template:`<div name="EventsMapGpon2" class="position-relative" style="height:100vh;width:100vw;">
     <div name="YMap" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
@@ -990,17 +1083,16 @@ Vue.component('EventsMapGpon2',{
     isYmapsInit:false,
     ymap:null,
     type:'yandex#map',
-    center:[55.19882141102037, 82.82566161923812],
-    zoom:16,
+    //zoom:16,center:[55.19882141102037, 82.82566161923812],//Снт
+    //zoom:16,center:[54.99015329190864, 82.97480896759986],//Зар
+    zoom:19,center:[54.99390617498407, 82.96689562644377],//polygon test
     geocodeLoading:false,
     address:'',
     addressInfoButton:null,
     controlListBox:null,
     bounds:null,
-    objectManager1:null,
     cursor:null,
-    hintLayout:null,
-    markers:{},
+    mapObjects:{},
   }),
   created(){
     this.startUpdate(this.setMapObjects);
@@ -1032,8 +1124,11 @@ Vue.component('EventsMapGpon2',{
       devicesList:'gpon2/devicesList',
       devicesCount:'gpon2/devicesCount',
       getDeviceInfo:'gpon2/getDeviceInfo',
-      getDeviceSiteCoords:'gpon2/getDeviceSiteCoords',
+      getDeviceSiteCoordinates:'gpon2/getDeviceSiteCoordinates',
       getDeviceAbons:'gpon2/getDeviceAbons',
+      getAbonInfo:'gpon2/getAbonInfo',
+      getDevicePorts:'gpon2/getDevicePorts',
+      getDevicePortCoordinates:'gpon2/getDevicePortCoordinates',
     }),
   },
   methods:{
@@ -1042,7 +1137,7 @@ Vue.component('EventsMapGpon2',{
       setUserPause:'gpon2/setUserPause',
       addDevice:'gpon2/addDevice',
       delDevice:'gpon2/delDevice',
-      setAbon:'gpon2/setAbon',
+      setAbonInfo:'gpon2/setAbonInfo',
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -1055,25 +1150,6 @@ Vue.component('EventsMapGpon2',{
     },
     async initYmaps(){
       const {type,center,zoom,address}=this;
-      
-      this.hintLayout=window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="{{properties.objectId}}" object-type="device"></div>`,{
-        getShape:function(){//сдвиг от края
-          const el=this.getElement();
-          if(!el){return}
-          const {offsetWidth,offsetHeight}=el.firstChild;
-          return new window.ymaps.shape.Rectangle(new window.ymaps.geometry.pixel.Rectangle([[0,0],[offsetWidth,offsetHeight]]));
-        },
-        customView:null,
-        build:function(){
-          this.constructor.superclass.build.call(this);
-          this.customView=mountHintView();
-          console.log(this)
-        },
-        clear:function(){
-          this.customView?.$destroy();
-          this.constructor.superclass.clear.call(this);
-        },
-      });
       
       this.addressInfoButton=new window.ymaps.control.Button({
         data:{
@@ -1089,20 +1165,19 @@ Vue.component('EventsMapGpon2',{
           enabled:false,
         },
       });
-      
       this.controlListBox=new window.ymaps.control.ListBox({
         data:{
           content:`Не выбран`,
         },
-        items:NSK_OLT_LIST_ITEMS.map(item=>{
-          return !item?new window.ymaps.control.ListBoxItem({
+        items:NSK_OLT_LIST_ITEMS.map(deviceName=>{
+          return !deviceName?new window.ymaps.control.ListBoxItem({
             options:{
               type:'separator'
             }
           }):new window.ymaps.control.ListBoxItem({
             data:{
-              content:item,
-              deviceName:item
+              content:deviceName,
+              deviceName
             },
           })
         }),
@@ -1184,7 +1259,7 @@ Vue.component('EventsMapGpon2',{
         this.cursor=event.originalEvent.map.cursors.push('crosshair');
       });
       this.ymap.events.add('mousemove',(event)=>{
-        const coords=event.get('coords');console.log('ymap.mousemove.coords',coords);
+        const coords=event.get('coords');//console.log('ymap.mousemove.coords',coords);
         this.setAddressByCoordinates(coords);
       });
       this.ymap.events.add('mouseleave',(event)=>{
@@ -1233,21 +1308,6 @@ Vue.component('EventsMapGpon2',{
         console.log('ymap.hint.open',event);
         this.ymap.hint.customView=mountHintView();
       });
-      
-      //OLTs
-      this.objectManager1=new window.ymaps.ObjectManager({});
-      this.objectManager1.properties.set('objectId',randcode(20));
-      this.objectManager1.objects.events.add('click',async(event)=>{
-        this.ymap.balloon.close();
-        const objectId=event.get('objectId');
-        const {geometry:{coordinates},properties,options}=this.objectManager1.objects.getById(objectId);
-        console.log('ymap.objectManager1.click.objectId,coordinates,properties,options',objectId,coordinates,properties,options);
-        
-        //await this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}" object-type="device"></div>`);
-        //this.ymap.balloon.customView=mountBalloonView();
-        this.ymap.balloon.open(coordinates,`<div name="YMapsBalloon" object-id="${objectId}" object-type="device"></div>`)
-      });
-      this.addGeoObject(this.objectManager1);
     },
     async getSampleAddressCoordinates(sample){
       if(!window.ymaps){return new GeocodeResult(sample)};
@@ -1256,7 +1316,7 @@ Vue.component('EventsMapGpon2',{
       this.geocodeLoading=!true;
       return new GeocodeResult(sample,response)
     },
-    async setAddressByCoordinates(coordinates){
+    async setAddressByCoordinates(coordinates){return
       if(this.geocodeLoading){return};
       const {address}=await this.getSampleAddressCoordinates(coordinates);
       this.address=address;
@@ -1264,150 +1324,208 @@ Vue.component('EventsMapGpon2',{
     getBounds(){
       return this.bounds=this.ymap.getBounds();
     },
-    addGeoObject(geoObject){
-      if(!geoObject){return};
-      this.ymap.geoObjects.add(geoObject);
+    addGeoObject(object){
+      if(!object){return};
+      this.ymap.geoObjects.add(object);
     },
-    delGeoObject(geoObject){
-      if(!geoObject){return};
-      this.ymap.geoObjects.remove(geoObject);
+    delGeoObject(object){
+      if(!object){return};
+      this.ymap.geoObjects.remove(object);
     },
-    setMarkerCoordinates(objectId,coordinates){
-      const marker=this.markers[objectId];
-      if(!marker){return};
-      marker.geometry.setCoordinates(coordinates);
+    setGeoObjectCoordinates(objectId,coordinates){
+      const mapObject=this.mapObjects[objectId];
+      if(!mapObject){return};
+      mapObject.geometry.setCoordinates(coordinates);
     },
     setMapObjects(){
-      const {devicesList}=this;
-      if(this.objectManager1){
-        this.setOLTs();
-        /*this.objectManager1.setFilter((object)=>{
-          return devicesList.includes(object.properties.deviceName)
-        });*/
-      };
-      this.setAbons();
-      //https://yandex.ru/dev/maps/jsbox/2.1/polygon
+      this.setMapObjectsDevices();
+      this.invalidateMapObjects();
     },
-    async setOLTs(){
-      const {devicesList,hintLayout}=this;
-      for(const object of this.objectManager1.objects.getAll()){
-        if(!devicesList.includes(object.properties.deviceName)){
-          this.objectManager1.remove(object);
+    invalidateMapObjects(){
+      const curr=Date.now()
+      this.ymap.geoObjects.each(object=>{
+        const diff=object.properties.get('lastUpdate')-curr;
+        if(diff>60000){
+          delete mapObjects[object.properties.get('objectId')];
+          this.delGeoObject(object);
         };
-      };
-      for(const deviceName of devicesList){
-        const device=this.getDeviceInfo(deviceName);
-        const coordinates=this.getDeviceSiteCoords(deviceName);
-        if(!coordinates){continue};
-        if(!this.objectManager1.objects.getById(deviceName)){
-          this.objectManager1.add(new FeatureCollection([new OltPoint(deviceName,coordinates,{
-            properties:{
-              deviceName,
-            },
-            options:{
-              //hintLayout,
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${deviceName}" object-type="device"></div>`),
-              //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${deviceName}" object-type="device"></div>`),
-              openEmptyBalloon:true,
-            }
-          })]));
-        }else{
-          //const object=this.objectManager1.objects.getById(deviceName);
-          //object.geometry.coordinates=coordinates;
-          //this.objectManager1.objects.setObjectOptions(deviceName,{})
-        };
-      };
+      });
     },
-    setAbons(){
-      const {devices,markers,hintLayout}=this;
+    setMapObjectsDevices(){
+      const {devices,mapObjects}=this;
       for(const [deviceName,isSelected] of Object.entries(devices)){
-        const abons=this.getDeviceAbons(deviceName);
-        for(const [_accountId,abon] of Object.entries(abons)){
-          const {accountId,coordinates}=abon;
-          
-          if(!isSelected){
-            this.delGeoObject(markers[accountId]);
-            continue
-          };
-          
-          let [latitude,longitude]=coordinates||[];
-          if(!latitude||!longitude){
-            const coordinates=this.getDeviceSiteCoords(deviceName);
-            if(!coordinates){continue};
-            const [_latitude,_longitude]=coordinates;
-            //const lat=Math.random()*0.01;
-            //const lon=Math.random()*0.02;
-            //latitude=_latitude+(Math.random()>0.5?lat:-lat);
-            //longitude=_longitude+(Math.random()>0.5?lon:-lon);
-            latitude=_latitude+0.001;
-            longitude=_longitude+0.002;
-          };
-          if(!latitude||!longitude){continue};
-          
-          if(markers[accountId]){
-            this.setMarkerCoordinates(accountId,[latitude,longitude])
-          }else{
-            this.addGeoObject(markers[accountId]=new ymaps.Placemark([latitude,longitude],{
-              objectId:accountId,
-              accountId
-            },{
-              balloonPanelMaxMapArea:0,
-              hideIconOnBalloonOpen:false,
-              zIndex:EVENTS_MAP_ZINDEX.ONT,
-              iconLayout:'default#image',
-              iconImageHref:EVENTS_MAP_ICONS.ONT,
-              iconShape:new RectangleIconShape(24),
-              ...new IconImageSizeOffset(48),
-              //hintLayout,
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${accountId}" object-type="account"></div>`),
-              draggable:true,
-              openEmptyBalloon:true,
-              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${accountId}" object-type="account"></div>`),
-            }));
-            
-            markers[accountId].events.add('dragstart',(event)=>{
-              console.log('marker.events.dragstart.target');
-              this.setUserPause(!0);
-            });
-            markers[accountId].events.add('drag',(event)=>{
-              console.log('marker.events.drag.target');
-            });
-            markers[accountId].events.add('dragend',(event)=>{
-              const target=event.get('target');
-              const coordinates=target.geometry.getCoordinates();
-              console.log('marker.events.dragend.target',coordinates);
-              this.setAbon({accountId,coordinates});
-              this.setUserPause(!1);
-            });
-            
-            /*markers[accountId].events.add('balloonopen',(event)=>{
-              const target=event.get('target');
-              target.balloon.customView=mountBalloonView();
-            });
-            markers[accountId].events.add('balloonclose',(event)=>{
-              const target=event.get('target');
-              target.balloon.customView?.$destroy();
-            });
-            
-            markers[accountId].events.add('hintopen',(event)=>{
-              const target=event.get('target');
-              target.hint.customView=mountHintView();
-            });
-            markers[accountId].events.add('hintclose',(event)=>{
-              const target=event.get('target');
-              target.hint.customView?.$destroy();
-            });*/
-          };
+        if(isSelected){
+          this.setMapObjectDevice(deviceName);
+        }else{
+          this.ymap.geoObjects.each(object=>{
+            if(object.properties.get('deviceName')==deviceName){
+              delete mapObjects[object.properties.get('objectId')];
+              this.delGeoObject(object);
+            };
+          });
         };
       };
+    },
+    setMapObjectDevice(deviceName){
+      const {mapObjects}=this;
+      const device=this.getDeviceInfo(deviceName);
+      if(!device){return};
+      
+      const coordinates=this.getDeviceSiteCoordinates(deviceName);
+      if(!coordinates){return};
+      const [latitude,longitude]=coordinates||[];
+      if(!latitude||!longitude){return};
+      
+      if(!mapObjects[deviceName]){
+        this.addGeoObject(mapObjects[deviceName]=new window.ymaps.Placemark([latitude,longitude],{
+          objectId:deviceName,
+          objectType:'device',
+          deviceName,
+        },{
+          balloonPanelMaxMapArea:0,
+          hideIconOnBalloonOpen:false,
+          openEmptyBalloon:true,
+          openEmptyHint:true,
+          balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${deviceName}" object-type="device"></div>`),
+          hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${deviceName}" object-type="device"></div>`),
+          zIndex:EVENTS_MAP_ZINDEX.OLT,
+          iconLayout:'default#image',
+          iconImageHref:EVENTS_MAP_ICONS.OLT,
+          iconShape:new CircleIconShape(24),
+          ...new IconImageSizeOffset(48),
+        }));
+      }else{
+        
+      };
+      mapObjects[deviceName].properties.set('lastUpdate',Date.now());
+      
+      this.setMapObjectsDeviceAbons(deviceName);
+      this.setMapObjectsDevicePorts(deviceName);
+    },
+    setMapObjectsDeviceAbons(deviceName){
+      const {mapObjects}=this;
+      for(const {accountId,devicePortName} of this.getDeviceAbons(deviceName)){
+        const abonInfo=this.getAbonInfo(accountId);
+        let [latitude,longitude]=abonInfo?.coordinates||[];
+        if(!latitude||!longitude){
+          const coordinates=this.getDeviceSiteCoordinates(deviceName);
+          if(!coordinates){continue};
+          const [_latitude,_longitude]=coordinates;
+          if(!latitude||!longitude){continue};
+          latitude=_latitude+0.001;
+          longitude=_longitude+0.002;
+        };
+        
+        if(!mapObjects[accountId]){
+          this.addGeoObject(mapObjects[accountId]=new window.ymaps.Placemark([latitude,longitude],{
+            objectId:accountId,
+            objectType:'abon',
+            accountId,
+            deviceName,
+            devicePortName,
+          },{
+            draggable:true,
+            balloonPanelMaxMapArea:0,
+            hideIconOnBalloonOpen:false,
+            openEmptyBalloon:true,
+            openEmptyHint:true,
+            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${accountId}" object-type="abon"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${accountId}" object-type="abon"></div>`),
+            zIndex:EVENTS_MAP_ZINDEX.ONT,
+            iconLayout:'default#image',
+            iconImageHref:EVENTS_MAP_ICONS.ONT,
+            iconShape:new RectangleIconShape(24),
+            ...new IconImageSizeOffset(48),
+          }));
+          
+          mapObjects[accountId].events.add('dragstart',(event)=>{
+            console.log('marker.events.dragstart');
+            this.setUserPause(!0);
+          });
+          mapObjects[accountId].events.add('drag',(event)=>{
+            console.log('marker.events.drag');
+          });
+          mapObjects[accountId].events.add('dragend',(event)=>{
+            console.log('marker.events.dragend');
+            const target=event.get('target');
+            
+            const coordinates=target.geometry.getCoordinates();
+            this.setAbonInfo({accountId,coordinates});
+            
+            const deviceName=target.properties.get('deviceName');
+            const devicePortName=target.properties.get('devicePortName');
+            this.setMapObjectsDevicePort(deviceName,devicePortName);
+            
+            this.setUserPause(!1);
+          });
+        }else{
+          this.setGeoObjectCoordinates(accountId,[latitude,longitude]);
+        };
+        mapObjects[accountId].properties.set('lastUpdate',Date.now());
+      };
+    },
+    setMapObjectsDevicePorts(deviceName){
+      for(const {name:devicePortName} of this.getDevicePorts(deviceName)){
+        this.setMapObjectsDevicePort(deviceName,devicePortName);
+      };
+    },
+    setMapObjectsDevicePort(deviceName,devicePortName){
+      const {mapObjects}=this;
+      const coordinates=this.getDevicePortCoordinates(deviceName,devicePortName);console.log({devicePortName,coordinates})
+      if(!mapObjects[devicePortName]){
+        /*this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.Polygon(coordinates,{
+          objectId:devicePortName,
+          objectType:'port',
+          deviceName,
+          devicePortName,
+        },{
+          balloonPanelMaxMapArea:0,
+          hideIconOnBalloonOpen:false,
+          openEmptyBalloon:true,
+          openEmptyHint:true,
+          balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${devicePortName}" object-type="port"></div>`),
+          hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${devicePortName}" object-type="port"></div>`),
+          zIndex:EVENTS_MAP_ZINDEX.GGO,
+          fillColor:'#00FF0020',
+          strokeColor:'#0000FF',
+          strokeWidth:1,
+          strokeStyle:'dash',
+          interactivityModel: 'default#transparent',
+        }));*/
+        this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.GeoObject({
+          geometry:new window.ymaps.geometry.Polygon(coordinates),
+          properties:{
+            objectId:devicePortName,
+            objectType:'port',
+            deviceName,
+            devicePortName,
+          }
+        },{
+          balloonPanelMaxMapArea:0,
+          hideIconOnBalloonOpen:false,
+          openEmptyBalloon:true,
+          openEmptyHint:true,
+          balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${devicePortName}" object-type="port"></div>`),
+          hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${devicePortName}" object-type="port"></div>`),
+          zIndex:EVENTS_MAP_ZINDEX.GGO,
+          fillColor:'#00FF0020',
+          strokeColor:'#0000FF',
+          strokeWidth:1,
+          strokeStyle:'dash',
+          interactivityModel: 'default#transparent',
+        }));
+      }else{
+        this.setGeoObjectCoordinates(devicePortName,coordinates);
+      };
+      mapObjects[devicePortName].properties.set('lastUpdate',Date.now());
     },
   },
   beforeDestroy(){
     this.ymap.balloon.customView?.$destroy();
+    this.ymap.hint.customView?.$destroy();
     this.ymap?.destroy();
   },
 });
-
 
 
 
