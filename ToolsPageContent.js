@@ -525,6 +525,32 @@ class OntPoint {
   }
 };
 
+function pointsToArea(points=[]){
+  const centroid_x=points.reduce((sum,[x])=>sum+x,0)/points.length;
+  const centroid_y=points.reduce((sum,[,y])=>sum+y,0)/points.length;
+  
+  const calc=points.reduce((calc,[x, y])=>{
+    const adjacent=x-centroid_x;
+    const opposite=y-centroid_y;
+    const hypotenuse=Math.sqrt(adjacent**2+opposite**2);
+    const sin=Math.abs(opposite)/hypotenuse;
+    let angle=(Math.asin(sin)*180.0)/Math.PI;//rad to deg
+
+    if(adjacent < 0 && opposite > 0){
+      angle = 180 - angle
+    }else if(adjacent < 0 && opposite < 0){
+      angle += 180
+    }else if(adjacent > 0 && opposite < 0){
+      angle = 360 - angle
+    }
+    calc.push([angle, hypotenuse, x, y]);
+    return calc
+  },[]);
+  calc.sort(([a1,h1],[a2,h2])=>a1-a2+h1-h2);//sort by angle and dist center-point
+  calc.push(calc[0]);//add first as last, close line
+  return calc.map(([angle,hypotenuse,x,y])=>[x,y]);
+};
+
 store.registerModule('gpon2',{
   namespaced:true,
   state:()=>({
@@ -567,9 +593,10 @@ store.registerModule('gpon2',{
     devicesPortsOntList:state=>state.devicesPortsOntList,
     abons:state=>state.abons,
     getDevicePorts:state=>(deviceName)=>state.devicesPortsList[deviceName]||[],
+    getDevicePortsHasAbons:(state,getters)=>(deviceName)=>getters.getDevicePorts(deviceName).filter(({subscriber_list})=>subscriber_list?.length),
     getDevicePort:(state,getters)=>(deviceName,devicePortName)=>getters.getDevicePorts(deviceName).find(({name})=>name===devicePortName),
     getDeviceAbons:(state,getters)=>(deviceName)=>{
-      return getters.getDevicePorts(deviceName).reduce((abons,{subscriber_list=[],name,snmp_name,snmp_number,snmp_description,device_name})=>{
+      return getters.getDevicePortsHasAbons(deviceName).reduce((abons,{subscriber_list=[],name,snmp_name,snmp_number,snmp_description,device_name})=>{
         const portInfo={
           deviceName:device_name,
           devicePortName:name,
@@ -600,7 +627,7 @@ store.registerModule('gpon2',{
       });
     },
     getDeviceAbonsInfo:(state,getters)=>(deviceName)=>select(getters.abons,{deviceName}),
-    getDevicePortCoordinates:(state,getters)=>(deviceName,devicePortName)=>{
+    getDevicePortAreaCoordinates:(state,getters)=>(deviceName,devicePortName)=>{
       const abonsInfo=getters.getDeviceAbonsInfo(deviceName);
       const abons=getters.getDevicePortAbons(deviceName,devicePortName);
       
@@ -611,38 +638,7 @@ store.registerModule('gpon2',{
         return points;
       },[]);
       
-      function centroid_order(points=[]){
-        const centroid_x = points.reduce((sum,[x])=>sum+x,0) / points.length;
-        const centroid_y = points.reduce((sum,[,y])=>sum+y,0) / points.length;
-        function order(centroid_x, centroid_y, points){
-          const lst=[];
-          for(const [x, y] of points){
-            const adjacent = x - centroid_x;
-            const opposite = y - centroid_y;
-            const hypotenuse = Math.sqrt(adjacent**2 + opposite**2);
-            const sine = Math.abs(opposite) / hypotenuse;
-            let angle = (Math.asin(sine) * 180.0) / Math.PI;//rad to deg
-
-            if(adjacent < 0 && opposite > 0){
-              angle = 180 - angle
-            }else if(adjacent < 0 && opposite < 0){
-              angle += 180
-            }else if(adjacent > 0 && opposite < 0){
-              angle = 360 - angle
-            }
-            lst.push([angle, hypotenuse, x, y])
-          }
-          lst.sort(([a1,h1],[a2,h2])=>a1-a2+h1-h2);//Сортируем по углу и расстоянию от центра до точки
-          lst.push(lst[0]);//Замыкаем фигуру, чтобы была линия от последней точки к первой
-
-          return lst.map(([angle, hypotenuse, x, y])=>[x, y]);
-        };
-        const ordered_points = order(centroid_x, centroid_y, points)
-        return ordered_points
-      };
-      
-      return [centroid_order(points),[]];
-      
+      return [pointsToArea(points),[]];
     },
     //getDevicePortsLinksList:state=>(deviceName)=>state.devicesPortsLinkList[deviceName]||[],
     //getDevicePortsDdmList:state=>(deviceName)=>state.devicesPortsDdmList[deviceName]||[],
@@ -672,7 +668,7 @@ store.registerModule('gpon2',{
       Vue.set(state,key,value);
     },
     setItem(state,[path,value]){
-      const [section,key]=path.split('/');
+      const [section,key]=path.split('/');console.log({section,key,value})
       if(!key){return};
       Vue.set(state[section],key,value);
     },
@@ -691,7 +687,7 @@ store.registerModule('gpon2',{
       commit('setVal',['abonPause',Boolean(value)]);
       console.log('abonPause',Boolean(value))
     },
-    async update({commit,getters,dispatch},setMapObjects){
+    async update({commit,getters,dispatch},setMapObjects){console.log('update')
       if(getters.userPause||getters.abonPause){
         //await new Promise(resolve=>setTimeout(resolve,22222));
       }else{
@@ -713,7 +709,7 @@ store.registerModule('gpon2',{
       commit('setItem',['loads/'+loadKey,!0]);
       await dispatch('getDeviceInfo',deviceName);
       const device=getters.getDeviceInfo(deviceName);
-      if(device){
+      if(device){console.log('device')
         setMapObjects();
         await dispatch('getDeviceAbons',deviceName);
         setMapObjects();
@@ -1127,8 +1123,8 @@ Vue.component('EventsMapGpon2',{
       getDeviceSiteCoordinates:'gpon2/getDeviceSiteCoordinates',
       getDeviceAbons:'gpon2/getDeviceAbons',
       getAbonInfo:'gpon2/getAbonInfo',
-      getDevicePorts:'gpon2/getDevicePorts',
-      getDevicePortCoordinates:'gpon2/getDevicePortCoordinates',
+      getDevicePortsHasAbons:'gpon2/getDevicePortsHasAbons',
+      getDevicePortAreaCoordinates:'gpon2/getDevicePortAreaCoordinates',
     }),
   },
   methods:{
@@ -1465,15 +1461,15 @@ Vue.component('EventsMapGpon2',{
       };
     },
     setMapObjectsDevicePorts(deviceName){
-      for(const {name:devicePortName} of this.getDevicePorts(deviceName)){
+      for(const {name:devicePortName} of this.getDevicePortsHasAbons(deviceName)){
         this.setMapObjectsDevicePort(deviceName,devicePortName);
       };
     },
     setMapObjectsDevicePort(deviceName,devicePortName){
       const {mapObjects}=this;
-      const coordinates=this.getDevicePortCoordinates(deviceName,devicePortName);console.log({devicePortName,coordinates})
+      const coordinates=this.getDevicePortAreaCoordinates(deviceName,devicePortName);
       if(!mapObjects[devicePortName]){
-        /*this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.Polygon(coordinates,{
+        this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.Polygon(coordinates,{
           objectId:devicePortName,
           objectType:'port',
           deviceName,
@@ -1491,8 +1487,8 @@ Vue.component('EventsMapGpon2',{
           strokeWidth:1,
           strokeStyle:'dash',
           interactivityModel: 'default#transparent',
-        }));*/
-        this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.GeoObject({
+        }));
+        /*this.addGeoObject(mapObjects[devicePortName]=new window.ymaps.GeoObject({
           geometry:new window.ymaps.geometry.Polygon(coordinates),
           properties:{
             objectId:devicePortName,
@@ -1513,7 +1509,7 @@ Vue.component('EventsMapGpon2',{
           strokeWidth:1,
           strokeStyle:'dash',
           interactivityModel: 'default#transparent',
-        }));
+        }));*/
       }else{
         this.setGeoObjectCoordinates(devicePortName,coordinates);
       };
