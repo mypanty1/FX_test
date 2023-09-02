@@ -389,24 +389,25 @@ app.$router.addRoutes([{
 //app.$router.push({name:'events-map',params:{templateId:'nsk-gpon-test-2'}})
 
 const NSK_OLT_LIST_ITEMS=[
-  'OLT_KR_54_10907_1',
+  ['OLT_KR_54_10907_1','OLT_KR_54_10907_1 • Huawei MA5800-X2 • Россия, обл. Новосибирская, р-н Новосибирский, п Ложок, ул. Тесла, контейнер связи',[54.842842,83.181644],18],
   null,//separator
-  'OLT_KR_54_02758_1',
+  ['OLT_KR_54_02758_1','OLT_KR_54_02758_1 • FiberHome AN5516-04 • Россия, обл. Новосибирская, г. Новосибирск, тер Тополек СНТ (Первомайский р-н), термошкаф',[54.906,83.04819],18],
   null,//separator
-  'OLT_KR_54_02757_1',
-  'OLT_KR_54_02757_2',
+  ['OLT_KR_54_02757_1','OLT_KR_54_02757_1 • FiberHome AN5516-04 • Россия, обл. Новосибирская, р-н Коченевский, тер НСТ Энергия-3, ул. Первая, термошкаф',[55.19775,82.8258],18],
+  ['OLT_KR_54_02757_2','OLT_KR_54_02757_2 • Huawei MA5800-X2 • Россия, обл. Новосибирская, р-н Коченевский, тер НСТ Энергия-3, ул. Первая, термошкаф',[55.19775,82.8258],18],
   null,//separator
-  'OLT_KR_54_02546_1',
+  ['OLT_KR_54_02546_1','OLT_KR_54_02546_1 • FiberHome AN5516-04 • Россия, обл. Новосибирская, г. Новосибирск, тер. снт Строймашевец, д. 6',[54.905731,83.058411],18],
   null,//separator
-  'OLT_KR_54_01832_1',
+  ['OLT_KR_54_01832_1','OLT_KR_54_01832_1 • FiberHome AN5516-04 • Россия, обл. Новосибирская, р-н Новосибирский, дп Мочище, ул. Шведова, д. 1/к.1',[55.18269,82.88427],18],
   null,//separator
-  'OLT_KR_54_01799_1',
+  ['OLT_KR_54_01799_1','OLT_KR_54_01799_1 • FiberHome AN5516-06 • Россия, обл. Новосибирская, г. Новосибирск, ул. Большевистская, д. 126',[54.99023,82.97477],18],
   null,//separator
-  'OLT_KR_54_0760_1',
+  ['OLT_KR_54_0760_1','OLT_KR_54_0760_1 • FiberHome AN5516-06 • Россия, обл. Новосибирская, г. Новосибирск, тер Ивушка СНТ (советский р-н), опора',[54.88922,83.05083],18],
   null,//separator
-  'OLT_KR_54_0513_1',
+  ['OLT_KR_54_0513_1','OLT_KR_54_0513_1 • unknown • Россия, обл. Новосибирская, р-н Коченевский, 18,695 км северо-восточнее дома 4 по Майская ул, Катково с, башня',[55.19552,82.79891],18],
+  ['OLT_59KR_01979_1','OLT_59KR_01979_1 • FiberHome AN5516-06 • Россия, край Пермский, г. Пермь, ул. Космонавта Леонова, д. 56А',[57.966267,56.174858],18],
 ];
-const NSK_OLTs=NSK_OLT_LIST_ITEMS.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item]:null}):selectedItems,{});
+const NSK_OLTs=NSK_OLT_LIST_ITEMS.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item[0]]:null}):selectedItems,{});
 
 const CACHE_1HOUR=60;
 const CACHE_1DAY=CACHE_1HOUR*24;
@@ -468,13 +469,16 @@ class IconImageSizeOffset {
 };
 const EVENTS_MAP_ZINDEX={
   ONT:100,
+  PON:50,
   OLT:20,
   AREA:10,
 };
 const EVENTS_MAP_ICONS={
-  OLT:'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTUuNTk3IDU1LjU5NyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTUuNTk3IDU1LjU5NzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0YzRDU1QjsiIHBvaW50cz0iMjcuNTk3LDcuNzkgMy41OTcsNDkuNzkgNTIuNTk3LDQ5Ljc5ICIvPg0KPHBhdGggc3R5bGU9ImZpbGw6IzU1NjA4MDsiIGQ9Ik01NS40NTgsNTAuMzA3TDQ0LjE5NiwzMS4wODZsLTAuNzctMS4zMTRMMjguNDksNC4yODJjLTAuMzg2LTAuNjU5LTEuMzM5LTAuNjU2LTEuNzIxLDAuMDA1DQoJTDEyLjM2MywyOS4xOGwtMS4yMTQsMi4wOTdMMC4xMzUsNTAuMzEyYy0wLjM4NCwwLjY2NCwwLjA5NSwxLjQ5NSwwLjg2MiwxLjQ5NWgyNi42MjdoMjYuOTc0DQoJQzU1LjM2OSw1MS44MDcsNTUuODQ4LDUwLjk3MSw1NS40NTgsNTAuMzA3eiBNNi40NDYsNDcuODA3bDguMDk5LTEzLjk5NWw0Ljk1Mi04LjU1OWw4LjM4OS0xNC40OTdsOC41NjMsMTQuNjEzbDQuODQ5LDguMjc0DQoJbDguMjk5LDE0LjE2NEg2LjQ0NnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNFNkU3RTg7IiBkPSJNNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3Yy05LjM3Myw5LjM3My0yNC41NjksOS4zNzMtMzMuOTQxLDBsMCwwbDAsMA0KCUMxOS45NjksMjEuNDA1LDM1LjE2NSwyMS40MDUsNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3eiIvPg0KPGNpcmNsZSBzdHlsZT0iZmlsbDojNDhBMERDOyIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSI2Ii8+DQo8Y2lyY2xlIHN0eWxlPSJmaWxsOiM1NTYwODA7IiBjeD0iMjcuNTk3IiBjeT0iMzAuNzkiIHI9IjMiLz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K',
-  ONT:'data:image/svg+xml;base64,PHN2ZyBjbGFzcz0ic3ZnLWljb24iIHN0eWxlPSJ3aWR0aDogMWVtOyBoZWlnaHQ6IDFlbTt2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlO2ZpbGw6IGN1cnJlbnRDb2xvcjtvdmVyZmxvdzogaGlkZGVuOyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04MzcuODE4MTgyIDc5MS4yNzI3MjdjMCAyNS42Njk4MTgtMjAuODc1NjM2IDQ2LjU0NTQ1NS00Ni41NDU0NTUgNDYuNTQ1NDU1SDIzMi43MjcyNzNjLTI1LjY2OTgxOCAwLTQ2LjU0NTQ1NS0yMC44NzU2MzYtNDYuNTQ1NDU1LTQ2LjU0NTQ1NXYtOTMuMDkwOTA5aDY1MS42MzYzNjR2OTMuMDkwOTA5ek0yNDguNTc2IDIyNi4wMjQ3MjdBNDYuNzc4MTgyIDQ2Ljc3ODE4MiAwIDAgMSAyOTQuNjMyNzI3IDE4Ni4xODE4MThoNDM0LjczNDU0NmE0Ni43NzgxODIgNDYuNzc4MTgyIDAgMCAxIDQ2LjA1NjcyNyAzOS44NDI5MDlMODM3LjMyOTQ1NSA2NTEuNjM2MzY0SDE4Ni42NzA1NDVsNjEuOTA1NDU1LTQyNS42MTE2Mzd6IG01NzIuOTA0NzI3LTYuNzAyNTQ1QTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgNzI5LjM2NzI3MyAxMzkuNjM2MzY0SDI5NC42MzI3MjdhOTMuMDkwOTA5IDkzLjA5MDkwOSAwIDAgMC05Mi4xMTM0NTQgNzkuNjg1ODE4TDEzOS42MzYzNjQgNjUxLjYzNjM2NHYxMzkuNjM2MzYzYTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5IDkzLjA5MDkwOWg1NTguNTQ1NDU0YTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5LTkzLjA5MDkwOXYtMTM5LjYzNjM2M0w4MjEuNDgwNzI3IDIxOS4zMjIxODJ6IiBmaWxsPSIjMjFBM0REIiAvPjxwYXRoIGQ9Ik0yNTYgNzQ0LjcyNzI3M2g0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6IG05My4wOTA5MDkgMGg0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6TTQ1NC44NDIxODIgNTAwLjMxNzA5MWMtMTIuNDA0MzY0IDguNjEwOTA5LTI2Ljc2MzYzNiAxMi44OTMwOTEtNDMuMTI0MzY0IDEyLjg5MzA5MS0yMC40OCAwLTM2LjAyNjE4Mi03LjAyODM2NC00Ni42NjE4MTgtMjEuMDYxODE4LTEwLjYzNTYzNi0xNC4wMzM0NTUtMTUuOTY1MDkxLTM0LjM1MDU0NS0xNS45NjUwOTEtNjAuOTUxMjczIDAtMjUuNjkzMDkxIDUuMTQzMjczLTQ1LjgwMDcyNyAxNS40NTMwOTEtNjAuMzIyOTA5IDEwLjMwOTgxOC0xNC41MjIxODIgMjYuMDQyMTgyLTIxLjc4MzI3MyA0Ny4xNzM4MTgtMjEuNzgzMjczIDcuNjEwMTgyIDAgMTUuMTUwNTQ1IDAuOTc3NDU1IDIyLjYyMTA5MSAyLjkwOTA5MSA3LjQ3MDU0NSAxLjk1NDkwOSAxMy40OTgxODIgNC41MTQ5MDkgMTguMDM2MzY0IDcuNzI2NTQ1bC02LjA1MDkwOSAxNC40NTIzNjRhNjguOTMzODE4IDY4LjkzMzgxOCAwIDAgMC0zNC42MDY1NDYtOC45NmMtMTQuNTY4NzI3IDAtMjUuMzkwNTQ1IDUuMjgyOTA5LTMyLjQ4ODcyNyAxNS44NDg3MjctNy4wOTgxODIgMTAuNTY1ODE4LTEwLjYzNTYzNiAyNy4yNzU2MzYtMTAuNjM1NjM2IDUwLjEyOTQ1NSAwIDQzLjkxNTYzNiAxNC4zNTkyNzMgNjUuODYxODE4IDQzLjEyNDM2MyA2NS44NjE4MTggMTIuMTcxNjM2IDAgMjQuNjQ1ODE4LTMuNzIzNjM2IDM3LjM5OTI3My0xMS4xNzA5MDlsNS43MjUwOTEgMTQuNDI5MDkxeiBtMjMuMTA5ODE4LTE0OC4yMDA3MjdoNDAuMDk4OTA5YzE1LjE1MDU0NSAwIDI3LjI5ODkwOSAzLjgxNjcyNyAzNi4zOTg1NDYgMTEuNDAzNjM2IDkuMTIyOTA5IDcuNjMzNDU1IDEzLjY4NDM2NCAxOC4xNTI3MjcgMTMuNjg0MzYzIDMxLjUxMTI3MyAwIDEzLjQyODM2NC00LjUzODE4MiAyNC4xNTcwOTEtMTMuNjE0NTQ1IDMyLjE4NjE4Mi05LjA3NjM2NCA4LjAyOTA5MS0yMC45Njg3MjcgMTIuMDU1MjczLTM1LjY3NzA5MSAxMi4wNTUyNzJoLTIyLjUyOHY3MC45MTJoLTE4LjM4NTQ1NVYzNTIuMTE2MzY0eiBtMTguMzg1NDU1IDcxLjE0NDcyN2gxOS45MjE0NTRjMjEuNTczODE4IDAgMzIuMzcyMzY0LTkuMDUzMDkxIDMyLjM3MjM2NC0yNy4xMTI3MjcgMC04LjM3ODE4Mi0yLjkzMjM2NC0xNS4xMjcyNzMtOC43OTcwOTEtMjAuMjkzODE5LTUuODY0NzI3LTUuMTQzMjczLTEzLjQyODM2NC03LjcyNjU0NS0yMi42OTA5MDktNy43MjY1NDVoLTIwLjgyOTA5MXY1NS4xMzMwOTF6TTY3NC45MDkwOTEgNTEwLjE4NDcyN2gtODIuNTcxNjM2VjM1Mi4xMTYzNjRoODEuOTJ2MTYuMDExNjM2aC02My41MzQ1NDZ2NDguOTY1ODE4aDYxLjA0NDM2NHYxNi4wMTE2MzdoLTYxLjA0NDM2NHY2MS4wNDQzNjNINjc0LjkwOTA5MXYxNi4wMzQ5MDl6IiBmaWxsPSIjMjFBM0REIiAvPjwvc3ZnPg==',
-  
+  //OLT:'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTUuNTk3IDU1LjU5NyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTUuNTk3IDU1LjU5NzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0YzRDU1QjsiIHBvaW50cz0iMjcuNTk3LDcuNzkgMy41OTcsNDkuNzkgNTIuNTk3LDQ5Ljc5ICIvPg0KPHBhdGggc3R5bGU9ImZpbGw6IzU1NjA4MDsiIGQ9Ik01NS40NTgsNTAuMzA3TDQ0LjE5NiwzMS4wODZsLTAuNzctMS4zMTRMMjguNDksNC4yODJjLTAuMzg2LTAuNjU5LTEuMzM5LTAuNjU2LTEuNzIxLDAuMDA1DQoJTDEyLjM2MywyOS4xOGwtMS4yMTQsMi4wOTdMMC4xMzUsNTAuMzEyYy0wLjM4NCwwLjY2NCwwLjA5NSwxLjQ5NSwwLjg2MiwxLjQ5NWgyNi42MjdoMjYuOTc0DQoJQzU1LjM2OSw1MS44MDcsNTUuODQ4LDUwLjk3MSw1NS40NTgsNTAuMzA3eiBNNi40NDYsNDcuODA3bDguMDk5LTEzLjk5NWw0Ljk1Mi04LjU1OWw4LjM4OS0xNC40OTdsOC41NjMsMTQuNjEzbDQuODQ5LDguMjc0DQoJbDguMjk5LDE0LjE2NEg2LjQ0NnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNFNkU3RTg7IiBkPSJNNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3Yy05LjM3Myw5LjM3My0yNC41NjksOS4zNzMtMzMuOTQxLDBsMCwwbDAsMA0KCUMxOS45NjksMjEuNDA1LDM1LjE2NSwyMS40MDUsNDQuNTM4LDMwLjc3N0w0NC41MzgsMzAuNzc3eiIvPg0KPGNpcmNsZSBzdHlsZT0iZmlsbDojNDhBMERDOyIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSI2Ii8+DQo8Y2lyY2xlIHN0eWxlPSJmaWxsOiM1NTYwODA7IiBjeD0iMjcuNTk3IiBjeT0iMzAuNzkiIHI9IjMiLz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K',
+  //ONT:'data:image/svg+xml;base64,PHN2ZyBjbGFzcz0ic3ZnLWljb24iIHN0eWxlPSJ3aWR0aDogMWVtOyBoZWlnaHQ6IDFlbTt2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlO2ZpbGw6IGN1cnJlbnRDb2xvcjtvdmVyZmxvdzogaGlkZGVuOyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04MzcuODE4MTgyIDc5MS4yNzI3MjdjMCAyNS42Njk4MTgtMjAuODc1NjM2IDQ2LjU0NTQ1NS00Ni41NDU0NTUgNDYuNTQ1NDU1SDIzMi43MjcyNzNjLTI1LjY2OTgxOCAwLTQ2LjU0NTQ1NS0yMC44NzU2MzYtNDYuNTQ1NDU1LTQ2LjU0NTQ1NXYtOTMuMDkwOTA5aDY1MS42MzYzNjR2OTMuMDkwOTA5ek0yNDguNTc2IDIyNi4wMjQ3MjdBNDYuNzc4MTgyIDQ2Ljc3ODE4MiAwIDAgMSAyOTQuNjMyNzI3IDE4Ni4xODE4MThoNDM0LjczNDU0NmE0Ni43NzgxODIgNDYuNzc4MTgyIDAgMCAxIDQ2LjA1NjcyNyAzOS44NDI5MDlMODM3LjMyOTQ1NSA2NTEuNjM2MzY0SDE4Ni42NzA1NDVsNjEuOTA1NDU1LTQyNS42MTE2Mzd6IG01NzIuOTA0NzI3LTYuNzAyNTQ1QTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgNzI5LjM2NzI3MyAxMzkuNjM2MzY0SDI5NC42MzI3MjdhOTMuMDkwOTA5IDkzLjA5MDkwOSAwIDAgMC05Mi4xMTM0NTQgNzkuNjg1ODE4TDEzOS42MzYzNjQgNjUxLjYzNjM2NHYxMzkuNjM2MzYzYTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5IDkzLjA5MDkwOWg1NTguNTQ1NDU0YTkzLjA5MDkwOSA5My4wOTA5MDkgMCAwIDAgOTMuMDkwOTA5LTkzLjA5MDkwOXYtMTM5LjYzNjM2M0w4MjEuNDgwNzI3IDIxOS4zMjIxODJ6IiBmaWxsPSIjMjFBM0REIiAvPjxwYXRoIGQ9Ik0yNTYgNzQ0LjcyNzI3M2g0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6IG05My4wOTA5MDkgMGg0Ni41NDU0NTV2NDYuNTQ1NDU0aC00Ni41NDU0NTV2LTQ2LjU0NTQ1NHogbTkzLjA5MDkwOSAwaDQ2LjU0NTQ1NXY0Ni41NDU0NTRoLTQ2LjU0NTQ1NXYtNDYuNTQ1NDU0eiBtOTMuMDkwOTA5IDBoNDYuNTQ1NDU1djQ2LjU0NTQ1NGgtNDYuNTQ1NDU1di00Ni41NDU0NTR6TTQ1NC44NDIxODIgNTAwLjMxNzA5MWMtMTIuNDA0MzY0IDguNjEwOTA5LTI2Ljc2MzYzNiAxMi44OTMwOTEtNDMuMTI0MzY0IDEyLjg5MzA5MS0yMC40OCAwLTM2LjAyNjE4Mi03LjAyODM2NC00Ni42NjE4MTgtMjEuMDYxODE4LTEwLjYzNTYzNi0xNC4wMzM0NTUtMTUuOTY1MDkxLTM0LjM1MDU0NS0xNS45NjUwOTEtNjAuOTUxMjczIDAtMjUuNjkzMDkxIDUuMTQzMjczLTQ1LjgwMDcyNyAxNS40NTMwOTEtNjAuMzIyOTA5IDEwLjMwOTgxOC0xNC41MjIxODIgMjYuMDQyMTgyLTIxLjc4MzI3MyA0Ny4xNzM4MTgtMjEuNzgzMjczIDcuNjEwMTgyIDAgMTUuMTUwNTQ1IDAuOTc3NDU1IDIyLjYyMTA5MSAyLjkwOTA5MSA3LjQ3MDU0NSAxLjk1NDkwOSAxMy40OTgxODIgNC41MTQ5MDkgMTguMDM2MzY0IDcuNzI2NTQ1bC02LjA1MDkwOSAxNC40NTIzNjRhNjguOTMzODE4IDY4LjkzMzgxOCAwIDAgMC0zNC42MDY1NDYtOC45NmMtMTQuNTY4NzI3IDAtMjUuMzkwNTQ1IDUuMjgyOTA5LTMyLjQ4ODcyNyAxNS44NDg3MjctNy4wOTgxODIgMTAuNTY1ODE4LTEwLjYzNTYzNiAyNy4yNzU2MzYtMTAuNjM1NjM2IDUwLjEyOTQ1NSAwIDQzLjkxNTYzNiAxNC4zNTkyNzMgNjUuODYxODE4IDQzLjEyNDM2MyA2NS44NjE4MTggMTIuMTcxNjM2IDAgMjQuNjQ1ODE4LTMuNzIzNjM2IDM3LjM5OTI3My0xMS4xNzA5MDlsNS43MjUwOTEgMTQuNDI5MDkxeiBtMjMuMTA5ODE4LTE0OC4yMDA3MjdoNDAuMDk4OTA5YzE1LjE1MDU0NSAwIDI3LjI5ODkwOSAzLjgxNjcyNyAzNi4zOTg1NDYgMTEuNDAzNjM2IDkuMTIyOTA5IDcuNjMzNDU1IDEzLjY4NDM2NCAxOC4xNTI3MjcgMTMuNjg0MzYzIDMxLjUxMTI3MyAwIDEzLjQyODM2NC00LjUzODE4MiAyNC4xNTcwOTEtMTMuNjE0NTQ1IDMyLjE4NjE4Mi05LjA3NjM2NCA4LjAyOTA5MS0yMC45Njg3MjcgMTIuMDU1MjczLTM1LjY3NzA5MSAxMi4wNTUyNzJoLTIyLjUyOHY3MC45MTJoLTE4LjM4NTQ1NVYzNTIuMTE2MzY0eiBtMTguMzg1NDU1IDcxLjE0NDcyN2gxOS45MjE0NTRjMjEuNTczODE4IDAgMzIuMzcyMzY0LTkuMDUzMDkxIDMyLjM3MjM2NC0yNy4xMTI3MjcgMC04LjM3ODE4Mi0yLjkzMjM2NC0xNS4xMjcyNzMtOC43OTcwOTEtMjAuMjkzODE5LTUuODY0NzI3LTUuMTQzMjczLTEzLjQyODM2NC03LjcyNjU0NS0yMi42OTA5MDktNy43MjY1NDVoLTIwLjgyOTA5MXY1NS4xMzMwOTF6TTY3NC45MDkwOTEgNTEwLjE4NDcyN2gtODIuNTcxNjM2VjM1Mi4xMTYzNjRoODEuOTJ2MTYuMDExNjM2aC02My41MzQ1NDZ2NDguOTY1ODE4aDYxLjA0NDM2NHYxNi4wMTE2MzdoLTYxLjA0NDM2NHY2MS4wNDQzNjNINjc0LjkwOTA5MXYxNi4wMzQ5MDl6IiBmaWxsPSIjMjFBM0REIiAvPjwvc3ZnPg==',
+  OLT:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NS41OTcgNTUuNTk3Ij48cGF0aCBmaWxsPSIjZjNkNTViIiBkPSJtMjcuNTk3IDcuNzktMjQgNDJoNDl6Ii8+PHBhdGggZmlsbD0iIzU1NjA4MCIgZD0iTTU1LjQ1OCA1MC4zMDcgNDQuMTk2IDMxLjA4NmwtLjc3LTEuMzE0TDI4LjQ5IDQuMjgyYS45OTUuOTk1IDAgMCAwLTEuNzIxLjAwNUwxMi4zNjMgMjkuMThsLTEuMjE0IDIuMDk3TC4xMzUgNTAuMzEyYS45OTYuOTk2IDAgMCAwIC44NjIgMS40OTVoNTMuNjAxYS45OTYuOTk2IDAgMCAwIC44Ni0xLjV6bS00OS4wMTItMi41IDguMDk5LTEzLjk5NSA0Ljk1Mi04LjU1OSA4LjM4OS0xNC40OTcgOC41NjMgMTQuNjEzIDQuODQ5IDguMjc0IDguMjk5IDE0LjE2NEg2LjQ0NnoiLz48cGF0aCBmaWxsPSIjZTZlN2U4IiBkPSJNNDQuNTM4IDMwLjc3N2MtOS4zNzMgOS4zNzMtMjQuNTY5IDkuMzczLTMzLjk0MSAwIDkuMzcyLTkuMzcyIDI0LjU2OC05LjM3MiAzMy45NDEgMHoiLz48Y2lyY2xlIGZpbGw9IiM0OGEwZGMiIGN4PSIyNy41OTciIGN5PSIzMC43OSIgcj0iNiIvPjxjaXJjbGUgZmlsbD0iIzU1NjA4MCIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSIzIi8+PC9zdmc+',
+  ONT:'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04MzcuODE4IDc5MS4yNzNjMCAyNS42Ny0yMC44NzUgNDYuNTQ1LTQ2LjU0NSA0Ni41NDVIMjMyLjcyN2MtMjUuNjcgMC00Ni41NDUtMjAuODc1LTQ2LjU0NS00Ni41NDV2LTkzLjA5MWg2NTEuNjM2djkzLjA5ek0yNDguNTc2IDIyNi4wMjVhNDYuNzc4IDQ2Ljc3OCAwIDAgMSA0Ni4wNTctMzkuODQzaDQzNC43MzRhNDYuNzc4IDQ2Ljc3OCAwIDAgMSA0Ni4wNTcgMzkuODQzbDYxLjkwNSA0MjUuNjExSDE4Ni42NzFsNjEuOTA1LTQyNS42MTF6bTU3Mi45MDUtNi43MDNhOTMuMDkgOTMuMDkgMCAwIDAtOTIuMTE0LTc5LjY4NkgyOTQuNjMzYTkzLjA5IDkzLjA5IDAgMCAwLTkyLjExNCA3OS42ODZsLTYyLjg4MyA0MzIuMzE0djEzOS42MzdhOTMuMDkgOTMuMDkgMCAwIDAgOTMuMDkxIDkzLjA5aDU1OC41NDZhOTMuMDkgOTMuMDkgMCAwIDAgOTMuMDktOTMuMDlWNjUxLjYzNmwtNjIuODgyLTQzMi4zMTR6IiBmaWxsPSIjMjFBM0REIi8+PHBhdGggZD0iTTI1NiA3NDQuNzI3aDQ2LjU0NXY0Ni41NDZIMjU2di00Ni41NDZ6bTkzLjA5IDBoNDYuNTQ2djQ2LjU0NmgtNDYuNTQ1di00Ni41NDZ6bTkzLjA5MiAwaDQ2LjU0NXY0Ni41NDZoLTQ2LjU0NXYtNDYuNTQ2em05My4wOSAwaDQ2LjU0NnY0Ni41NDZoLTQ2LjU0NXYtNDYuNTQ2em05My4wOTIgMGg0Ni41NDV2NDYuNTQ2aC00Ni41NDV2LTQ2LjU0NnptOTMuMDkgMEg3Njh2NDYuNTQ2aC00Ni41NDV2LTQ2LjU0NnptLTI2Ni42MTItMjQ0LjQxYy0xMi40MDQgOC42MTEtMjYuNzYzIDEyLjg5My00My4xMjQgMTIuODkzLTIwLjQ4IDAtMzYuMDI2LTcuMDI4LTQ2LjY2Mi0yMS4wNjItMTAuNjM2LTE0LjAzMy0xNS45NjUtMzQuMzUtMTUuOTY1LTYwLjk1IDAtMjUuNjk0IDUuMTQzLTQ1LjgwMiAxNS40NTMtNjAuMzI0IDEwLjMxLTE0LjUyMiAyNi4wNDItMjEuNzgzIDQ3LjE3NC0yMS43ODMgNy42MSAwIDE1LjE1Ljk3NyAyMi42MiAyLjkwOSA3LjQ3MSAxLjk1NSAxMy41IDQuNTE1IDE4LjAzNyA3LjcyN2wtNi4wNSAxNC40NTJhNjguOTM0IDY4LjkzNCAwIDAgMC0zNC42MDctOC45NmMtMTQuNTY5IDAtMjUuMzkgNS4yODMtMzIuNDg5IDE1Ljg0OS03LjA5OCAxMC41NjUtMTAuNjM2IDI3LjI3NS0xMC42MzYgNTAuMTMgMCA0My45MTUgMTQuMzYgNjUuODYgNDMuMTI1IDY1Ljg2IDEyLjE3MSAwIDI0LjY0Ni0zLjcyMyAzNy40LTExLjE3bDUuNzI0IDE0LjQzem0yMy4xMS0xNDguMmg0MC4wOTljMTUuMTUgMCAyNy4yOTkgMy44MTYgMzYuMzk4IDExLjQwMyA5LjEyMyA3LjYzMyAxMy42ODUgMTguMTUzIDEzLjY4NSAzMS41MTEgMCAxMy40MjktNC41MzggMjQuMTU3LTEzLjYxNSAzMi4xODYtOS4wNzYgOC4wMy0yMC45NjggMTIuMDU2LTM1LjY3NyAxMi4wNTZoLTIyLjUyOHY3MC45MTJINDc3LjkzVjM1Mi4xMTZ6bTE4LjM4NSA3MS4xNDRoMTkuOTIyYzIxLjU3NCAwIDMyLjM3Mi05LjA1MyAzMi4zNzItMjcuMTEzIDAtOC4zNzgtMi45MzItMTUuMTI3LTguNzk3LTIwLjI5My01Ljg2NS01LjE0NC0xMy40MjgtNy43MjctMjIuNjktNy43MjdoLTIwLjgzdjU1LjEzM3ptMTc4LjU3MiA4Ni45MjRoLTgyLjU3MlYzNTIuMTE2aDgxLjkydjE2LjAxMmgtNjMuNTM0djQ4Ljk2Nmg2MS4wNDR2MTYuMDExaC02MS4wNDR2NjEuMDQ1aDY0LjE4NnYxNi4wMzV6IiBmaWxsPSIjMjFBM0REIi8+PC9zdmc+',
+  PON:'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiMyMUEzREQiIGQ9Ik0xMDE5LjcxMiAxNzIuN2MwLTkzLjU3NS03NS44NTYtMTY5LjQzMi0xNjkuNDMtMTY5LjQzMkgxNzIuNTlDNzkuMDE3IDMuMjY4IDMuMTYgNzkuMTI1IDMuMTYgMTcyLjd2Njc3LjY5YzAgOTMuNTc0IDc1Ljg1NyAxNjkuNDMxIDE2OS40MyAxNjkuNDMxaDY3Ny42OTJjOTMuNTc0IDAgMTY5LjQzLTc1Ljg1NyAxNjkuNDMtMTY5LjQzVjE3Mi42OThabS04NC44MSA2NDcuOTUyYzAgNjMuODAxLTUxLjcyIDExNS41MjItMTE1LjUyIDExNS41MjJIMjAyLjMyOWMtNjMuOCAwLTExNS41MjEtNTEuNzItMTE1LjUyMS0xMTUuNTIyVjIwMy42YzAtNjMuODAxIDUxLjcyLTExNS41MjIgMTE1LjUyLTExNS41MjJoNjE3LjA1NWM2My44IDAgMTE1LjUyMSA1MS43MiAxMTUuNTIxIDExNS41MjJ2NjE3LjA1MmgtLjAwMVpNODM1LjM2IDU3MS44MjdjLTI3LjcxMyAyNy43MDEtNzIuNjI0IDI3LjcwMS0xMDAuMzI0IDAtOC4wMDctOC4wMDctMTMuNDItMTcuNTE3LTE2LjgwNS0yNy41NjNINjA3LjczM2MtNi40NTMgMTkuMDQxLTE4LjUwNyAzNS40My0zNC4wNTUgNDcuNTA1bDcyLjE4OCAxMjUuMDM2YzEwLjk3NS0yLjU1MyAyMi42MzMtMi44MzIgMzQuMjgyLjI4OCAzNy44MzUgMTAuMTQzIDYwLjMwMiA0OS4wMzggNTAuMTU4IDg2Ljg4My0xMC4xMzUgMzcuODQ1LTQ5LjA0IDYwLjMtODYuODg0IDUwLjE1Ny0zNy44NDYtMTAuMTM0LTYwLjMwMi00OS4wMjktNTAuMTU3LTg2Ljg3NCAzLjE4Ni0xMS45MTYgOS40NjEtMjIuMDY5IDE3LjQyNy0zMC40MDNsLTczLjQ3NC0xMjcuMjUzYy04LjE1NSAyLjExOC0xNi41OTcgMy41NDMtMjUuNDI1IDMuNTQzLTIwLjYyNSAwLTM5Ljc4Ni02LjE5NS01NS44LTE2Ljc4NEwzMDAuMzY4IDc1MS45ODhjNS4zOTMgMTAuMDA2IDguNzM4IDIxLjI2OCA4LjczOCAzMy40NDEgMCAzOS4xNzItMzEuNzU4IDcwLjk0LTcwLjk0IDcwLjk0cy03MC45NC0zMS43NjgtNzAuOTQtNzAuOTRjMC0zOS4xOSAzMS43NTgtNzAuOTQxIDcwLjk0LTcwLjk0MSAxMi4yMTIgMCAyMy41MzUgMy4zNjUgMzMuNTcgOC44MDlsMTU1LjU3OC0xNTUuNTc4Yy0xMC42MzgtMTYuMDM0LTE2Ljg2NC0zNS4yNDQtMTYuODY0LTU1LjkxOCAwLTIwLjgwMiA2LjI4NC00MC4xMjIgMTcuMDMzLTU2LjIxNEwzMTAuMDM2IDMzOC4xNTNjLTEyLjE0MyA3LjI0NS0yNi4yOTYgMTEuNS00MS40NjggMTEuNS00NC43NzMgMC04MS4wNzQtMzYuMzAxLTgxLjA3NC04MS4wNzUgMC00NC43ODMgMzYuMzAyLTgxLjA3NCA4MS4wNzQtODEuMDc0IDQ0Ljc3NCAwIDgxLjA3NiAzNi4yOTEgODEuMDc2IDgxLjA3NCAwIDE0Ljg5NS00LjA4OCAyOC44MS0xMS4xMDYgNDAuODE0bDExNy43MDMgMTE3LjY5M2MxNS45NjQtMTAuNDkxIDM1LjAyNi0xNi42MjYgNTUuNTUyLTE2LjYyNiAxMC42MSAwIDIwLjgyMyAxLjY0MiAzMC40MzIgNC42Nmw2Mi43MzYtMTA4LjY1N2MtNS43My02LjY5LTEwLjIzNC0xNC41ODgtMTIuNjY3LTIzLjY2My04LjY5LTMyLjQzMiAxMC41Ni02NS43ODQgNDMuMDAyLTc0LjQ3NCAxMS45MjYtMy4xOTYgMjMuOTYtMi41NTQgMzQuODY2IDEuMDggNC4yOTUtLjU4NCA4Ljc4OC4xMTggMTIuODI2IDIuNDU0IDQuMDY4IDIuMzQ2IDYuOTM5IDUuOTI5IDguNTcgOS45NzYgOC41MTIgNy42MSAxNS4wMzQgMTcuNjM2IDE4LjIwMSAyOS40ODMgOC43IDMyLjQ0LTEwLjU2IDY1Ljc4NC00Mi45OTIgNzQuNDgzLTkuMDI1IDIuNDE2LTE4LjA2MSAyLjQ3NC0yNi42NzEuODkxbC02Mi40NSAxMDguMTYzYzE5Ljc3NCAxNi45NDMgMzIuODU4IDQxLjM1OSAzNS4wMzUgNjguODcyaDEwNC4xNzNjMy4wNzktMTEuNzc3IDguOTQ3LTIzIDE4LjE4LTMyLjIyNCAyNy43MDItMjcuNzEyIDcyLjYxMy0yNy43MTIgMTAwLjMyNSAwIDE0LjM1IDE0LjM1IDIxLjExIDMzLjMyMyAyMC41ODUgNTIuMTM2IDAgLjExOC4wNC4yMzcuMDQuMzU2IDAgMS40ODUtLjE4OSAyLjkyLS40ODUgNC4zMTUtMS40OTUgMTUuODc1LTcuOTg2IDMxLjM2My0yMC4xNCA0My41MTdaIi8+PC9zdmc+',
 };
 
 class PortSubscriberInfo {
@@ -524,7 +528,7 @@ store.registerModule('gpon2',{
   namespaced:true,
   state:()=>({
     loads:{},
-    sitesInfo:{},
+    sitesNodesInfo:{},
     devices:{},
     devicesInfo:{},
     devicesPorts:{},
@@ -544,16 +548,16 @@ store.registerModule('gpon2',{
     userActionPause:state=>state.userActionPause,
     setAbonInfoPause:state=>state.setAbonInfoPause,
     loads:state=>state.loads,
-    sitesInfo:state=>state.sitesInfo,
+    sitesNodesInfo:state=>state.sitesNodesInfo,
     devices:state=>state.devices,
     devicesList:(state,getters)=>Object.entries(getters.devices).filter(([deviceName,selected])=>selected).map(([deviceName])=>deviceName),
     devicesCount:(state,getters)=>getters.devicesList.length,
     devicesInfo:state=>state.devicesInfo,
     getDeviceInfo:(state,getters)=>(deviceName)=>getters.devicesInfo[deviceName],
     getDeviceSiteCoordinates:(state,getters)=>(deviceName)=>{
-      const site=getters.sitesInfo[getters.getDeviceInfo(deviceName)?.site_id];
-      if(!site){return};
-      return [parseFloat(site.LatitudeWGS),parseFloat(site.LongitudeWGS)]
+      const siteNode=getters.sitesNodesInfo[getters.getDeviceInfo(deviceName)?.uzel?.name];
+      if(!siteNode){return};
+      return [siteNode.coordinates.latitude,siteNode.coordinates.longitude]
     },
     devicesPortsInfo:state=>state.devicesPortsInfo,
     devicesPorts:state=>state.devicesPorts,
@@ -591,8 +595,7 @@ store.registerModule('gpon2',{
         points.push([lat,lon]);
         return points;
       },[]);
-      
-      return [sortPointsToArea(points),[]];
+      return points.length>2?[sortPointsToArea(points),[]]:null;
     },
     //getDevicePortsLinksList:state=>(deviceName)=>state.devicesPortsLinks[deviceName]||[],
     //getDevicePortsDdm:state=>(deviceName)=>state.devicesPortsDdm[deviceName]||[],
@@ -654,7 +657,7 @@ store.registerModule('gpon2',{
         await dispatch('getDeviceAbonsInfo',deviceName);
         setMapObjects();
         await Promise.allSettled([
-          dispatch('getSiteInfo',device.site_id),
+          dispatch('getSiteNodeInfo',device.uzel.name),
           dispatch('getDevicePorts',deviceName)
         ]);
         setMapObjects();
@@ -690,23 +693,23 @@ store.registerModule('gpon2',{
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
-    async getSiteInfo({getters,commit},siteId){
-      if(!siteId){console.warn('getSiteInfo.error.siteId');return};
-      const loadKey=`get_nioss_object-${siteId}`;
+    async getSiteNodeInfo({getters,commit},nodeName){
+      if(!nodeName){console.warn('getSiteNodeInfo.error.nodeName');return};
+      const loadKey=`sitesNodesInfo-${nodeName}`;
       if(getters.loads[loadKey]){return};
       commit('setItem',['loads/'+loadKey,!0]);
-      const cache=localStorageCache.getItem(`site-${siteId}`);
+      const cache=localStorageCache.getItem(`siteNodeInfo-${nodeName}`);
       if(cache){
-        commit('setItem',['sitesInfo/'+siteId,Object.freeze(cache)]);
+        commit('setItem',['sitesNodesInfo/'+nodeName,Object.freeze(cache)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('get_nioss_object',{object_id:siteId,object:'site'},'/call/nioss/'));
-          if(response?.resource_business_name){
-            localStorageCache.setItem(`site-${siteId}`,response,CACHE_1DAY);
-            commit('setItem',['sitesInfo/'+siteId,Object.freeze(response)]);
+          const response=await httpGet(buildUrl('search_ma',{pattern:nodeName},'/call/v1/search/'));
+          if(response?.data?.id){
+            localStorageCache.setItem(`siteNodeInfo-${nodeName}`,response.data,CACHE_1DAY);
+            commit('setItem',['sitesNodesInfo/'+nodeName,Object.freeze(response.data)]);
           };
         }catch(error){
-          console.warn('get_nioss_object.error',error);
+          console.warn('search_ma.error',error);
         };
       };
       commit('setItem',['loads/'+loadKey,!1]);
@@ -892,8 +895,8 @@ function mountBalloonView(properties={}){
       <div>objectId: {{objectId}}</div>
       <div>objectType: {{objectType}}</div>
       <template v-if="objectType=='abon'">
-        <pre>lbsvAddress: {{abonInfo.lbsvAddress}}</pre>
-        <pre>decription: {{abonInfo.decription}}</pre>
+        <pre>lbsvAddress: {{abonInfo?.lbsvAddress}}</pre>
+        <pre>decription: {{abonInfo?.decription}}</pre>
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
@@ -938,8 +941,8 @@ function mountHintView(properties={}){
       <div>objectId: {{objectId}}</div>
       <div>objectType: {{objectType}}</div>
       <template v-if="objectType=='abon'">
-        <pre>lbsvAddress: {{abonInfo.lbsvAddress}}</pre>
-        <pre>decription: {{abonInfo.decription}}</pre>
+        <pre>lbsvAddress: {{abonInfo?.lbsvAddress}}</pre>
+        <pre>decription: {{abonInfo?.decription}}</pre>
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
@@ -953,6 +956,24 @@ function mountHintView(properties={}){
         document.getElementById(id)?.remove();
         const el=Object.assign(document.createElement('style'),{type:'text/css',id});
         el.appendChild(document.createTextNode(`
+        .ymaps-2-1-79-hint--- {
+          padding: 0 !important;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 !important;
+          border: 0 !important;
+          max-width: 270px;
+        }
+        .ymaps-2-1-79-hint__text--- {
+          padding: 8px 16px !important;
+          background: #fff !important;
+          font: inherit important;
+          display: block;
+          float: initial;
+          color: #212121;
+          font-size: 14px;
+          line-height: 20px;
+        }
           [name="YMapsHint"]{
             min-width:200px;
             min-height:100px;
@@ -997,8 +1018,8 @@ Vue.component('EventsMapGpon2',{
     ymap:null,
     type:'yandex#map',
     //zoom:16,center:[55.19882141102037, 82.82566161923812],//Снт
-    //zoom:16,center:[54.99015329190864, 82.97480896759986],//Зар
-    zoom:19,center:[54.99390617498407, 82.96689562644377],//polygon test
+    zoom:16,center:[54.99015329190864, 82.97480896759986],//Зар
+    //zoom:19,center:[54.99390617498407, 82.96689562644377],//polygon test
     geocodeLoading:false,
     address:'',
     addressInfoButton:null,
@@ -1082,15 +1103,18 @@ Vue.component('EventsMapGpon2',{
         data:{
           content:`Не выбран`,
         },
-        items:NSK_OLT_LIST_ITEMS.map(deviceName=>{
-          return !deviceName?new window.ymaps.control.ListBoxItem({
+        items:NSK_OLT_LIST_ITEMS.map(item=>{
+          const [deviceName,content,coordinates,zoom]=item||[];
+          return !item?new window.ymaps.control.ListBoxItem({
             options:{
               type:'separator'
             }
           }):new window.ymaps.control.ListBoxItem({
             data:{
-              content:deviceName,
-              deviceName
+              content,
+              deviceName,
+              coordinates,
+              zoom,
             },
           })
         }),
@@ -1102,13 +1126,16 @@ Vue.component('EventsMapGpon2',{
       });
       this.controlListBox.events.add(['select','deselect'],(event)=>{
         const listBoxItem=event.get('target');
-        const deviceName=listBoxItem.data.get('deviceName');
-        if(!deviceName){return};
         const content=listBoxItem.data.get('content');
+        const deviceName=listBoxItem.data.get('deviceName');
+        const coordinates=listBoxItem.data.get('coordinates');
+        const zoom=listBoxItem.data.get('zoom');
         const selected=listBoxItem.state.get('selected');
         console.log('ymap.controlListBox.[select,deselect].{content,selected}',content,selected);
         if(selected){
           this.addDevice(deviceName);
+          if(coordinates){this.center=coordinates};
+          if(zoom){this.zoom=zoom};
         }else{
           this.delDevice(deviceName);
         };
@@ -1307,8 +1334,6 @@ Vue.component('EventsMapGpon2',{
           hideIconOnBalloonOpen:false,
           openEmptyBalloon:true,
           openEmptyHint:true,
-          //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${deviceName}" object-type="device"></div>`),
-          //hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${deviceName}" object-type="device"></div>`),
           balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
           hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
           zIndex:EVENTS_MAP_ZINDEX.OLT,
@@ -1326,7 +1351,7 @@ Vue.component('EventsMapGpon2',{
         this.setMapObjectDevicePortAbon(deviceName,devicePortName,accountId);
       };
       for(const {name:devicePortName} of this.getDevicePortsHasAbons(deviceName)){
-        this.setMapObjectDevicePortArea(deviceName,devicePortName);
+        this.setMapObjectDevicePort(deviceName,devicePortName);
       };
     },
     setMapObjectDevicePortAbon(deviceName,devicePortName,accountId){
@@ -1337,9 +1362,13 @@ Vue.component('EventsMapGpon2',{
         const coordinates=this.getDeviceSiteCoordinates(deviceName);
         if(!coordinates){return};
         const [_latitude,_longitude]=coordinates;
-        if(!latitude||!longitude){return};
-        latitude=_latitude+0.001;
-        longitude=_longitude+0.002;
+        if(!_latitude||!_longitude){return};
+        latitude=_latitude+0.0004;
+        longitude=_longitude+0.0008;
+        //const lat=Math.random()*0.0004;
+        //const lon=Math.random()*0.0008;
+        //latitude=_latitude+(Math.random()>0.5?lat:-lat);
+        //longitude=_longitude+(Math.random()>0.5?lon:-lon);
       };
       if(!mapObjects[accountId]){
         this.addMapObject(mapObjects[accountId]=new window.ymaps.Placemark([latitude,longitude],{
@@ -1354,8 +1383,6 @@ Vue.component('EventsMapGpon2',{
           hideIconOnBalloonOpen:false,
           openEmptyBalloon:true,
           openEmptyHint:true,
-          //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${accountId}" object-type="abon"></div>`),
-          //hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${accountId}" object-type="abon"></div>`),
           balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
           hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
           zIndex:EVENTS_MAP_ZINDEX.ONT,
@@ -1381,7 +1408,7 @@ Vue.component('EventsMapGpon2',{
           
           const deviceName=target.properties.get('deviceName');
           const devicePortName=target.properties.get('devicePortName');
-          this.setMapObjectDevicePortArea(deviceName,devicePortName);
+          this.setMapObjectDevicePort(deviceName,devicePortName);
           
           this.setUserActionPause(!1);
         });
@@ -1390,9 +1417,58 @@ Vue.component('EventsMapGpon2',{
       };
       mapObjects[accountId].properties.set('lastUpdate',Date.now());
     },
+    setMapObjectDevicePort(deviceName,devicePortName){
+      const {mapObjects}=this;
+      const coordinates=this.getDevicePortAreaCoordinates(deviceName,devicePortName);
+      //console.log(devicePortName,coordinates);
+      if(!coordinates){
+        this.setMapObjectDevicePortPoint(deviceName,devicePortName);
+      }else{
+        if(mapObjects[devicePortName]?.geometry?.getType()==='Point'){
+          this.delMapObject(mapObjects[devicePortName]);
+          delete mapObjects[devicePortName];
+        };
+        this.setMapObjectDevicePortArea(deviceName,devicePortName);
+      };
+    },
+    setMapObjectDevicePortPoint(deviceName,devicePortName){
+      const {mapObjects}=this;
+      const coordinates=this.getDeviceSiteCoordinates(deviceName);
+      if(!coordinates){return};
+      const [_latitude,_longitude]=coordinates;
+      if(!_latitude||!_longitude){return};
+      latitude=_latitude+0.0002;
+      longitude=_longitude+0.0004;
+      
+      if(!mapObjects[devicePortName]){
+        this.addMapObject(mapObjects[devicePortName]=new window.ymaps.Placemark([latitude,longitude],{
+          objectId:devicePortName,
+          objectType:'port',
+          deviceName,
+          devicePortName,
+        },{
+          draggable:true,
+          balloonPanelMaxMapArea:0,
+          hideIconOnBalloonOpen:false,
+          openEmptyBalloon:true,
+          openEmptyHint:true,
+          balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
+          hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+          zIndex:EVENTS_MAP_ZINDEX.PON,
+          iconLayout:'default#image',
+          iconImageHref:EVENTS_MAP_ICONS.PON,
+          iconShape:new RectangleIconShape(18),
+          ...new IconImageSizeOffset(36),
+        }));
+      }else{
+        this.setMapObjectCoordinates(devicePortName,[latitude,longitude]);
+      };
+      mapObjects[devicePortName].properties.set('lastUpdate',Date.now());
+    },
     setMapObjectDevicePortArea(deviceName,devicePortName){
       const {mapObjects}=this;
       const coordinates=this.getDevicePortAreaCoordinates(deviceName,devicePortName);
+      if(!coordinates){return};
       if(!mapObjects[devicePortName]){
         this.addMapObject(mapObjects[devicePortName]=new window.ymaps.Polygon(coordinates,{
           objectId:devicePortName,
@@ -1404,15 +1480,16 @@ Vue.component('EventsMapGpon2',{
           hideIconOnBalloonOpen:false,
           openEmptyBalloon:true,
           openEmptyHint:true,
-          //balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon" object-id="${devicePortName}" object-type="port"></div>`),
-          //hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint" object-id="${devicePortName}" object-type="port"></div>`),
           balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
           hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
           zIndex:EVENTS_MAP_ZINDEX.AREA,
           fillColor:'#00FF0020',
-          strokeColor:'#0000FF',
-          strokeWidth:1,
-          strokeStyle:'dash',
+          //strokeColor:'#0000FF',
+          //strokeWidth:1,
+          //strokeStyle:'dash'
+          strokeColor:'#00FF0020',
+          strokeWidth:48,
+          strokeStyle:'solid',
           interactivityModel: 'default#transparent',
         }));
       }else{
