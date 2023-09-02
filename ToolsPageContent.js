@@ -897,7 +897,7 @@ function mountBalloonView(properties={}){
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
-      <OntInfo v-else-if="objectType=='ont' v-bind="{ont:{},port:getDevicePort(deviceName,devicePortName)}"/>
+      <OntInfo v-else-if="objectType=='ont'" v-bind="{ont:{},port:getDevicePort(deviceName,devicePortName)}"/>
     </div>`,
     data:()=>({
       ...properties,
@@ -943,7 +943,7 @@ function mountHintView(properties={}){
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
-      <OntInfo v-else-if="objectType=='ont' v-bind="{ont:{},port:getDevicePort(deviceName,devicePortName)}"/>
+      <OntInfo v-else-if="objectType=='ont'" v-bind="{ont:{},port:getDevicePort(deviceName,devicePortName)}"/>
     </div>`,
     data:()=>({
       ...properties,
