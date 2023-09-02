@@ -536,17 +536,17 @@ store.registerModule('gpon2',{
     devicesPortsDdm:{},
     devicesPortsOnts:{},
     devicesPortsInfo:{},
-    abonsInfo:{},
+    objectsInfo:{},
     timer:null,
     started:false,
     userActionPause:false,
-    setAbonInfoPause:false,
+    setObjectInfoPause:false,
   }),
   getters:{
     timer:state=>state.timer,
     started:state=>state.started,
     userActionPause:state=>state.userActionPause,
-    setAbonInfoPause:state=>state.setAbonInfoPause,
+    setObjectInfoPause:state=>state.setObjectInfoPause,
     loads:state=>state.loads,
     sitesNodesInfo:state=>state.sitesNodesInfo,
     devices:state=>state.devices,
@@ -564,7 +564,7 @@ store.registerModule('gpon2',{
     devicesPortsLinks:state=>state.devicesPortsLinks,
     devicesPortsDdm:state=>state.devicesPortsDdm,
     devicesPortsOnts:state=>state.devicesPortsOnts,
-    abonsInfo:state=>state.abonsInfo,
+    objectsInfo:state=>state.objectsInfo,
     getDevicePorts:state=>(deviceName)=>state.devicesPorts[deviceName]||[],
     getDevicePortsHasAbons:(state,getters)=>(deviceName)=>getters.getDevicePorts(deviceName).filter(({subscriber_list})=>subscriber_list?.length),
     getDevicePort:(state,getters)=>(deviceName,devicePortName)=>getters.getDevicePorts(deviceName).find(({name})=>name===devicePortName),
@@ -576,7 +576,7 @@ store.registerModule('gpon2',{
         return abons
       },[])
     },
-    getAbonInfo:(state,getters)=>(accountId)=>getters.abonsInfo[accountId],
+    getObjectInfo:(state,getters)=>(objectId)=>getters.objectsInfo[objectId],
     getDevicePortAbons:(state,getters)=>(deviceName,devicePortName)=>{
       const port=getters.getDevicePort(deviceName,devicePortName);
       if(!port){return []};
@@ -584,9 +584,9 @@ store.registerModule('gpon2',{
         return {...new PortSubscriberInfo(sub),...new PortInfo(port)};
       });
     },
-    getDeviceAbonsInfo:(state,getters)=>(deviceName)=>select(getters.abonsInfo,{deviceName}),
+    getDeviceObjectsInfo:(state,getters)=>(deviceName)=>select(getters.objectsInfo,{deviceName}),
     getDevicePortAreaCoordinates:(state,getters)=>(deviceName,devicePortName)=>{
-      const abonsInfo=getters.getDeviceAbonsInfo(deviceName);
+      const abonsInfo=getters.getDeviceObjectsInfo(deviceName);
       const portAbons=getters.getDevicePortAbons(deviceName,devicePortName);
       
       const points=portAbons.reduce((points,{accountId})=>{
@@ -626,12 +626,12 @@ store.registerModule('gpon2',{
       commit('setVal',['userActionPause',Boolean(value)]);
       console.log('userActionPause',Boolean(value))
     },
-    setAbonInfoPause({commit},value){
-      commit('setVal',['setAbonInfoPause',Boolean(value)]);
-      console.log('setAbonInfoPause',Boolean(value))
+    setObjectInfoPause({commit},value){
+      commit('setVal',['setObjectInfoPause',Boolean(value)]);
+      console.log('setObjectInfoPause',Boolean(value))
     },
     async update({commit,getters,dispatch},setMapObjects){
-      if(getters.userActionPause||getters.setAbonInfoPause){
+      if(getters.userActionPause||getters.setObjectInfoPause){
         //await new Promise(resolve=>setTimeout(resolve,22222));
       }else{
         await Promise.allSettled(getters.devicesList.map(deviceName=>dispatch('updateDevice',{deviceName,setMapObjects})));
@@ -654,7 +654,7 @@ store.registerModule('gpon2',{
       const device=getters.getDeviceInfo(deviceName);
       if(device){
         setMapObjects();
-        await dispatch('getDeviceAbonsInfo',deviceName);
+        await dispatch('getDeviceObjectsInfo',deviceName);
         setMapObjects();
         await Promise.allSettled([
           dispatch('getSiteNodeInfo',device.uzel.name),
@@ -742,45 +742,45 @@ store.registerModule('gpon2',{
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
-    async getAbonsInfo({getters,commit},accountId=''){
-      if(!accountId){return};
-      const accounts=Array.isArray(accountId)?accountId:accountId?.split(',');
-      if(!accounts.length){return};
-      for(const accountId of accounts){
-        const loadKey=`getAbonInfo-${accountId}`;
+    async getObjectInfo({getters,commit},objectId=''){
+      if(!objectId){console.warn('getObjectInfo.error.objectId');return};
+      const ids=Array.isArray(objectId)?objectId:objectId?.split(',');
+      if(!ids.length){return};
+      for(const objectId of ids){
+        const loadKey=`getObjectInfo-${objectId}`;
         commit('setItem',['loads/'+loadKey,true]);
       };
       try{
-        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?action=select_accountId&accountId=${accounts.join(',')}`).then(r=>r.json())
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbzWu5nNAkKO7H7hgd9tAjg4srIf430lZdU1HTauUP7MNjNPoZAyoVlpHsMGhNjL0NPn/exec?action=select_objectId&objectId=${ids.join(',')}`).then(r=>r.json())
         if(response){
-          for(const [accountId,info] of Object.entries(response)){
-            commit('setItem',['abonsInfo/'+accountId,info]);
+          for(const [objectId,objectInfo] of Object.entries(response)){
+            commit('setItem',['objectsInfo/'+objectId,objectInfo]);
           };
         };
       }catch(error){
-        console.warn('getAbonsInfo.error',error);
+        console.warn('getObjectInfo.error',error);
       };
-      for(const accountId of accounts){
-        const loadKey=`getAbonInfo-${accountId}`;
+      for(const objectId of ids){
+        const loadKey=`getObjectInfo-${objectId}`;
         commit('setItem',['loads/'+loadKey,!true]);
       };
     },
-    async getDeviceAbonsInfo({getters,commit},deviceName=''){
-      if(!deviceName){console.warn('getDeviceAbonsInfo.error.deviceName');return};
-      const loadKey=`getDeviceAbonsInfo-${deviceName}`;
+    async getDeviceObjectsInfo({getters,commit},deviceName=''){
+      if(!deviceName){console.warn('getDeviceObjectsInfo.error.deviceName');return};
+      const loadKey=`getDeviceObjectsInfo-${deviceName}`;
       if(getters.loads[loadKey]){return};
       commit('setItem',['loads/'+loadKey,!0]);
       try{
-        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?action=select_deviceName&deviceName=${deviceName}`).then(r=>r.json())
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbzWu5nNAkKO7H7hgd9tAjg4srIf430lZdU1HTauUP7MNjNPoZAyoVlpHsMGhNjL0NPn/exec?action=select_deviceName&deviceName=${deviceName}`).then(r=>r.json())
         if(response){
-          for(const [_deviceName,abonsInfo] of Object.entries(response)){
-            for(const [_accountId,abon] of Object.entries(abonsInfo)){
-              commit('setItem',['abonsInfo/'+_accountId,abon]);
+          for(const [_deviceName,objectsInfo] of Object.entries(response)){
+            for(const [objectId,objectInfo] of Object.entries(objectsInfo)){
+              commit('setItem',['objectsInfo/'+objectId,objectInfo]);
             };
           };
         };
       }catch(error){
-        console.warn('getDeviceAbonsInfo.error',error);
+        console.warn('getDeviceObjectsInfo.error',error);
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
@@ -864,26 +864,25 @@ store.registerModule('gpon2',{
       };
       commit('setItem',['loads/'+loadKey,!1]);
     },
-    async setAbonInfo({getters:{getAbonInfo},commit,dispatch},{accountId='',...props}={}){
-      if(!accountId){return};
-      const abon=getAbonInfo(accountId);
-      if(!abon){return};
-      dispatch('setAbonInfoPause',!0);
-      commit('setItem',['abonsInfo/'+accountId,{...abon,...props}]);
-      const loadKey=`setAbonInfo-${accountId}`;
+    async setObjectInfo({getters:{getObjectInfo},commit,dispatch},{objectId='',objectType='',...props}={}){
+      if(!objectId){console.warn('setObjectInfo.error.objectId');return};
+      if(!objectType){console.warn('setObjectInfo.error.objectType');return};
+      dispatch('setObjectInfoPause',!0);
+      commit('setItem',['objectsInfo/'+objectId,{objectId,objectType,...getObjectInfo(objectId)||null,...props}]);
+      const loadKey=`setObjectInfo-${objectId}`;
       commit('setItem',['loads/'+loadKey,!0]);
       try{
-        const response=await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec`,{
+        const response=await fetch(`https://script.google.com/macros/s/AKfycbzWu5nNAkKO7H7hgd9tAjg4srIf430lZdU1HTauUP7MNjNPoZAyoVlpHsMGhNjL0NPn/exec`,{
           method:'POST',mode:'no-cors',
           headers:{'Content-Type':'application/json;charset=utf-8'},
-          body:JSON.stringify({accountId,...props})
+          body:JSON.stringify({objectId,objectType,...props})
         });
-        dispatch('getAbonsInfo',accountId);
+        dispatch('getObjectInfo',objectId);
       }catch(error){
-        console.warn('setAbonInfo.error',error);
+        console.warn('setObjectInfo.error',error);
       };
       commit('setItem',['loads/'+loadKey,!1]);
-      dispatch('setAbonInfoPause',!1);
+      dispatch('setObjectInfoPause',!1);
     },
   },
 });
@@ -895,8 +894,7 @@ function mountBalloonView(properties={}){
       <div>objectId: {{objectId}}</div>
       <div>objectType: {{objectType}}</div>
       <template v-if="objectType=='abon'">
-        <pre>lbsvAddress: {{abonInfo?.lbsvAddress}}</pre>
-        <pre>decription: {{abonInfo?.decription}}</pre>
+        <pre>description: {{abonInfo?.description}}</pre>
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
@@ -926,10 +924,10 @@ function mountBalloonView(properties={}){
     computed:{
       ...mapGetters({
         getDeviceInfo:'gpon2/getDeviceInfo',
-        getAbonInfo:'gpon2/getAbonInfo',
+        getObjectInfo:'gpon2/getObjectInfo',
         getDevicePort:'gpon2/getDevicePort',
       }),
-      abonInfo(){return this.objectType=='abon'?this.getAbonInfo(this.accountId):null},
+      abonInfo(){return this.objectType=='abon'?this.getObjectInfo(this.accountId):null},
     },
     destroyed(){},
   }).$mount(`[name="YMapsBalloon"]`);
@@ -941,8 +939,7 @@ function mountHintView(properties={}){
       <div>objectId: {{objectId}}</div>
       <div>objectType: {{objectType}}</div>
       <template v-if="objectType=='abon'">
-        <pre>lbsvAddress: {{abonInfo?.lbsvAddress}}</pre>
-        <pre>decription: {{abonInfo?.decription}}</pre>
+        <pre>description: {{abonInfo?.description}}</pre>
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
@@ -991,10 +988,10 @@ function mountHintView(properties={}){
     computed:{
       ...mapGetters({
         getDeviceInfo:'gpon2/getDeviceInfo',
-        getAbonInfo:'gpon2/getAbonInfo',
+        getObjectInfo:'gpon2/getObjectInfo',
         getDevicePort:'gpon2/getDevicePort',
       }),
-      abonInfo(){return this.objectType=='abon'?this.getAbonInfo(this.accountId):null},
+      abonInfo(){return this.objectType=='abon'?this.getObjectInfo(this.accountId):null},
     },
     destroyed(){},
   }).$mount(`[name="YMapsHint"]`);
@@ -1060,7 +1057,7 @@ Vue.component('EventsMapGpon2',{
       getDeviceInfo:'gpon2/getDeviceInfo',
       getDeviceSiteCoordinates:'gpon2/getDeviceSiteCoordinates',
       getDeviceAbons:'gpon2/getDeviceAbons',
-      getAbonInfo:'gpon2/getAbonInfo',
+      getObjectInfo:'gpon2/getObjectInfo',
       getDevicePortsHasAbons:'gpon2/getDevicePortsHasAbons',
       getDevicePortAreaCoordinates:'gpon2/getDevicePortAreaCoordinates',
     }),
@@ -1071,7 +1068,7 @@ Vue.component('EventsMapGpon2',{
       setUserActionPause:'gpon2/setUserActionPause',
       addDevice:'gpon2/addDevice',
       delDevice:'gpon2/delDevice',
-      setAbonInfo:'gpon2/setAbonInfo',
+      setObjectInfo:'gpon2/setObjectInfo',
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -1356,8 +1353,7 @@ Vue.component('EventsMapGpon2',{
     },
     setMapObjectDevicePortAbon(deviceName,devicePortName,accountId){
       const {mapObjects}=this;
-      const abonInfo=this.getAbonInfo(accountId);
-      let [latitude,longitude]=abonInfo?.coordinates||[];
+      let [latitude,longitude]=this.getObjectInfo(accountId)?.coordinates||[];
       if(!latitude||!longitude){
         const coordinates=this.getDeviceSiteCoordinates(deviceName);
         if(!coordinates){return};
@@ -1404,10 +1400,9 @@ Vue.component('EventsMapGpon2',{
           const target=event.get('target');
           
           const coordinates=target.geometry.getCoordinates();
-          this.setAbonInfo({accountId,coordinates});
-          
           const deviceName=target.properties.get('deviceName');
           const devicePortName=target.properties.get('devicePortName');
+          this.setObjectInfo({objectId:accountId,objectType:'abon',coordinates,deviceName,devicePortName});
           this.setMapObjectDevicePort(deviceName,devicePortName);
           
           this.setUserActionPause(!1);
@@ -1433,12 +1428,15 @@ Vue.component('EventsMapGpon2',{
     },
     setMapObjectDevicePortPoint(deviceName,devicePortName){
       const {mapObjects}=this;
-      const coordinates=this.getDeviceSiteCoordinates(deviceName);
-      if(!coordinates){return};
-      const [_latitude,_longitude]=coordinates;
-      if(!_latitude||!_longitude){return};
-      latitude=_latitude+0.0002;
-      longitude=_longitude+0.0004;
+      let [latitude,longitude]=this.getObjectInfo(devicePortName)?.coordinates||[];
+      if(!latitude||!longitude){
+        const coordinates=this.getDeviceSiteCoordinates(deviceName);
+        if(!coordinates){return};
+        const [_latitude,_longitude]=coordinates;
+        if(!_latitude||!_longitude){return};
+        latitude=_latitude+0.0002;
+        longitude=_longitude+0.0004;
+      };
       
       if(!mapObjects[devicePortName]){
         this.addMapObject(mapObjects[devicePortName]=new window.ymaps.Placemark([latitude,longitude],{
@@ -1460,6 +1458,27 @@ Vue.component('EventsMapGpon2',{
           iconShape:new RectangleIconShape(18),
           ...new IconImageSizeOffset(36),
         }));
+        
+        mapObjects[devicePortName].events.add('dragstart',(event)=>{
+          console.log('marker.events.dragstart');
+          this.setUserActionPause(!0);
+        });
+        mapObjects[devicePortName].events.add('drag',(event)=>{
+          console.log('marker.events.drag');
+        });
+        mapObjects[devicePortName].events.add('dragend',(event)=>{
+          console.log('marker.events.dragend');
+          const target=event.get('target');
+          
+          const coordinates=target.geometry.getCoordinates();
+          const deviceName=target.properties.get('deviceName');
+          const devicePortName=target.properties.get('devicePortName');
+          this.setObjectInfo({objectId:devicePortName,objectType:'port',coordinates,deviceName});
+          //this.setMapObjectDevicePort(deviceName,devicePortName);
+          this.setMapObjectCoordinates(devicePortName,coordinates);
+          
+          this.setUserActionPause(!1);
+        });
       }else{
         this.setMapObjectCoordinates(devicePortName,[latitude,longitude]);
       };
