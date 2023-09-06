@@ -1,6 +1,6 @@
 
-
-
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EventsMapPage.js',type:'text/javascript'}));
 
 Vue.component('EventsMapPage',{
   template:`<EventsMapGpon2 v-bind="$props"/>`,
@@ -64,7 +64,10 @@ const NSK_OLT_LIST_ITEMS=[//[deviceName,content,coords,zoom]
   ['OLT_KR_54_0760_1','OLT_KR_54_0760_1 • FiberHome AN5516-06 • тер Ивушка СНТ (советский р-н), опора',[54.88922,83.05083],18],
   null,//separator
   ['OLT_KR_54_0513_1','OLT_KR_54_0513_1 • 695 км северо-восточнее дома 4 по Майская ул, Катково с, башня',[55.19552,82.79891],18],
-  ['OLT_59KR_01979_1','OLT_59KR_01979_1 • FiberHome AN5516-06 • ул. Космонавта Леонова, д. 56А',[57.966267,56.174858],18],
+  null,//separator
+  ['OLT_59KR_04612_1','OLT_59KR_04612_1 • FiberHome AN5516-06 • г. Пермь, ул. Мира, д. 102',[57.97397,56.16987],18],
+  ['OLT_59KR_04612_2','OLT_59KR_04612_2 • FiberHome AN5516-06 • г. Пермь, ул. Мира, д. 102',[57.97397,56.16987],18],
+  ['OLT_59KR_01979_1','OLT_59KR_01979_1 • FiberHome AN5516-06 • г. Пермь, ул. Космонавта Леонова, д. 56А',[57.966267,56.174858],18],
 ];
 const NSK_OLTs=NSK_OLT_LIST_ITEMS.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item[0]]:null}):selectedItems,{});
 
