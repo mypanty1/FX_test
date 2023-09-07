@@ -2,7 +2,7 @@
 
 Vue.component('AbonPortRefree',{
   template:`<div name="AbonPortRefree" class="display-contents">
-    <template" v-if="canRefree">
+    <template v-if="canRefree">
       <button-main :label="btnLabel" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
       <loader-bootstrap v-if="setBindRefreeLoading" :text="loaderText"/>
       <template v-else-if="setBindRefreeResult">
