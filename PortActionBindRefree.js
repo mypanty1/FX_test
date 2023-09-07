@@ -1,7 +1,7 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindRefree.js',type:'text/javascript'}));
 
 Vue.component('AbonPortRefree',{
-  template:`<div name="AbonPortRefree" class="display-contents">
+  template:`<div name="AbonPortRefree">
     <template v-if="canRefree">
       <button-main :label="btnLabel" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
       <loader-bootstrap v-if="setBindRefreeLoading" :text="loaderText"/>
