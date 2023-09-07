@@ -1,5 +1,197 @@
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindRefree.js',type:'text/javascript'}));
 
+Vue.component('AbonPortRefree',{
+  template:`<div name="AbonPortRefree" class="display-contents">
+    <div class="display-flex flex-direction-column gap-8px" v-if="canRefree">
+      <button-main :label="btnLabel" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
+      <loader-bootstrap v-if="setBindRefreeLoading" :text="loaderText"/>
+      <template v-else-if="setBindRefreeResult">
+        <message-el v-if="setBindRefreeResult.type==='error'" :text="setBindRefreeResult.text.slice(0,120)" box type="warn"/>
+        <template v-else-if="setBindRefreeResult.type!=='error'">
+          <message-el :text="refreeMessage" box type="success"/>
+        </template>
+      </template>
+    </div>
+  </div>`,
+  props:{
+    setBindResult:{type:Object,default:null},
+    port:{type:Object,required:true},
+    networkElement:{type:Object,required:true},
+    account:{type:String,required:true,default:''},
+    vg:{type:Object,required:true},
+    disabled:{type:Boolean,default:false},
+    loading:{type:Boolean,default:false},
+  },
+  data:()=>({
+    setBindRefreeLoading:false,
+    setBindRefreeResult:null,
+  }),
+  created(){},
+  watch:{
+    'setBindResult'(setBindResult){
+      if(setBindResult){
+        this.sendLogAfterBind()
+      }
+    },
+    'setBindRefreeLoading'(setBindRefreeLoading){
+      this.$emit('loading',setBindRefreeLoading);
+    }
+  },
+  computed:{
+    hasResult(){return Boolean(this.setBindResult)},
+    contract(){
+      const {text=''}=this.setBindResult||{};if(!text){return}
+      return parseInt(text.replace('Мы не можем отобрать порт у контракта ',''));
+    },
+    canRefree(){return Boolean(this.contract)},
+    canRefreeMessage(){
+      const {contract,portLastDate,portState}=this;
+      if(!portState){return `невозможно определить активность, нужно проверить`};
+      return {
+        'busy'    :`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,
+        'hub'     :`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,
+        'closed'  :`контракт ${contract} расторгнут, порт можно освободить`,
+        'expired' :`неактивен более 3 мес, возможно порт можно освободить`,
+        'double'  :`абонент "переехал" на другой порт, возможно порт можно освободить`,
+        'new'     :`на порту просто новый мак, возможно порт можно освободить`,
+        'free'    :`на порту никогда небыло активности, возможно порт можно освободить`,
+      }[portState]||`неизвестный статус порта: ${portState} , нужно проверить`;
+    },
+    serverId(){return this.vg?.serverid},
+    typeOfBind(){return this.vg?.type_of_bind},
+    deviceIp(){return this.networkElement?.ip||''},
+    deviceName(){return this.networkElement?.name||''},
+    portNumber(){return this.port?.number||0},
+    portState(){return this.port?.state},
+    portLastDate(){const {port:{last_mac}={}}=this;return new Date(last_mac?.last_at?Date.parse(last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now()).toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'})},
+
+    btnLabel(){return `Освободить порт от ${this.contract}`},
+    loaderText(){return `освобождение порта от ${this.contract}`},
+    refreeMessage(){
+      const {portNumber,setBindRefreeResult}=this;
+      if(!setBindRefreeResult){return};
+      const ipText=setBindRefreeResult.Data?.IP?` тут был абонент с IP:${setBindRefreeResult.Data.IP}`:'';
+      return `порт освобожден от ${this.contract}!${ipText}`;
+    }
+  },
+  methods:{
+    sendLogAfterBind(){
+      const {setBindResult,deviceIp,account,portNumber,contract,portState,portLastDate,canRefreeMessage}=this;
+      const {vgid,login,serverid,type_of_bind}=this.vg||{};
+      const postData={
+        username:this.$root.username||'<username>',
+        node_id:window.node_id||'<node_id>',
+        action:'bind',
+        method:`type_${type_of_bind}_${serverid}`,//set_bind_108
+        props:{
+          method:`type_${type_of_bind}`,//set_bind
+
+          //vg info
+          ip:deviceIp,
+          port:portNumber,
+          mac:'',
+          account,
+          login,
+          vgid,
+          serverid,
+          type_of_bind,
+
+          //user refree message
+          contract,
+          state:portState,
+          date_last:portLastDate,
+          user_message:canRefreeMessage,
+
+          //bind result
+          type:setBindResult?.type,
+          text:setBindResult?.text,
+          IsError:setBindResult?.IsError,
+          InfoMessage:setBindResult?.InfoMessage,
+        }
+      };
+      try{
+        fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+          method:'POST',mode:'no-cors',
+          headers:{'Content-Type':'application/json;charset=utf-8'},
+          body:JSON.stringify(postData)
+        });
+        //console.log(postData)
+      }catch(error){
+
+      }
+    },
+    sendLogAfterRefree(){
+      const {serverId,typeOfBind,setBindRefreeResult,deviceIp,contract,portState,portLastDate,refreeMessage}=this;
+      const postData={
+        username:this.$root.username||'<username>',
+        node_id:window.node_id||'<node_id>',
+        action:'refree',
+        method:`type_${typeOfBind}_${serverId}`,//set_bind_108
+        props:{
+          method:`type_${typeOfBind}`,//set_bind
+
+          //refree vg-port info
+          ip:deviceIp,
+          port:contract,
+          mac:'',
+          account:'',
+          login:'',
+          vgid:contract,
+          serverid:serverId,
+          type_of_bind:typeOfBind,
+
+          //refree result message
+          contract,
+          state:portState,
+          date_last:portLastDate,
+          user_message:refreeMessage,
+
+          //refree result
+          type:setBindRefreeResult?.type,
+          text:setBindRefreeResult?.text,
+          IsError:setBindRefreeResult?.IsError,
+          InfoMessage:setBindRefreeResult?.InfoMessage,
+        }
+      };
+      try{
+        fetch(`https://script.google.com/macros/s/AKfycbzKqxZH8vVTFutj0nj0FvUB4_asbTiv3YSa5rgkYKF1oyiaT9wjJ4L3s8LhPqbAnpq06Q/exec`,{
+          method:'POST',mode:'no-cors',
+          headers:{'Content-Type':'application/json;charset=utf-8'},
+          body:JSON.stringify(postData)
+        });
+        //console.log(postData)
+      }catch(error){
+
+      }
+    },
+    async setBindRefree(){
+      const {typeOfBind,contract,deviceIp,serverId}=this;
+      this.setBindRefreeLoading=!0;
+      this.setBindRefreeResult=null;
+      try{
+        //mac need for omsk serverid 64
+        const vgMacInfo64=serverId==64?await httpGet(buildUrl('get_user_rate',{serverid:serverId,vgid:contract},'/call/aaa/')):null;
+        const response=await CustomRequest.post(`/call/service_mix/set_bind`,{
+          type_of_bind:typeOfBind,
+          serverid:serverId,
+          vgid:contract,
+          ip:deviceIp,
+          port:contract,
+          login:null,
+          account:null,
+          mac:vgMacInfo64?.data?.[0]?.macCPE?.[0]||'0000.0000.0000',
+        });
+        this.setBindRefreeResult=response;
+      }catch(error){
+        console.warn(`set_bind.error`,error);
+        this.setBindRefreeResult={text:"Ошибка сервиса",type:"error"};
+      };
+      this.setBindRefreeLoading=!1;
+      this.sendLogAfterRefree();
+    },
+  },
+});
+
 Vue.component('port-bind-user-modal',{//refree
   //template: '#port-bind-user-modal-template',
   template:`<modal-container-custom ref="modal" class="port-bind-user-modal" :wrapperStyle="{'min-height':'unset'}">
