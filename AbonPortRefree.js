@@ -77,7 +77,7 @@ Vue.component('AbonPortRefree',{
   },
   methods:{
     sendLogAfterBind(){
-      const {setBindResult,deviceIp,account,portNumber,contract,portState,portLastDate,canRefreeMessage}=this;
+      const {setBindResult,deviceIp,account,portNumber,contract,portState,portLastDate,canRefreeMessage,canRefree}=this;
       const {vgid,login,serverid,type_of_bind}=this.vg||{};
       const postData={
         username:this.$root.username||'<username>',
@@ -98,10 +98,18 @@ Vue.component('AbonPortRefree',{
           type_of_bind,
 
           //user refree message
+          ...canRefree?{
           contract,
           state:portState,
           date_last:portLastDate,
           user_message:canRefreeMessage[0],
+          }:{
+          contract:'',
+          state:'',
+          date_last:'',
+          user_message:''
+          },
+          
 
           //bind result
           type:setBindResult?.type,
