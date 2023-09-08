@@ -5,8 +5,8 @@ Vue.component('AbonPortRefree',{
     <div class="display-flex flex-direction-column gap-8px" v-if="canRefree">
       <message-el :text="canRefreeMessage[0]" box :type="canRefreeMessage[1]"/>
       
-      <button-main :label="btnLabel" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
-      <loader-bootstrap v-if="setBindRefreeLoading" :text="loaderText"/>
+      <button-main label="Освободить порт" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
+      <loader-bootstrap v-if="setBindRefreeLoading" text="освобождение порта"/>
       <template v-else-if="setBindRefreeResult">
         <message-el v-if="setBindRefreeResult.type==='error'" :text="setBindRefreeResult.text.slice(0,120)" box type="warn"/>
         <template v-else-if="setBindRefreeResult.type!=='error'">
@@ -68,9 +68,6 @@ Vue.component('AbonPortRefree',{
     portNumber(){return this.port?.number||0},
     portState(){return this.port?.state},
     portLastDate(){const {port:{last_mac}={}}=this;return new Date(last_mac?.last_at?Date.parse(last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now()).toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'})},
-
-    btnLabel(){return `Освободить порт от ${this.contract}`},
-    loaderText(){return `освобождение порта от ${this.contract}`},
     refreeMessage(){
       const {portNumber,setBindRefreeResult}=this;
       if(!setBindRefreeResult){return};
