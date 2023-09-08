@@ -139,9 +139,7 @@ function pushResponse({url,response}={}){
 };
 
 //port refree
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindRefree.js',type:'text/javascript'}));
-//activatespd
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionBindUserVgidActivate.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortRefree.js',type:'text/javascript'}));
 //SitePlanDownload
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteExt.js',type:'text/javascript'}));
 //SendKionPq
@@ -152,8 +150,6 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 //IrdetoSmartCard
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/IrdetoSmartCard.js',type:'text/javascript'}));
-//test v1.6.2
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/app_PhoneCall_and_UrlLink.js',type:'text/javascript'}));
 
 
 
