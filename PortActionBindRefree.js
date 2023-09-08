@@ -2,7 +2,9 @@
 
 Vue.component('AbonPortRefree',{
   template:`<div name="AbonPortRefree">
-    <template v-if="canRefree">
+    <div class="display-flex flex-direction-column gap-8px" v-if="canRefree">
+      <message-el :text="canRefreeMessage[0]" box :type="canRefreeMessage[1]"/>
+      
       <button-main :label="btnLabel" v-bind="{loading:setBindRefreeLoading,disabled}" @click="setBindRefree" buttonStyle="contained" size="full"/>
       <loader-bootstrap v-if="setBindRefreeLoading" :text="loaderText"/>
       <template v-else-if="setBindRefreeResult">
@@ -11,7 +13,7 @@ Vue.component('AbonPortRefree',{
           <message-el :text="refreeMessage" box type="success"/>
         </template>
       </template>
-    </template>
+    </div>
   </div>`,
   props:{
     setBindResult:{type:Object,default:null},
@@ -30,7 +32,9 @@ Vue.component('AbonPortRefree',{
   watch:{
     'setBindResult'(setBindResult){
       if(setBindResult){
-        this.sendLogAfterBind()
+        this.sendLogAfterBind();
+        this.setBindRefreeLoading=false;
+        this.setBindRefreeResult=null;
       }
     },
     'setBindRefreeLoading'(setBindRefreeLoading){
@@ -46,16 +50,16 @@ Vue.component('AbonPortRefree',{
     canRefree(){return Boolean(this.contract)},
     canRefreeMessage(){
       const {contract,portLastDate,portState}=this;
-      if(!portState){return `невозможно определить активность, нужно проверить`};
+      if(!portState){return [`невозможно определить активность, нужно проверить`,'warn']};
       return {
-        'busy'    :`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,
-        'hub'     :`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,
-        'closed'  :`контракт ${contract} расторгнут, порт можно освободить`,
-        'expired' :`неактивен более 3 мес, возможно порт можно освободить`,
-        'double'  :`абонент "переехал" на другой порт, возможно порт можно освободить`,
-        'new'     :`на порту просто новый мак, возможно порт можно освободить`,
-        'free'    :`на порту никогда небыло активности, возможно порт можно освободить`,
-      }[portState]||`неизвестный статус порта: ${portState} , нужно проверить`;
+        'busy'    :[`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,'warn'],
+        'hub'     :[`последняя активность ${portLastDate} , есть риск отжать порт у действующего абонента`,'warn'],
+        'closed'  :[`контракт ${contract} расторгнут, порт можно освободить`,'success'],
+        'expired' :[`неактивен более 3 мес, возможно порт можно освободить`,'success'],
+        'double'  :[`абонент "переехал" на другой порт, возможно порт можно освободить`,'success'],
+        'new'     :[`на порту просто новый мак, возможно порт можно освободить`,'success'],
+        'free'    :[`на порту никогда небыло активности, возможно порт можно освободить`,'success'],
+      }[portState]||[`неизвестный статус порта: ${portState} , нужно проверить`,'warn'];
     },
     serverId(){return this.vg?.serverid},
     typeOfBind(){return this.vg?.type_of_bind},
@@ -100,7 +104,7 @@ Vue.component('AbonPortRefree',{
           contract,
           state:portState,
           date_last:portLastDate,
-          user_message:canRefreeMessage,
+          user_message:canRefreeMessage[0],
 
           //bind result
           type:setBindResult?.type,
