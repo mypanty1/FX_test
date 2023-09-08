@@ -118,7 +118,14 @@ document.getElementById('btn_slim_refresh')?.addEventListener('click',()=>{
   window.AppInventor.setWebViewString(`set:FollowLinks:::=true`)
 };*/
 
-async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
+//async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
+//fix site_entrance_list
+async function httpGet(_url,quiet){
+  const url=/site_entrance_list/.test(_url)?_url.replace('site_entrance_list','site_flat_list'):_url;
+  const response=await httpRequest('GET',url,null,quiet);
+  pushResponse({url,response});
+  return response
+};
 const max_buffer_size=20;
 const buffer=new Map();
 function pushResponse({url,response}={}){
