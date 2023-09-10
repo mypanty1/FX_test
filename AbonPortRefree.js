@@ -73,10 +73,10 @@ Vue.component('AbonPortRefree',{
     portState(){return this.port?.state},
     portLastDate(){const {port:{last_mac}={}}=this;return new Date(last_mac?.last_at?Date.parse(last_mac.last_at.split(' ')[0].split('.').reverse().join('-')):Date.now()).toLocaleDateString('ru',{year:'2-digit',month:'2-digit',day:'2-digit'})},
     refreeMessage(){
-      const {portNumber,setBindRefreeResult}=this;
+      const {contract,setBindRefreeResult}=this;
       if(!setBindRefreeResult){return};
-      const ipText=setBindRefreeResult.Data?.IP?` тут был абонент с IP:${setBindRefreeResult.Data.IP}`:'';
-      return `порт освобожден от ${this.contract}!${ipText}`;
+      const ipText=setBindRefreeResult.Data?.IP?`, с IP:${setBindRefreeResult.Data.IP}`:'';
+      return `порт освобожден, тут был абонент ${contract}`+ipText;
     }
   },
   methods:{
