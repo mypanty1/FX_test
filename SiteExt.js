@@ -1,5 +1,6 @@
 Vue.component('SiteExt',{
   template:`<div class="display-contents">
+    <FixIptvIcon v-bind="$props"/>
     <link-block :actionIcon="open_ext?'up':'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext=!open_ext"/>
     <div v-show="open_ext" class="padding-left-right-16px">
       <SitePlanDownload v-bind="$props"/>
