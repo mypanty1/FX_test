@@ -1,4 +1,4 @@
-
+window.setDevMode(!0);
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EventsMapPage.js',type:'text/javascript'}));
 
@@ -49,6 +49,8 @@ app.$router.addRoutes([{
 
 const CACHE_1HOUR=60;
 const CACHE_1DAY=CACHE_1HOUR*24;
+
+const CIRCLE_RADIUS_M=32;
 
 class GeocodeResult {
   constructor(sample,response){
@@ -112,6 +114,7 @@ const EVENTS_MAP_ZINDEX={
   AREA:10,
 };
 const EVENTS_MAP_ICONS={
+  LOADER_GIF:'data:image/gif;base64,R0lGODlhFAASALMIAPJlau9CSPvLzfvMze9MU/////R5f+wdJP///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OUQ1N0FDNkQ2REUxMUU0OTNDQUQ3OTM1MzU2RDhGMyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OUQ1N0FDN0Q2REUxMUU0OTNDQUQ3OTM1MzU2RDhGMyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5RDU3QUM0RDZERTExRTQ5M0NBRDc5MzUzNTZEOEYzIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5RDU3QUM1RDZERTExRTQ5M0NBRDc5MzUzNTZEOEYzIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEBRQACAAsAAAAABQAEgAABEhQlCKOPcAYcLEG09Rp2kiGhVlepIGqBvyypBzCtkivVjv3tZ3rJsylisLfoWXEJYlA3vIEnUp9VeZTF41tj12YpDDoZDbmTwQAIfkEBRQACAAsAAAAABQAEgAABFkQGAOQRaIUcVEgRDBNnaZ1IDgapYmma3teKRFfZvGqo6zTsB7OBeSRhjNL7WbJ7WzCJlEZPEqTiGUU4SxCrdxptspC/qjG8vU8TvuezDC2JqF0MoVB5xOKAAAh+QQFFAAIACwAAAAAFAASAAAEWTAQEpBFwBhwkSiFME2dpnUgOBKliaZre15pEV+m8aqjrNOwHs4F5JGGM0vtZsntbMImURk8SpOIZRThLEKt3Gm2ykL+qMby9TxO+57MMLYmoXQym86nMIgAACH5BAUUAAgALAAAAAAUABIAAARJEBgDkEWBkHCRpNPUaVoXnsZImqh4kQTbquXVuhYso3Rs373dKfibvVZF3rFmuaWWviYQKgwRpcYcEqvUMhHOKzj0qVwym045AgA7',
   OLT:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NS41OTcgNTUuNTk3Ij48cGF0aCBmaWxsPSIjZjNkNTViIiBkPSJtMjcuNTk3IDcuNzktMjQgNDJoNDl6Ii8+PHBhdGggZmlsbD0iIzU1NjA4MCIgZD0iTTU1LjQ1OCA1MC4zMDcgNDQuMTk2IDMxLjA4NmwtLjc3LTEuMzE0TDI4LjQ5IDQuMjgyYS45OTUuOTk1IDAgMCAwLTEuNzIxLjAwNUwxMi4zNjMgMjkuMThsLTEuMjE0IDIuMDk3TC4xMzUgNTAuMzEyYS45OTYuOTk2IDAgMCAwIC44NjIgMS40OTVoNTMuNjAxYS45OTYuOTk2IDAgMCAwIC44Ni0xLjV6bS00OS4wMTItMi41IDguMDk5LTEzLjk5NSA0Ljk1Mi04LjU1OSA4LjM4OS0xNC40OTcgOC41NjMgMTQuNjEzIDQuODQ5IDguMjc0IDguMjk5IDE0LjE2NEg2LjQ0NnoiLz48cGF0aCBmaWxsPSIjZTZlN2U4IiBkPSJNNDQuNTM4IDMwLjc3N2MtOS4zNzMgOS4zNzMtMjQuNTY5IDkuMzczLTMzLjk0MSAwIDkuMzcyLTkuMzcyIDI0LjU2OC05LjM3MiAzMy45NDEgMHoiLz48Y2lyY2xlIGZpbGw9IiM0OGEwZGMiIGN4PSIyNy41OTciIGN5PSIzMC43OSIgcj0iNiIvPjxjaXJjbGUgZmlsbD0iIzU1NjA4MCIgY3g9IjI3LjU5NyIgY3k9IjMwLjc5IiByPSIzIi8+PC9zdmc+',
   ONT_21A3DD:'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04MzcuODE4IDc5MS4yNzNjMCAyNS42Ny0yMC44NzUgNDYuNTQ1LTQ2LjU0NSA0Ni41NDVIMjMyLjcyN2MtMjUuNjcgMC00Ni41NDUtMjAuODc1LTQ2LjU0NS00Ni41NDV2LTkzLjA5MWg2NTEuNjM2djkzLjA5ek0yNDguNTc2IDIyNi4wMjVhNDYuNzc4IDQ2Ljc3OCAwIDAgMSA0Ni4wNTctMzkuODQzaDQzNC43MzRhNDYuNzc4IDQ2Ljc3OCAwIDAgMSA0Ni4wNTcgMzkuODQzbDYxLjkwNSA0MjUuNjExSDE4Ni42NzFsNjEuOTA1LTQyNS42MTF6bTU3Mi45MDUtNi43MDNhOTMuMDkgOTMuMDkgMCAwIDAtOTIuMTE0LTc5LjY4NkgyOTQuNjMzYTkzLjA5IDkzLjA5IDAgMCAwLTkyLjExNCA3OS42ODZsLTYyLjg4MyA0MzIuMzE0djEzOS42MzdhOTMuMDkgOTMuMDkgMCAwIDAgOTMuMDkxIDkzLjA5aDU1OC41NDZhOTMuMDkgOTMuMDkgMCAwIDAgOTMuMDktOTMuMDlWNjUxLjYzNmwtNjIuODgyLTQzMi4zMTR6IiBmaWxsPSIjMjFBM0REIi8+PHBhdGggZD0iTTI1NiA3NDQuNzI3aDQ2LjU0NXY0Ni41NDZIMjU2di00Ni41NDZ6bTkzLjA5IDBoNDYuNTQ2djQ2LjU0NmgtNDYuNTQ1di00Ni41NDZ6bTkzLjA5MiAwaDQ2LjU0NXY0Ni41NDZoLTQ2LjU0NXYtNDYuNTQ2em05My4wOSAwaDQ2LjU0NnY0Ni41NDZoLTQ2LjU0NXYtNDYuNTQ2em05My4wOTIgMGg0Ni41NDV2NDYuNTQ2aC00Ni41NDV2LTQ2LjU0NnptOTMuMDkgMEg3Njh2NDYuNTQ2aC00Ni41NDV2LTQ2LjU0NnptLTI2Ni42MTItMjQ0LjQxYy0xMi40MDQgOC42MTEtMjYuNzYzIDEyLjg5My00My4xMjQgMTIuODkzLTIwLjQ4IDAtMzYuMDI2LTcuMDI4LTQ2LjY2Mi0yMS4wNjItMTAuNjM2LTE0LjAzMy0xNS45NjUtMzQuMzUtMTUuOTY1LTYwLjk1IDAtMjUuNjk0IDUuMTQzLTQ1LjgwMiAxNS40NTMtNjAuMzI0IDEwLjMxLTE0LjUyMiAyNi4wNDItMjEuNzgzIDQ3LjE3NC0yMS43ODMgNy42MSAwIDE1LjE1Ljk3NyAyMi42MiAyLjkwOSA3LjQ3MSAxLjk1NSAxMy41IDQuNTE1IDE4LjAzNyA3LjcyN2wtNi4wNSAxNC40NTJhNjguOTM0IDY4LjkzNCAwIDAgMC0zNC42MDctOC45NmMtMTQuNTY5IDAtMjUuMzkgNS4yODMtMzIuNDg5IDE1Ljg0OS03LjA5OCAxMC41NjUtMTAuNjM2IDI3LjI3NS0xMC42MzYgNTAuMTMgMCA0My45MTUgMTQuMzYgNjUuODYgNDMuMTI1IDY1Ljg2IDEyLjE3MSAwIDI0LjY0Ni0zLjcyMyAzNy40LTExLjE3bDUuNzI0IDE0LjQzem0yMy4xMS0xNDguMmg0MC4wOTljMTUuMTUgMCAyNy4yOTkgMy44MTYgMzYuMzk4IDExLjQwMyA5LjEyMyA3LjYzMyAxMy42ODUgMTguMTUzIDEzLjY4NSAzMS41MTEgMCAxMy40MjktNC41MzggMjQuMTU3LTEzLjYxNSAzMi4xODYtOS4wNzYgOC4wMy0yMC45NjggMTIuMDU2LTM1LjY3NyAxMi4wNTZoLTIyLjUyOHY3MC45MTJINDc3LjkzVjM1Mi4xMTZ6bTE4LjM4NSA3MS4xNDRoMTkuOTIyYzIxLjU3NCAwIDMyLjM3Mi05LjA1MyAzMi4zNzItMjcuMTEzIDAtOC4zNzgtMi45MzItMTUuMTI3LTguNzk3LTIwLjI5My01Ljg2NS01LjE0NC0xMy40MjgtNy43MjctMjIuNjktNy43MjdoLTIwLjgzdjU1LjEzM3ptMTc4LjU3MiA4Ni45MjRoLTgyLjU3MlYzNTIuMTE2aDgxLjkydjE2LjAxMmgtNjMuNTM0djQ4Ljk2Nmg2MS4wNDR2MTYuMDExaC02MS4wNDR2NjEuMDQ1aDY0LjE4NnYxNi4wMzV6IiBmaWxsPSIjMjFBM0REIi8+PC9zdmc+',
   PON_21A3DD:'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiMyMUEzREQiIGQ9Ik0xMDE5LjcxMiAxNzIuN2MwLTkzLjU3NS03NS44NTYtMTY5LjQzMi0xNjkuNDMtMTY5LjQzMkgxNzIuNTlDNzkuMDE3IDMuMjY4IDMuMTYgNzkuMTI1IDMuMTYgMTcyLjd2Njc3LjY5YzAgOTMuNTc0IDc1Ljg1NyAxNjkuNDMxIDE2OS40MyAxNjkuNDMxaDY3Ny42OTJjOTMuNTc0IDAgMTY5LjQzLTc1Ljg1NyAxNjkuNDMtMTY5LjQzVjE3Mi42OThabS04NC44MSA2NDcuOTUyYzAgNjMuODAxLTUxLjcyIDExNS41MjItMTE1LjUyIDExNS41MjJIMjAyLjMyOWMtNjMuOCAwLTExNS41MjEtNTEuNzItMTE1LjUyMS0xMTUuNTIyVjIwMy42YzAtNjMuODAxIDUxLjcyLTExNS41MjIgMTE1LjUyLTExNS41MjJoNjE3LjA1NWM2My44IDAgMTE1LjUyMSA1MS43MiAxMTUuNTIxIDExNS41MjJ2NjE3LjA1MmgtLjAwMVpNODM1LjM2IDU3MS44MjdjLTI3LjcxMyAyNy43MDEtNzIuNjI0IDI3LjcwMS0xMDAuMzI0IDAtOC4wMDctOC4wMDctMTMuNDItMTcuNTE3LTE2LjgwNS0yNy41NjNINjA3LjczM2MtNi40NTMgMTkuMDQxLTE4LjUwNyAzNS40My0zNC4wNTUgNDcuNTA1bDcyLjE4OCAxMjUuMDM2YzEwLjk3NS0yLjU1MyAyMi42MzMtMi44MzIgMzQuMjgyLjI4OCAzNy44MzUgMTAuMTQzIDYwLjMwMiA0OS4wMzggNTAuMTU4IDg2Ljg4My0xMC4xMzUgMzcuODQ1LTQ5LjA0IDYwLjMtODYuODg0IDUwLjE1Ny0zNy44NDYtMTAuMTM0LTYwLjMwMi00OS4wMjktNTAuMTU3LTg2Ljg3NCAzLjE4Ni0xMS45MTYgOS40NjEtMjIuMDY5IDE3LjQyNy0zMC40MDNsLTczLjQ3NC0xMjcuMjUzYy04LjE1NSAyLjExOC0xNi41OTcgMy41NDMtMjUuNDI1IDMuNTQzLTIwLjYyNSAwLTM5Ljc4Ni02LjE5NS01NS44LTE2Ljc4NEwzMDAuMzY4IDc1MS45ODhjNS4zOTMgMTAuMDA2IDguNzM4IDIxLjI2OCA4LjczOCAzMy40NDEgMCAzOS4xNzItMzEuNzU4IDcwLjk0LTcwLjk0IDcwLjk0cy03MC45NC0zMS43NjgtNzAuOTQtNzAuOTRjMC0zOS4xOSAzMS43NTgtNzAuOTQxIDcwLjk0LTcwLjk0MSAxMi4yMTIgMCAyMy41MzUgMy4zNjUgMzMuNTcgOC44MDlsMTU1LjU3OC0xNTUuNTc4Yy0xMC42MzgtMTYuMDM0LTE2Ljg2NC0zNS4yNDQtMTYuODY0LTU1LjkxOCAwLTIwLjgwMiA2LjI4NC00MC4xMjIgMTcuMDMzLTU2LjIxNEwzMTAuMDM2IDMzOC4xNTNjLTEyLjE0MyA3LjI0NS0yNi4yOTYgMTEuNS00MS40NjggMTEuNS00NC43NzMgMC04MS4wNzQtMzYuMzAxLTgxLjA3NC04MS4wNzUgMC00NC43ODMgMzYuMzAyLTgxLjA3NCA4MS4wNzQtODEuMDc0IDQ0Ljc3NCAwIDgxLjA3NiAzNi4yOTEgODEuMDc2IDgxLjA3NCAwIDE0Ljg5NS00LjA4OCAyOC44MS0xMS4xMDYgNDAuODE0bDExNy43MDMgMTE3LjY5M2MxNS45NjQtMTAuNDkxIDM1LjAyNi0xNi42MjYgNTUuNTUyLTE2LjYyNiAxMC42MSAwIDIwLjgyMyAxLjY0MiAzMC40MzIgNC42Nmw2Mi43MzYtMTA4LjY1N2MtNS43My02LjY5LTEwLjIzNC0xNC41ODgtMTIuNjY3LTIzLjY2My04LjY5LTMyLjQzMiAxMC41Ni02NS43ODQgNDMuMDAyLTc0LjQ3NCAxMS45MjYtMy4xOTYgMjMuOTYtMi41NTQgMzQuODY2IDEuMDggNC4yOTUtLjU4NCA4Ljc4OC4xMTggMTIuODI2IDIuNDU0IDQuMDY4IDIuMzQ2IDYuOTM5IDUuOTI5IDguNTcgOS45NzYgOC41MTIgNy42MSAxNS4wMzQgMTcuNjM2IDE4LjIwMSAyOS40ODMgOC43IDMyLjQ0LTEwLjU2IDY1Ljc4NC00Mi45OTIgNzQuNDgzLTkuMDI1IDIuNDE2LTE4LjA2MSAyLjQ3NC0yNi42NzEuODkxbC02Mi40NSAxMDguMTYzYzE5Ljc3NCAxNi45NDMgMzIuODU4IDQxLjM1OSAzNS4wMzUgNjguODcyaDEwNC4xNzNjMy4wNzktMTEuNzc3IDguOTQ3LTIzIDE4LjE4LTMyLjIyNCAyNy43MDItMjcuNzEyIDcyLjYxMy0yNy43MTIgMTAwLjMyNSAwIDE0LjM1IDE0LjM1IDIxLjExIDMzLjMyMyAyMC41ODUgNTIuMTM2IDAgLjExOC4wNC4yMzcuMDQuMzU2IDAgMS40ODUtLjE4OSAyLjkyLS40ODUgNC4zMTUtMS40OTUgMTUuODc1LTcuOTg2IDMxLjM2My0yMC4xNCA0My41MTdaIi8+PC9zdmc+',
@@ -145,9 +148,9 @@ class DevicePortAbonInfo {
 
 //для сохранения в jbjectsInfj
 class ObjectInfo {
-  constructor(objectId,objectType,props={}){
-    this.objectId=objectId||''
+  constructor(objectType,objectId,props={}){
     this.objectType=objectType||''
+    this.objectId=objectId||''
     for(const [key,value] of Object.entries(props)){
       this[key]=value
     }
@@ -155,13 +158,13 @@ class ObjectInfo {
 };
 class PortObjectInfo extends ObjectInfo {
   constructor(port={}){
-    super(port.name,'port')
+    super('port',port.name)
     this.deviceName=port.device_name||''
   }
 };
 class AbonObjectInfo extends ObjectInfo {
   constructor(port={},sub={}){
-    super(sub.account,'abon')
+    super('abon',sub.account)
     this.deviceName=port.device_name||''
     this.devicePortName=port.name||''
   }
@@ -252,45 +255,12 @@ function sortPointsToArea(points=[]){
   document.body.insertAdjacentElement('afterBegin',el);
 }());
 
-function mountBalloonView(properties={}){
+const YMAPS_HINT_VIEW_NAME=`YMapsHint`;
+const YMAPS_BALLOON_VIEW_NAME=`YMapsBalloon`;
+function mountView(name,properties={}){
   return new Vue({
     store,
-    template:`<div name="YMapsBalloon">
-      <div>mapObjectId: {{mapObjectId}}</div>
-      <div>mapObjectType: {{mapObjectType}}</div>
-      <div>objectId: {{objectId}}</div>
-      <div>objectType: {{objectType}}</div>
-      <template v-if="objectType=='abon'">
-        <OntInfo v-if="abonOnt&&abonOntPort" v-bind="{ont:abonOnt,port:abonOntPort}" class="margin-top-16px margin-bottom-unset margin-left-right-unset"/>
-        <pre>{{devicePortAbonInfo}}</pre>
-        <pre>{{abonOnt}}</pre>
-      </template>
-      <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(deviceName)" addBorder autoSysInfo hideEntrances showLocation/>
-      <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
-    </div>`,
-    data:()=>({
-      ...properties,
-    }),
-    created(){},
-    mounted(){},
-    computed:{
-      ...mapGetters({
-        getDeviceInfo:'gpon2/getDeviceInfo',
-        getDevicePort:'gpon2/getDevicePort',
-        getDevicePortAbonInfo:'gpon2/getDevicePortAbonInfo',
-        getAbonOnt:'gpon2/getAbonOnt',
-      }),
-      devicePortAbonInfo(){return this.objectType=='abon'?this.getDevicePortAbonInfo(this.deviceName,this.devicePortName,this.accountId):null},
-      abonOnt(){return this.objectType=='abon'?this.getAbonOnt(this.accountId):null},
-      abonOntPort(){return this.objectType=='abon'?this.getDevicePort(this.deviceName,this.devicePortName):null},
-    },
-    destroyed(){},
-  }).$mount(`[name="YMapsBalloon"]`);
-};
-function mountHintView(properties={}){
-  return new Vue({
-    store,
-    template:`<div name="YMapsHint">
+    template:`<div name="${name}">
       <div>mapObjectId: {{mapObjectId}}</div>
       <div>mapObjectType: {{mapObjectType}}</div>
       <div>objectId: {{objectId}}</div>
@@ -302,29 +272,29 @@ function mountHintView(properties={}){
       </template>
       <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
       <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
-      <OntInfo v-else-if="objectType=='ont'" v-bind="{ont:{},port:getDevicePort(deviceName,devicePortName)}"/>
     </div>`,
     data:()=>({
+      name,
       ...properties,
     }),
     created(){},
     mounted(){},
     computed:{
       ...mapGetters({
-        getDeviceInfo:'gpon2/getDeviceInfo',
-        getDevicePort:'gpon2/getDevicePort',
-        getDevicePortAbonInfo:'gpon2/getDevicePortAbonInfo',
-        getAbonOnt:'gpon2/getAbonOnt',
+        getDeviceInfo:'em_gpon/getDeviceInfo',
+        getDevicePort:'em_gpon/getDevicePort',
+        getDevicePortAbonInfo:'em_gpon/getDevicePortAbonInfo',
+        getAbonOnt:'em_gpon/getAbonOnt',
       }),
       devicePortAbonInfo(){return this.objectType=='abon'?this.getDevicePortAbonInfo(this.deviceName,this.devicePortName,this.accountId):null},
       abonOnt(){return this.objectType=='abon'?this.getAbonOnt(this.accountId):null},
       abonOntPort(){return this.objectType=='abon'?this.getDevicePort(this.deviceName,this.devicePortName):null},
     },
     destroyed(){},
-  }).$mount(`[name="YMapsHint"]`);
+  }).$mount(`[name="${name}"]`);
 };
 
-store.registerModule('gpon2',{
+store.registerModule('em_gpon',{
   namespaced:true,
   state:()=>({
     loads:{},
@@ -528,7 +498,7 @@ store.registerModule('gpon2',{
         ]).then(state.setMapObjects);
         //после получения портов и абонентов устройства
         await dispatch('getDeviceAbsentObjectsInfo',deviceName);
-        //сохранение пустышек для селектов по deviceName/devicePortName
+        //сохранение пустышек дочерних объектов
         dispatch('setDeviceAbsentObjectsInfo',deviceName).then(state.setMapObjects);
         
         //сервис асинхронный, нет контроля версий, может не сразу вернуть обновления через setDeviceAbsentObjectsInfo
@@ -840,6 +810,7 @@ Vue.component('EventsMapGpon2',{
     geocodeLoading:false,
     address:'',
     addressInfoButton:null,
+    iconButton:null,
     controlListBox:null,
     bounds:null,
     cursor:null,
@@ -867,29 +838,36 @@ Vue.component('EventsMapGpon2',{
     },
     'devicesList'(){
       this.setMapObjects();
+    },
+    'loadingSome'(loadingSome){
+      if(this.iconButton){
+        this.iconButton.data.set('image',loadingSome?EVENTS_MAP_ICONS.LOADER_GIF:'');
+      }
     }
   },
   computed:{
     ...mapGetters({
-      devices:'gpon2/devices',
-      devicesList:'gpon2/devicesList',
-      devicesCount:'gpon2/devicesCount',
-      getDeviceInfo:'gpon2/getDeviceInfo',
-      getDeviceSiteCoordinates:'gpon2/getDeviceSiteCoordinates',
-      getDeviceAbons:'gpon2/getDeviceAbons',
-      getObjectInfo:'gpon2/getObjectInfo',
-      getDevicePortsHasAbons:'gpon2/getDevicePortsHasAbons',
-      getDevicePortAreaCoordinates:'gpon2/getDevicePortAreaCoordinates',
-      getDevicePortAbonsCount:'gpon2/getDevicePortAbonsCount',
+      loads:'em_gpon/loads',
+      devices:'em_gpon/devices',
+      devicesList:'em_gpon/devicesList',
+      devicesCount:'em_gpon/devicesCount',
+      getDeviceInfo:'em_gpon/getDeviceInfo',
+      getDeviceSiteCoordinates:'em_gpon/getDeviceSiteCoordinates',
+      getDeviceAbons:'em_gpon/getDeviceAbons',
+      getObjectInfo:'em_gpon/getObjectInfo',
+      getDevicePortsHasAbons:'em_gpon/getDevicePortsHasAbons',
+      getDevicePortAreaCoordinates:'em_gpon/getDevicePortAreaCoordinates',
+      getDevicePortAbonsCount:'em_gpon/getDevicePortAbonsCount',
     }),
+    loadingSome(){return Object.values(this.loads).some(Boolean)},
   },
   methods:{
     ...mapActions({
-      startUpdate:'gpon2/startUpdate',
-      setUserActionPause:'gpon2/setUserActionPause',
-      addDevice:'gpon2/addDevice',
-      delDevice:'gpon2/delDevice',
-      setObjectInfo:'gpon2/setObjectInfo',
+      startUpdate:'em_gpon/startUpdate',
+      setUserActionPause:'em_gpon/setUserActionPause',
+      addDevice:'em_gpon/addDevice',
+      delDevice:'em_gpon/delDevice',
+      setObjectInfo:'em_gpon/setObjectInfo',
     }),
     awaitYmapsReady(){
       setTimeout(()=>{
@@ -911,6 +889,21 @@ Vue.component('EventsMapGpon2',{
           position:{top:8,left:8},
           size:'small',
           maxWidth:'unset',
+          selectOnClick:false,
+        },
+        state:{
+          enabled:false,
+        },
+      });
+      this.iconButton=new window.ymaps.control.Button({
+        data:{
+          content:`<div style="margin-left:-12px;margin-right:-12px;text-align:center;">STBY</div>`,
+          //image:EVENTS_MAP_ICONS.LOADER_GIF,//image:`../f/i/btn_red_loading.gif`,
+        },
+        options:{
+          position:{top:8,right:72},
+          size:'small',
+          maxWidth:'28px;width:28',//maxWidth:28,
           selectOnClick:false,
         },
         state:{
@@ -954,6 +947,7 @@ Vue.component('EventsMapGpon2',{
         controls:[
           this.addressInfoButton,
           this.controlListBox,
+          this.iconButton,
           new window.ymaps.control.TypeSelector({
             //mapTypes:['yandex#map','yandex#satellite','yandex#hybrid'],
             options:{
@@ -1035,7 +1029,7 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.balloon.events.add('open',(event)=>{
         console.log('ymap.balloon.open',event);
-        this.ymap.balloon.customView=mountBalloonView(event.originalEvent.target.properties.getAll());
+        this.ymap.balloon.customView=mountView(YMAPS_BALLOON_VIEW_NAME,event.originalEvent.target.properties.getAll());
       });
       
       //ymap.hint.events
@@ -1051,7 +1045,7 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.hint.events.add('open',(event)=>{
         console.log('ymap.hint.open',event);
-        this.ymap.hint.customView=mountHintView(event.originalEvent.target.properties.getAll());
+        this.ymap.hint.customView=mountView(YMAPS_HINT_VIEW_NAME,event.originalEvent.target.properties.getAll());
       });
     },
     async getDevicesListAndAddToListBox(){
@@ -1060,11 +1054,11 @@ Vue.component('EventsMapGpon2',{
         const response=this.$cache.getItem(cacheKey)||await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?regionId=54`).then(r=>r.json());
         if(Array.isArray(response)){
           this.$cache.setItem(cacheKey,response,CACHE_1HOUR);
-          for(const {timestamp,regionId,deviceName,deviceIp,model,location,coordinates,zoom} of response){
+          for(const {timestamp,mrId,regionId,deviceName,deviceIp,model,location,coordinates,zoom} of response){
             this.controlListBox.add(new window.ymaps.control.ListBoxItem({
               data:{
                 content:[deviceName,model,location].filter(Boolean).join(' • '),
-                deviceName,deviceIp,model,location,
+                deviceName,//deviceIp,model,location,
                 coordinates,zoom,
               },
             }))
@@ -1168,8 +1162,8 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.OLT,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.OLT,
@@ -1193,9 +1187,9 @@ Vue.component('EventsMapGpon2',{
     },
     setMapObjectDevicePortAbon(deviceName,devicePortName,accountId){
       const {mapObjects}=this;
-      let [latitude,longitude]=this.getObjectInfo(accountId)?.coordinates||[];
+      let [latitude,longitude]=this.getObjectInfo(accountId)?.point||[];
       if(!latitude||!longitude){//если нет позиции ONT берем позицию PON
-        const coordinates=this.getObjectInfo(devicePortName)?.coordinates||[];
+        const coordinates=this.getObjectInfo(devicePortName)?.point||[];
         if(!coordinates){return};
         const [_latitude,_longitude]=coordinates;
         if(!_latitude||!_longitude){return};
@@ -1233,8 +1227,8 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.ONT,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.ONT_NORMAL_7B68EE99,
@@ -1290,8 +1284,8 @@ Vue.component('EventsMapGpon2',{
       const {mapObjects}=this;
       const devicePortAbonsCount=this.getDevicePortAbonsCount(deviceName,devicePortName);
       
-      const objectInfoCoordinates=this.getObjectInfo(devicePortName)?.coordinates;
-      let [latitude,longitude]=objectInfoCoordinates||[];
+      const coordinates=this.getObjectInfo(devicePortName)?.point;
+      let [latitude,longitude]=coordinates||[];
       if(!latitude||!longitude){
         const coordinates=this.getDeviceSiteCoordinates(deviceName);
         if(!coordinates){return};
@@ -1304,8 +1298,6 @@ Vue.component('EventsMapGpon2',{
       
       const mapObjectPointId=atok('Point',devicePortName);
       const mapObjectCircleId=atok('Circle',devicePortName);
-      
-      const CIRCLE_RADIUS_M=32;
       
       try{
         if(!mapObjects[mapObjectPointId]){
@@ -1326,8 +1318,8 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.PON,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.PON_0060F0,
@@ -1366,9 +1358,11 @@ Vue.component('EventsMapGpon2',{
         
         const lastUpdate=Date.now();
         
-        if(devicePortAbonsCount&&objectInfoCoordinates){
+        const radius=this.getObjectInfo(devicePortName)?.radius||CIRCLE_RADIUS_M;
+        
+        if(devicePortAbonsCount&&coordinates){
           if(!mapObjects[mapObjectCircleId]){
-            this.addMapObject(mapObjects[mapObjectCircleId]=new window.ymaps.Circle([[latitude,longitude],CIRCLE_RADIUS_M],{
+            this.addMapObject(mapObjects[mapObjectCircleId]=new window.ymaps.Circle([[latitude,longitude],radius],{
               mapObjectId:mapObjectCircleId,
               mapObjectType:'Circle',
               
@@ -1382,8 +1376,8 @@ Vue.component('EventsMapGpon2',{
               balloonPanelMaxMapArea:0,
               openEmptyBalloon:true,
               openEmptyHint:true,
-              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
+              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
               zIndex:EVENTS_MAP_ZINDEX.AREA,
               fillColor:"#0060F011",
               //fillColor:'#00FF0020',
@@ -1428,8 +1422,8 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsBalloon"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHint"></div>`),
+            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.AREA,
             fillColor:'#00FF0020',
             //strokeColor:'#0000FF',
