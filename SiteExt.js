@@ -12,6 +12,7 @@ Vue.component('SiteExt',{
     site_id:{type:String,default:'',required:true},
     entrances:{type:Array,default:()=>([]),required:true},
     entrance_id:{type:String,default:''},
+    loads:{type:Object,default:()=>({})},
   },
   data:()=>({
     open_ext:false,
