@@ -47,30 +47,6 @@ app.$router.addRoutes([{
 }]);
 //app.$router.push({name:'events-map',params:{templateId:'nsk-gpon-test-2'}})
 
-const NSK_OLT_LIST_ITEMS=[//[deviceName,content,coords,zoom]
-  ['OLT_KR_54_10907_1','OLT_KR_54_10907_1 • Huawei MA5800-X2 • п Ложок, ул. Тесла, контейнер связи',[54.842842,83.181644],18],
-  null,//separator
-  ['OLT_KR_54_02758_1','OLT_KR_54_02758_1 • FiberHome AN5516-04 • тер Тополек СНТ (Первомайский р-н), термошкаф',[54.906,83.04819],18],
-  null,//separator
-  ['OLT_KR_54_02757_1','OLT_KR_54_02757_1 • FiberHome AN5516-04 • тер НСТ Энергия-3, ул. Первая, термошкаф',[55.19775,82.8258],18],
-  ['OLT_KR_54_02757_2','OLT_KR_54_02757_2 • Huawei MA5800-X2 • тер НСТ Энергия-3, ул. Первая, термошкаф',[55.19775,82.8258],18],
-  null,//separator
-  ['OLT_KR_54_02546_1','OLT_KR_54_02546_1 • FiberHome AN5516-04 • тер. снт Строймашевец, д. 6',[54.905731,83.058411],18],
-  null,//separator
-  ['OLT_KR_54_01832_1','OLT_KR_54_01832_1 • FiberHome AN5516-04 • дп Мочище, ул. Шведова, д. 1/к.1',[55.18269,82.88427],18],
-  null,//separator
-  ['OLT_KR_54_01799_1','OLT_KR_54_01799_1 • FiberHome AN5516-06 • ул. Большевистская, д. 126',[54.99023,82.97477],18],
-  null,//separator
-  ['OLT_KR_54_0760_1','OLT_KR_54_0760_1 • FiberHome AN5516-06 • тер Ивушка СНТ (советский р-н), опора',[54.88922,83.05083],18],
-  null,//separator
-  ['OLT_KR_54_0513_1','OLT_KR_54_0513_1 • 695 км северо-восточнее дома 4 по Майская ул, Катково с, башня',[55.19552,82.79891],18],
-  null,//separator
-  ['OLT_59KR_04612_1','OLT_59KR_04612_1 • FiberHome AN5516-06 • г. Пермь, ул. Мира, д. 102',[57.97397,56.16987],18],
-  ['OLT_59KR_04612_2','OLT_59KR_04612_2 • FiberHome AN5516-06 • г. Пермь, ул. Мира, д. 102',[57.97397,56.16987],18],
-  ['OLT_59KR_01979_1','OLT_59KR_01979_1 • FiberHome AN5516-06 • г. Пермь, ул. Космонавта Леонова, д. 56А',[57.966267,56.174858],18],
-];
-const NSK_OLTs=NSK_OLT_LIST_ITEMS.reduce((selectedItems,item)=>item?Object.assign(selectedItems,{[item[0]]:null}):selectedItems,{});
-
 const CACHE_1HOUR=60;
 const CACHE_1DAY=CACHE_1HOUR*24;
 
@@ -233,7 +209,7 @@ function sortPointsToArea(points=[]){
   return calc.map(([angle,hypotenuse,lat,lon])=>[lat,lon]);
 };
 
-(function(id=`YMapsBalloon-css`){
+(function(id=`YMaps-css`){
   document.getElementById(id)?.remove();
   const el=Object.assign(document.createElement('style'),{type:'text/css',id});
   //нужно задать размеры начально
@@ -245,13 +221,6 @@ function sortPointsToArea(points=[]){
       font-size:11px;
       line-height:12px;
     }
-  `));
-  document.body.insertAdjacentElement('afterBegin',el);
-}());
-(function(id=`YMapsHint-css`){
-  document.getElementById(id)?.remove();
-  const el=Object.assign(document.createElement('style'),{type:'text/css',id});
-  el.appendChild(document.createTextNode(`
     [name="YMapsHint"]{
       min-width:200px;
       min-height:100px;
@@ -261,13 +230,6 @@ function sortPointsToArea(points=[]){
       font-size:11px;
       line-height:12px;
     }
-  `));
-  document.body.insertAdjacentElement('afterBegin',el);
-}());
-(function(id=`YMapsHint-test-css`){
-  document.getElementById(id)?.remove();
-  const el=Object.assign(document.createElement('style'),{type:'text/css',id});
-  el.appendChild(document.createTextNode(`
     .ymaps-2-1-79-hint--- {
       padding: 0 !important;
       border-radius: 12px;
@@ -959,21 +921,7 @@ Vue.component('EventsMapGpon2',{
         data:{
           content:`Не выбран`,
         },
-        items:NSK_OLT_LIST_ITEMS.map(item=>{
-          const [deviceName,content,coordinates,zoom]=item||[];
-          return !item?new window.ymaps.control.ListBoxItem({
-            options:{
-              type:'separator'
-            }
-          }):new window.ymaps.control.ListBoxItem({
-            data:{
-              content,
-              deviceName,
-              coordinates,
-              zoom,
-            },
-          })
-        }),
+        items:[],
         options:{
           position:{top:40,left:8},
           size:'small',
@@ -1043,6 +991,7 @@ Vue.component('EventsMapGpon2',{
       });
       
       document.querySelector(`.ymaps-2-1-79-copyrights-pane`)?.remove();
+      this.getDevicesListAndAddToListBox();
       
       //ymap.events
       this.ymap.events.add('boundschange',(event)=>{
@@ -1104,6 +1053,26 @@ Vue.component('EventsMapGpon2',{
         console.log('ymap.hint.open',event);
         this.ymap.hint.customView=mountHintView(event.originalEvent.target.properties.getAll());
       });
+    },
+    async getDevicesListAndAddToListBox(){
+      try{
+        const cacheKey=`emp/devices/54`;
+        const response=this.$cache.getItem(cacheKey)||await fetch(`https://script.google.com/macros/s/AKfycbyCr8L8OZDTTVuiQp4j_5chhXIMc1Wkzyt_6cCzMFrOdw0zjr0lhJGTawYzuStEpB7S/exec?regionId=54`).then(r=>r.json());
+        if(Array.isArray(response)){
+          this.$cache.setItem(cacheKey,response,CACHE_1HOUR);
+          for(const {timestamp,regionId,deviceName,deviceIp,model,location,coordinates,zoom} of response){
+            this.controlListBox.add(new window.ymaps.control.ListBoxItem({
+              data:{
+                content:[deviceName,model,location].filter(Boolean).join(' • '),
+                deviceName,deviceIp,model,location,
+                coordinates,zoom,
+              },
+            }))
+          };
+        };
+      }catch(error){
+        console.warn('getDevicesList.error',error);
+      };
     },
     async getSampleAddressCoordinates(sample){
       if(!window.ymaps){return new GeocodeResult(sample)};
@@ -1486,7 +1455,6 @@ Vue.component('EventsMapGpon2',{
     this.ymap?.destroy();
   },
 });
-
 
 
 
