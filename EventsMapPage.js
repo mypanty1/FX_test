@@ -1029,6 +1029,7 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.balloon.events.add('open',(event)=>{
         console.log('ymap.balloon.open',event);
+        this.ymap.balloon.customView?.$destroy();
         this.ymap.balloon.customView=mountView(YMAPS_BALLOON_VIEW_NAME,event.originalEvent.target.properties.getAll());
       });
       
@@ -1045,6 +1046,7 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.hint.events.add('open',(event)=>{
         console.log('ymap.hint.open',event);
+        this.ymap.hint.customView?.$destroy();
         this.ymap.hint.customView=mountView(YMAPS_HINT_VIEW_NAME,event.originalEvent.target.properties.getAll());
       });
     },
