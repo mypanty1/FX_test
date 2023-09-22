@@ -173,10 +173,19 @@ Vue.component('WidgetPing',{
   },
 });
 Vue.component('WidgetDev',{
-  template:`<div name="WidgetUser">
+  template:`<div name="WidgetDev">
     <input-el placeholder="wfm_username" label="wfm_username" v-model="wfm_username"/>
     <input-el placeholder="fav_username" label="fav_username" v-model="fav_username"/>
+    <devider-line/>
+    <div class="font-13--500">eval</div>
+    <textarea-el label="js" v-model="js" rows="3" class="padding-unset"/>
+    <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
+    <textarea-el label="jsResult" v-model="jsResultText" rows="3" class="padding-unset"/>
   </div>`,
+  data:()=>({
+    js:'',
+    jsResult:null,
+  }),
   computed:{
     ...mapGetters({
       getVar:'dev/getVar'
@@ -193,6 +202,7 @@ Vue.component('WidgetDev',{
       get(){return this.getVar('wfm_username')},
       set(wfm_username){this.setVar({wfm_username})}
     },
+    jsResultText(){return JSON.stringify(this.jsResult,0,2)},
   },
   methods:{
     close(){//public
@@ -201,6 +211,9 @@ Vue.component('WidgetDev',{
     ...mapActions({
       setVar:'dev/setVar'
     }),
+    eval(){
+      this.jsResult=eval(this.js);
+    }
   },
   beforeDestroy(){
     
