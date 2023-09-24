@@ -212,19 +212,13 @@ function sortPointsToArea(points=[]){
   return calc.map(([angle,hypotenuse,lat,lon])=>[lat,lon]);
 };
 
-(function(id=`YMaps-css`){
+function getIntId(){return parseInt((Math.random()*10000).toFixed().padStart(4,0)+Date.now())};
+
+(function(id=`YMapsHintName-css`){
   document.getElementById(id)?.remove();
   const el=Object.assign(document.createElement('style'),{type:'text/css',id});
-  //нужно задать размеры начально
   el.appendChild(document.createTextNode(`
-    [name="YMapsBalloon"]{
-      width:500px;
-      height:300px;
-      font-family:Inter;
-      font-size:11px;
-      line-height:12px;
-    }
-    [name="YMapsHint"]{
+    [name="YMapsHintName"]{
       min-width:200px;
       min-height:100px;
       width:fit-content;
@@ -254,44 +248,20 @@ function sortPointsToArea(points=[]){
   `));
   document.body.insertAdjacentElement('afterBegin',el);
 }());
-
-const YMAPS_HINT_VIEW_NAME=`YMapsHint`;
-const YMAPS_BALLOON_VIEW_NAME=`YMapsBalloon`;
-function mountView(name,properties={}){
+function mountHintView(properties={}){
   return new Vue({
     store,
-    template:`<div name="${name}">
-      <div>mapObjectId: {{mapObjectId}}</div>
-      <div>mapObjectType: {{mapObjectType}}</div>
-      <div>objectId: {{objectId}}</div>
-      <div>objectType: {{objectType}}</div>
-      <template v-if="objectType=='abon'">
-        <OntInfo v-if="abonOnt&&abonOntPort" v-bind="{ont:abonOnt,port:abonOntPort}" class="margin-top-16px margin-bottom-unset margin-left-right-unset"/>
-        <pre>{{devicePortAbonInfo}}</pre>
-        <pre>{{abonOnt}}</pre>
-      </template>
-      <device-info v-else-if="objectType=='device'" :networkElement="getDeviceInfo(objectId)" addBorder autoSysInfo hideEntrances showLocation/>
-      <device-info v-else-if="objectType=='port'" :networkElement="getDeviceInfo(deviceName)" :ports="[getDevicePort(deviceName,devicePortName)]" addBorder autoSysInfo hideEntrances showLocation/>
+    template:`<div name="YMapsHintName">
+      <div v-for="(value,key) in $data" :key="key">{{key}}: {{value}}</div>
     </div>`,
     data:()=>({
-      name,
       ...properties,
     }),
     created(){},
     mounted(){},
-    computed:{
-      ...mapGetters({
-        getDeviceInfo:'em_gpon/getDeviceInfo',
-        getDevicePort:'em_gpon/getDevicePort',
-        getDevicePortAbonInfo:'em_gpon/getDevicePortAbonInfo',
-        getAbonOnt:'em_gpon/getAbonOnt',
-      }),
-      devicePortAbonInfo(){return this.objectType=='abon'?this.getDevicePortAbonInfo(this.deviceName,this.devicePortName,this.accountId):null},
-      abonOnt(){return this.objectType=='abon'?this.getAbonOnt(this.accountId):null},
-      abonOntPort(){return this.objectType=='abon'?this.getDevicePort(this.deviceName,this.devicePortName):null},
-    },
+    computed:{},
     destroyed(){},
-  }).$mount(`[name="${name}"]`);
+  }).$mount(`[name=YMapsHintName]`);
 };
 
 store.registerModule('em_gpon',{
@@ -787,10 +757,124 @@ store.registerModule('em_gpon',{
   },
 });
 
+(function(id=`EventsMap-css`){
+  document.getElementById(id)?.remove();
+  const el=Object.assign(document.createElement('style'),{type:'text/css',id});
+  el.appendChild(document.createTextNode(`
+    .block-ffffff-28 {
+      background-color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 1px 2px 1px rgba(0,0,0,.15),0 2px 5px -3px rgba(0,0,0,.15);
+      box-sizing: border-box !important;
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 3px;
+      background-clip: border-box;
+      -webkit-transition: background-color .15s ease-out,border-color .15s ease-out,opacity .15s ease-out;
+      transition: background-color .15s ease-out,border-color .15s ease-out,opacity .15s ease-out;
+      min-height: 28px;
+      min-width: 28px;
+    }
+    .transition_sidebar_left_slide-enter-active{
+      transition:400ms;
+    }
+    .transition_sidebar_left_slide-leave-active{
+      transition:200ms;
+    }
+    .transition_sidebar_left_slide-enter{
+      transform:translate(-50%,0);
+      opacity:0;
+    }
+    .transition_sidebar_left_slide-enter-to{
+      opacity:1;
+    }
+    .transition_sidebar_left_slide-leave-to{
+      transform:translate(-50%,0);
+      opacity:0;
+    }
+  `));
+  document.body.insertAdjacentElement('afterBegin',el);
+}());
+
+Vue.component('EventsMapSidebar',{
+  template:`<div class="block-ffffff-28 display-flex flex-direction-column gap-4px" style="min-width:300px;max-width:400px;height:90vh;padding:4px;opacity:0.9;">
+    <div class="display-flex gap-4px align-items-center justify-content-space-between">
+      <div class="display-flex gap-4px align-items-center">
+        <span v-if="objectType||objectId" class="font--13-500 white-space-pre">{{objectType}} {{objectId}}</span>
+        <span v-if="title" class="font--13-500 white-space-pre">{{title}}</span>
+      </div>
+      <div class="margin-left-auto cursor-pointer" @click="$emit('close')">
+        <IcIcon name="fas fa-times" size="22" class="font-size-22px tone-500"/>
+      </div>
+    </div>
+    <div style="overflow-y:auto;">
+      <div class="display-flex flex-direction-column gap-4px">
+        <!--<pre>$props:{{$props}}</pre>-->
+        <iframe v-if="src" :src="src" style="border:yes;width:380px;height:80vh;"/>
+        <device-info v-if="deviceInfo" :networkElement="deviceInfo" addBorder autoSysInfo hideEntrances showLocation>
+          <template slot="ports" v-if="devicePortInfo">
+            <devider-line/>
+            <port-info-v1 :port="devicePortInfo" class="margin-left--8px width--webkit-fill-available" noSubs/>
+          </template>
+        </device-info>
+        <OntInfo v-if="abonOnt&&devicePortInfo" v-bind="{ont:abonOnt,port:devicePortInfo}" class="margin-top-16px margin-bottom-unset margin-left-right-unset"/>
+        <pre v-if="abonOnt">abonOnt:{{abonOnt}}</pre>
+        <pre v-if="devicePortAbonInfo">devicePortAbonInfo:{{devicePortAbonInfo}}</pre>
+      </div>
+    </div>
+  </div>`,
+  props:{
+    mapObjectId:{type:String,default:''},//Point-OLT_KR_54_01799_1
+    mapObjectType:{type:String,default:''},//Point
+    lastUpdate:{type:Number,default:0},//1695564212845
+    objectId:{type:String,default:''},//OLT_KR_54_01799_1
+    objectType:{type:String,default:''},//device
+    deviceName:{type:String,default:''},//OLT_KR_54_01799_1
+    devicePortName:{type:String,default:''},//PORT-OLT_KR_54_01799_1/372768768
+    accountId:{type:[String,Number],default:''},//6-091-0449674
+    mapObjectCircleId:{type:String,default:''},//Circle-PORT-OLT_KR_54_01799_1/372768768
+    title:{type:String,default:''},
+    src:{type:String,default:''},
+  },
+  computed:{
+    ...mapGetters({
+      getDeviceInfo:'em_gpon/getDeviceInfo',
+      getDevicePort:'em_gpon/getDevicePort',
+      getDevicePortAbonInfo:'em_gpon/getDevicePortAbonInfo',
+      getAbonOnt:'em_gpon/getAbonOnt',
+    }),
+    deviceInfo(){return this.getDeviceInfo(this.deviceName)},
+    devicePortInfo(){return this.getDevicePort(this.deviceName,this.devicePortName)},
+    devicePortAbonInfo(){return this.getDevicePortAbonInfo(this.deviceName,this.devicePortName,this.accountId)},
+    abonOnt(){return this.getAbonOnt(this.accountId)},
+  },
+});
+
 //app.$children[3].$children[0].ymap.balloon
 Vue.component('EventsMapGpon2',{
   template:`<div name="EventsMapGpon2" class="position-relative" style="height:100vh;width:100vw;">
-    <div name="YMap" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
+    <div name="YMapContainerName" class="position-absolute inset-0" style="width:100%;height:100%;"></div>
+    <div class="position-absolute display-grid gap-4px" style="top:4px;left:4px;right:4px;grid-template-columns: max-content 1fr;">
+      <div class="block-ffffff-28 display-flex gap-4px align-items-center" style="padding:0px 4px;min-width:300px;">
+        <div v-for="([listeners,props],index) of menuBtns" :key="index" v-on="listeners" class="cursor-pointer">
+          <IcIcon size="22" class="font-size-22px" v-bind="props"/>
+        </div>
+      </div>
+      <div class="block-ffffff-28 display-flex gap-4px align-items-center justify-content-space-between" style="padding:0px 4px;">
+        <div class="display-flex gap-4px align-items-center" :class="[(!geocodeLoading&&coordinates)&&'cursor-pointer']" @click="flyToAddressCoordinates">
+          <IcIcon :name="(geocodeLoading||!coordinates)?'pin tone-500':'pin main-lilac'" size="22"/>
+          <span class="white-space-pre" style="opacity:0.8;">{{address}}</span>
+        </div>
+        <div class="margin-left-auto">
+          <IcIcon v-if="loadingSome" name="loading rotating" size="22" class="main-lilac"/>
+        </div>
+      </div>
+    </div>
+    <div class="position-absolute" style="top:68px;left:4px;">
+      <transition name="transition_sidebar_left_slide" mode="out-in" appear>
+        <EventsMapSidebar v-if="sidebar.open" v-bind="sidebar.props" @close="sidebar.open=!sidebar.open"/>
+      </transition>
+    </div>
   </div>`,
   props:{
     templateId:{type:[String,Number],default:'',required:true}
@@ -799,6 +883,10 @@ Vue.component('EventsMapGpon2',{
     this.awaitYmapsReady();
   },
   data:()=>({
+    sidebar:{
+      open:false,
+      props:null,
+    },
     ymapsReadyTimer:null,
     isYmapsReady:false,
     isYmapsInit:false,
@@ -809,8 +897,7 @@ Vue.component('EventsMapGpon2',{
     //zoom:19,center:[54.99390617498407, 82.96689562644377],//polygon test
     geocodeLoading:false,
     address:'',
-    addressInfoButton:null,
-    iconButton:null,
+    coordinates:null,
     controlListBox:null,
     bounds:null,
     cursor:null,
@@ -833,17 +920,9 @@ Vue.component('EventsMapGpon2',{
       this.setAddressByCoordinates(this.center);
       //this.setMapObjects();
     },
-    'address'(address){
-      this.addressInfoButton.data.set('content',address);
-    },
     'devicesList'(){
       this.setMapObjects();
     },
-    'loadingSome'(loadingSome){
-      if(this.iconButton){
-        this.iconButton.data.set('image',loadingSome?EVENTS_MAP_ICONS.LOADER_GIF:'');
-      }
-    }
   },
   computed:{
     ...mapGetters({
@@ -860,8 +939,34 @@ Vue.component('EventsMapGpon2',{
       getDevicePortAbonsCount:'em_gpon/getDevicePortAbonsCount',
     }),
     loadingSome(){return Object.values(this.loads).some(Boolean)},
+    menuBtns(){
+      return [
+        [{click:()=>this.toggleSidebar()},{name:!this.sidebar.open?'down':'up',class:'main-lilac bg-tone-200 border-radius-3px'}],
+        [{click:()=>this.setSidebar(!0,{src:`${window.location.origin}/fix`,title:'Inetcore Mobile Assistant'})},{name:'search',class:['main-lilac',(this.sidebar.open&&this.sidebar.props?.src)&&'bg-tone-200 border-radius-3px']}],
+        //[{click:(e)=>console.log(e)},{name:'fa fa-tasks',color:'#2c98f0'}],
+        //[{click:(e)=>console.log(e)},{name:'fa fa-tasks',color:'#3876a9'}],
+        //[{click:(e)=>console.log(e)},{name:'warning',class:'main-orange'}],
+        //[{click:(e)=>console.log(e)},{name:'far fa-comment-dots',color:'#00bcd4'}],
+        //[{click:(e)=>console.log(e)},{name:'fas fa-info-circle',color:'#ff9800'}],
+        //[{click:(e)=>console.log(e)},{name:'far fa-question-circle',color:'#6421b8'}],
+        //[{click:(e)=>console.log(e)},{name:'fas fa-grip-horizontal',color:'#2139b8'}],
+        //[{click:(e)=>console.log(e)},{name:'right-link',class:'tone-500'}],
+        //[{click:(e)=>console.log(e)},{name:'fas fa-times'}],
+      ]
+    }
   },
   methods:{
+    toggleSidebar(){this.sidebar.open=!this.sidebar.open},
+    setSidebar(state=!1,props=null){
+      this.sidebar.open=state;
+      this.sidebar.props=props;
+    },
+    flyToAddressCoordinates(){
+      const {geocodeLoading,coordinates}=this;
+      if(geocodeLoading){return};
+      if(!coordinates){return};
+      this.center=coordinates;
+    },
     ...mapActions({
       startUpdate:'em_gpon/startUpdate',
       setUserActionPause:'em_gpon/setUserActionPause',
@@ -879,44 +984,15 @@ Vue.component('EventsMapGpon2',{
       },111);
     },
     async initYmaps(){
-      const {type,center,zoom,address}=this;
+      const {type,center,zoom}=this;
       
-      this.addressInfoButton=new window.ymaps.control.Button({
-        data:{
-          content:address,
-        },
-        options:{
-          position:{top:8,left:8},
-          size:'small',
-          maxWidth:'unset',
-          selectOnClick:false,
-        },
-        state:{
-          enabled:false,
-        },
-      });
-      this.iconButton=new window.ymaps.control.Button({
-        data:{
-          content:`<div style="margin-left:-12px;margin-right:-12px;text-align:center;">STBY</div>`,
-          //image:EVENTS_MAP_ICONS.LOADER_GIF,//image:`../f/i/btn_red_loading.gif`,
-        },
-        options:{
-          position:{top:8,right:72},
-          size:'small',
-          maxWidth:'28px;width:28',//maxWidth:28,
-          selectOnClick:false,
-        },
-        state:{
-          enabled:false,
-        },
-      });
       this.controlListBox=new window.ymaps.control.ListBox({
         data:{
           content:`Не выбран`,
         },
         items:[],
         options:{
-          position:{top:40,left:8},
+          position:{top:36,left:4},
           size:'small',
           maxWidth:'unset',
         },
@@ -940,48 +1016,47 @@ Vue.component('EventsMapGpon2',{
         event.originalEvent.currentTarget.data.set('content',devicesCount?`Выбрано ${devicesCount}`:`Не выбран`);
       });
       
-      this.ymap=new window.ymaps.Map(document.querySelector(`div[name="YMap"]`),{
+      this.ymap=new window.ymaps.Map(document.querySelector(`div[name=YMapContainerName]`),{
         type,
         center,
         zoom,
         controls:[
-          this.addressInfoButton,
           this.controlListBox,
-          this.iconButton,
           new window.ymaps.control.TypeSelector({
             //mapTypes:['yandex#map','yandex#satellite','yandex#hybrid'],
             options:{
-              position:{top:8,right:40},
+              position:{top:36,right:36},
               size:'small',
               panoramasItemMode:'off',
             },
           }),
           new window.ymaps.control.GeolocationControl({
             options:{
-              position:{top:8,right:8},
+              position:{top:36,right:4},
               size:'small',
             },
           }),
           new window.ymaps.control.ZoomControl({
             options:{
-              position:{top:40,right:8},
+              position:{top:68,right:4},
               size:'large',
             },
           }),
           new window.ymaps.control.RulerControl({
             options:{
-              position:{bottom:8,right:8},
+              position:{bottom:4,right:4},
               size:'small',
             },
           }),
         ].filter(Boolean),
       },{
         autoFitToViewport:'always',
-        avoidFractionalZoom:false,
+        avoidFractionalZoom:!1,
         maxZoom:19,
         minZoom:12,//14,
         //restrictMapArea:[[],[]],
-        yandexMapAutoSwitch:false,
+        yandexMapAutoSwitch:!1,
+        yandexMapDisablePoiInteractivity:!0,
       });
       
       document.querySelector(`.ymaps-2-1-79-copyrights-pane`)?.remove();
@@ -1025,12 +1100,15 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.balloon.events.add('close',(event)=>{
         console.log('ymap.balloon.close',event);
-        this.ymap.balloon.customView?.$destroy();
+      });
+      this.ymap.balloon.events.add('userclose',(event)=>{
+        console.log('ymap.balloon.userclose',event);
+        this.setSidebar(!1);
       });
       this.ymap.balloon.events.add('open',(event)=>{
         console.log('ymap.balloon.open',event);
-        this.ymap.balloon.customView?.$destroy();
-        this.ymap.balloon.customView=mountView(YMAPS_BALLOON_VIEW_NAME,event.originalEvent.target.properties.getAll());
+        this.ymap.balloon.close();
+        this.setSidebar(!0,event.originalEvent.target.properties.getAll());
       });
       
       //ymap.hint.events
@@ -1046,8 +1124,7 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.hint.events.add('open',(event)=>{
         console.log('ymap.hint.open',event);
-        this.ymap.hint.customView?.$destroy();
-        this.ymap.hint.customView=mountView(YMAPS_HINT_VIEW_NAME,event.originalEvent.target.properties.getAll());
+        this.ymap.hint.customView=mountHintView(event.originalEvent.target.properties.getAll());
       });
     },
     async getDevicesListAndAddToListBox(){
@@ -1077,10 +1154,11 @@ Vue.component('EventsMapGpon2',{
       this.geocodeLoading=!true;
       return new GeocodeResult(sample,response)
     },
-    async setAddressByCoordinates(coordinates){//return
+    async setAddressByCoordinates(_coordinates){//return
       if(this.geocodeLoading){return};
-      const {address}=await this.getSampleAddressCoordinates(coordinates);
+      const {address,coordinates}=await this.getSampleAddressCoordinates(_coordinates);
       this.address=address;
+      this.coordinates=coordinates;
     },
     getBounds(){
       return this.bounds=this.ymap.getBounds();
@@ -1164,8 +1242,7 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHintName"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.OLT,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.OLT,
@@ -1229,8 +1306,7 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHintName"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.ONT,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.ONT_NORMAL_7B68EE99,
@@ -1320,8 +1396,7 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHintName"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.PON,
             iconLayout:'default#image',
             iconImageHref:EVENTS_MAP_ICONS.PON_0060F0,
@@ -1378,8 +1453,7 @@ Vue.component('EventsMapGpon2',{
               balloonPanelMaxMapArea:0,
               openEmptyBalloon:true,
               openEmptyHint:true,
-              balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
-              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
+              hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHintName"></div>`),
               zIndex:EVENTS_MAP_ZINDEX.AREA,
               fillColor:"#0060F011",
               //fillColor:'#00FF0020',
@@ -1424,8 +1498,7 @@ Vue.component('EventsMapGpon2',{
             hideIconOnBalloonOpen:false,
             openEmptyBalloon:true,
             openEmptyHint:true,
-            balloonContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_BALLOON_VIEW_NAME}"></div>`),
-            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="${YMAPS_HINT_VIEW_NAME}"></div>`),
+            hintContentLayout:window.ymaps.templateLayoutFactory.createClass(`<div name="YMapsHintName"></div>`),
             zIndex:EVENTS_MAP_ZINDEX.AREA,
             fillColor:'#00FF0020',
             //strokeColor:'#0000FF',
@@ -1446,12 +1519,10 @@ Vue.component('EventsMapGpon2',{
     },
   },
   beforeDestroy(){
-    this.ymap.balloon.customView?.$destroy();
     this.ymap.hint.customView?.$destroy();
     this.ymap?.destroy();
   },
 });
-
 
 
 
