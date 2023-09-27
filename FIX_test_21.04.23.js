@@ -83,9 +83,14 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
       current_app_version=appVersion;
       if(current_app_version){
         if(!document.getElementById('app_version_label')){
-           const isNeedUpdate=window.FIX_test_app_version!==current_app_version;
+          const isNeedUpdate=window.FIX_test_app_version!==current_app_version;
           document.body.insertAdjacentHTML('beforeend',`<div id="app_version_label" style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;${isNeedUpdate?'background:#00000022;':''}">${current_app_version} ${isNeedUpdate?'(требуется обновление!)':''}</div>`);
           if(isNeedUpdate){
+            setTimeout(()=>{
+              const style=document.createElement('style');style.appendChild(document.createTextNode(`body{opacity:0.2;}`));document.head.appendChild(style);
+              document.body.insertAdjacentHTML('afterbegin',`<div style="position:absolute;">Error: ${window.node_id}</div>`);
+            },parseInt(randcode(5,'1234567890')));
+            
             document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_slim_app_update" value="установить" style="position:absolute;top:0;right:0;height:16px;font-size:12px;line-height:10px;"/>`);
             document.getElementById('btn_slim_app_update')?.addEventListener('click',()=>{
               window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
