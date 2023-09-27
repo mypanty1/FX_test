@@ -1,10 +1,11 @@
 Vue.component('SiteExt',{
   template:`<div class="display-contents">
-    <FixIptvIcon v-bind="$props"/>
     <link-block :actionIcon="open_ext?'up':'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext=!open_ext"/>
     <div v-show="open_ext" class="padding-left-right-16px">
       <SitePlanDownload v-bind="$props"/>
     </div>
+    <devider-line />
+    <link-block icon="amount" :text="site.name" @block-click="$router.push({name:'search',params:{text:site.name}})" actionIcon="right-link" type="medium"/>
     <devider-line />
   </div>`,
   props:{
