@@ -1,6 +1,6 @@
-if(store?.getters?.['main/username']=='mypanty1'){
-  store.dispatch('dev/setVar',{showToolsPage:true})
-};
+//if(store?.getters?.['main/username']=='mypanty1'){
+  store.dispatch('dev/setVar',{showToolsPage:!0})
+//};
 
 Vue.component('ToolsPageContent',{
   template:`<div name="ToolsPageContent" class="display-contents">
@@ -44,9 +44,10 @@ Vue.component('ToolsPageContent',{
   data:()=>({
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
-      {name:'Dev',is:'WidgetDev',isDev:true},
+      {name:'Dev',is:'WidgetDev',isDev:!0},
       {name:'Device IP',is:'WidgetSnmpTest'},
-      {name:'ToEventsMap',is:'ToEventsMap',isDev:true},
+      {name:'ToEventsMap',is:'ToEventsMap',isDev:!0},
+      {name:'Документы по нарядам тест',is:'GenerateDocs'},
     ],
     items:[]
   }),
@@ -70,6 +71,54 @@ Vue.component('ToolsPageContent',{
         this.$refs.Selector.clear()
       };
     }
+  },
+});
+Vue.component('GenerateDocs',{
+  template:`<div name="GenerateDocs" class="display-flex flex-direction-column gap-8px">
+    <div class="font-13--500 text-align-center">Наряды: {{wfmTasksCount}}</div>
+    <button-main label="Отправить себе" @click="generate" :loading="loading" :disabled="!wfmTasksCount||loading||!login" buttonStyle="contained" size="full"/>
+    <message-el v-if="message" :text="message.text" box :type="message.type"/>
+  </div>`,
+  data:()=>({
+    loading:false,
+    message:null
+  }),
+  computed:{
+    ...mapGetters({
+      wfmTasks:'wfm/wfmTasks',
+      wfmTasksCount:'wfm/wfmTasksCount',
+      login:'main/username',
+    }),
+  },
+  methods:{
+    close(){//public
+      
+    },
+    async generate(){
+      const {wfmTasks,loading,login}=this;
+      if(!login){return};
+      if(loading){return};
+      this.loading=!0;
+      this.message=null;
+      try {
+        const action=`generate?login=${login}`;
+        await fetch(`https://ping54.ru/kVuNKNeQJV4XLAyMBMI7UnR5ru6KpvKykemmPbdgePb1KghmNPnWEIlRquIOvtfk?action=${action}`,{
+          headers:{'content-type':'application/json','user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'},
+          method:'POST',
+          body:JSON.stringify({
+            login,
+            docs:wfmTasks.map(srcData=>({docName:'Акт выполненных работ',srcData}))
+          })
+        });
+        this.message={type:'success',text:`документы отправлены на ${login}@mts.ru`};
+      }catch(error){
+        this.message={type:'warn',text:`ошибка сервиса gendoc`};
+      }
+      this.loading=!1;
+    }
+  },
+  beforeDestroy(){
+    
   },
 });
 Vue.component('WidgetPing',{
