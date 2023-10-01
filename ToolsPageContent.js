@@ -107,7 +107,7 @@ Vue.component('GenerateDocs',{
           method:'POST',
           body:JSON.stringify({
             login,
-            docs:wfmTasks.map(srcData=>({docName:'Акт выполненных работ',srcData}))
+            docs:wfmTasks.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask}))
           })
         });
         this.message={type:'success',text:`документы отправлены на ${login}@mts.ru`};
