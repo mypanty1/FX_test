@@ -85,8 +85,8 @@ Vue.component('GenerateDocs',{
   }),
   computed:{
     ...mapGetters({
-      wfmTasks:'wfm/wfmTasks',
-      wfmTasksCount:'wfm/wfmTasksCount',
+      wfmTasks:'wfm/tasks',
+      wfmTasksCount:'wfm/tasksCount',
       login:'main/username',
     }),
   },
