@@ -268,7 +268,7 @@ async function getUserStateBufferAndSend(){
   };
   
   function getTasksCache(){
-    return [...store.getters['wfm/wfmTasks']].reduce((tasks,task)=>{
+    return [...store.getters['wfm/tasks']].reduce((tasks,task)=>{
       const {
         NumberOrder:task_id,
         siteid:site_id,
