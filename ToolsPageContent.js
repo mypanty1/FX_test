@@ -56,7 +56,7 @@ store.registerModule('vars',{
 store.dispatch('vars/getVars');
 
 Vue.component('ToolsPageContent',{
-  template:`<div name="ToolsPageContent" class="display-contents">
+  template:`<div class="display-contents">
     <CardBlock>
       <div class="display-flex align-items-center justify-content-space-between gap-8px margin-left-right-12px height-32px">
         <div slot="prefix">
@@ -111,8 +111,8 @@ Vue.component('ToolsPageContent',{
       {name:'Dev',is:'WidgetDev',isDev:!0,isUnique:!0},
       {name:'Device IP',is:'WidgetSnmpTest'},
       {name:'ToEventsMap',is:'ToEventsMap',isDev:!0,isUnique:!0},
-      {name:'Документы по нарядам тест',is:'GenerateDocs',isUnique:!0},
-      {name:'Конфигурация',is:'WidgetUserConfig',isUnique:!0,isDev:!0},
+      {name:'Документы по нарядам',is:'WidgetGenerateDocs',isUnique:!0},
+      {name:'Конфигурация',is:'WidgetUserConfig',isUnique:!0},
     ],
     items:[],
     uniqueItems:{},
@@ -196,8 +196,8 @@ Vue.component('WidgetUserConfig',{
     
   },
 });
-Vue.component('GenerateDocs',{
-  template:`<div name="GenerateDocs" class="display-flex flex-direction-column gap-8px">
+Vue.component('WidgetGenerateDocs',{
+  template:`<div class="display-flex flex-direction-column gap-8px">
     <div class="font--13-500 text-align-center">Наряды: {{wfmTasksCount}}</div>
     <button-main label="Отправить себе" @click="generate" :loading="loading" :disabled="!wfmTasksCount||loading||!login" buttonStyle="contained" size="full"/>
     <message-el v-if="message" :text="message.text" box :type="message.type"/>
@@ -247,7 +247,7 @@ Vue.component('GenerateDocs',{
   },
 });
 Vue.component('WidgetPing',{
-  template:`<div name="WidgetPing">
+  template:`<div>
     <input-el placeholder="10.221.xxx.xxx" :label="label" v-model="ip" :disabled="enable" class="margin-bottom-8px">
       <!--<button-sq slot="postfix" icon="right-link" @click="$router.push({name:'search',params:{text:'@D_IP:'+ip}})" v-if="ip"/>-->
       <div v-if="valid" slot="postfix" class="margin-left-right-8px display-flex">
@@ -347,7 +347,7 @@ Vue.component('WidgetPing',{
   },
 });
 Vue.component('WidgetDev',{
-  template:`<div name="WidgetDev">
+  template:`<div>
     <input-el placeholder="wfm_username" label="wfm_username" v-model="wfm_username"/>
     <input-el placeholder="fav_username" label="fav_username" v-model="fav_username"/>
     <devider-line/>
@@ -394,7 +394,7 @@ Vue.component('WidgetDev',{
   },
 });
 Vue.component('WidgetSnmpTest',{
-  template:`<div name="WidgetSnmpTest">
+  template:`<div>
     <input-el :placeholder="placeholder" :label="label" v-model="ip" class="margin-bottom-8px">
       <div v-if="valid" slot="postfix" class="margin-left-right-8px display-flex">
         <PingLed v-bind="{ip,mr_id}"/>
@@ -498,7 +498,7 @@ Vue.component('WidgetSnmpTest',{
   },
 });
 Vue.component('ToEventsMap',{
-  template:`<div name="ToEventsMap">
+  template:`<div>
     <input-el placeholder="templateId" label="templateId" v-model="templateId" :disabled="!isDev"/>
     <link-block icon="amount" text="ToEventsMap" @block-click="$router.push({name:'events-map',params:{templateId}})" actionIcon="right-link" type="medium"/>
   </div>`,
