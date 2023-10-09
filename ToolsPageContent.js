@@ -2,6 +2,59 @@
   store.dispatch('dev/setVar',{showToolsPage:!0})
 //};
 
+store.registerModule('vars',{
+  namespaced:true,
+  state:()=>({
+    sId:`AKfycbw3123vp4qvdnfHn6v4UqLdEQ9nCemZhYmL-IpXsANbO2l5jDYhPYaioCf_Oskc_wBj`,
+    vars:{},
+    loading:!1
+  }),
+  getters:{
+    url:state=>`https://script.google.com/macros/s/${state.sId}/exec`,
+    loading:state=>state.loading,
+    vars:state=>state.vars,
+    getVar:state=>key=>state.vars[key],
+  },
+  mutations:{
+    setLoading(state,loading=!1){
+      state.loading=loading;
+    },
+    setVars(state,vars={}){
+      state.vars=vars;
+    },
+    setVar(state,[key,value]){
+      Vue.set(state.vars,key,value);
+    },
+  },
+  actions:{
+    async getVars({getters,rootGetters,commit}){
+      const login=rootGetters.login;if(!login){return};
+      commit('setLoading',!0);
+      try{
+        const response=await fetch(`${getters.url}?login=${login}`).then(resp=>resp.json());
+        commit('setVars',response);
+      }catch(error){
+        console.warn('getVars:error',error);
+      };
+      commit('setLoading',!1);
+    },
+    async setVars({getters,rootGetters,commit},vars={}){
+      const login=rootGetters.login;if(!login){return};
+      commit('setVars',{...getters.vars,...vars});
+      commit('setLoading',!0);
+      try{
+        await fetch(getters.url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"}, body:JSON.stringify({login,vars})});
+      }catch(error){
+        console.warn('setVars:error',error);
+      };
+      commit('setLoading',!1);
+      return getters.vars;
+    }
+  },
+});
+
+store.dispatch('vars/getVars');
+
 Vue.component('ToolsPageContent',{
   template:`<div name="ToolsPageContent" class="display-contents">
     <CardBlock>
@@ -21,18 +74,29 @@ Vue.component('ToolsPageContent',{
         
         <div class="display-flex flex-direction-column">
           <select-el ref="Selector" label="Добавить виджет" :items="widgetsItems" itemKey="name" @input="addItem" clearable/>
-          <devider-line v-if="items.length"/>
-          <div v-if="items.length" class="display-flex flex-direction-column-reverse gap-8px">
-            <template v-for="(item,index) of items">
-              <SectionBorder class="padding-8px" :key="index">
-                <div class="display-flex justify-content-space-between gap-8px">
-                  <div class="font--13-500">{{item.name}}</div>
-                  <button-sq icon="close-1" @click="items.splice(index,1)" type="medium"/>
-                </div>
-                <component :key="item.name" :is="item.is" v-bind="item.props" ref="Widgets"/>
-              </SectionBorder>
-            </template>
-          </div>
+          <template v-if="items.length||hasUniqueItems">
+            <devider-line/>
+            <div class="display-flex flex-direction-column-reverse gap-8px">
+              <template v-for="(item,key) in uniqueItems">
+                <SectionBorder class="padding-8px" :key="key" v-if="item">
+                  <div class="display-flex justify-content-space-between gap-8px">
+                    <div class="font--13-500">{{item.name}}</div>
+                    <button-sq icon="close-1" @click="$set(uniqueItems,item.name,null)" type="medium"/>
+                  </div>
+                  <component :key="item.name" :is="item.is" v-bind="item.props" ref="Widgets"/>
+                </SectionBorder>
+              </template>
+              <template v-for="(item,index) of items">
+                <SectionBorder class="padding-8px" :key="index">
+                  <div class="display-flex justify-content-space-between gap-8px">
+                    <div class="font--13-500">{{item.name}}</div>
+                    <button-sq icon="close-1" @click="items.splice(index,1)" type="medium"/>
+                  </div>
+                  <component :key="item.name" :is="item.is" v-bind="item.props" ref="Widgets"/>
+                </SectionBorder>
+              </template>
+            </div>
+          </template>
           <div v-else class="font--16-500 tone-300 text-align-center height-100px display-flex flex-direction-column justify-content-center">
             Добавить виджет
           </div>
@@ -44,12 +108,14 @@ Vue.component('ToolsPageContent',{
   data:()=>({
     widgets:[
       {name:'Пинг СЭ',is:'WidgetPing'},
-      {name:'Dev',is:'WidgetDev',isDev:!0},
+      {name:'Dev',is:'WidgetDev',isDev:!0,isUnique:!0},
       {name:'Device IP',is:'WidgetSnmpTest'},
-      {name:'ToEventsMap',is:'ToEventsMap',isDev:!0},
-      {name:'Документы по нарядам тест',is:'GenerateDocs'},
+      {name:'ToEventsMap',is:'ToEventsMap',isDev:!0,isUnique:!0},
+      {name:'Документы по нарядам тест',is:'GenerateDocs',isUnique:!0},
+      {name:'Конфигурация',is:'WidgetUserConfig',isUnique:!0,isDev:!0},
     ],
-    items:[]
+    items:[],
+    uniqueItems:{},
   }),
   created(){},
   watch:{},
@@ -60,22 +126,79 @@ Vue.component('ToolsPageContent',{
     someSelected(){return !isEmpty(this.items)},
     isDev(){return this.username=='mypanty1'},
     widgetsItems(){
-      const {widgets,isDev}=this;
-      return isDev?widgets:widgets.filter(({isDev})=>!isDev);
-    }
+      const {widgets,isDev,uniqueItems}=this;
+      const widgetsList=isDev?widgets:widgets.filter(({isDev})=>!isDev);
+      return widgetsList.filter(({name,isUnique})=>!isUnique||(isUnique&&!uniqueItems[name]));
+    },
+    hasUniqueItems(){return Object.values(this.uniqueItems).filter(Boolean).length},
   },
   methods:{
     addItem(item){
       if(item){
-        this.items.push(item)
-        this.$refs.Selector.clear()
+        if(item.isUnique){
+          this.$set(this.uniqueItems,item.name,item);
+        }else{
+          this.items.push(item);
+        };
+        this.$refs.Selector.clear();
       };
     }
   },
 });
+Vue.component('WidgetUserConfig',{
+  template:`<div>
+    <div class="font--13-500" v-for="(value,key) in vars" :key="key" v-if="value">{{key}}: {{value}}</div>
+    <div class="display-flex align-items-center justify-content-space-between gap-8px">
+      <input-el placeholder="key" label="key" v-model="key"/>
+      <input-el placeholder="value" label="value" v-model="value"/>
+    </div>
+    <link-block icon="amount" text="set value" @block-click="setVar" :disabled="disabled" :actionIcon="loading?'loading rotating':'right-link'" type="medium"/>
+  </div>`,
+  data:()=>({
+    key:'',
+    value:'',
+    setVar_loading:!1,
+  }),
+  watch:{
+    'setVar_loading'(setVar_loading){
+      if(!setVar_loading){
+        this.value='';
+        this.key='';
+      };
+    }
+  },
+  computed:{
+    ...mapGetters({
+      loading:'vars/loading',
+      vars:'vars/vars'
+    }),
+    disabled(){return !this.key||this.loading},
+  },
+  methods:{
+    close(){//public
+      
+    },
+    ...mapActions({
+      setVars:'vars/setVars'
+    }),
+    async setVar(){
+      const {value,key}=this;
+      this.setVar_loading=!0;
+      try{
+        await this.setVars({[key]:value});
+      }catch(error){
+        console.warn('setVar:error',error);
+      }
+      this.setVar_loading=!1;
+    }
+  },
+  beforeDestroy(){
+    
+  },
+});
 Vue.component('GenerateDocs',{
   template:`<div name="GenerateDocs" class="display-flex flex-direction-column gap-8px">
-    <div class="font-13--500 text-align-center">Наряды: {{wfmTasksCount}}</div>
+    <div class="font--13-500 text-align-center">Наряды: {{wfmTasksCount}}</div>
     <button-main label="Отправить себе" @click="generate" :loading="loading" :disabled="!wfmTasksCount||loading||!login" buttonStyle="contained" size="full"/>
     <message-el v-if="message" :text="message.text" box :type="message.type"/>
   </div>`,
@@ -226,7 +349,7 @@ Vue.component('WidgetDev',{
     <input-el placeholder="wfm_username" label="wfm_username" v-model="wfm_username"/>
     <input-el placeholder="fav_username" label="fav_username" v-model="fav_username"/>
     <devider-line/>
-    <div class="font-13--500">eval</div>
+    <div class="font--13-500">eval</div>
     <textarea-el label="js" v-model="js" rows="3" class="padding-unset"/>
     <link-block icon="amount" text="eval" @block-click="eval" actionIcon="right-link" type="medium"/>
     <textarea-el label="jsResult" v-model="jsResultText" rows="3" class="padding-unset"/>
