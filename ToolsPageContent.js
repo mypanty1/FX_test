@@ -211,6 +211,7 @@ Vue.component('GenerateDocs',{
       wfmTasks:'wfm/tasks',
       wfmTasksCount:'wfm/tasksCount',
       login:'main/username',
+      vars:'vars/vars'
     }),
   },
   methods:{
@@ -218,7 +219,7 @@ Vue.component('GenerateDocs',{
       
     },
     async generate(){
-      const {wfmTasks,loading,login}=this;
+      const {wfmTasks,loading,login,vars}=this;
       if(!login){return};
       if(loading){return};
       this.loading=!0;
@@ -230,7 +231,8 @@ Vue.component('GenerateDocs',{
           method:'POST',
           body:JSON.stringify({
             login,
-            docs:wfmTasks.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask}))
+            docs:wfmTasks.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
+            vars,
           })
         });
         this.message={type:'success',text:`документы отправлены на ${login}@mts.ru`};
