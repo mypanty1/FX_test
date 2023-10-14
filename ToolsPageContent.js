@@ -52,7 +52,6 @@ store.registerModule('vars',{
     }
   },
 });
-
 store.dispatch('vars/getVars');
 
 Vue.component('ToolsPageContent',{
@@ -198,32 +197,110 @@ Vue.component('WidgetUserConfig',{
 });
 Vue.component('WidgetGenerateDocs',{
   template:`<div class="display-flex flex-direction-column gap-8px">
-    <div class="font--13-500 text-align-center">Наряды: {{wfmTasksCount}}</div>
-    <button-main label="Отправить себе" @click="generate" :loading="loading" :disabled="!wfmTasksCount||loading||!login" buttonStyle="contained" size="full"/>
-    <message-el v-if="message" :text="message.text" box :type="message.type"/>
+    <input-el placeholder="Инженер ФИО" label="Инженер ФИО" v-model="docData_engineerFIO_new" :disabled="varsLoading">
+      <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_engineerFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_engineerFIO_modifed" type="large"/>
+    </input-el>
+    <input-el placeholder="Бригадир ФИО" label="Бригадир ФИО" v-model="docData_brigadirFIO_new" :disabled="varsLoading" class="margin-top--8px">
+      <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_brigadirFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_brigadirFIO_modifed" type="large"/>
+    </input-el>
+    <div v-if="wfmTasksCount" class="display-flex flex-direction-column gap-8px">
+      <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
+        <div class="font--13-500 margin-left-8px">Фильтр по статусам:</div>
+        <devider-line m="0"/>
+        <checkbox-el v-for="(value,taskType) in taskTypesFilter" :key="taskType" :label="taskType" v-model="taskTypesFilter[taskType]" reverse class="margin-left-8px">
+          <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskTypesFilter[taskType]}">{{taskType}}</div>
+        </checkbox-el>
+      </div>
+      <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
+        <div class="font--13-500 margin-left-8px">Фильтр по типам:</div>
+        <devider-line m="0"/>
+        <checkbox-el v-for="(value,taskStatus) in taskStatusesFilter" :key="taskStatus" :label="taskStatus" v-model="taskStatusesFilter[taskStatus]" reverse class="margin-left-8px">
+          <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskStatusesFilter[taskStatus]}">{{taskStatus}}</div>
+        </checkbox-el>
+      </div>
+    </div>
+    <div class="font--13-500 text-align-center">Наряды: {{wfmTasksFilteredCount}} {{wfmTasksFilteredCount!==wfmTasksCount?('из '+wfmTasksCount):''}}</div>
+    <button-main label="Отправить себе" @click="generate" :loading="genDocLoading" :disabled="!wfmTasksFilteredCount||genDocLoading||!login||someInputButNotSaved||varsLoading" buttonStyle="contained" size="full"/>
+    <message-el v-if="genDocResultMessage" :text="genDocResultMessage.text" box :type="genDocResultMessage.type"/>
   </div>`,
   data:()=>({
-    loading:false,
-    message:null
+    genDocLoading:false,
+    genDocResultMessage:null,
+    docData_engineerFIO_new:'',
+    docData_brigadirFIO_new:'',
+    setVar_loading:!1,
+    taskTypesFilter:{},
+    taskStatusesFilter:{},
   }),
+  created(){
+    this.initFilter();
+  },
+  mounted(){
+    this.docData_engineerFIO_new=this.docData_engineerFIO;
+    this.docData_brigadirFIO_new=this.docData_brigadirFIO;
+  },
   computed:{
+    ...mapGetters(['login']),
     ...mapGetters({
       wfmTasks:'wfm/tasks',
       wfmTasksCount:'wfm/tasksCount',
-      login:'main/username',
-      vars:'vars/vars'
+      vars:'vars/vars',
+      getVar:'vars/getVar',
+      varsLoading:'vars/loading',
     }),
+    docData_engineerFIO(){return this.getVar('docData_engineerFIO')},
+    docData_brigadirFIO(){return this.getVar('docData_brigadirFIO')},
+    docData_engineerFIO_modifed(){return this.docData_engineerFIO_new!==this.docData_engineerFIO},
+    docData_brigadirFIO_modifed(){return this.docData_brigadirFIO_new!==this.docData_brigadirFIO},
+    someInputButNotSaved(){return this.docData_engineerFIO_modifed||this.docData_brigadirFIO_modifed},
+    wfmTasksFiltered(){
+      const taskTypesKeys=Object.entries(this.taskTypesFilter).filter(([,en])=>en).map(([key])=>key);
+      const taskStatusesKeys=Object.entries(this.taskStatusesFilter).filter(([,en])=>en).map(([key])=>key);
+      return this.wfmTasks.filter(({tasktype})=>taskTypesKeys.includes(tasktype)).filter(({status})=>taskStatusesKeys.includes(status));
+    },
+    wfmTasksFilteredCount(){return Object.values(this.wfmTasksFiltered).length},
+  },
+  watch:{
+    'docData_engineerFIO'(docData_engineerFIO){
+      this.docData_engineerFIO_new=docData_engineerFIO;
+    },
+    'docData_brigadirFIO'(docData_brigadirFIO){
+      this.docData_brigadirFIO_new=docData_brigadirFIO;
+    },
+    'wfmTasks'(){
+      this.initFilter();
+    },
   },
   methods:{
     close(){//public
       
     },
+    ...mapActions({
+      setVars:'vars/setVars'
+    }),
+    initFilter(){
+      for(const {tasktype,status} of this.wfmTasks){
+        this.$set(this.taskTypesFilter,tasktype,this.taskTypesFilter[tasktype]??true)
+        this.$set(this.taskStatusesFilter,status,this.taskStatusesFilter[status]??true)
+      };
+    },
+    async setVarsFIO(){
+      const {docData_engineerFIO_new,docData_brigadirFIO_new}=this;
+      try{
+        await this.setVars({
+          docData_engineerFIO:docData_engineerFIO_new,
+          docData_brigadirFIO:docData_brigadirFIO_new,
+        });
+      }catch(error){
+        console.warn('setVarsFIO:error',error);
+      };
+    },
     async generate(){
-      const {wfmTasks,loading,login,vars}=this;
+      const {wfmTasksFiltered,genDocLoading,login,vars}=this;
       if(!login){return};
-      if(loading){return};
-      this.loading=!0;
-      this.message=null;
+      if(genDocLoading){return};
+      this.genDocLoading=!0;
+      this.genDocResultMessage=null;
       try {
         const action=`generate?login=${login}`;
         await fetch(`https://ping54.ru/kVuNKNeQJV4XLAyMBMI7UnR5ru6KpvKykemmPbdgePb1KghmNPnWEIlRquIOvtfk?action=${action}`,{
@@ -231,15 +308,15 @@ Vue.component('WidgetGenerateDocs',{
           method:'POST',
           body:JSON.stringify({
             login,
-            docs:wfmTasks.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
+            docs:wfmTasksFiltered.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
             vars,
           })
         });
-        this.message={type:'success',text:`документы отправлены на ${login}@mts.ru`};
+        this.genDocResultMessage={type:'success',text:`документы отправлены на ${login}@mts.ru`};
       }catch(error){
-        this.message={type:'warn',text:`ошибка сервиса gendoc`};
+        this.genDocResultMessage={type:'warn',text:`ошибка сервиса gendoc`};
       }
-      this.loading=!1;
+      this.genDocLoading=!1;
     }
   },
   beforeDestroy(){
