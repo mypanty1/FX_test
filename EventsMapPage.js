@@ -547,7 +547,7 @@ store.registerModule('em_gpon',{
     },
     async getDeviceInfo({getters,commit},deviceName){
       if(!deviceName){console.warn('getDeviceInfo.error.deviceName');return};
-      const loadKey=`search_ma-${deviceName}`;
+      const loadKey=`get_devices_by_name-${deviceName}`;
       if(getters.loads[loadKey]){return};
       commit('setItem',['loads/'+loadKey,!0]);
       const cache=localStorageCache.getItem(`device/${deviceName}`);
@@ -555,13 +555,13 @@ store.registerModule('em_gpon',{
         commit('setItem',['devicesInfo/'+deviceName,Object.freeze(cache)]);
       }else{
         try{
-          const response=await httpGet(buildUrl('search_ma',{pattern:deviceName},'/call/v1/search/'));
-          if(response?.data){
-            localStorageCache.setItem(`device/${deviceName}`,response.data,EVENTS_MAP.CACHE_1HOUR);
-            commit('setItem',['devicesInfo/'+deviceName,Object.freeze(response.data)]);
+          const response=await httpGet(buildUrl('get_devices_by_name',{name:deviceName},'/call/v1/device/'));
+          if(Array.isArray(response)&&response[0]){
+            localStorageCache.setItem(`device/${deviceName}`,response[0],EVENTS_MAP.CACHE_1HOUR);
+            commit('setItem',['devicesInfo/'+deviceName,Object.freeze(response[0])]);
           };
         }catch(error){
-          console.warn('search_ma.error',error);
+          console.warn('get_devices_by_name.error',error);
         };
       };
       commit('setItem',['loads/'+loadKey,!1]);
@@ -908,7 +908,7 @@ Vue.component('EventsMapGpon2',{
       <div class="block-ffffff-28 display-flex gap-4px align-items-center justify-content-space-between" style="padding:0px 4px;">
         <div class="display-flex gap-4px align-items-center" :class="[(!geocodeLoading&&coordinates)&&'cursor-pointer']" @click="flyToAddressCoordinates">
           <IcIcon :name="(geocodeLoading||!coordinates)?'pin tone-500':'pin main-lilac'" size="22"/>
-          <span class="white-space-pre" style="opacity:0.8;">{{address}}</span>
+          <span class="white-space-pre font--15-600-" style="opacity:0.8;">{{address}}</span>
         </div>
         <div class="margin-left-auto">
           <IcIcon v-if="loadingSome" name="loading rotating" size="22" class="main-lilac"/>
@@ -917,12 +917,12 @@ Vue.component('EventsMapGpon2',{
     </div>
     <div class="position-absolute" style="top:68px;left:4px;">
       <transition name="transition_sidebar_left_slide" mode="out-in" appear>
-        <EventsMapSidebarLeft v-if="sidebarLeft.open" v-bind="sidebarLeft.props" @close="sidebarLeft.open=!sidebarLeft.open"/>
+        <EventsMapSidebarLeft v-if="sidebar.left.open" v-bind="sidebar.left.props" @close="sidebar.left.open=!sidebar.left.open"/>
       </transition>
     </div>
     <div class="position-absolute" style="top:68px;right:4px;">
       <transition name="transition_sidebar_right_slide" mode="out-in" appear>
-        <EventsMapSidebarRight v-if="sidebarRight.open" v-bind="sidebarRight.props" @close="sidebarRight.open=!sidebarRight.open"/>
+        <EventsMapSidebarRight v-if="sidebar.right.open" v-bind="sidebar.right.props" @close="sidebar.right.open=!sidebar.right.open"/>
       </transition>
     </div>
   </div>`,
@@ -933,13 +933,15 @@ Vue.component('EventsMapGpon2',{
     this.awaitYmapsReady();
   },
   data:()=>({
-    sidebarLeft:{
-      open:false,
-      props:null,
-    },
-    sidebarRight:{
-      open:false,
-      props:null,
+    sidebar:{
+      left:{
+        open:false,
+        props:null,
+      },
+      right:{
+        open:false,
+        props:null,
+      },
     },
     ymapsReadyTimer:null,
     isYmapsReady:false,
@@ -995,8 +997,8 @@ Vue.component('EventsMapGpon2',{
     loadingSome(){return Object.values(this.loads).some(Boolean)},
     menuBtns(){
       return [
-        [{click:()=>this.toggleSidebarLeft()},{name:!this.sidebarLeft.open?'down':'up',class:'main-lilac bg-tone-200 border-radius-3px'}],
-        [{click:()=>this.setSidebarLeft(!0,{src:`${window.location.origin}/fix`,title:'Inetcore Mobile Assistant'})},{name:'search',class:['main-lilac',(this.sidebarLeft.open&&this.sidebarLeft.props?.src)&&'bg-tone-200 border-radius-3px']}],
+        [{click:()=>this.sidebar.left.open=!this.sidebar.left.open},{name:!this.sidebar.left.open?'down':'up',class:'main-lilac bg-tone-200 border-radius-3px'}],
+        [{click:()=>this.setSidebar('left',!0,{src:`${window.location.origin}/fix`,title:`Inetcore Mobile Assistant`})},{name:'search',class:['main-lilac',(this.sidebar.left.open&&this.sidebar.left.props?.src)&&'bg-tone-200 border-radius-3px']}],
         //[{click:(e)=>console.log(e)},{name:'fa fa-tasks',color:'#2c98f0'}],
         //[{click:(e)=>console.log(e)},{name:'fa fa-tasks',color:'#3876a9'}],
         //[{click:(e)=>console.log(e)},{name:'warning',class:'main-orange'}],
@@ -1010,14 +1012,10 @@ Vue.component('EventsMapGpon2',{
     }
   },
   methods:{
-    toggleSidebarLeft(){this.sidebarLeft.open=!this.sidebarLeft.open},
-    setSidebarLeft(state=!1,props=null){
-      this.sidebarLeft.open=state;
-      this.sidebarLeft.props=props;
-    },
-    setSidebarRight(state=!1,props=null){
-      this.sidebarRight.open=state;
-      this.sidebarRight.props=props;
+    setSidebar(name='',state=!1,props=null){
+      if(!this.sidebar[name]){return};
+      this.sidebar[name].open=state;
+      this.sidebar[name].props=props;
     },
     flyToAddressCoordinates(){
       const {geocodeLoading,coordinates}=this;
@@ -1161,12 +1159,12 @@ Vue.component('EventsMapGpon2',{
       });
       this.ymap.balloon.events.add('userclose',(event)=>{
         console.log('ymap.balloon.userclose',event);
-        this.setSidebarRight(!1);
+        this.setSidebar('right',!1);
       });
       this.ymap.balloon.events.add('open',(event)=>{
         console.log('ymap.balloon.open',event);
         this.ymap.balloon.close();
-        this.setSidebarRight(!0,event.originalEvent.target.properties.getAll());
+        this.setSidebar('right',!0,event.originalEvent.target.properties.getAll());
       });
       
       //ymap.hint.events
@@ -1581,7 +1579,6 @@ Vue.component('EventsMapGpon2',{
     this.ymap?.destroy();
   },
 });
-
 
 
 
