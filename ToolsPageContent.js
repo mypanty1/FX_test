@@ -197,10 +197,10 @@ Vue.component('WidgetUserConfig',{
 });
 Vue.component('WidgetGenerateDocs',{
   template:`<div class="display-flex flex-direction-column gap-8px">
-    <input-el label="Инженер ФИО (Исполнитель работ)" placeholder="Инженер ФИО" v-model="docData_engineerFIO_new" :disabled="varsLoading">
+    <input-el label="Инженер ФИО (Исполнитель работ)" placeholder="Фамилия И. О." v-model="docData_engineerFIO_new" :disabled="varsLoading">
       <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_engineerFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_engineerFIO_modifed" type="large"/>
     </input-el>
-    <input-el label="Ведущий инженер ФИО (Акт выдал)" placeholder="Бригадир ФИО" v-model="docData_brigadirFIO_new" :disabled="varsLoading" class="margin-top--8px">
+    <input-el label="Ведущий инженер ФИО (Акт выдал)" placeholder="Фамилия И. О." v-model="docData_brigadirFIO_new" :disabled="varsLoading" class="margin-top--8px">
       <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_brigadirFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_brigadirFIO_modifed" type="large"/>
     </input-el>
     <div v-if="wfmTasksCount" class="display-flex flex-direction-column gap-8px">
