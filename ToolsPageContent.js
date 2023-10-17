@@ -111,7 +111,7 @@ Vue.component('ToolsPageContent',{
       {name:'Device IP',is:'WidgetSnmpTest'},
       {name:'ToEventsMap',is:'ToEventsMap',isDev:!0,isUnique:!0},
       {name:'Документы по нарядам',is:'WidgetGenerateDocs',isUnique:!0},
-      {name:'Конфигурация',is:'WidgetUserConfig',isUnique:!0},
+      {name:'Конфигурация',is:'WidgetUserConfig',isDev:!0,isUnique:!0},
     ],
     items:[],
     uniqueItems:{},
