@@ -205,14 +205,14 @@ Vue.component('WidgetGenerateDocs',{
     </input-el>
     <div v-if="wfmTasksCount" class="display-flex flex-direction-column gap-8px">
       <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
-        <div class="font--13-500 margin-left-8px">Фильтр по статусам:</div>
+        <div class="font--13-500 margin-left-8px">Фильтр по типам:</div>
         <devider-line m="0"/>
         <checkbox-el v-for="(value,taskType) in taskTypesFilter" :key="taskType" :label="taskType" v-model="taskTypesFilter[taskType]" reverse class="margin-left-8px">
           <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskTypesFilter[taskType]}">{{taskType}}</div>
         </checkbox-el>
       </div>
       <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
-        <div class="font--13-500 margin-left-8px">Фильтр по типам:</div>
+        <div class="font--13-500 margin-left-8px">Фильтр по статусам:</div>
         <devider-line m="0"/>
         <checkbox-el v-for="(value,taskStatus) in taskStatusesFilter" :key="taskStatus" :label="taskStatus" v-model="taskStatusesFilter[taskStatus]" reverse class="margin-left-8px">
           <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskStatusesFilter[taskStatus]}">{{taskStatus}}</div>
