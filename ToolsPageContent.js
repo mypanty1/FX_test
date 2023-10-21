@@ -209,14 +209,14 @@ Vue.component('WidgetGenerateDocs',{
       <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
         <div class="font--13-500 margin-left-8px">Фильтр по типам:</div>
         <devider-line m="0"/>
-        <checkbox-el v-for="(value,taskType) in taskTypesFilter" :key="taskType" :label="taskType" v-model="taskTypesFilter[taskType]" reverse class="margin-left-8px">
+        <checkbox-el v-for="(value,taskType) in taskTypesFilter" :key="taskType" v-model="taskTypesFilter[taskType]" reverse class="margin-left-8px">
           <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskTypesFilter[taskType]}">{{taskType}}</div>
         </checkbox-el>
       </div>
       <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
         <div class="font--13-500 margin-left-8px">Фильтр по статусам:</div>
         <devider-line m="0"/>
-        <checkbox-el v-for="(value,taskStatus) in taskStatusesFilter" :key="taskStatus" :label="taskStatus" v-model="taskStatusesFilter[taskStatus]" reverse class="margin-left-8px">
+        <checkbox-el v-for="(value,taskStatus) in taskStatusesFilter" :key="taskStatus" v-model="taskStatusesFilter[taskStatus]" reverse class="margin-left-8px">
           <div slot="label" :class="{'tone-500 text-decoration-line-through':!taskStatusesFilter[taskStatus]}">{{taskStatus}}</div>
         </checkbox-el>
       </div>
@@ -224,12 +224,9 @@ Vue.component('WidgetGenerateDocs',{
     
     <div class="font--13-500 text-align-center">Наряды: {{wfmTasksFilteredCount}} {{wfmTasksFilteredCount!==wfmTasksCount?('из '+wfmTasksCount):''}}</div>
     
-    <template v-if="$store.getters['main/username']=='mypanty1'">
-      <checkbox-el label="Одним файлом" v-model="merge" reverse class="margin-left-8px"/>
-      <checkbox-el label="Одним файлом" v-model="merge" reverse class="margin-left-8px">
-        <div slot="label">Одним файлом</div>
-      </checkbox-el>
-    </template>
+    <checkbox-el v-if="login=='mypanty1'" v-model="merge" reverse class="margin-left-8px">
+      <div slot="label">В один файл</div>
+    </checkbox-el>
         
     <button-main label="Отправить себе" @click="generate" :loading="genDocLoading" :disabled="!wfmTasksFilteredCount||genDocLoading||!login||someInputButNotSaved||varsLoading" buttonStyle="contained" size="full"/>
     <message-el v-if="genDocResultMessage" :text="genDocResultMessage.text" box :type="genDocResultMessage.type"/>
