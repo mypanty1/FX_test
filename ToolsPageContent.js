@@ -200,9 +200,11 @@ Vue.component('WidgetGenerateDocs',{
     <input-el label="Инженер ФИО (Исполнитель работ)" placeholder="Фамилия И. О." v-model="docData_engineerFIO_new" :disabled="varsLoading">
       <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_engineerFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_engineerFIO_modifed" type="large"/>
     </input-el>
+    
     <input-el label="Ведущий инженер ФИО (Акт выдал)" placeholder="Фамилия И. О." v-model="docData_brigadirFIO_new" :disabled="varsLoading" class="margin-top--8px">
       <button-sq slot="postfix2" :icon="varsLoading?'loading rotating tone-500':docData_brigadirFIO_modifed?'purse':'purse tone-500'" @click="setVarsFIO" :disabled="varsLoading||!docData_brigadirFIO_modifed" type="large"/>
     </input-el>
+    
     <div v-if="wfmTasksCount" class="display-flex flex-direction-column gap-8px">
       <div class="display-flex flex-direction-column" style="border:1px solid #c8c7c7;border-radius:4px">
         <div class="font--13-500 margin-left-8px">Фильтр по типам:</div>
@@ -219,7 +221,16 @@ Vue.component('WidgetGenerateDocs',{
         </checkbox-el>
       </div>
     </div>
+    
     <div class="font--13-500 text-align-center">Наряды: {{wfmTasksFilteredCount}} {{wfmTasksFilteredCount!==wfmTasksCount?('из '+wfmTasksCount):''}}</div>
+    
+    <template v-if="$store.getters['main/username']=='mypanty1'">
+      <checkbox-el label="Одним файлом" v-model="merge" reverse class="margin-left-8px"/>
+      <checkbox-el label="Одним файлом" v-model="merge" reverse class="margin-left-8px">
+        <div slot="label">Одним файлом</div>
+      </checkbox-el>
+    </template>
+        
     <button-main label="Отправить себе" @click="generate" :loading="genDocLoading" :disabled="!wfmTasksFilteredCount||genDocLoading||!login||someInputButNotSaved||varsLoading" buttonStyle="contained" size="full"/>
     <message-el v-if="genDocResultMessage" :text="genDocResultMessage.text" box :type="genDocResultMessage.type"/>
   </div>`,
@@ -231,6 +242,7 @@ Vue.component('WidgetGenerateDocs',{
     setVar_loading:!1,
     taskTypesFilter:{},
     taskStatusesFilter:{},
+    merge:!1,
   }),
   created(){
     this.initFilter();
@@ -296,7 +308,7 @@ Vue.component('WidgetGenerateDocs',{
       };
     },
     async generate(){
-      const {wfmTasksFiltered,genDocLoading,login,vars}=this;
+      const {wfmTasksFiltered,genDocLoading,login,vars,merge}=this;
       if(!login){return};
       if(genDocLoading){return};
       this.genDocLoading=!0;
@@ -310,6 +322,7 @@ Vue.component('WidgetGenerateDocs',{
             login,
             docs:wfmTasksFiltered.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
             vars,
+            merge,
           })
         });
         this.genDocResultMessage={type:'success',text:`документы отправлены на ${login}@mts.ru`};
