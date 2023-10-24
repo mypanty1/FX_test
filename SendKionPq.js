@@ -32,11 +32,11 @@ store.registerModule('kion',{
   },
   actions:{
     async getPq({state,rootGetters,commit},props){
-      const username=rootGetters['main/username'];
+      const userLogin=rootGetters.userLogin;
       commit('set_loads_getPq',true);
       try{
         const url='https://script.google.com/macros/s/AKfycbyFZx3LaE77_0n-Hne597ky5P1SyrmeReaKrndXURqKhGJE6qNDjfi455OBuFcWvwaK/exec';
-        const response=await fetch(`${url}?username=${username}`).then(resp=>resp.json());//await new Promise(r=>setTimeout(r,30000));
+        const response=await fetch(`${url}?username=${userLogin}`).then(resp=>resp.json());//await new Promise(r=>setTimeout(r,30000));
         commit('set_resp_getPq',response);
       }catch(error){
         console.warn('getPq:error',error);
@@ -44,13 +44,13 @@ store.registerModule('kion',{
       commit('set_loads_getPq',false);
     },
     async sendLog({state,rootGetters,commit},{account='',phone='',sms=''}={}){
-      const username=rootGetters['main/username'];
-      const region_id=rootGetters['main/region_id'];
+      const userLogin=rootGetters.userLogin;
+      const regionId=rootGetters.regionId;
       commit('set_loads_sendLog',true);
       try{
         await fetch('https://script.google.com/macros/s/AKfycbwl2YHpVTeUevuwTqgkm2OmP-sf78EXd91yI4neh1MrmVHA6_M_Pq8dYE7JIwyxwIsL/exec',{
           method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},
-          body:JSON.stringify({username,region_id,account,phone,sms})
+          body:JSON.stringify({username:userLogin,region_id:regionId,account,phone,sms})
         });
       }catch(error){
         console.warn('sendLog:error',error);
@@ -129,9 +129,6 @@ Vue.component('SendKionPq',{
     }
   },
   computed:{
-    ...mapGetters({
-      username:'main/username',
-    }),
     phonesValid(){
       return [...new Set(this.phones.filter(s=>s).map(phone=>getPhoneWithPlus(phone)).filter(t=>t.length>6))];
     },
