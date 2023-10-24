@@ -226,7 +226,7 @@ Vue.component('SitePlanDownload',{//плансхема
       document.getElementById('loader_generatePL').style.display='inline-table';
 
       const siteObj=await this.getSite(site_id,hideTS);
-      const username=this.$root.username||'<username>';
+      const username=store.getters.userLogin||'<username>';
       const site_name=siteObj[site_id].nodes[0].name;
       const address=siteObj[site_id].nodes[0].address;
       const date=new Date();
