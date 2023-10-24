@@ -116,6 +116,7 @@ Vue.component('SiteLinkChangeTraps',{
     isNotEmpty(){
       return this.recived.length;
     },
+    ...mapGetters(['userLogin']),
   },
   methods:{
     ipOnThisSiteId(_ip){
@@ -125,14 +126,14 @@ Vue.component('SiteLinkChangeTraps',{
       getSiteNetworkElements:'site/getSiteNetworkElements',
     }),
     async init(){
-      const login=this.$root.username;
-      if(!login){return};
+      const userLogin=this.userLogin;
+      if(!userLogin){return};
       
       this.initWs();
       
       const {site_id}=this;
       const subscribes=Object.values(this.networkElementsDuESwInstalled54).map(({ip})=>{
-        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?${objectToQuery({ip,login,site_id})}`,{
+        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?${objectToQuery({ip,login:userLogin,userLogin,site_id})}`,{
           headers:{'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'}
         });
       });
@@ -146,23 +147,23 @@ Vue.component('SiteLinkChangeTraps',{
       this.recived=[];
     },
     send(data=null){
-      const login=this.$root.username;
-      if(!login){return};
+      const userLogin=this.userLogin;
+      if(!userLogin){return};
       if(!this.ws){return};
-      this.ws.send(JSON.stringify({type:'data',user:login,data}));
+      this.ws.send(JSON.stringify({type:'data',user:userLogin,data}));
     },
     initWs(){
-      const login=this.$root.username;
-      if(!login){return};
+      const userLogin=this.userLogin;
+      if(!userLogin){return};
       if(this.ws){return};
-      this.message=`установка соединения ${login}`;
-      this.ws=new WebSocket(`wss://ping54.ru/wstest`,[login]);
+      this.message=`установка соединения ${userLogin}`;
+      this.ws=new WebSocket(`wss://ping54.ru/wstest`,[userLogin]);
       this.ws.onopen=(event)=>{
         console.log('ws.onopen');
-        const alive={type:'alive',user:login};
+        const alive={type:'alive',user:userLogin};
         this.ws.send(JSON.stringify(alive));
         setTimeout(()=>this.ws?.send(JSON.stringify(alive)),60000);
-        this.message=`соединение ${login} активно`;
+        this.message=`соединение ${userLogin} активно`;
       };
       this.ws.onmessage=(event)=>{
         let message=event.data;
@@ -173,7 +174,7 @@ Vue.component('SiteLinkChangeTraps',{
         };
         console.log('ws.onmessage',message);
         if(message.type==='snmp_trap'&&message?.data&&message.data?.trap_type=='LinkChange'){//только LinkChange
-          if(this.ipOnThisSiteId(message.data?.ip)||login=='mypanty1'){//только по текущему site_id
+          if(this.ipOnThisSiteId(message.data?.ip)||userLogin=='mypanty1'){//только по текущему site_id
             this.recived.push(message.data);
           }
         };
@@ -199,7 +200,7 @@ Vue.component('SiteLinkChangeTraps',{
       };
     },
     async getVCT({ip,ifIndex,ifDescr,trap_id,port_id}){
-      const login=this.$root.username;
+      const login=this.userLogin;
       if(!login){return};
       if(this.resps.vct[port_id]?.[trap_id]){return};
       if(!ip){return};
