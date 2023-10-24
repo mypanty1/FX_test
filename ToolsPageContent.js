@@ -28,10 +28,10 @@ store.registerModule('vars',{
   },
   actions:{
     async getVars({getters,rootGetters,commit}){
-      const login=rootGetters.login;if(!login){return};
+      const userLogin=rootGetters.userLogin;if(!userLogin){return};
       commit('setLoading',!0);
       try{
-        const response=await fetch(`${getters.url}?login=${login}`).then(resp=>resp.json());
+        const response=await fetch(`${getters.url}?login=${userLogin}&userLogin=${userLogin}`).then(resp=>resp.json());
         commit('setVars',response);
       }catch(error){
         console.warn('getVars:error',error);
@@ -39,11 +39,11 @@ store.registerModule('vars',{
       commit('setLoading',!1);
     },
     async setVars({getters,rootGetters,commit},vars={}){
-      const login=rootGetters.login;if(!login){return};
+      const userLogin=rootGetters.userLogin;if(!userLogin){return};
       commit('setVars',{...getters.vars,...vars});
       commit('setLoading',!0);
       try{
-        await fetch(getters.url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"}, body:JSON.stringify({login,vars})});
+        await fetch(getters.url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},body:JSON.stringify({userLogin,login:userLogin,vars})});
       }catch(error){
         console.warn('setVars:error',error);
       };
@@ -224,11 +224,11 @@ Vue.component('WidgetGenerateDocs',{
     
     <div class="font--13-500 text-align-center">Наряды: {{wfmTasksFilteredCount}} {{wfmTasksFilteredCount!==wfmTasksCount?('из '+wfmTasksCount):''}}</div>
     
-    <checkbox-el v-if="login=='mypanty1'" v-model="merge" reverse class="margin-left-8px">
+    <checkbox-el v-if="userLogin=='mypanty1'" v-model="merge" reverse class="margin-left-8px">
       <div slot="label">В один файл</div>
     </checkbox-el>
         
-    <button-main label="Отправить себе" @click="generate" :loading="genDocLoading" :disabled="!wfmTasksFilteredCount||genDocLoading||!login||someInputButNotSaved||varsLoading" buttonStyle="contained" size="full"/>
+    <button-main label="Отправить себе" @click="generate" :loading="genDocLoading" :disabled="!wfmTasksFilteredCount||genDocLoading||!userLogin||someInputButNotSaved||varsLoading" buttonStyle="contained" size="full"/>
     <message-el v-if="genDocResultMessage" :text="genDocResultMessage.text" box :type="genDocResultMessage.type"/>
   </div>`,
   data:()=>({
@@ -249,7 +249,7 @@ Vue.component('WidgetGenerateDocs',{
     this.docData_brigadirFIO_new=this.docData_brigadirFIO;
   },
   computed:{
-    ...mapGetters(['login']),
+    ...mapGetters(['userLogin']),
     ...mapGetters({
       wfmTasks:'wfm/tasks',
       wfmTasksCount:'wfm/tasksCount',
@@ -305,24 +305,25 @@ Vue.component('WidgetGenerateDocs',{
       };
     },
     async generate(){
-      const {wfmTasksFiltered,genDocLoading,login,vars,merge}=this;
-      if(!login){return};
+      const {wfmTasksFiltered,genDocLoading,userLogin,vars,merge}=this;
+      if(!userLogin){return};
       if(genDocLoading){return};
       this.genDocLoading=!0;
       this.genDocResultMessage=null;
       try {
-        const action=`generate?login=${login}`;
+        const action=`generate?login=${userLogin}&userLogin=${userLogin}`;
         await fetch(`https://ping54.ru/kVuNKNeQJV4XLAyMBMI7UnR5ru6KpvKykemmPbdgePb1KghmNPnWEIlRquIOvtfk?action=${action}`,{
           headers:{'content-type':'application/json','user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'},
           method:'POST',
           body:JSON.stringify({
-            login,
+            login:userLogin,//deprecated
+            userLogin,
             docs:wfmTasksFiltered.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
             vars,
             merge,
           })
         });
-        this.genDocResultMessage={type:'success',text:`документы отправлены на ${login}@mts.ru`};
+        this.genDocResultMessage={type:'success',text:`документы отправлены на ${userLogin}@mts.ru`};
       }catch(error){
         this.genDocResultMessage={type:'warn',text:`ошибка сервиса gendoc`};
       }
