@@ -234,13 +234,13 @@ Vue.component('SiteLinkChangeTraps',{
       if(vct.prev_is_not_done||vct.empty||vct.error){return};
       return true;
     },
-    goToPort({ip,ifIndex}){
+    goToPort({ip,ifIndex,ifName/*,portName*/}){
       const ne=Object.values(this.networkElementsDuESwInstalled54).find(ne=>ne.ip===ip);
       if(!ne){return};
       const {ne_name}=ne;
       const port_name=`PORT-${ne_name}/${ifIndex}`;
       this.$router.push({ name: "eth-port", params: { id: port_name } });
-      this.send({click:port_name});
+      this.send({click:{ip,ifIndex,ifName}});
       this.closeWs();
     },
     goToNe({ip}){
@@ -248,7 +248,7 @@ Vue.component('SiteLinkChangeTraps',{
       if(!ne){return};
       const {ne_name}=ne;
       this.$router.push({ name: "network-element", params: { device_id: ne_name } });
-      this.send({click:ne_name});
+      this.send({click:{ip}});
       this.closeWs();
     },
   },
