@@ -139,8 +139,8 @@ function pushResponse({url,response}={}){
   if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
-  const region_id=store.getters['main/region_id'];
-  const username=store.getters['main/username'];
+  const region_id=store.getters.regionId;
+  const username=store.getters.userLogin;
   if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
   if(region_id===54&&username&&!window.FIX_test_DEV){
     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
@@ -162,7 +162,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 //LbsvContent_LbsvServices2_addOP
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
 //add sr info
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EventsItem.js',type:'text/javascript'}));
 
@@ -172,7 +172,7 @@ let sendStateTimer=null;
 let savePositionTimer=null;
 const stateBuffer=new Set();
 
-if(store.getters['main/username']&&!window.FIX_test_DEV){
+if(store.getters.userLogin&&!window.FIX_test_DEV){
   saveUserStateToBuffer();
   getUserStateBufferAndSend();
   
@@ -231,13 +231,13 @@ async function saveUserStateToBuffer(){
 };
 
 async function getUserStateBufferAndSend(){
-  const username=store.getters['main/username'];
+  const username=store.getters.userLogin;
   if(!username){return};
   
-  const region_id=store.getters['main/region_id'];
+  const region_id=store.getters.regionId;
   const position_ldap={
-    latitude:store.getters['main/latitude'],
-    longitude:store.getters['main/longitude'],
+    latitude:store.getters.respawn?.[0],
+    longitude:store.getters.respawn?.[1],
   };
   
   const history=[...stateBuffer];
@@ -336,7 +336,7 @@ async function getUserStateBufferAndSend(){
       
       return sites;
     },{}),
-      app.routerHistory.reduce((sites,route)=>{
+      /*app.routerHistory*/[].reduce((sites,route)=>{
       const site=route?.params?.siteProp
       if(site){
         const {id:site_id,coordinates:{latitude,longitude},name,address}=site;
