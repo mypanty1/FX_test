@@ -119,11 +119,9 @@ Vue.component('ToolsPageContent',{
   created(){},
   watch:{},
   computed:{
-    ...mapGetters({
-      username:'main/username',
-    }),
+    ...mapGetters(['userLogin')
     someSelected(){return !isEmpty(this.items)},
-    isDev(){return this.username=='mypanty1'},
+    isDev(){return this.userLogin=='mypanty1'},
     widgetsItems(){
       const {widgets,isDev,uniqueItems}=this;
       const widgetsList=isDev?widgets:widgets.filter(({isDev})=>!isDev);
