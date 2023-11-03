@@ -119,7 +119,7 @@ Vue.component('ToolsPageContent',{
   created(){},
   watch:{},
   computed:{
-    ...mapGetters(['userLogin')
+    ...mapGetters(['userLogin']),
     someSelected(){return !isEmpty(this.items)},
     isDev(){return this.userLogin=='mypanty1'},
     widgetsItems(){
