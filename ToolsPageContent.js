@@ -309,10 +309,13 @@ Vue.component('WidgetGenerateDocs',{
       this.genDocLoading=!0;
       this.genDocResultMessage=null;
       try {
-        const action=`generate?login=${userLogin}&userLogin=${userLogin}`;
-        await fetch(`https://ping54.ru/kVuNKNeQJV4XLAyMBMI7UnR5ru6KpvKykemmPbdgePb1KghmNPnWEIlRquIOvtfk?action=${action}`,{
-          headers:{'content-type':'application/json','user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'},
+        await fetch(`https://ping54.ru/gendoc/muHgAyxPccHvtJvOi79iORchHiBv9ePmKnDK3csK7dSrqisqFIbWNJ4vSkCFNytG?userLogin=${userLogin}`,{
           method:'POST',
+          headers:{
+            'content-type':'application/json',
+            'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
+            'gdutotfkkwm43hy1':'uiHXmVp4aRHnUByDqDLmM8qpWVVLPfQFlv3qpeF84MQdzCOHPd6U5gvIqJezElzO',
+          },
           body:JSON.stringify({
             login:userLogin,//deprecated
             userLogin,
