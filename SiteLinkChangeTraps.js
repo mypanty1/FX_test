@@ -1,6 +1,6 @@
 
 Vue.component('SiteLinkChangeTraps',{
-  template:`<CardBlock name="LinkChangeTrapsEvents">
+  template:`<div class="white-block-100 padding-top-bottom-8px">
     <title-main text="Трапы LinkChange" :text2="text2" text2Class="font--13-500 tone-500" :textSub="textSub" textSubClass="font--13-500 tone-500" @open="show=!show">
       <button-sq icon="mark-circle" type="large" @click="help.show=!help.show"/>
     </title-main>
@@ -23,7 +23,7 @@ Vue.component('SiteLinkChangeTraps',{
         </div>
       </SectionBorder>
     </div>
-  </CardBlock>`,
+  </div>`,
   props:{
     site_id:{type:String,default:'',required:true},
   },
@@ -67,9 +67,9 @@ Vue.component('SiteLinkChangeTraps',{
     networkElementsDuESwInstalled54(){
       return select(this.networkElements,{
         region_id:54,
-        ne_name:testByName.neIsETH,
-        node_name:testByName.nodeIsDu,
-        ne_status:testByName.neIsInstalled,
+        ne_name:NIOSS.testByName.neIsETH,
+        node_name:NIOSS.testByName.nodeIsDu,
+        ne_status:NIOSS.testByName.neIsInstalled,
         site_id:this.site_id,
         //node_id:this.node_id,
         ip:(ip)=>!!ip,
