@@ -5,8 +5,8 @@ Vue.component('SiteExt',{
       <SitePlanDownload v-bind="$props"/>
     </div>
     <devider-line />
-    <link-block icon="amount" :text="site.name" @block-click="$router.push({name:'search',params:{text:site.name}})" actionIcon="right-link" type="medium"/>
-    <devider-line />
+    <!--<link-block icon="amount" :text="site.name" @block-click="$router.push({name:'search',params:{text:site.name}})" actionIcon="right-link" type="medium"/>
+    <devider-line />-->
   </div>`,
   props:{
     site:{type:Object,default:null,required:true},
