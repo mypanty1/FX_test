@@ -161,10 +161,11 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteLinkChangeTraps.js',type:'text/javascript'}));
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
+
 //LbsvContent_LbsvServices2_addOP
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
-//add sr info
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EventsItem.js',type:'text/javascript'}));
+
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SessionItem.js',type:'text/javascript'}));
 
 
 
