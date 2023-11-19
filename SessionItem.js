@@ -12,7 +12,7 @@ Vue.component('SessionItem',{
       <template v-else>
         <message-el :text="!start?'Оффлайн':('Онлайн c '+startLocal)" :type="!start?'warn':'success'" box/>
         <div v-if="sessionid||dbsessid||ip" class="display-flex align-items-center justify-content-center">
-          <span class="font-size-12px">{{sessionid||dbsessid||ip}}</span><span v-if="dbsessid" class="font-size-12px"> (xRad)</span>
+          <span class="font-size-12px">{{sessionid||dbsessid||ip}} {{is_xRad?'(xRad)':''}}</span>
         </div>
         
         <div class="display-flex flex-direction-column">
