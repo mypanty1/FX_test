@@ -5,12 +5,15 @@
 store.registerModule('vars',{
   namespaced:true,
   state:()=>({
-    sId:`AKfycbw3123vp4qvdnfHn6v4UqLdEQ9nCemZhYmL-IpXsANbO2l5jDYhPYaioCf_Oskc_wBj`,
+    inetcoreHeader:{qrddl1nej271geay:`fJq44zsb2A32jIfH8YKis4tth1akE7wwT0a291pRF8rD53OVlK4EwC85T4sIrMaW`},
+    url:`https://ping54.ru/inetcore`,
+    getVarsAction:`wbYWLqwlzEs6YnTupX4rcRD7NilO4lHM62iuO0eBOJmruMsSj2DXopKqCBZJGSmd`,
+    setVarsAction:`kPK2XxxzwBwhCZrXTxKBl4b2FiSu0h5O1daE3sZuJQiRk8UfrzQ6Vy5cVqjkHKgV`,
+    setVarsHeader:{eyempnokyzkigckn:`mZFoG8RTrohLRWT3tO5IiIboi2kIlDbZ9iVWbHVocK3ktOf8jyMkXyS4Z3Q84fnc`},
     vars:{},
     loading:!1
   }),
   getters:{
-    url:state=>`https://script.google.com/macros/s/${state.sId}/exec`,
     loading:state=>state.loading,
     vars:state=>state.vars,
     getVar:state=>key=>state.vars[key],
@@ -27,23 +30,33 @@ store.registerModule('vars',{
     },
   },
   actions:{
-    async getVars({getters,rootGetters,commit}){
+    async getVars({state,getters,rootGetters,commit}){
       const userLogin=rootGetters.userLogin;if(!userLogin){return};
       commit('setLoading',!0);
       try{
-        const response=await fetch(`${getters.url}?login=${userLogin}&userLogin=${userLogin}`).then(resp=>resp.json());
+        const response=await fetch(`${state.url}/${state.getVarsAction}?userLogin=${userLogin}`,{
+          headers:state.inetcoreHeader,
+        }).then(resp=>resp.json());
         commit('setVars',response);
       }catch(error){
         console.warn('getVars:error',error);
       };
       commit('setLoading',!1);
     },
-    async setVars({getters,rootGetters,commit},vars={}){
+    async setVars({state,getters,rootGetters,commit},vars={}){
       const userLogin=rootGetters.userLogin;if(!userLogin){return};
       commit('setVars',{...getters.vars,...vars});
       commit('setLoading',!0);
       try{
-        await fetch(getters.url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json;charset=utf-8"},body:JSON.stringify({userLogin,login:userLogin,vars})});
+        await fetch(`${state.url}/${state.setVarsAction}`,{
+          method:'POST',
+          headers:{
+            'content-Type':'application/json;charset=utf-8',
+            ...state.inetcoreHeader,
+            ...state.setVarsHeader,
+           },
+          body:JSON.stringify({userLogin,vars})
+        });
       }catch(error){
         console.warn('setVars:error',error);
       };
