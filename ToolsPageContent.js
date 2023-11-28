@@ -5,7 +5,7 @@
 store.registerModule('vars',{
   namespaced:true,
   state:()=>({
-    inetcoreHeader:{qrddl1nej271geay:`fJq44zsb2A32jIfH8YKis4tth1akE7wwT0a291pRF8rD53OVlK4EwC85T4sIrMaW`},
+    inetcoreHeader:{'7ozd7ruzzg0ikerc':`dExeVPthVj5cIyYyYwty10TchgFXBAnlKr1RcpCrmqA1nC4BuMi85t404yIUQF5O`},
     url:`https://ping54.ru/inetcore`,
     getVarsAction:`wbYWLqwlzEs6YnTupX4rcRD7NilO4lHM62iuO0eBOJmruMsSj2DXopKqCBZJGSmd`,
     setVarsAction:`kPK2XxxzwBwhCZrXTxKBl4b2FiSu0h5O1daE3sZuJQiRk8UfrzQ6Vy5cVqjkHKgV`,
@@ -341,6 +341,10 @@ Vue.component('WidgetGenerateDocs',{
       }catch(error){
         this.genDocResultMessage={type:'warn',text:`ошибка сервиса gendoc`};
       }
+      this.$store.dispatch('toast/open',{
+        hasDefaultIcon:!0,
+        messageText:`ошибка сервиса gendoc: "документы отправлены на ${userLogin}@mts.ru"`,
+      });
       this.genDocLoading=!1;
     }
   },
