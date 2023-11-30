@@ -341,10 +341,10 @@ Vue.component('WidgetGenerateDocs',{
       }catch(error){
         this.genDocResultMessage={type:'warn',text:`ошибка сервиса gendoc`};
       }
-      this.$store.dispatch('toast/open',{
+      /*this.$store.dispatch('toast/open',{
         hasDefaultIcon:!0,
         messageText:`ошибка сервиса gendoc: "документы отправлены на ${userLogin}@mts.ru"`,
-      });
+      });*/
       this.genDocLoading=!1;
     }
   },
