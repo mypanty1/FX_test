@@ -330,7 +330,6 @@ Vue.component('WidgetGenerateDocs',{
             'gdutotfkkwm43hy1':'uiHXmVp4aRHnUByDqDLmM8qpWVVLPfQFlv3qpeF84MQdzCOHPd6U5gvIqJezElzO',
           },
           body:JSON.stringify({
-            login:userLogin,//deprecated
             userLogin,
             docs:wfmTasksFiltered.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
             vars,
@@ -340,11 +339,7 @@ Vue.component('WidgetGenerateDocs',{
         this.genDocResultMessage={type:'success',text:`документы отправлены на ${userLogin}@mts.ru`};
       }catch(error){
         this.genDocResultMessage={type:'warn',text:`ошибка сервиса gendoc`};
-      }
-      /*this.$store.dispatch('toast/open',{
-        hasDefaultIcon:!0,
-        messageText:`ошибка сервиса gendoc: "документы отправлены на ${userLogin}@mts.ru"`,
-      });*/
+      };
       this.genDocLoading=!1;
     }
   },
