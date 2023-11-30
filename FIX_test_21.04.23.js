@@ -165,7 +165,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //LbsvContent_LbsvServices2_addOP
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
 
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SessionItem.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SessionItem.js',type:'text/javascript'}));
 
 
 
