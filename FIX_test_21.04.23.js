@@ -139,7 +139,7 @@ function pushResponse({url,response}={}){
   if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
-  const region_id=store.getters.regionId;
+  const region_id=store.getters.regionID||store.getters.regionId;
   const username=store.getters.userLogin;
   if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
   if(region_id===54&&username&&!window.FIX_test_DEV){
@@ -165,7 +165,10 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //LbsvContent_LbsvServices2_addOP
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
 
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SessionItem.js',type:'text/javascript'}));
+//fix _blank
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SideBarMenuItemWfmVacantTaskWeb.js',type:'text/javascript'}));
+
+
 
 
 
@@ -235,7 +238,7 @@ async function getUserStateBufferAndSend(){
   const username=store.getters.userLogin;
   if(!username){return};
   
-  const region_id=store.getters.regionId;
+  const region_id=store.getters.regionID||store.getters.regionId;
   const position_ldap={
     latitude:store.getters.respawn?.[0],
     longitude:store.getters.respawn?.[1],
