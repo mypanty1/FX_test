@@ -1,7 +1,7 @@
 Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   template:`<div class="display-flex align-items-center gap-8px cursor-pointer" @click="onClick" v-if="!isB2BEngineer">
     <IcIcon name="fas fa-link" color="#5642bd" class="font-size-22px"/>
-    <span>Биржа нарядов2</span>
+    <span>Биржа нарядов (2)</span>
     <div class="margin-left-auto">
       <IcIcon name="fa fa-chevron-right"/>
     </div>
