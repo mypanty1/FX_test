@@ -162,8 +162,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 
-//LbsvContent_LbsvServices2_addOP
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvContent_LbsvServices2_addOP.js',type:'text/javascript'}));
+//temp unblock btns
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortBindForm.js',type:'text/javascript'}));
 
 //fix _blank
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SideBarMenuItemWfmVacantTaskWeb.js',type:'text/javascript'}));
