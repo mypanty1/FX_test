@@ -2,6 +2,18 @@ Vue.component('AbonPortBindForm',{
   template:`<div>
     <div class="display-flex flex-direction-column gap-8px">
       <AbonPortBindFormPortStatus v-bind="{networkElement,port,disabled,portStatus,portStatusLoading}" @updatePortStatus="$emit('updatePortStatus')"/>
+
+      <div v-if="typeOfBindIsLinkPort" class="display-flex flex-direction-column border-1px-solid-c8c7c7 border-radius-4px">
+        <div class="font--13-500 tone-500 margin-left-right-4px">для успешной привязки необходимо:</div>
+        <devider-line m="0"/>
+        <div class="display-flex flex-direction-column padding-left-right-4px">
+          <info-value v-for="([label,[value,valueStyle]],key) of typeOfBindLinkPortChecks" :key="key" v-bind="{
+            label,
+            value,
+            valueStyle
+          }" class="padding-unset" withLine/>
+        </div>
+      </div>
       
       <message-el v-if="!fields.length" text="Привязка этой УЗ не предусмотрена" :subText="'typeOfBindID: '+typeOfBindID" type="info" box/>
       
@@ -66,6 +78,16 @@ Vue.component('AbonPortBindForm',{
     mrID(){return this.accountInstance?.mrID},
     serverID(){return this.accountInstance?.serverID},
     typeOfBindID(){return this.accountInstance?.typeOfBindID},
+    serviceIsActive(){return this.selectedServiceItem?.serviceIsActive},
+
+    typeOfBindIsLinkPort(){return this.typeOfBindID==SM.BIND_TYPE_ID_11},
+    typeOfBindLinkPortChecks(){
+      return [
+        ['УЗ активирована',this.serviceIsActive?['✔','color:#20a471;']:['✘','color:#f16b16;']],
+        ['Линк на порту',this.isLinkUp?['✔','color:#20a471;']:['✘','color:#f16b16;']],
+        ['МАК на порту',this.selectedMac?['✔','color:#20a471;']:['✘','color:#f16b16;']],
+      ]
+    },
 
     selectedServiceBasicBindParams(){
       if(!this.selectedServiceItem){return null};
@@ -83,10 +105,10 @@ Vue.component('AbonPortBindForm',{
     portNumber(){return this.port?.number||0},
     macItems(){return [...new Set([this.selectedMac,...this.macs])].filter(Boolean).map((mac,i)=>new CHP.UISelectorInputItem(i,mac))},
     isLinkUp(){return this.portStatus?.IF_OPER_STATUS},
-    bindResourcesDisabled(){return /*this.disabled||*/this.bindResourcesLoading},
-    bindResourcesLinkPortDisabled(){return this.bindResourcesDisabled/*||!this.isLinkUp*/},
+    bindResourcesDisabled(){return this.disabled||this.bindResourcesLoading},
     fields(){
-      const {bindResourcesLinkPortDisabled,bindResourcesDisabled,bindResourcesLoading,selectedMac,macItems,clientIp,portMacsLoading}=this;
+      const {isLinkUp,bindResourcesDisabled,bindResourcesLoading,selectedMac,macItems,clientIp,portMacsLoading}=this;
+      const bindResourcesLinkPortDisabled=bindResourcesDisabled||!isLinkUp;
       const inputMac=new SM.UISelectorInputMac(selectedMac,macItems,bindResourcesDisabled,{
         input:itemValue=>this.selectedMac=itemValue
       },{
@@ -125,7 +147,7 @@ Vue.component('AbonPortBindForm',{
         ],
         [SM.BIND_TYPE_ID_9]:[
           inputMac,
-          new SM.ButtonSetBind(SM.TEXT_BIND_SOME,bindResourcesLinkPortDisabled,bindResourcesLoading,{
+          new SM.ButtonSetBind(SM.TEXT_BIND_SOME,bindResourcesDisabled,bindResourcesLoading,{
             click:()=>this.setBind(SM.BIND_TYPE_ID_9)
           }),
         ],
@@ -196,16 +218,17 @@ Vue.component('AbonPortBindForm',{
       const path=`/call/service_mix/${method}`;
       try{
         const response=await CustomRequest.post(path,params);
-        this.bindResourcesResult=response
-        if(response&&typeof response.Data=='string'){
-          const [ip,gw,sub]=response.Data.split('|');
-          if(ip||gw||sub){
-            this.$set(this.bindResourcesResult,'cfg',{'Ip':ip,'Шлюз':gw,'Маска':sub});
-          };
-        }
+        this.bindResourcesResult=response;
       }catch(error){
         console.warn(`${method}.error`,error);
         this.bindResourcesResult= {text:"Ошибка сервиса",type:"error"};
+      };
+      const {bindResourcesResult}=this;
+      if(typeof bindResourcesResult?.Data=='string'){
+        const [ip,gw,sub]=bindResourcesResult.Data.split('|');
+        if(ip||gw||sub){
+          this.$set(this.bindResourcesResult,'cfg',{'Ip':ip,'Шлюз':gw,'Маска':sub});
+        };
       };
       console.log({path,params})
       this.bindResourcesLoading=!1;
@@ -216,4 +239,3 @@ Vue.component('AbonPortBindForm',{
     },
   },
 });
-
