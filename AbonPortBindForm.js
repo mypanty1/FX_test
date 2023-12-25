@@ -150,7 +150,7 @@ Vue.component('AbonPortBindForm',{
         ...this.selectedServiceBasicBindParams,
         ...filterKeys(this,{
           accountID:  'account',
-          mac:        'selectedMac',
+          selectedMac:'mac',
           portNumber: 'port',
           deviceIP:   'ip',
           deviceName: 'deviceName',
@@ -162,7 +162,7 @@ Vue.component('AbonPortBindForm',{
         ...this.selectedServiceBasicBindParams,
         ...filterKeys(this,{
           accountID:  'account',
-          mac:        'selectedMac',
+          selectedMac:'mac',
           portNumber: 'port',
           deviceName: 'deviceName',
         })
