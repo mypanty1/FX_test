@@ -1,17 +1,22 @@
-Vue.component('AbonPortBindForm',{
+Vue.component('AbonPortBindForm',{//11310009159
   template:`<div>
     <div class="display-flex flex-direction-column gap-8px">
       <AbonPortBindFormPortStatus v-bind="{networkElement,port,disabled,portStatus,portStatusLoading}" @updatePortStatus="$emit('updatePortStatus')"/>
 
-      <div v-if="typeOfBindIsLinkPort" class="display-flex flex-direction-column border-1px-solid-c8c7c7 border-radius-4px">
+      <div v-if="typeOfBindIsLinkPortScheme" class="display-flex flex-direction-column border-1px-solid-c8c7c7 border-radius-4px">
         <div class="font--13-500 tone-500 margin-left-right-4px">для успешной привязки необходимо:</div>
         <devider-line m="0"/>
         <div class="display-flex flex-direction-column padding-left-right-4px">
-          <info-value v-for="([label,[value,valueStyle]],key) of typeOfBindLinkPortChecks" :key="key" v-bind="{
-            label,
-            value,
-            valueStyle
-          }" class="padding-unset" withLine/>
+          <info-value v-for="(props,key) of checksLinkPortScheme" :key="key" v-bind="props" class="padding-unset" withLine>
+            <span v-if="props.valueIconClass" slot="value" :class="props.valueIconClass"></span>
+          </info-value>
+        </div>
+      </div>
+      <div v-if="checksSessions?.length" class="display-flex flex-direction-column border-1px-solid-c8c7c7 border-radius-4px">
+        <div class="display-flex flex-direction-column padding-left-right-4px">
+          <info-value v-for="(props,key) of checksSessions" :key="key" v-bind="props" class="padding-unset" withLine>
+            <span v-if="props.valueIconClass" slot="value" :class="props.valueIconClass"></span>
+          </info-value>
         </div>
       </div>
       
@@ -52,13 +57,15 @@ Vue.component('AbonPortBindForm',{
     portStatusLoading:{type:Boolean,default:false},
   },
   created(){
-    this.autoSelectMac()
+    this.autoSelectMACAddress()
   },
   data:()=>({
-    selectedMac:'',
-    clientIp:'',
+    selectedMACAddress:'',
+    selectedIPAddress:'',
     bindResourcesLoading:!1,
     bindResourcesResult:null,
+    findSessionsByMACAddressLoads:{},
+    findSessionsByMACAddressResps:{},
   }),
   watch:{
     'bindResourcesLoading'(bindResourcesLoading){
@@ -68,11 +75,12 @@ Vue.component('AbonPortBindForm',{
       this.$emit('bindResourcesResult',bindResourcesResult)
     },
     'macs'(macs){
-      this.autoSelectMac()
+      this.autoSelectMACAddress()
     },
-    'selectedMac'(selectedMac){
-      this.$emit('onMac',selectedMac)
-    }
+    'macAddressIsValid'(macAddressIsValid){
+      this.$emit('onMac',this.macAddress);//for find CPE in AbonPortBindModal
+      this.findSessionsByMACAddress()
+    },
   },
   computed:{
     mrID(){return this.accountInstance?.mrID},
@@ -80,15 +88,41 @@ Vue.component('AbonPortBindForm',{
     typeOfBindID(){return this.accountInstance?.typeOfBindID},
     serviceIsActive(){return this.selectedServiceItem?.serviceIsActive},
 
-    typeOfBindIsLinkPort(){return this.typeOfBindID==SM.BIND_TYPE_ID_11},
-    typeOfBindLinkPortChecks(){
+    typeOfBindIsLinkPortScheme(){return this.typeOfBindID==SM.BIND_TYPE_ID_11},
+    checksLinkPortScheme(){
+      const {serviceIsActive,portStatusLoading,isLinkUp,portMacsLoading,macAddressForBindIsValid}=this;
+      const loading={value:'',valueClass:'display-flex',valueIconClass:'ic-16 ic-loading rotating main-lilac'};
+      const success={value:'✔',valueStyle:'color:#20a471;font-weight:900;'};
+      const warning={value:'✘',valueStyle:'color:#f16b16;font-weight:900;'};
+      const initial={value:'—',valueStyle:'color:#918f8f;font-weight:900;'};
       return [
-        ['УЗ активирована',this.serviceIsActive?['✔','color:#20a471;']:['✘','color:#f16b16;']],
-        ['Линк на порту',this.isLinkUp?['✔','color:#20a471;']:['✘','color:#f16b16;']],
-        ['МАК на порту',this.selectedMac?['✔','color:#20a471;']:['✘','color:#f16b16;']],
+        Object.assign({label:'УЗ активирована'},serviceIsActive?success:warning),
+        Object.assign({label:'Линк на порту'},portStatusLoading?loading:isLinkUp?success:warning),
+        Object.assign({label:'MAC на порту'},portMacsLoading?loading:macAddressForBindIsValid?success:warning),
       ]
     },
-
+    checksSessions(){
+      const {sessions,sessionsLoading}=this;
+      const loading={value:'',valueClass:'display-flex',valueIconClass:'ic-16 ic-loading rotating main-lilac'};
+      const success={value:'✔',valueStyle:'color:#20a471;font-weight:900;'};
+      const warning={value:'✘',valueStyle:'color:#f16b16;font-weight:900;'};
+      const initial={value:'—',valueStyle:'color:#918f8f;font-weight:900;'};
+      return sessions.map(({dbsessid,u_id,ip})=>{
+        const isGuest=dbsessid&&!u_id;
+        const label=`${isGuest?'Гостевая сессия':'Абонентская сессия'} ${ip||''}`
+        return Object.assign({label,labelClass:'tone-500'},sessionsLoading?loading:dbsessid?success:initial)
+      });
+    },
+    
+    macAddress(){return this.selectedMACAddress.replace(/[^0-9A-F]/gi,'').match(/.{2}/g)?.join(':')},
+    macAddressIsValid(){return this.macAddress?.length==17},
+    
+    macAddressForBind(){return this.selectedMACAddress.replace(/[^0-9A-FX]/gi,'').match(/.{2}/g)?.join(':')},//X - for priv NetworkScrt
+    macAddressForBindIsValid(){return this.macAddressForBind?.length==17},
+    
+    sessionsLoading(){return this.findSessionsByMACAddressLoads[this.macAddress]},
+    sessions(){return this.findSessionsByMACAddressResps[this.macAddress]||[]},
+    
     selectedServiceBasicBindParams(){
       if(!this.selectedServiceItem){return null};
       const {serverID,typeOfBindID}=this;
@@ -100,17 +134,17 @@ Vue.component('AbonPortBindForm',{
       }
       return null
     },
-    deviceIP(){return this.networkElement?.ip||''},
+    deviceIPAddress(){return this.networkElement?.ip||''},
     deviceName(){return this.networkElement?.name||''},
-    portNumber(){return this.port?.number||0},
-    macItems(){return [...new Set([this.selectedMac,...this.macs])].filter(Boolean).map((mac,i)=>new CHP.UISelectorInputItem(i,mac))},
+    devicePortNumber(){return this.port?.number||0},
+    macItems(){return [...new Set([this.selectedMACAddress,...this.macs])].filter(Boolean).map((mac,i)=>new CHP.UISelectorInputItem(i,mac))},
     isLinkUp(){return this.portStatus?.IF_OPER_STATUS},
     bindResourcesDisabled(){return this.disabled||this.bindResourcesLoading},
     fields(){
-      const {isLinkUp,bindResourcesDisabled,bindResourcesLoading,selectedMac,macItems,clientIp,portMacsLoading}=this;
+      const {isLinkUp,bindResourcesDisabled,bindResourcesLoading,selectedMACAddress,macItems,selectedIPAddress,portMacsLoading}=this;
       const bindResourcesLinkPortDisabled=bindResourcesDisabled||!isLinkUp;
-      const inputMac=new SM.UISelectorInputMac(selectedMac,macItems,bindResourcesDisabled,{
-        input:itemValue=>this.selectedMac=itemValue
+      const inputMac=new SM.UISelectorInputMac(selectedMACAddress,macItems,bindResourcesDisabled,{
+        input:itemValue=>this.selectedMACAddress=itemValue
       },{
         postfix:new SM.ButtonGetMacs(portMacsLoading?'loading rotating':'sync',bindResourcesDisabled||portMacsLoading,{
           click:()=>this.$emit('callParent',['getPortMACAddressList'])
@@ -119,7 +153,7 @@ Vue.component('AbonPortBindForm',{
       return {
         [SM.BIND_TYPE_ID_3]:[
           new SM.ButtonSetBind(SM.TEXT_BIND_PORT,bindResourcesDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_3)
+            click:()=>this.setBind()
           }),
         ],
         [SM.BIND_TYPE_ID_5]:[
@@ -132,50 +166,63 @@ Vue.component('AbonPortBindForm',{
           }),
         ],
         [SM.BIND_TYPE_ID_6]:[
-          new SM.InputIp(clientIp,bindResourcesDisabled,bindResourcesLoading,{
-            input:(value)=>this.clientIp=value.replace(/[\,]/g,'.').replace(/[^\d|\.]/g,'')
+          new SM.InputIp(selectedIPAddress,bindResourcesDisabled,bindResourcesLoading,{
+            input:(value)=>this.selectedIPAddress=value.replace(/[\,]/g,'.').replace(/[^\d|\.]/g,'')
           }),
           new SM.ButtonSetBind(SM.TEXT_BIND_IP,bindResourcesDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_6)
+            click:()=>this.setBind()
           }),
         ],
         [SM.BIND_TYPE_ID_7]:[
           inputMac,
           new SM.ButtonSetBind(SM.TEXT_REBIND_MAC,bindResourcesDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_7)
+            click:()=>this.setBind()
           }),
         ],
         [SM.BIND_TYPE_ID_9]:[
           inputMac,
           new SM.ButtonSetBind(SM.TEXT_BIND_SOME,bindResourcesDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_9)
+            click:()=>this.setBind()
           }),
         ],
         [SM.BIND_TYPE_ID_10]:[
           inputMac,
           new SM.ButtonSetBind(SM.TEXT_BIND_PORT_MAC,bindResourcesDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_10)
+            click:()=>this.setBind()
           }),
         ],
         [SM.BIND_TYPE_ID_11]:[
           inputMac,
           new SM.ButtonSetBind(SM.TEXT_BIND_SOME,bindResourcesLinkPortDisabled,bindResourcesLoading,{
-            click:()=>this.setBind(SM.BIND_TYPE_ID_11)
+            click:()=>this.setBind()
           }),
         ]
       }[this.typeOfBindID]||[]
     }
   },
   methods:{
+    async findSessionsByMACAddress(){
+      const {macAddress,macAddressIsValid}=this;if(!macAddress||!macAddressIsValid){return};
+      if(this.findSessionsByMACAddressLoads[macAddress]){return};
+      this.$set(this.findSessionsByMACAddressLoads,macAddress,!0);
+      this.$set(this.findSessionsByMACAddressResps,macAddress,null);
+      try{
+        const response=await AAAService.getXRadSessionByMac(this.serverID,macAddress);
+        this.$set(this.findSessionsByMACAddressResps,macAddress,response?.data||null);
+      }catch(error){
+        console.warn('findSessionsByMACAddress.error',error);
+      };
+      this.$set(this.findSessionsByMACAddressLoads,macAddress,!1);
+    },
     insMac(){
       this.serviceMixQuery('ins_mac',{
         ...this.selectedServiceBasicBindParams,
         ...filterKeys(this,{
-          accountID:  'account',
-          selectedMac:'mac',
-          portNumber: 'port',
-          deviceIP:   'ip',
-          deviceName: 'deviceName',
+          accountID:'account',
+          macAddressForBind:'mac',
+          devicePortNumber:'port',
+          deviceIPAddress:'ip',
+          deviceName:'deviceName',
         })
       })
     },
@@ -183,34 +230,34 @@ Vue.component('AbonPortBindForm',{
       this.serviceMixQuery('ins_only_mac',{
         ...this.selectedServiceBasicBindParams,
         ...filterKeys(this,{
-          accountID:  'account',
-          selectedMac:'mac',
-          portNumber: 'port',
-          deviceName: 'deviceName',
+          accountID:'account',
+          macAddressForBind:'mac',
+          devicePortNumber:'port',
+          deviceName:'deviceName',
         })
       });
     },
     setBind(_typeOfBindID){
-      const {typeOfBindID,clientIp}=this;
+      const {typeOfBindID,selectedIPAddress,macAddressForBind}=this;
       this.serviceMixQuery('set_bind',{
         ...this.selectedServiceBasicBindParams,
-        type_of_bind:typeOfBindID==SM.BIND_TYPE_ID_5?_typeOfBindID:typeOfBindID,
-        ...typeOfBindID==SM.BIND_TYPE_ID_6&&clientIp?{//not empty client_ip only
-          client_ip:clientIp
+        type_of_bind:_typeOfBindID||typeOfBindID,
+        ...typeOfBindID==SM.BIND_TYPE_ID_6&&selectedIPAddress?{//not empty client_ip only
+          client_ip:selectedIPAddress
         }:null,
         ...SM.BIND_TYPES_MANDATORY_MAC.includes(typeOfBindID)?{
-          mac:this.selectedMac
+          mac:macAddressForBind
         }:null,
         ...filterKeys(this,{
-          accountID:  'account',
-          deviceIP:   'ip',
-          portNumber: 'port',
-          deviceName: 'deviceName',
+          accountID:'account',
+          deviceIPAddress:'ip',
+          devicePortNumber:'port',
+          deviceName:'deviceName',
         })
       });
     },
     async serviceMixQuery(method,params){
-      if(params.mac&&/x/.test(String(params.mac))){//for priv NetworkScrt
+      if(params.mac&&/x/i.test(String(params.mac))){//for priv NetworkScrt
         params.get_mac=new DNM.DevicePortParams(this.networkElement,this.port);
       };
       this.bindResourcesLoading=!0;
@@ -227,15 +274,15 @@ Vue.component('AbonPortBindForm',{
       if(typeof bindResourcesResult?.Data=='string'){
         const [ip,gw,sub]=bindResourcesResult.Data.split('|');
         if(ip||gw||sub){
-          this.$set(this.bindResourcesResult,'cfg',{'Ip':ip,'Шлюз':gw,'Маска':sub});
+          this.$set(this.bindResourcesResult,'cfg',{'IP':ip,'Шлюз':gw,'Маска':sub});
         };
       };
       console.log({path,params})
       this.bindResourcesLoading=!1;
     },
-    autoSelectMac(){
-      const {selectedMac}=this;
-      if(!selectedMac){this.selectedMac=this.macs[0]||selectedMac}
+    autoSelectMACAddress(){
+      const {selectedMACAddress}=this;
+      if(!selectedMACAddress){this.selectedMACAddress=this.macs[0]||selectedMACAddress}
     },
   },
 });
