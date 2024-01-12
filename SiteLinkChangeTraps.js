@@ -1,4 +1,3 @@
-
 Vue.component('SiteLinkChangeTraps',{
   template:`<div class="white-block-100 padding-top-bottom-8px">
     <title-main text="Трапы LinkChange" :text2="text2" text2Class="font--13-500 tone-500" :textSub="textSub" textSubClass="font--13-500 tone-500" @open="show=!show">
@@ -36,6 +35,7 @@ Vue.component('SiteLinkChangeTraps',{
     recived:[],
     ws:null,
     message:'',
+    networkElements:[],
     loads:{
       vct:{},
     },
@@ -44,8 +44,7 @@ Vue.component('SiteLinkChangeTraps',{
     },
   }),
   created(){
-    const {site_id}=this;
-    this.getSiteNetworkElements({site_id});
+    this.getSiteNetworkElements();
   },
   watch:{
     'networkElementsDuESwInstalled54'(networkElements){
@@ -60,16 +59,12 @@ Vue.component('SiteLinkChangeTraps',{
     },
   },
   computed:{
-    ...mapGetters({
-      getNetworkElementsBySiteId:'site/getNetworkElementsBySiteId',
-    }),
-    networkElements(){return this.getNetworkElementsBySiteId(this.site_id)},
     networkElementsDuESwInstalled54(){
       return select(this.networkElements,{
         region_id:54,
-        ne_name:NIOSS.testByName.neIsETH,
-        node_name:NIOSS.testByName.nodeIsDu,
-        ne_status:NIOSS.testByName.neIsInstalled,
+        ne_name:NIOSS.neIsETH,
+        node_name:NIOSS.nodeIsDU,
+        ne_status:NIOSS.admStatusIsInstalled,
         site_id:this.site_id,
         //node_id:this.node_id,
         ip:(ip)=>!!ip,
@@ -119,12 +114,31 @@ Vue.component('SiteLinkChangeTraps',{
     ...mapGetters(['userLogin']),
   },
   methods:{
+    async getSiteNetworkElements(){
+      const {site_id}=this;
+      if(!site_id){return};
+      const method='site_device_list';
+      const cacheKey=atok(method,site_id);
+      
+      const cache=localStorageCache.getItem(cacheKey);
+      if(cache){
+        this.networkElements=cache;
+        return;
+      };
+
+      try{
+        const response=await httpGet(buildUrl(method,{site_id},"/call/v1/device/"));
+        if (response.type === 'error') throw new Error(response.message);
+        if (!Array.isArray(response)) throw new Error(Array.isArray(response));
+        localStorageCache.setItem(cacheKey,response);
+        this.networkElements=response;
+      }catch(error){
+        console.warn('getSiteNetworkElements.error',error);
+      };
+    },
     ipOnThisSiteId(_ip){
       return !!Object.values(this.networkElementsDuESwInstalled54).find(({ip})=>_ip==ip)
     },
-    ...mapActions({
-      getSiteNetworkElements:'site/getSiteNetworkElements',
-    }),
     async init(){
       const userLogin=this.userLogin;
       if(!userLogin){return};
@@ -256,4 +270,3 @@ Vue.component('SiteLinkChangeTraps',{
     this.closeWs();
   },
 });
-
