@@ -3,7 +3,7 @@ Vue.component('SiteLinkChangeTraps',{
     <title-main text="Трапы LinkChange" :text2="text2" text2Class="font--13-500 tone-500" :textSub="textSub" textSubClass="font--13-500 tone-500" @open="show=!show">
       <button-sq icon="mark-circle" type="large" @click="help.show=!help.show"/>
     </title-main>
-    <message-el v-if="$store.getters.userLogin=='mypanty1'" text="ошибка сервиса trapper" type="warn" box/>
+    <message-el v-if="$store.getters.userLogin=='mypanty1'" text="ошибка сервиса trapper" type="warn" box class="margin-left-right-8px"/>
     <info-text-icon v-if="help.show" icon="info" :text="help.text"/>
     <div v-if="show" class="margin-left-right-16px">
       <div class="font--12-400 tone-500">{{message}}</div>
