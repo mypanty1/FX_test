@@ -28,3 +28,9 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
     },
   }
 });
+
+delete ENGINEER_TASKS.lists[ENGINEER_TASKS.B2C_Remedy_WR]
+delete ENGINEER_TASKS.b2cEngineerListsItems[ENGINEER_TASKS.B2C_Remedy_WR]
+delete ENGINEER_TASKS.lists[ENGINEER_TASKS.B2C_PLANED_DU]
+delete ENGINEER_TASKS.b2cEngineerListsItems[ENGINEER_TASKS.B2C_PLANED_DU]
+
