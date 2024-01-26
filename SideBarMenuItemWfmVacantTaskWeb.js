@@ -1,4 +1,4 @@
-Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
+/*Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   template:`<div class="display-contents">
   <div class="display-flex align-items-center gap-8px cursor-pointer" @click="$store.dispatch('menu/close')" v-if="!isB2BEngineer">
     <IcIcon name="fas fa-link" color="#5642bd" class="font-size-22px"/>
@@ -27,7 +27,7 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
       this.$store.dispatch('menu/close');
     },
   }
-});
+});*/
 
 delete ENGINEER_TASKS.lists[ENGINEER_TASKS.B2C_Remedy_WR]
 delete ENGINEER_TASKS.b2cEngineerListsItems[ENGINEER_TASKS.B2C_Remedy_WR]
