@@ -162,9 +162,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 
-//temp unblock btns
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortBindForm.js',type:'text/javascript'}));
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortBindSelectLbsvInternetServiceItem.js',type:'text/javascript'}));
+//fix comments
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiebelServiceRequestCommentsModal.js',type:'text/javascript'}));
 
 //fix FIXstroyka_modernCtl
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/FIXstroyka_modernCtl.js',type:'text/javascript'}));
