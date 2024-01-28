@@ -1,10 +1,12 @@
 
 
 Vue.component('CMTaskAccessDescriptionCreds',{
-  template:`<div class="display-flex flex-direction-column">
+  template:`<div class="display-flex flex-direction-column gap-8px">
     <template v-if="login||password">
       <info-value label="Логин" :value="login||'Нет логина'" withLine class="padding-unset"/>
-      <button-main @click="show_password=!show_password" :icon="show_password?'':'unlock'" :label="show_password?(password||'Нет паролья'):'Показать пароль'" class="margin-bottom-8px" :class="[show_password&&'password']" buttonStyle="outlined" size="full"/>
+      <info-value label="Пароьл" withLine class="padding-unset">
+        <button-main slot="value" @click="show_password=!show_password" :icon="show_password?'':'unlock'" :label="show_password?(password||'Нет паролья'):'Показать пароль'" class="margin-bottom-8px height-22px" :class="[show_password&&'password']" buttonStyle="outlined" size="full"/>
+      </info-value>
     </template>
     <message-el v-else text="нет логина/пароля" box type="info"/>
   </div>`,
