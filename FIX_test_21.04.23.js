@@ -165,8 +165,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //fix comments
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiebelServiceRequestCommentsModal.js',type:'text/javascript'}));
 
-//fix FIXstroyka_modernCtl
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/FIXstroyka_modernCtl.js',type:'text/javascript'}));
+//test samatlor task creds
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskAccessDescriptionCreds.js',type:'text/javascript'}));
 
 
 
