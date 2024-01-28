@@ -1,9 +1,12 @@
 
 
 Vue.component('CMTaskAccessDescriptionCreds',{
-  template:`<div class="display-flex flex-direction-column" v-if="login||password">
-    <info-value label="Логин" :value="login||'Нет логина'" withLine class="padding-unset"/>
-    <button-main @click="show_password=!show_password" :icon="show_password?'':'unlock'" :label="show_password?(password||'Нет паролья'):'Показать пароль'" class="margin-bottom-8px" :class="[show_password&&'password']" buttonStyle="outlined" size="full"/>
+  template:`<div class="display-flex flex-direction-column">
+    <template v-if="login||password">
+      <info-value label="Логин" :value="login||'Нет логина'" withLine class="padding-unset"/>
+      <button-main @click="show_password=!show_password" :icon="show_password?'':'unlock'" :label="show_password?(password||'Нет паролья'):'Показать пароль'" class="margin-bottom-8px" :class="[show_password&&'password']" buttonStyle="outlined" size="full"/>
+    </template>
+    <message-el v-else text="нет логина/пароля" box type="info"/>
   </div>`,
   props:{
     accessDescription:{type:String,default:'',required:!0},
@@ -58,14 +61,19 @@ Vue.component('CMTaskInfo',{
       <div v-if="product" class="font--13-500 white-space-pre tone-500">{{product}}</div>
       
       <div v-if="task.description" class="display-flex flex-direction-column">
+        <devider-line m="0"/>
         <info-text-sec title="Описание" :text="task.description" :rowsMax="expandDescr?0:2" class="padding-unset"/>
         <div class="margin-left-auto font--13-500 main-lilac cursor-pointer" @click="expandDescr=!expandDescr">{{expandDescr?'Свернуть':'Развернуть'}}</div>
       </div>
 
       <div v-if="accessDescription" class="display-flex flex-direction-column margin-top--8px">
+        <devider-line m="0"/>
         <info-text-sec title="Особенности доступа" :text="accessDescription" :rowsMax="expandAccessDescr?0:2" class="padding-unset"/>
         <div class="margin-left-auto font--13-500 main-lilac cursor-pointer" @click="expandAccessDescr=!expandAccessDescr">{{expandAccessDescr?'Свернуть':'Развернуть'}}</div>
-        <CMTaskAccessDescriptionCreds v-bind="{accessDescription}"/>
+        <template v-if="/^6040/.test(account)"><!--только Тюмень-->
+          <devider-line/>
+          <CMTaskAccessDescriptionCreds v-bind="{accessDescription}"/>
+        </template>
       </div>
 
       <LocalNotes :id="taskId"/>
