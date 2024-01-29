@@ -78,7 +78,7 @@ Vue.component('CMTaskInfo',{
         <info-text-sec title="Особенности доступа" :text="accessDescription" :rowsMax="expandAccessDescr?0:2" class="padding-unset"/>
         <div class="margin-left-auto font--13-500 main-lilac cursor-pointer" @click="expandAccessDescr=!expandAccessDescr">{{expandAccessDescr?'Свернуть':'Развернуть'}}</div>
         <template v-if="hasCreds">
-          <devider-line m="0"/>
+          <devider-line/>
           <CMTaskAccessDescriptionCreds v-bind="{accessDescription}"/>
         </template>
       </div>
