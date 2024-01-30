@@ -131,8 +131,8 @@ Vue.component("PortEntitiesByMac",{
         
         <div v-if="isNsk&&sessionByMac&&(agentRemoteId_IP||agentCircuitId_portNumber)" class="display-flex margin-left-right-16px align-items-center gap-2px">
           <div class="font--12-400 white-space-pre">атрибуты Opt.82:</div>
-          <div class="font--12-400 white-space-pre padding-left-right-4px border-radius-4px" :class="[diffIP?'bg-main-orange tone-100':'bg-tone-200']">{{agentRemoteId_IP}}</div>
-          <div class="font--12-400 white-space-pre padding-left-right-4px border-radius-4px" :class="[diffPort?'bg-main-orange tone-100':'bg-tone-200']">{{agentCircuitId_portNumber}}</div>
+          <div class="font--13-500 white-space-pre padding-left-right-4px border-radius-4px" :class="[diffIP?'bg-main-orange tone-100':'bg-tone-200']">{{agentRemoteId_IP}}</div>
+          <div class="font--13-500 white-space-pre padding-left-right-4px border-radius-4px" :class="[diffPort?'bg-main-orange tone-100':'bg-tone-200']">{{agentCircuitId_portNumber}}</div>
           <div v-if="diffIP||diffPort" class="font--13-500"><span class="ic-20 ic-warning main-orange"></span></div>
         </div>
         
