@@ -169,7 +169,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add opt 82 session port for nsk
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionMac_PortEntitiesByMac.js',type:'text/javascript'}));
 
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/lbsv-services.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/lbsv-services.js',type:'text/javascript'}));
 
 
 let sendStateTimer=null;
