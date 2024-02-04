@@ -1,6 +1,12 @@
 Vue.component('device-info',{
   template:`<article class="device-info" :class="[addBorder&&'border-gray']" :style="neIsNotInstalled?'background-color:#eeeeee;':''">
-    <info-text-sec tn="site-address-and-rack-location" v-if="showLocation" :text="fullNiossLocation" class="padding-left-right-unset margin-bottom-8px"/>
+    <div v-if="showLocation" tn="site-address-and-rack-location" class="font--12-400 margin-bottom-8px">
+      <div>{{fullNiossLocation}}</div>
+      <div v-if="locationOutOfRack" class="margin-left-auto display-flex align-items-center gap-2px">
+        <div class="white-space-pre bg-main-orange-light border-radius-4px padding-left-right-2px margin-left-auto" style="width: min-content;">не установлен в шкаф</div>
+        <span class="ic-16 ic-warning main-orange"></span>
+      </div>
+    </div>
     
     <div v-if="showType" class="font--11-600">{{networkElement.type}}</div>
     
@@ -191,6 +197,7 @@ Vue.component('device-info',{
         `шкаф №${NIOSS.getNetworkElementIndex(resourceBusinessName)}`
       ].filter(Boolean).join(', ');
     },
+    locationOutOfRack(){return NIOSS.nodeIsDU(this.networkElement.node?.name)&&!this.loading.niossNe&&!this.loading.niossRack&&!this.loading.niossRackEntrance&&!this.loading.niossNe&&!this.response.niossRack},
   },
   async mounted() {
     if(this.showLocation){
