@@ -24,6 +24,13 @@ function createStyleElement(id='',css=''){
 };
 createStyleElement('fix-test-app-css',`
   .ports-map__grid--gap-4px{gap:4px;}
+  .blink-2s {
+    animation: keyframes-blink-opacity-1-02 2s infinite; 
+  }
+  @keyframes keyframes-blink-opacity-1-02 {
+    0% { opacity: 1; }
+    50% { opacity: 0.2;}
+  }
 `);
 
 
