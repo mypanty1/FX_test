@@ -3,7 +3,7 @@ Vue.component('device-info',{
     <div v-if="showLocation" tn="site-address-and-rack-location" class="font--12-400 margin-bottom-8px">
       <div>{{fullNiossLocation}}</div>
       <div v-if="locationOutOfRack" class="margin-left-auto display-flex align-items-center gap-2px">
-        <div class="white-space-pre bg-main-orange-light border-radius-4px padding-left-right-2px margin-left-auto" style="width: min-content;">не установлен в шкаф</div>
+        <div class="white-space-pre bg-main-orange-light border-radius-4px padding-left-right-2px margin-left-auto" style="width: min-content;">не смонтирован в шкаф</div>
         <span class="ic-16 ic-warning main-orange"></span>
       </div>
     </div>
