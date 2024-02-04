@@ -168,8 +168,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskAccessDescriptionCreds.js',type:'text/javascript'}));
 //add opt 82 session port for nsk
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionMac_PortEntitiesByMac.js',type:'text/javascript'}));
-
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/lbsv-services.js',type:'text/javascript'}));
+//add rack index
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/device-info.js',type:'text/javascript'}));
 
 
 let sendStateTimer=null;
