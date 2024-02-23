@@ -146,9 +146,8 @@ Vue.component('SiteLinkChangeTraps',{
       
       this.initWs();
       
-      const {site_id}=this;
       const subscribes=Object.values(this.networkElementsDuESwInstalled54).map(({ip})=>{
-        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?${objectToQuery({ip,login:userLogin,userLogin,site_id})}`,{
+        return fetch(`https://ping54.ru/addDeviceSnmpTrapsUserSubscription?${objectToQuery({ip,userLogin/*,login:userLogin*/})}`,{
           headers:{'user-key':'LFjoMC6x-bWQlVyX3-FFPZGwvf-lOo5rT2o-uuubGsRh-eOdFpD4Y'}
         });
       });
