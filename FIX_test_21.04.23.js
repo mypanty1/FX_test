@@ -173,9 +173,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteNodeDetails.js',type:'text/javascript'}));
 
 //test task nav deeplink
-if(store?.getters?.userLogin=='mypanty1'){
+//if(store?.getters?.userLogin=='mypanty1'){
   document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress.js',type:'text/javascript'}));
-};
+//};
 //fix iptv creds
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvService.js',type:'text/javascript'}));
 //add rack index
