@@ -52,12 +52,12 @@ Vue.component('LbsvService',{
     </title-main>
     
     <div class="margin-left-right-18px" style="display:grid;gap:4px;grid-template-columns:1fr 1fr 1fr 1fr;">
-      <template v-if="service.type==SERVICE_TYPE_INTERNET.type && billingTypeID!=ASRT_BILLING_TYPE_ID">
+      <template v-if="service.type==SERVICE_TYPE_INTERNET.type && billingTypeID!=ASRT_BILLING_TYPE_ID && isSamatlor">
         <lbsv-login-pass v-if="serviceHasPassword" :service="service" :billingid="account.billingid" style="grid-area: 1/1/2/5;"/>
       </template>
       
-      <template v-if="billingTypeID!=ASRT_BILLING_TYPE_ID && !isSamatlor">
-        <title-main textClass="font--16-500" v-bind="{
+      <template v-if="billingTypeID!=ASRT_BILLING_TYPE_ID">
+        <title-main v-if="!isSamatlor" textClass="font--16-500" v-bind="{
           text1Class:[1,4,5,6].includes(billingTypeID)?'':'tone-500',
           text2Class:[2,3].includes(billingTypeID)?'':'tone-500',
           text:service.login||service.vgid,
@@ -353,4 +353,3 @@ Vue.component('LbsvService',{
     },
   },
 });
-
