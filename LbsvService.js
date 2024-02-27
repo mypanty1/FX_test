@@ -56,7 +56,7 @@ Vue.component('LbsvService',{
         <lbsv-login-pass v-if="serviceHasPassword" :service="service" :billingid="account.billingid" style="grid-area: 1/1/2/5;"/>
       </template>
       
-      <template v-if="billingTypeID!=ASRT_BILLING_TYPE_ID">
+      <template v-if="billingTypeID!=ASRT_BILLING_TYPE_ID && !isSamatlor">
         <title-main textClass="font--16-500" v-bind="{
           text1Class:[1,4,5,6].includes(billingTypeID)?'':'tone-500',
           text2Class:[2,3].includes(billingTypeID)?'':'tone-500',
@@ -234,6 +234,9 @@ Vue.component('LbsvService',{
         LBSV.SERVICE_TYPEs.phone.type
       ].includes(type) && !isWrongPasswordService;
     },
+    isSamatlor(){
+      return this.service.type==LBSV.SERVICE_TYPE_INTERNET.type&&this.account.billingid==6014
+    },
     isActive(){
       const {status}=this.service;
       return status=='0'||(this.billingTypeID==4&&status=='12')
@@ -322,7 +325,7 @@ Vue.component('LbsvService',{
       if(!accountNumber||!serviceType){return};
       this.serviceParamsLoading=!0;
       try {
-        const response=await SMSGatewayService.getServiceParamsCache(accountNumber,serviceType);
+        const response=await SMSGatewayService.ServiceParams.useCache(accountNumber,serviceType);
         if(Array.isArray(response?.data?.parameters)){
           this.serviceParams = response.data.parameters;
         };
@@ -350,3 +353,4 @@ Vue.component('LbsvService',{
     },
   },
 });
+
