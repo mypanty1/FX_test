@@ -30,8 +30,8 @@ Vue.component('CMTaskSiteAddress',{
         {label:'Карта',data:{lat,lon}},
         {label:'Яндекс.Навигатор',data:{lat,lon,uri:`yandexnavi://show_point_on_map?lat=${lat}&lon=${lon}&zoom=12&no-balloon=1&desc=${taskID}`}},
         {label:'Яндекс.Навигатор (маршрут)',data:{lat,lon,uri:`yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`}},
-        {label:'2ГИС',data:{lat,lon,uri:`dgis://2gis.ru/geo/${lat}%2C${lon}`}},
-        {label:'2ГИС (маршрут)',data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lat}%2C${lon}`}},
+        {label:'2ГИС',data:{lat,lon,uri:`dgis://2gis.ru/geo/${lon},${lat}`}},
+        {label:'2ГИС (маршрут)',data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lon},${lat}`}},
       ]
     }
   },
