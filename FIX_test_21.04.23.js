@@ -173,8 +173,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteNodeDetails.js',type:'text/javascript'}));
 //fix cm filter
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CM.TYPES.js',type:'text/javascript'}));
-//add opt 82 session port for nsk
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionMac_PortEntitiesByMac.js',type:'text/javascript'}));
+//fix iptv creds
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvService.js',type:'text/javascript'}));
 //add rack index
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/device-info.js',type:'text/javascript'}));
 
