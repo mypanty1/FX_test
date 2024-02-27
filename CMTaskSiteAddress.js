@@ -70,7 +70,7 @@ Vue.component('CMTaskSiteAddress',{
 //old wfm
 Vue.component('WFMTaskSiteAddress',{
   template:`<div class="display-flex flex-direction-column">
-    <title-main :text="siteNodeDu?.address||task.AddressSiebel" class="margin-top-8px">
+    <title-main :text="siteNodeDu?.address||task.AddressSiebel">
       <button-sq v-if="siteNodeDu" icon="pin" @click="openNav=!openNav" type="large"/>
     </title-main>
     <transition v-if="siteNodeDu&&openNav&&buttons" name="slide-down" mode="out-in" appear>
@@ -198,7 +198,7 @@ Vue.component('task-main-account-2',{//deprecated
     </div>
 
     <div class="white-block-100 padding-top-bottom-8px">
-      <WFMTaskSiteAddress v-bind="{task,siteNodeDu:site}" class="margin-top-8px"/>
+      <WFMTaskSiteAddress v-bind="{task,siteNodeDu:site}" class="margin-top-8px margin-left-right-8px"/>
       <info-list icon="apartment" v-if="entrance" :text="titleEntranceFloorFlat"/>
       <devider-line />
 
@@ -374,7 +374,7 @@ Vue.component('task-main-incident',{//deprecated
     </div>
 
     <div class="white-block-100 padding-top-bottom-8px">
-      <WFMTaskSiteAddress v-bind="{task,siteNodeDu:site}" class="margin-top-8px"/>
+      <WFMTaskSiteAddress v-bind="{task,siteNodeDu:site}" class="margin-top-8px margin-left-right-8px"/>
       <devider-line />
       <link-block icon="du" :text="site?site.node:'Площадка'" :search="site?site.node:task.siteid" />
       <link-block icon="home" actionIcon="expand" text="Информация об УК" @block-click="openModal" />
