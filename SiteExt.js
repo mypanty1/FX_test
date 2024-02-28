@@ -226,37 +226,31 @@ Vue.component('SitePlanDownload',{//плансхема
       document.getElementById('loader_generatePL').style.display='inline-table';
 
       const siteObj=await this.getSite(site_id,hideTS);
-      const username=store.getters.userLogin||'<username>';
-      const site_name=siteObj[site_id].nodes[0].name;
-      const address=siteObj[site_id].nodes[0].address;
-      const date=new Date();
-      const title=site_name+' '+date.toLocaleDateString().match(/(\d|\w){1,4}/g).join('.')+' '+date.toLocaleTimeString().match(/(\d|\w){1,4}/g).join('-')+' '+date.getTime().toString(16)+' '+username;
-      const bodyObj={
-        username,
-        node_id:window.node_id,
-        sitename:site_name,site_name,
-        address,
-        siteid:site_id,site_id,
-        title,
-        json:JSON.stringify(siteObj,null,2),
-        html:'',
+      
+      try {
+        await fetch(`https://ping54.ru/gendoc/ndf5bTp3DMS3LxBMDjb0dnAzDMkppMk1c1yNo9S1ugeijitHWRoE1VisB3sXx07d?userLogin=${store.getters.userLogin}`,{
+          method:'POST',
+          headers:{
+            'content-type':'application/json',
+            'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
+            'gdutotfkkwm43hy1':'uiHXmVp4aRHnUByDqDLmM8qpWVVLPfQFlv3qpeF84MQdzCOHPd6U5gvIqJezElzO',
+          },
+          body:JSON.stringify({
+            userLogin:store.getters.userLogin,
+            docs:[{
+              docTemplateName:'План-схема площадки',
+              docData:{
+                siteNamePL:siteObj[site_id].nodes[0].name,
+                address:siteObj[site_id].nodes[0].address,
+                siteID:site_id,
+                data:siteObj
+              }
+            }],
+          })
+        });
+      }catch(error){
+        console.log(error)
       };
-
-      /*if(FIX_test_DEV){
-        const json=new Blob([bodyObj.json],{type:'text/plain'});
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(json);
-        a.download=bodyObj.title+'.json';
-        a.click();
-        a.remove();
-      }else{*/
-        if(username&&username!=='<username>'){
-          fetch('https://script.google.com/macros/s/AKfycbzyyWn_TMArC9HcP2NzwGhgKUCMJK2QBQ3BEY3U8c37pQJS5fHh3TKz0Xya9V5Eq1Sm-g/exec',{
-            method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-            body:JSON.stringify(bodyObj)
-          });
-        };
-      /*};*/
 
       //document.getElementById('btn_generatePL').removeAttribute('disabled');
       document.getElementById('btn_generatePL_woTS').removeAttribute('disabled');
