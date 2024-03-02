@@ -6,7 +6,7 @@ Vue.component('CMTaskSiteAddress',{
       <button-sq v-if="siteNodeDu||siteNodeLoading" :icon="siteNodeLoading?'pin tone-500':'pin main-lilac'" iconSize="24" type="medium"/>
     </div>
     <transition v-if="siteNodeDu&&openNav&&buttons" name="slide-down" mode="out-in" appear>
-      <UILinkBtnsList :buttons="buttons" @click="goToNav($event.data)"/>
+      <UILinkBtnsList :buttons="buttons" @click="goToNav($event.data,$event.label)"/>
     </transition>
   </div>`,
   data:()=>({
@@ -40,7 +40,8 @@ Vue.component('CMTaskSiteAddress',{
     }
   },
   methods:{
-    goToNav({lat,lon,uri}={}){
+    goToNav({lat,lon,uri}={},label=''){
+      this.$report(['CMTaskSiteAddress.goToNav',{label}])
       if(!uri){
         this.$router.push({
           name:'R_Map',
@@ -74,7 +75,7 @@ Vue.component('WFMTaskSiteAddress',{
       <button-sq v-if="siteNodeDu" icon="pin" @click="openNav=!openNav" type="large"/>
     </title-main>
     <transition v-if="siteNodeDu&&openNav&&buttons" name="slide-down" mode="out-in" appear>
-      <UILinkBtnsList :buttons="buttons" @click="goToNav($event.data)"/>
+      <UILinkBtnsList :buttons="buttons" @click="goToNav($event.data,$event.label)"/>
     </transition>
   </div>`,
   props:{
@@ -104,7 +105,8 @@ Vue.component('WFMTaskSiteAddress',{
     }
   },
   methods:{
-    goToNav({lat,lon,uri}={}){
+    goToNav({lat,lon,uri}={},label=''){
+      this.$report(['WFMTaskSiteAddress.goToNav',{label}])
       if(!uri){
         this.$router.push({
           name:'R_Map',
