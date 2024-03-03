@@ -86,7 +86,7 @@ Vue.component('SitePlanDownload',{//плансхема
       return Promise.allSettled([
         this.$cache.getItem(`building/${site_id}`)?Promise.resolve(this.$cache.getItem(`building/${site_id}`)):httpGet(buildUrl('search_ma',{pattern:site_id},'/call/v1/search/')),
         this.$cache.getItem(`site_flat_list/${site_id}`)?Promise.resolve(this.$cache.getItem(`site_flat_list/${site_id}`)):httpGet(buildUrl('site_flat_list',{site_id},'/call/v1/device/')),
-        this.$cache.getItem(`devices/${site_id}`)?Promise.resolve(this.$cache.getItem(`devices/${site_id}`)):httpGet(buildUrl('devices',{site_id},'/call/v1/device/')),
+        /*this.$cache.getItem(`devices/${site_id}`)?Promise.resolve(this.$cache.getItem(`devices/${site_id}`)):*/httpGet(buildUrl('devices',{site_id},'/call/v1/device/')),
         this.$cache.getItem(`get_unmount_devices/${site_id}`)?Promise.resolve(this.$cache.getItem(`get_unmount_devices/${site_id}`)):httpGet(buildUrl('get_unmount_devices',{site_id},'/call/v1/device/')),
         this.$cache.getItem(`site_rack_list/${site_id}`)?Promise.resolve(this.$cache.getItem(`site_rack_list/${site_id}`)):httpGet(buildUrl('site_rack_list',{site_id},'/call/v1/device/')),
         this.$cache.getItem(`patch_panels/${site_id}`)?Promise.resolve(this.$cache.getItem(`patch_panels/${site_id}`)):httpGet(buildUrl('patch_panels',{site_id,without_tree:true},'/call/v1/device/')),
@@ -228,7 +228,7 @@ Vue.component('SitePlanDownload',{//плансхема
       const siteObj=await this.getSite(site_id,hideTS);
       
       try {
-        await fetch(`https://ping54.ru/gendoc/ndf5bTp3DMS3LxBMDjb0dnAzDMkppMk1c1yNo9S1ugeijitHWRoE1VisB3sXx07d?userLogin=${store.getters.userLogin}`,{
+        await fetch(`https://ping54.ru/gendoc/oxdEC4TFrrpGvx9WNl8CszjOaK4VqmlhCppaGx2toDGTl2LJu5xbPDduSxtvKGU1?userLogin=${store.getters.userLogin}`,{
           method:'POST',
           headers:{
             'content-type':'application/json',
@@ -237,15 +237,10 @@ Vue.component('SitePlanDownload',{//плансхема
           },
           body:JSON.stringify({
             userLogin:store.getters.userLogin,
-            docs:[{
-              docTemplateName:'План-схема площадки',
-              docData:{
-                siteNamePL:siteObj[site_id].nodes[0].name,
-                address:siteObj[site_id].nodes[0].address,
-                siteID:site_id,
-                data:siteObj
-              }
-            }],
+            siteNamePL:siteObj[site_id].nodes[0].name,
+            address:siteObj[site_id].nodes[0].address,
+            siteID:site_id,
+            ...siteObj[site_id],
           })
         });
       }catch(error){
