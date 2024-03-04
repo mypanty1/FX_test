@@ -177,7 +177,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
   document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress.js',type:'text/javascript'}));
 //};
 //fix iptv creds
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvService.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvService.js',type:'text/javascript'}));
 //add rack index
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/device-info.js',type:'text/javascript'}));
 
