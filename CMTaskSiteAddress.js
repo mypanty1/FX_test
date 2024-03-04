@@ -67,7 +67,6 @@ Vue.component('CMTaskSiteAddress',{
   },
 });
 
-
 //old wfm
 Vue.component('WFMTaskSiteAddress',{
   template:`<div class="display-flex flex-direction-column">
