@@ -23,19 +23,20 @@ Vue.component('CMTaskSiteAddress',{
     siteNodeDu(){return NIOSS.selectNodeDuAsSite(Object.values(this.$store.getters['nioss/site/nodes']))},
     buttons(){
       if(!this.siteNodeDu){return};
-      const {coordinates:{latitude:lat='',longitude:lon=''}={}}=this.siteNodeDu;
-      const {taskID}=this;
+      const {coordinates:{latitude:lat='',longitude:lon=''}={},address=''}=this.siteNodeDu;
       if(!lat||!lon){return};
+      const {taskID}=this;
+      const {address:{flat}}=this.task;
       return [
-        {label:'Карта',data:{lat,lon}},
-        {label:'Яндекс.Навигатор',data:{lat,lon,uri:`yandexnavi://show_point_on_map?lat=${lat}&lon=${lon}&zoom=12&no-balloon=1&desc=${taskID}`}},
-        {label:'Яндекс.Навигатор (маршрут)',data:{lat,lon,uri:`yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`}},
-        {label:'2ГИС',data:{lat,lon,uri:`dgis://2gis.ru/geo/${lon},${lat}`}},
-        {label:'2ГИС (маршрут)',data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lon},${lat}`}},
-        {label:'Google Maps',data:{lat,lon,uri:`geo:${lat},${lon}&z=12`}},
-        {label:'Google Maps (маршрут)',data:{lat,lon,uri:`google.navigation:q=${lat},${lon}`}},
-        {label:'Яндекс.Карты',data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?ll=${lat},${lon}&z=12&l=map&text=${taskID}`}},
-        {label:'Яндекс.Карты (маршрут)',data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?rtext=${lat},${lon}`}},
+        {label:'Карта',                      data:{lat,lon}},
+        {label:'2ГИС (маршрут)',             data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lon},${lat}`}},
+        {label:'2ГИС',                       data:{lat,lon,uri:`dgis://2gis.ru/geo/${lon},${lat}`}},
+        {label:'Яндекс Карты',               data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?ll=${lon},${lat}&z=16&text=${address}, кв. ${flat}`}},
+        {label:'Яндекс Навигатор (наряд)',   data:{lat,lon,uri:`yandexnavi://show_point_on_map?lat=${lat}&lon=${lon}&zoom=16&desc=${taskID}`}},
+        {label:'Яндекс Навигатор (маршрут)', data:{lat,lon,uri:`yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`}},
+        {label:'Яндекс Навигатор (адрес)',   data:{lat,lon,uri:`yandexnavi://map_search?text=${address}, кв. ${flat}`}},
+        {label:'Google Maps',                data:{lat,lon,uri:`geo:${lat},${lon}`}},
+        {label:'Google Maps (маршрут)',      data:{lat,lon,uri:`google.navigation:q=${lat},${lon}`}},
       ]
     }
   },
@@ -88,18 +89,18 @@ Vue.component('WFMTaskSiteAddress',{
     buttons(){
       if(!this.siteNodeDu){return};
       const {coordinates:{latitude:lat='',longitude:lon=''}={}}=this.siteNodeDu;
-      const {NumberOrder}=this.task;
+      const {NumberOrder,AddressSiebel}=this.task;
       if(!lat||!lon){return};
       return [
-        {label:'Карта',data:{lat,lon}},
-        {label:'Яндекс.Навигатор',data:{lat,lon,uri:`yandexnavi://show_point_on_map?lat=${lat}&lon=${lon}&zoom=12&no-balloon=1&desc=${NumberOrder}`}},
-        {label:'Яндекс.Навигатор (маршрут)',data:{lat,lon,uri:`yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`}},
-        {label:'2ГИС',data:{lat,lon,uri:`dgis://2gis.ru/geo/${lon},${lat}`}},
-        {label:'2ГИС (маршрут)',data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lon},${lat}`}},
-        {label:'Google Maps',data:{lat,lon,uri:`geo:${lat},${lon}&z=12`}},
-        {label:'Google Maps (маршрут)',data:{lat,lon,uri:`google.navigation:q=${lat},${lon}`}},
-        {label:'Яндекс.Карты',data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?ll=${lat},${lon}&z=12&l=map&text=${NumberOrder}`}},
-        {label:'Яндекс.Карты (маршрут)',data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?rtext=${lat},${lon}`}},
+        {label:'Карта',                      data:{lat,lon}},
+        {label:'2ГИС (маршрут)',             data:{lat,lon,uri:`dgis://2gis.ru/routeSearch/to/${lon},${lat}`}},
+        {label:'2ГИС',                       data:{lat,lon,uri:`dgis://2gis.ru/geo/${lon},${lat}`}},
+        {label:'Яндекс Карты',               data:{lat,lon,uri:`yandexmaps://maps.yandex.ru/?ll=${lon},${lat}&z=16&text=${AddressSiebel}`}},
+        {label:'Яндекс Навигатор (наряд)',   data:{lat,lon,uri:`yandexnavi://show_point_on_map?lat=${lat}&lon=${lon}&zoom=16&desc=${NumberOrder}`}},
+        {label:'Яндекс Навигатор (маршрут)', data:{lat,lon,uri:`yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`}},
+        {label:'Яндекс Навигатор (адрес)',   data:{lat,lon,uri:`yandexnavi://map_search?text=${AddressSiebel}`}},
+        {label:'Google Maps',                data:{lat,lon,uri:`geo:${lat},${lon}`}},
+        {label:'Google Maps (маршрут)',      data:{lat,lon,uri:`google.navigation:q=${lat},${lon}`}},
       ]
     }
   },
