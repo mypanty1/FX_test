@@ -10,7 +10,7 @@ Vue.component('CMTaskSiteAddress',{
     </transition>
   </div>`,
   data:()=>({
-    openNav:!0,
+    openNav:!1,
   }),
   computed:{
     ...mapGetters({
@@ -83,7 +83,7 @@ Vue.component('WFMTaskSiteAddress',{
     siteNodeDu:{type:Object,default:null},
   },
   data:()=>({
-    openNav:!0,
+    openNav:!1,
   }),
   computed:{
     buttons(){
