@@ -173,7 +173,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteNodeDetails.js',type:'text/javascript'}));
 
 //add nav deeplinks
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress_WFMTaskSiteAddress_task-main-account-2_task-main-incident.js',type:'text/javascript'}));
 //fix status button, add ls, and button gap
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskInfo_CMTaskPotentialAccount_CMTaskAssignment.js',type:'text/javascript'}));
 
