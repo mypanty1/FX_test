@@ -1,3 +1,33 @@
+//add LocalNotes
+Vue.component('CMTaskCard',{
+  template:`<div class="white-block-100 padding-8px display-flex flex-direction-column gap-8px" v-if="taskAssignment||taskInfoShort">
+    <CMTaskHeader :taskInfoShort="taskInfoShort"/>
+    <CMTaskAddress v-bind="{taskID,taskInfoShort}"/>
+    <CMTaskAssignment :taskID="taskID"/>
+    <TaskPhoneCall v-if="phoneNumber" :phone="phoneNumber" :title="clientName" :descr="appointmentTimeRange"/>
+    <CMTaskAddressEntranceFloorFlat :taskID="taskID"/>
+    <CMTaskPotentialAccount :taskInfoShort="taskInfoShort"/>
+    <CMTaskProduct :taskID="taskID"/>
+    <CMTaskSla :taskInfoShort="taskInfoShort"/>
+    <div class="divider-line"/>
+    <LocalNotes :id="taskID"/>
+  </div>`,
+  props:{
+    taskID:{type:String,required:true},
+  },
+  computed:{
+    ...mapGetters('cm',[
+      'getTaskAssignment',
+      'getTaskInfoShort',
+    ]),
+    taskAssignment(){return this.getTaskAssignment(this.taskID)},
+    taskInfoShort(){return this.getTaskInfoShort(this.taskID)},
+    appointmentTimeRange(){return DATE.getTimeRange_HHmm(this.taskInfoShort.appointmentStart,this.taskInfoShort.appointmentFinish)},
+    clientName(){return this.taskInfoShort.client.clientName},
+    phoneNumber(){return this.taskInfoShort.client.phoneNumber},
+  },
+});
+
 //fix status button click area
 Vue.component('CMTaskAssignment',{
   template:`<div class="display-contents">
