@@ -169,13 +169,13 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 
-//fix edit descr
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteNodeDetails.js',type:'text/javascript'}));
-
 //add nav deeplinks
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress_WFMTaskSiteAddress_task-main-account-2_task-main-incident.js',type:'text/javascript'}));
+//add backup and comments
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LocalNotes.js',type:'text/javascript'}));
 //fix status button, add ls, and button gap
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskCard_CMTaskInfo_CMTaskPotentialAccount_CMTaskAssignment.js',type:'text/javascript'}));
+
 
 //add rack index
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/device-info.js',type:'text/javascript'}));
