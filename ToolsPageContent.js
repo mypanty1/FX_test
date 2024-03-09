@@ -9,7 +9,6 @@ store.registerModule('vars',{
     url:`https://ping54.ru/inetcore`,
     getVarsAction:`wbYWLqwlzEs6YnTupX4rcRD7NilO4lHM62iuO0eBOJmruMsSj2DXopKqCBZJGSmd`,
     setVarsAction:`kPK2XxxzwBwhCZrXTxKBl4b2FiSu0h5O1daE3sZuJQiRk8UfrzQ6Vy5cVqjkHKgV`,
-    setVarsHeader:{eyempnokyzkigckn:`mZFoG8RTrohLRWT3tO5IiIboi2kIlDbZ9iVWbHVocK3ktOf8jyMkXyS4Z3Q84fnc`},
     vars:{},
     loading:!1
   }),
@@ -53,7 +52,6 @@ store.registerModule('vars',{
           headers:{
             'content-Type':'application/json;charset=utf-8',
             ...state.inetcoreHeader,
-            ...state.setVarsHeader,
            },
           body:JSON.stringify({userLogin,vars})
         });
