@@ -233,7 +233,6 @@ Vue.component('SitePlanDownload',{//плансхема
           headers:{
             'content-type':'application/json',
             'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
-            'gdutotfkkwm43hy1':'uiHXmVp4aRHnUByDqDLmM8qpWVVLPfQFlv3qpeF84MQdzCOHPd6U5gvIqJezElzO',
           },
           body:JSON.stringify({
             userLogin:store.getters.userLogin,
