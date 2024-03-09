@@ -314,7 +314,7 @@ Vue.component('WidgetGenerateDocs',{
       };
     },
     async generate(){
-      const {wfmTasksFiltered,genDocLoading,userLogin,vars,merge}=this;
+      const {wfmTasksFiltered,genDocLoading,userLogin,vars}=this;
       if(!userLogin){return};
       if(genDocLoading){return};
       this.genDocLoading=!0;
@@ -325,13 +325,11 @@ Vue.component('WidgetGenerateDocs',{
           headers:{
             'content-type':'application/json',
             'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
-            'gdutotfkkwm43hy1':'uiHXmVp4aRHnUByDqDLmM8qpWVVLPfQFlv3qpeF84MQdzCOHPd6U5gvIqJezElzO',
           },
           body:JSON.stringify({
             userLogin,
             docs:wfmTasksFiltered.map(wfmTask=>({docTemplateName:'Акт выполненных работ',docData:wfmTask})),
             vars,
-            merge,
           })
         });
         this.genDocResultMessage={type:'success',text:`документы отправлены на ${userLogin}@mts.ru`};
