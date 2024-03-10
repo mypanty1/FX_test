@@ -55,7 +55,7 @@ Vue.component('CpeSection3',{
             mrID:mr_id,
             cpeID:serial
           },
-          response:
+          response,
         }])
         this.$store.dispatch('UILinearProgressLoader/done',this.loaderID);
       }catch(error){
