@@ -49,6 +49,14 @@ Vue.component('CpeSection3',{
       try{
         const response=await AxirosService.doCPESpeedTest(mr_id,serial);
         this.doCPESpeedTestResult=response;
+        this.$report(['CpeSection3.doCPESpeedTest',{
+          accountNumber:this.$route.params.account,
+          params:{
+            mrID:mr_id,
+            cpeID:serial
+          },
+          response:
+        }])
         this.$store.dispatch('UILinearProgressLoader/done',this.loaderID);
       }catch(error){
         console.warn('doCPESpeedTest.error',error)
