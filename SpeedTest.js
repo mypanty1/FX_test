@@ -39,7 +39,7 @@ Vue.component('CpeSection3',{
   </div>`,
   props:{},
   data:()=>({
-    doCPESpeedTestLoadingAnimation:!0,
+    doCPESpeedTestLoadingAnimation:!1,
     doCPESpeedTestLoading:!1,
     doCPESpeedTestResult:null,
     doCPESpeedTestError:null,
@@ -72,7 +72,7 @@ Vue.component('CpeSection3',{
       return this.doCPESpeedTestError?.text||''
     },
     doCPESpeedTestLoadingAnimationEnd(){
-      return this.doCPESpeedTestLoading || !this.doCPESpeedTestLoadingAnimation
+      return this.doCPESpeedTestLoading || this.doCPESpeedTestLoadingAnimation
     }
   },
   methods:{
@@ -81,7 +81,7 @@ Vue.component('CpeSection3',{
       this.doCPESpeedTestResult=null;
       this.doCPESpeedTestError=null;
       this.doCPESpeedTestLoading=!0;
-      this.doCPESpeedTestLoadingAnimation=!1;
+      this.doCPESpeedTestLoadingAnimation=!0;
       this.$store.dispatch('UILinearProgressLoader/start',this.loaderID);
       try{
         const response=await AxirosService.doCPESpeedTest(mr_id,serial);
@@ -110,7 +110,7 @@ Vue.component('CpeSection3',{
       this.doCPESpeedTestLoading=!1;
     },
     onAnimationEnd(){
-      this.doCPESpeedTestLoadingAnimation=!0;
+      this.doCPESpeedTestLoadingAnimation=!1;
     },
   },
 });
