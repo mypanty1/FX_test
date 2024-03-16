@@ -91,7 +91,7 @@ function Buildings() {
   
   this.getIconLayout=(buildingInfo)=>{
     //отображаем тип ООС только если он не ДУ (сотрудники путают ДУ и ШДУ)
-    const nodeTypeText={'ДУ':'⟰'}[buildingInfo.nodeType]||buildingInfo.nodeType;
+    const nodeTypeText={'ДУ':'🏠'}[buildingInfo.nodeType]||buildingInfo.nodeType;
     let colorClass='placemark__no-activ';
     const icons=[];
     //наряды пользователя на эту площадку
