@@ -1,3 +1,6 @@
+//Vue.config.warnHandler=(message,vm,trace)=>console.warn(message,vm,trace);
+//Vue.config.errorHandler=(err,vm,info)=>console.warn(err,vm,info);
+
 //fix multi node points
 function Buildings() {
   this.cluster = null;
@@ -182,29 +185,49 @@ function Buildings() {
           this.finish();
           return;
         };
-        this.append(buildings.reduce((nodes,buildingInfo)=>{
-          const [lat, lon] = buildingInfo.coordinates
-          const point=new window.ymaps.Placemark(this.nearCoordinatesRand([lat, lon]),{
-            buildingInfo,
-            hintContent:this.getHintContent(buildingInfo),
-            clusterCaption:`<a href="#/${buildingInfo.nodeName}"><span style="font-weight:700;">${buildingInfo.nodeType}</span> ${buildingInfo.nodeName}</a>`,
-          },{
-            iconLayout:this.getIconLayout(buildingInfo),
-          });
-          point.events.add('click',this.callEvent('onClick'));
-          point.events.add('hintopen',(event)=>{
-            const button=document.querySelector(`ymaps [name="${this.hintButtonCopyName}"]`);
-            if(!button){return};
-            button.addEventListener('click',this.hintButtonCopyHandlerOnClick=()=>copyToBuffer(objectToTable(flatObject(event.originalEvent.currentTarget.properties.get('buildingInfo')),{devider:'=',valueHandler:'null'})));
-          });
-          point.events.add('hintclose',(event)=>{
-            this.hintButtonCopyHandlerOnClick=null;
-          });
-          //кэш для site-wrapper
-          localStorageCache.setItem(atok('buildingInfo',buildingInfo.nodeName),buildingInfo)
-          nodes.push(point)
-          return nodes
-        },[]));
+        
+        const points=buildings.reduce((sites,node,index,array)=>{
+          if(!sites[node.siteId]){sites[node.siteId]=[]}
+          sites[node.siteId].push(node)
+          if(array.length-1 == index){
+            sites = Object.values(sites).reduce((points, nodes)=>{
+              if(nodes.length>1){
+                for(const node of nodes){
+                  if(node.nodeType != 'ДУ'){
+                    node.fakeCoordinates=this.nearCoordinatesRand(node.coordinates)
+                  };
+                  points.push(node)
+                };
+              }else{
+                points.push(nodes[0])
+              };
+              return points
+            },[]).map(buildingInfo=>{
+              const point=new window.ymaps.Placemark(buildingInfo.fakeCoordinates||buildingInfo.coordinates,{
+                buildingInfo,
+                hintContent:this.getHintContent(buildingInfo),
+                clusterCaption:`<a href="#/${buildingInfo.nodeName}"><span style="font-weight:700;">${buildingInfo.nodeType}</span> ${buildingInfo.nodeName}</a>`,
+              },{
+                iconLayout:this.getIconLayout(buildingInfo),
+              });
+              point.events.add('click',this.callEvent('onClick'));
+              point.events.add('hintopen',(event)=>{
+                const button=document.querySelector(`ymaps [name="${this.hintButtonCopyName}"]`);
+                if(!button){return};
+                button.addEventListener('click',this.hintButtonCopyHandlerOnClick=()=>copyToBuffer(objectToTable(flatObject(event.originalEvent.currentTarget.properties.get('buildingInfo')),{devider:'=',valueHandler:'null'})));
+              });
+              point.events.add('hintclose',(event)=>{
+                this.hintButtonCopyHandlerOnClick=null;
+              });
+              //кэш для site-wrapper
+              localStorageCache.setItem(atok('buildingInfo',buildingInfo.nodeName),buildingInfo);
+              return point;
+            });
+          };
+          return sites
+        },{});
+        
+        this.append(points);
         this.finish();
       }, data => {
         this.finish();
@@ -222,6 +245,20 @@ function Buildings() {
 
   this.init();
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
