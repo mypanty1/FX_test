@@ -170,11 +170,11 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 
 //add nav deeplinks
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress_WFMTaskSiteAddress_task-main-account-2_task-main-incident.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskSiteAddress_WFMTaskSiteAddress_task-main-account-2_task-main-incident.js',type:'text/javascript'}));
 //add backup and comments
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LocalNotes.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LocalNotes.js',type:'text/javascript'}));
 //fix status button, add ls, and button gap
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskCard_CMTaskInfo_CMTaskPotentialAccount_CMTaskAssignment.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskCard_CMTaskInfo_CMTaskPotentialAccount_CMTaskAssignment.js',type:'text/javascript'}));
 //add cpe speedtest
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SpeedTest.js',type:'text/javascript'}));
 
