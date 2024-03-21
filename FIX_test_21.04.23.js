@@ -176,7 +176,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //fix status button, add ls, and button gap
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskCard_CMTaskInfo_CMTaskPotentialAccount_CMTaskAssignment.js',type:'text/javascript'}));
 //add cpe speedtest
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SpeedTest.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SpeedTest.js',type:'text/javascript'}));
 
 //fix error message
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskStatusChangeModal.js',type:'text/javascript'}));
