@@ -62,14 +62,14 @@ Vue.component('LbsvAccountBlocksHistory',{
   },
   computed:{
     accountBlockHistoryRows(){
-      return (this.accountBlockHistory?.rows||[]).map(row=>{
+      return [...this.accountBlockHistory?.rows||[]].reverse().map(row=>{
         const {timefrom,timeto,type,username,vglogin,vgid,agrmnum}=row;
         return {
           title: `${vglogin}|${vgid}`,
           text: `${type}`,
           date: `${timefrom || '?'} - ${timeto || '?'}`,
         }
-      }).reverse()
+      })
     }
   },
   methods:{
