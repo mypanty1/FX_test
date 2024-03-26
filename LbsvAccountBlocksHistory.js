@@ -14,7 +14,7 @@ Vue.component('LbsvAccountBlocksHistory',{
     <title-main text="История блокировок" @open="open=!open"/>
     <template v-if="open">
       <div class="padding-left-right-8px display-flex flex-direction-column gap-8px">
-        <span class="font--13-500 tone-500 text-align-center">Временной промежуток</span>
+        <span class="font--13-500 tone-500 text-align-center">Временной проме жуток</span>
         
         <div class="display-flex align-items-center gap-8px justify-content-center">
           <input-el label="С" type="date" :value="dateEnd" v-model="dateEnd" :disabled="accountBlockHistoryLoading"/>
@@ -67,7 +67,7 @@ Vue.component('LbsvAccountBlocksHistory',{
         return {
           title: `${vglogin}|${vgid}`,
           text: `${type}`,
-          date: `${timefrom} - ${timeto}`,
+          date: `${timefrom || '?'} - ${timeto || '?'}`,
         }
       }).reverse()
     }
