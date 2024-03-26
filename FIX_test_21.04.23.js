@@ -176,6 +176,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskStatusChangeModal.js',type:'text/javascript'}));
 //fix multi node points
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Buildings.js',type:'text/javascript'}));
+//add date select
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/LbsvAccountBlocksHistory.js',type:'text/javascript'}));
 
 //test DynamicScroller for CMTasks
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DynamicScroller_CMTasks.js',type:'text/javascript'}));
