@@ -386,7 +386,7 @@ async function getUserStateBufferAndSend(){
     });
   };
   
-  async function getSiteAndSaveToCache(site_id){
+  async function getSiteAndSaveToCache(site_id){return
     if(!site_id){return};
     try{
       const response=await httpGet(buildUrl("search_ma",{pattern:site_id},"/call/v1/search/"));
