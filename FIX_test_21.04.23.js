@@ -173,7 +173,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SpeedTest.js',type:'text/javascript'}));
 
 //fix reload
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/entrance-content.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/entrance-content.js',type:'text/javascript'}));
 
 //fix multi node points
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Buildings.js',type:'text/javascript'}));
