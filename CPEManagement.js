@@ -1442,7 +1442,7 @@ Vue.component('CPEManagementWANConfigModalOLD',{//TODO перенесено as-i
       this.init();
     },
     onModalClose(){
-      this.reset('_cpeUpdate');
+      this.getOnlineInfo(!1);
     },
     init(){
       this.config.auth_type=this.initial.auth_type?(this.authTypes.find(type=>new RegExp(type,'gi').test(this.initial.auth_type||''))||''):'';
