@@ -169,8 +169,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //ToolsPageContent
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
 
-//add cpe speedtest
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SpeedTest.js',type:'text/javascript'}));
+//test new page
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CPEManagement.js',type:'text/javascript'}));
 
 //fix task entrance tab
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskContent_CMTaskEntranceContent_task-entrance.js',type:'text/javascript'}));
