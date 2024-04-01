@@ -927,7 +927,7 @@ Vue.component('CPEManagementWiFiConfigModalOLD',{//TODO перенесено as-
           </template>
         </section>
         
-        <SectionBorder class="margin-top-8px position-relative" :class="[!wlan24_isEnabled&&'bg-tone-150']">
+        <div class="border-1px-solid-c8c7c7 border-radius-4px margin-top-8px position-relative" :class="[!wlan24_isEnabled&&'bg-tone-150']">
           <title-main :icon="'wifi'+(wlan24_isEnabled?' main-green':'')" text="2.4 ГГц сеть" :text2="!wlan24_isEnabled?'Отключена':''" text2Class="font--13-500 tone-500" @block-click="show.wlan24=!show.wlan24" :opened="show.wlan24"/>
           <div class="position-absolute" v-if="!wlan24_isEnabled" style="border-top:2px solid red;width:20px;top:19px;left:15px;transform:rotateZ(45deg);"></div>
           <template v-if="show.wlan24">
@@ -964,9 +964,9 @@ Vue.component('CPEManagementWiFiConfigModalOLD',{//TODO перенесено as-
               <select-el label="Канал 2,4 ГГц" v-model="wlan24.channel" :items="wlan24_possiblechannels_items" :disabled="!wlan24_isEnabled||wlan24_isAutoChannelEnabled||cpeUpdateLoading"/>
             </div>
           </template>
-        </SectionBorder>
+        </div>
         
-        <SectionBorder class="margin-top-8px position-relative" :class="[!wlan5_isEnabled&&'bg-tone-150']">
+        <div class="border-1px-solid-c8c7c7 border-radius-4px margin-top-8px position-relative" :class="[!wlan5_isEnabled&&'bg-tone-150']">
           <title-main :icon="'wifi'+(wlan5_isEnabled?' main-green':'')" text="5 ГГц сеть" :text2="!wlan5_isEnabled?'Отключена':''" text2Class="font--13-500 tone-500" @block-click="show.wlan5=!show.wlan5" :opened="show.wlan5"/>
           <div class="position-absolute" v-if="!wlan5_isEnabled" style="border-top:2px solid red;width:20px;top:19px;left:15px;transform:rotateZ(45deg);"></div>
           <template v-if="show.wlan5">
@@ -1003,7 +1003,7 @@ Vue.component('CPEManagementWiFiConfigModalOLD',{//TODO перенесено as-
               <select-el label="Канал 5 ГГц" v-model="wlan5.channel" :items="wlan5_possiblechannels_items" :disabled="!wlan5_isEnabled||wlan5_isAutoChannelEnabled||cpeUpdateLoading"/>
             </div>
           </template>
-        </SectionBorder>
+        </div>
         
         <section class="margin-top-8px">
           <loader-bootstrap v-if="cpeUpdateLoading" text="применение настроек"/>
@@ -1224,7 +1224,7 @@ Vue.component('CPEManagementWANConfigModalOLD',{//TODO перенесено as-i
           <select-el label="Тип авторизации" v-model="config.auth_type" :items="authTypes"/>
         </section>
         
-        <SectionBorder class="margin-top-8px padding-8px">
+        <div class="border-1px-solid-c8c7c7 border-radius-4px margin-top-8px padding-8px">
           
           <template v-if="['IPoE_Dynamic','IPoE_Static'].includes(config.auth_type)">
             <div class="display-flex align-items-center justify-content-space-between gap-4px">
@@ -1277,9 +1277,9 @@ Vue.component('CPEManagementWANConfigModalOLD',{//TODO перенесено as-i
             </div>
           </template>
           
-        </SectionBorder>
+        </div>
         
-        <SectionBorder class="margin-top-8px padding-8px">
+        <div class="border-1px-solid-c8c7c7 border-radius-4px margin-top-8px padding-8px">
           <div class="display-flex align-items-center justify-content-space-between gap-4px">
             <div class="font--13-500" :class="[!dns_auto_enabled&&'tone-500']">DNS-сервер автоматически</div>
             <switch-el class="width-40px" v-model="dns_auto_enabled" :disabled="cpeUpdateLoading"/>
@@ -1289,7 +1289,7 @@ Vue.component('CPEManagementWANConfigModalOLD',{//TODO перенесено as-i
             <info-value label="Master DNS" :value="dns[0]" withLine class="padding-left-right-0"/>
             <info-value label="Slave DNS" :value="dns[1]" withLine class="padding-left-right-0"/>
           </template>
-        </SectionBorder>
+        </div>
         
         <section class="margin-top-8px">
           <loader-bootstrap v-if="cpeUpdateLoading" text="применение настроек"/>
