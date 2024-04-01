@@ -19,57 +19,10 @@ Vue.component('CPEManagementPage', {
   </div>`,
   beforeRouteEnter(to, from, next){
     store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber]);
-    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
-    const path = 'CPEManagement/CPEs/'+cpeKey+'/Sections';
-      console.log(path)
-      console.log(store.getters[path+'/$subModulesKeys'])
-    if(!to.params.sectionName){
-      console.log('!sectionName')
-      return next({
-        ...to,
-        name: 'R_CPEManagementCPESection',
-        params: {
-          ...to.params,
-          sectionName: store.getters[path+'/$subModulesKeys'][0]
-        },
-      })
-    };
-    if(!store.getters[path+'/$subModulesKeys'].includes(to.params.sectionName)){
-      console.log('?sectionName',to.params.sectionName)
-      return next({
-        name: from.name,
-        params: from.params,
-      })
-    };
-    next(vm => {
-      vm.$store.dispatch(path+'/selectSection',{sectionName: to.params.sectionName})
-    });
+    next();
   },
   beforeRouteUpdate(to, from, next){
     store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber]);
-    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
-    const path = 'CPEManagement/CPEs/'+cpeKey+'/Sections';
-      console.log(path)
-      console.log(store.getters[path+'/$subModulesKeys'])
-    if(!to.params.sectionName){
-      console.log('!sectionName')
-      return next({
-        ...to,
-        name: 'R_CPEManagementCPESection',
-        params: {
-          ...to.params,
-          sectionName: store.getters[path+'/$subModulesKeys'][0]
-        },
-      })
-    };
-    if(!this.$store.getters[path+'/$subModulesKeys'].includes(to.params.sectionName)){
-      console.log('?sectionName',to.params.sectionName)
-      return next({
-        name: from.name,
-        params: from.params,
-      })
-    };
-    this.$store.dispatch(path+'/selectSection',{sectionName: to.params.sectionName})
     next();
   },
   beforeRouteLeave(to, from, next){
@@ -156,6 +109,63 @@ Vue.component('CPEManagementPageContent', {
       <router-view/>
     </transition>
   </div>`,
+  beforeRouteEnter(to, from, next){
+    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
+    const path = atop('CPEManagement/CPEs', cpeKey, 'Sections');
+    const sections = store.getters[atop(path, '$subModulesKeys')];
+    //console.log('CPEManagementPageContent/beforeRouteEnter', path, sections);
+    if(!to.params.sectionName){
+      //console.log('CPEManagementPageContent/beforeRouteEnter', '!sectionName')
+      return next({
+        ...to,
+        name: 'R_CPEManagementCPESection',
+        params: {
+          ...to.params,
+          sectionName: sections[0]
+        },
+      })
+    };
+    if(!sections.includes(to.params.sectionName)){
+      //console.log('CPEManagementPageContent/beforeRouteEnter', '?sectionName',to.params.sectionName)
+      return next({
+        name: from.name,
+        params: from.params,
+      })
+    };
+    
+    next(vm => {
+      vm.$store.dispatch(atop(path, 'selectSection'),{sectionName: to.params.sectionName});
+    });
+  },
+  beforeRouteUpdate(to, from, next){
+    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
+    const path = atop('CPEManagement/CPEs', cpeKey, 'Sections');
+    const sections = store.getters[atop(path, '$subModulesKeys')];
+    //console.log('CPEManagementPageContent/beforeRouteUpdate', path, sections);
+    if(!to.params.sectionName){
+      //console.log('CPEManagementPageContent/beforeRouteUpdate', '!sectionName')
+      return next({
+        ...to,
+        name: 'R_CPEManagementCPESection',
+        params: {
+          ...to.params,
+          sectionName: sections[0]
+        },
+      })
+    };
+    if(!sections.includes(to.params.sectionName)){
+      //console.log('CPEManagementPageContent/beforeRouteUpdate', '?sectionName',to.params.sectionName)
+      return next({
+        name: from.name,
+        params: from.params,
+      })
+    };
+    this.$store.dispatch(atop(path, 'selectSection'),{sectionName: to.params.sectionName});
+    next();
+  },
+  beforeRouteLeave(to, from, next){
+    next();
+  },
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
   ]),
@@ -179,9 +189,54 @@ Vue.component('CPEManagementSection', {
       <Component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
     </TransitionGroup>
   </div>`,
+  beforeRouteEnter(to, from, next){
+    if(to.name !== 'R_CPEManagementCPESectionPort'){return next()};
+    
+    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
+    const path = atop('CPEManagement/CPEs', cpeKey, 'Sections', to.params.sectionName);
+    //console.log('CPEManagementSection/beforeRouteEnter', path);
+    next(vm => {
+      vm.$store.dispatch(atop(path, 'selectPort'),{portName: to.params.portName});
+    });
+  },
+  beforeRouteUpdate(to, from, next){
+    if(to.name !== 'R_CPEManagementCPESectionPort'){return next()};
+    
+    const cpeKey = store.getters['CPEManagement/CPEs/cpeKey'];
+    const path = atop('CPEManagement/CPEs', cpeKey, 'Sections', to.params.sectionName);
+    //console.log('CPEManagementSection/beforeRouteUpdate', path);
+    this.$store.dispatch(atop(path, 'selectPort'),{portName: to.params.portName});
+    next();
+  },
+  beforeRouteLeave(to, from, next){
+    next();
+  },
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
   ])
+});
+
+Vue.component('CPEManagementSectionPort', {
+  beforeCreate(){
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections', {
+      getters: [
+        'sectionName',
+      ],
+    });
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections/:sectionName', {
+      getters: [
+        'portName',
+      ]
+    });
+  },
+  template: `<div class="display-flex flex-direction-column gap-8px">
+    <transition name="slide-page" mode="out-in">
+      <router-view/>
+    </transition>
+  </div>`,
+  computed:mapGetters('CPEManagement/CPEs',[
+    'cpeKey',
+  ]),
 });
 
 Vue.component('CPEManagementCPEInfo',{
@@ -238,7 +293,7 @@ Vue.component('CPEManagementCPEInfo',{
       
       <info-value label="Серийный номер" :value="serial" type="medium" withLine class="padding-unset"/>
       
-      <info-value label="Ревиизя" v-if="hard_ver" :value="hard_ver" type="medium" withLine class="padding-unset"/>
+      <info-value label="Ревизия" v-if="hard_ver" :value="hard_ver" type="medium" withLine class="padding-unset"/>
       
       <info-value label="Версия ПО" v-if="soft_ver" type="medium" withLine class="padding-unset">
         <span slot="value" :class="[!onlineInfoExist && 'tone-500']">{{soft_ver}}</span>
@@ -510,7 +565,7 @@ Vue.component('CPEManagementPortSelect',{
         'label'
       ],
       actions: [
-        'selectPort'
+        //'selectPort'
       ]
     });
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections/:sectionName/:portName', {
@@ -530,7 +585,7 @@ Vue.component('CPEManagementPortSelect',{
       selectedItem: {portName,portLabel},
       items: portsSections,
       counters
-    }" hideZeroCounter idKey="portName" labelKey="portLabel" counterKey="portName" @onSelect="selectPort"/>
+    }" hideZeroCounter idKey="portName" labelKey="portLabel" counterKey="portName" @onSelect="$router.replace({...$route,name:'R_CPEManagementCPESectionPort',params:{...$route.params,portName:$event.portName}})"/>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
@@ -2653,6 +2708,13 @@ app.$router.addRoutes([
             path: ':sectionName',
             name: 'R_CPEManagementCPESection',
             component: Vue.component('CPEManagementSection'),
+            children: [
+              {
+                path: ':portName',
+                name: 'R_CPEManagementCPESectionPort',
+                component: Vue.component('CPEManagementSectionPort'),
+              }
+            ],
           }
         ],
       }
