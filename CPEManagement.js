@@ -174,8 +174,10 @@ Vue.component('CPEManagementSection', {
       ]
     });
   },
-  template: `<div class="display-flex flex-direction-column gap-8px">
-    <component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
+  template: `<div class="display-contents">
+    <TransitionGroup name="slide-page" tag="div" class="display-flex flex-direction-column gap-8px">
+      <Component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
+    </TransitionGroup>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
@@ -554,8 +556,10 @@ Vue.component('CPEManagementSelectedPort',{
       ],
     });
   },
-  template:`<div class="display-flex flex-direction-column gap-8px" v-if="portName">
-    <component v-for="(component, index) of portComponents" :key="index" :is="component"/>
+  template: `<div class="display-contents" v-if="portName">
+    <TransitionGroup name="slide-page" tag="div" class="display-flex flex-direction-column gap-8px">
+      <Component v-for="(component, index) of portComponents" :key="index" :is="component"/>
+    </TransitionGroup>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
