@@ -123,7 +123,7 @@ Vue.component('CPEManagementPageNavbar', {
         selectedItem: {sectionName,label},
         items: sections,
         counters: counters,
-      }" hideZeroCounter idKey="sectionName" labelKey="label" counterKey="sectionName" @onSelect="$router.push({...$route,name:'R_CPEManagementCPESection',params:{...$route.params,sectionName:$event.sectionName}})"/>
+      }" hideZeroCounter idKey="sectionName" labelKey="label" counterKey="sectionName" @onSelect="$router.replace({...$route,name:'R_CPEManagementCPESection',params:{...$route.params,sectionName:$event.sectionName}})"/>
     </div>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
