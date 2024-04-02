@@ -18,11 +18,11 @@ Vue.component('CPEManagementPage', {
     </transition>
   </div>`,
   beforeRouteEnter(to, from, next){
-    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber]);
+    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber, to.query.serverID]);
     next();
   },
   beforeRouteUpdate(to, from, next){
-    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber]);
+    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber, to.query.serverID]);
     next();
   },
   beforeRouteLeave(to, from, next){
@@ -65,8 +65,11 @@ Vue.component('CPEManagementPageNavbar', {
         <button-sq v-if="lastInfoLoading || loadingSomeOperation" disabled type="large">
           <IcIcon name="loading rotating" color="#918F8F" size="24"/>
         </button-sq>
-        <button-sq v-else @click="getOnlineInfo(!0)" :disabled="loadingSomeOperation" type="large">
+        <!--<button-sq v-else @click="getOnlineInfo(!0)" :disabled="loadingSomeOperation" type="large">
           <IcIcon name="refresh" :color="loadingSomeOperation ? '#918F8F' : '#5642BD'" size="24"/>
+        </button-sq>-->
+        <button-sq v-else disabled type="large">
+          <IcIcon name="info" color="#918F8F" size="24"/>
         </button-sq>
       </template>
     </PageNavbar>
@@ -785,20 +788,11 @@ Vue.component('CPEManagementSpeedTest', {
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
-        'lastInfoLoading',
-        'onlineInfoLoading',
         'onlineInfoExist',
         'loadingSomeOperation',
-      ],
-      actions: [
-        
-      ],
-    });
-    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/SpeedTest', {
-      getters: [
         'CONST',
-        'loaderID_DL',
-        'loaderID_UL',
+        'speedTestLoaderID_DL',
+        'speedTestLoaderID_UL',
         'doCPESpeedTestResult',
         'doCPESpeedTestError',
         'speedTestDLState',
@@ -806,11 +800,12 @@ Vue.component('CPEManagementSpeedTest', {
         'speedTestULState',
         'speedTestULSpeed',
         'doCPESpeedTestLoadingAnimationEnd',
+        'doCPESpeedTestLoading',
       ],
       actions: [
         'doCPESpeedTest',
-        'onAnimationEndDL',
-        'onAnimationEndUL',
+        'onCPESpeedTestAnimationEndDL',
+        'onCPESpeedTestAnimationEndUL',
       ],
     });
   },
@@ -820,27 +815,27 @@ Vue.component('CPEManagementSpeedTest', {
         <div class="width-100-100">
           <div v-if="doCPESpeedTestLoadingAnimationEnd || doCPESpeedTestError" class="display-flex flex-direction-column">
             <UILinearProgressLoader v-bind="{
-              loaderID: loaderID_DL,
-              maxTime: CONST.LOADER_DL_MAX_TIME,
-              lineColor: CONST.LOADER_LINE_COLOR,
-              fillColor: CONST.LOADER_FILL_COLOR,
-              height: CONST.LOADER_HEIGHT,
+              loaderID: speedTestLoaderID_DL,
+              maxTime: CONST.SpeedTest.LOADER_DL_MAX_TIME,
+              lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
+              fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
+              height: CONST.SpeedTest.LOADER_HEIGHT,
             }" v-on="{
-              onMinEnd: () => onAnimationEndDL(),
-              onMaxEnd: () => onAnimationEndDL(),
+              onMinEnd: () => onCPESpeedTestAnimationEndDL(),
+              onMaxEnd: () => onCPESpeedTestAnimationEndDL(),
             }" rounded showPercent>
               <div slot="prefix" class="font--13-500 tone-500">DL:</div>
             </UILinearProgressLoader>
             
             <UILinearProgressLoader v-bind="{
-              loaderID: loaderID_UL,
-              maxTime: CONST.LOADER_UL_MAX_TIME,
-              lineColor: CONST.LOADER_LINE_COLOR,
-              fillColor: CONST.LOADER_FILL_COLOR,
-              height: CONST.LOADER_HEIGHT,
+              loaderID: speedTestLoaderID_UL,
+              maxTime: CONST.SpeedTest.LOADER_UL_MAX_TIME,
+              lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
+              fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
+              height: CONST.SpeedTest.LOADER_HEIGHT,
             }" v-on="{
-              onMinEnd: () => onAnimationEndUL(),
-              onMaxEnd: () => onAnimationEndUL(),
+              onMinEnd: () => onCPESpeedTestAnimationEndUL(),
+              onMaxEnd: () => onCPESpeedTestAnimationEndUL(),
             }" rounded showPercent>
               <div slot="prefix" class="font--13-500 tone-500">UL:</div>
             </UILinearProgressLoader>
@@ -863,7 +858,7 @@ Vue.component('CPEManagementSpeedTest', {
         
         <button-main label="SpeedTest" @click="doCPESpeedTest" v-bind="{
           loading: doCPESpeedTestLoadingAnimationEnd,
-          disabled: doCPESpeedTestLoadingAnimationEnd || lastInfoLoading || loadingSomeOperation,
+          disabled: loadingSomeOperation,
         }" buttonStyle="outlined" size="content"/>
       </div>
     </div>
@@ -872,6 +867,12 @@ Vue.component('CPEManagementSpeedTest', {
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPESpeedTestError"/>
     </div>
   </div>`,
+  mounted(){
+    if(!this.doCPESpeedTestLoading && this.doCPESpeedTestLoadingAnimationEnd){
+      this.onCPESpeedTestAnimationEndDL();
+      this.onCPESpeedTestAnimationEndUL();
+    };
+  },
   computed: mapGetters('CPEManagement/CPEs',[
     'cpeKey',
   ]),
@@ -881,26 +882,18 @@ Vue.component('CPEManagementReboot', {
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
-        'lastInfoLoading',
-        'onlineInfoLoading',
         'onlineInfoExist',
         'loadingSomeOperation',
-      ],
-      actions: [
-        
-      ],
-    });
-    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Reboot', {
-      getters: [
         'CONST',
-        'loaderID',
+        'rebootLoaderID',
         'doCPERebootResult',
         'doCPERebootError',
+        'doCPERebootLoading',
         'doCPERebootLoadingAnimationEnd',
       ],
       actions: [
         'doCPEReboot',
-        'onAnimationEnd',
+        'onCPERebootAnimationEnd',
       ],
     });
   },
@@ -909,20 +902,20 @@ Vue.component('CPEManagementReboot', {
       <div class="display-flex align-items-center justify-content-space-between gap-8px">
         <button-main label="Reboot" @click="doCPEReboot" v-bind="{
           loading: doCPERebootLoadingAnimationEnd,
-          disabled: doCPERebootLoadingAnimationEnd || lastInfoLoading || loadingSomeOperation,
+          disabled: loadingSomeOperation,
         }" buttonStyle="outlined" size="content"/>
         
         <div class="width-100-100">
           <template v-if="doCPERebootLoadingAnimationEnd || doCPERebootError">
             <UILinearProgressLoader v-bind="{
-              loaderID,
-              maxTime: CONST.LOADER_MAX_TIME,
-              lineColor: CONST.LOADER_LINE_COLOR,
-              fillColor: CONST.LOADER_FILL_COLOR,
-              height: CONST.LOADER_HEIGHT,
+              loaderID: rebootLoaderID,
+              maxTime: CONST.Reboot.LOADER_MAX_TIME,
+              lineColor: CONST.Reboot.LOADER_LINE_COLOR,
+              fillColor: CONST.Reboot.LOADER_FILL_COLOR,
+              height: CONST.Reboot.LOADER_HEIGHT,
             }" v-on="{
-              onMinEnd: () => onAnimationEnd(),
-              onMaxEnd: () => onAnimationEnd(),
+              onMinEnd: () => onCPERebootAnimationEnd(),
+              onMaxEnd: () => onCPERebootAnimationEnd(),
             }" rounded showPercent/>
           </template>
           
@@ -940,6 +933,11 @@ Vue.component('CPEManagementReboot', {
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERebootError"/>
     </div>
   </div>`,
+  mounted(){
+    if(!this.doCPERebootLoading && this.doCPERebootLoadingAnimationEnd){
+      this.onCPERebootAnimationEnd();
+    };
+  },
   computed: mapGetters('CPEManagement/CPEs',[
     'cpeKey',
   ]),
@@ -1563,33 +1561,25 @@ Vue.component('CPEManagementRestoreConfig', {
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
-        'lastInfoLoading',
-        'onlineInfoLoading',
         'onlineInfoExist',
         'loadingSomeOperation',
-      ],
-      actions: [
-        
-      ],
-    });
-    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/RestoreConfig', {
-      getters: [
         'savedConfigsLoading',
         'savedConfigsResult',
         'savedConfigsError',
         'savedConfigsList',
         'selectedConfig',
         'CONST',
-        'loaderID',
+        'restoreConfigLoaderID',
         'doCPERestoreConfigResult',
         'doCPERestoreConfigError',
+        'doCPERestoreConfigLoading',
         'doCPERestoreConfigLoadingAnimationEnd',
         'ticketid',
       ],
       actions: [
         'selectConfig',
         'doCPERestoreConfig',
-        'onAnimationEnd',
+        'onCPERestoreConfigAnimationEnd',
       ],
     });
   },
@@ -1617,14 +1607,14 @@ Vue.component('CPEManagementRestoreConfig', {
         <div class="width-100-100">
           <template v-if="doCPERestoreConfigLoadingAnimationEnd || doCPERestoreConfigError">
             <UILinearProgressLoader v-bind="{
-              loaderID: loaderID,
-              maxTime: CONST.LOADER_MAX_TIME,
-              lineColor: CONST.LOADER_LINE_COLOR,
-              fillColor: CONST.LOADER_FILL_COLOR,
-              height: CONST.LOADER_HEIGHT,
+              loaderID: restoreConfigLoaderID,
+              maxTime: CONST.RestoreConfig.LOADER_MAX_TIME,
+              lineColor: CONST.RestoreConfig.LOADER_LINE_COLOR,
+              fillColor: CONST.RestoreConfig.LOADER_FILL_COLOR,
+              height: CONST.RestoreConfig.LOADER_HEIGHT,
             }" v-on="{
-              onMinEnd: () => onAnimationEnd(),
-              onMaxEnd: () => onAnimationEnd(),
+              onMinEnd: () => onCPERestoreConfigAnimationEnd(),
+              onMaxEnd: () => onCPERestoreConfigAnimationEnd(),
             }" rounded showPercent/>
           </template>
           
@@ -1638,7 +1628,7 @@ Vue.component('CPEManagementRestoreConfig', {
         
         <button-main label="RestoreConfig" @click="doCPERestoreConfig" v-bind="{
           loading: doCPERestoreConfigLoadingAnimationEnd,
-          disabled: doCPERestoreConfigLoadingAnimationEnd || lastInfoLoading || loadingSomeOperation || !selectedConfig,
+          disabled: loadingSomeOperation || !selectedConfig,
         }" buttonStyle="outlined" size="content"/>
       </div>
     </div>
@@ -1647,6 +1637,11 @@ Vue.component('CPEManagementRestoreConfig', {
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERestoreConfigError"/>
     </div>
   </div>`,
+  mounted(){
+    if(!this.doCPERestoreConfigLoading && this.doCPERestoreConfigLoadingAnimationEnd){
+      this.onCPERestoreConfigAnimationEnd();
+    };
+  },
   watch: {
     'ticketid'(ticketid){
       if(ticketid){
@@ -1661,7 +1656,7 @@ Vue.component('CPEManagementRestoreConfig', {
 
 Vue.component('CPEManagementAccountDevicePort', {
   beforeCreate(){
-    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/AccountDevicePort', {
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
         'device',
         'port',
@@ -1690,48 +1685,41 @@ Vue.component('CPEManagementAccountInfo', {
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
         'accountNumber',
-      ],
-    });
-    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/AccountInfo', {
-      getters: [
-        'Login',
-        'Password',
-        'UsageType',
-        'StaticIP',
-        'serviceNumber',
+        'accountServiceEquipmentLogin',
+        'accountServiceEquipmentPassword',
+        'accountServiceEquipmentUsageType',
+        'accountServiceEquipmentStaticIP',
       ],
     });
   },
   template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="accountNumber">
     <div class="padding-left-12px">
-      <title-main icon="person" text="Данные абонента" :textSub="accountNumber" textSubClass="tone-500" class="padding-unset">
+      <title-main icon="person" text="Данные абонента" :textSub="accountNumber" textSubClass="font--13-500 tone-500" class="padding-unset">
         <button-sq icon="right-link" @click="$router.push({path:'/' + accountNumber})" type="large"/>
       </title-main>
     </div>
     
-    <div class="padding-left-right-12px" v-if="Login || Password">
-      <div class="display-flex flex-direction-column gap-8px align-items-center">
+    <template v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
+      <div class="divider-line"/>
+      
+      <div class="padding-left-right-12px display-flex flex-direction-column gap-8px align-items-center" v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
         <div class="font--13-500">
-          <span class="tone-500">Логин • </span><span>{{Login || 'Нет логина'}}</span>
+          <span class="tone-500">Логин • </span><span>{{accountServiceEquipmentLogin || 'Нет логина'}}</span>
         </div>
         <div class="width-75-100">
           <button-main @click="show=!show" v-bind="btnProps" button-style="outlined" size="full"/>
         </div>
       </div>
-    </div>
+    </template>
     
-    <div class="padding-left-right-12px" v-if="UsageType">
-      <div class="display-flex flex-direction-column">
-        <div class="font--13-500 tone-500">Условие предоставления CPE:</div>
-        <div class="font--13-500">{{UsageType}}</div>
+    <template v-if="accountServiceEquipmentUsageType || accountServiceEquipmentStaticIP">
+      <div class="divider-line"/>
+      
+      <div class="padding-left-right-12px display-flex flex-direction-column">
+        <div v-if="accountServiceEquipmentUsageType" class="font--13-500"><span class="tone-500">Условие предоставления CPE:</span> {{accountServiceEquipmentUsageType}}</div>
+        <div v-if="accountServiceEquipmentStaticIP" class="font--13-500"><span class="tone-500">StaticIP:</span> {{accountServiceEquipmentStaticIP}}</div>
       </div>
-    </div>
-    
-    <div class="padding-left-right-12px" v-if="StaticIP">
-      <div class="display-flex flex-direction-column">
-        <div class="font--13-500"><span class="tone-500">StaticIP:</span> {{StaticIP}}</div>
-      </div>
-    </div>
+    </template>
   </div>`,
   data:()=>({
     show: !1,
@@ -1745,7 +1733,7 @@ Vue.component('CPEManagementAccountInfo', {
       return {
         class: [show && 'password'],
         icon: !show ? 'unlock' : '',
-        label: show ? this.Password : 'Показать пароль',
+        label: show ? this.accountServiceEquipmentPassword : 'Показать пароль',
       }
     }
   },
@@ -2050,8 +2038,8 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
         'CPEManagementSpeedTest',
         'CPEManagementReboot',
         'CPEManagementRestoreConfig',
-        //'CPEManagementAccountInfo',
         'CPEManagementAccountDevicePort',
+        'CPEManagementAccountInfo',
       ],
     },
     mutations: {
@@ -2200,35 +2188,106 @@ const createSubModuleCPEManagement_CPE_Sections = function(modulePath){
   })
 };
 
-const createSubModuleCPEManagement_CPE_SpeedTest = function(modulePath, mrID = 0, cpeID = ''){
+const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = '', accountNumber = '', serviceNumber = '', serverID = ''){
   return STORE.createSubModule(modulePath, {
     state: {
       _mrID: mrID,
       _cpeID: cpeID,
+      _accountNumber: accountNumber,
+      _serviceNumber: serviceNumber,
+      _serverID: serverID,
       
+      //------------[CPELastInfo]------------//
+      _lastInfoLoading: !1,
+      _lastInfoError: null,
+      
+      //------------[CPEOnlineInfo]------------//
+      _onlineInfoLoading: !1,
+      _onlineInfoLoadingRefresh: !1,
+      
+      //------------[CPESpeedTest]------------//
       _doCPESpeedTestLoadingAnimationDL: !1,
       _doCPESpeedTestLoadingAnimationUL: !1,
       _doCPESpeedTestLoading: !1,
       _doCPESpeedTestResult: null,
       _doCPESpeedTestError: null,
       
-      CONST: Object.freeze({
-        LOADER_HEIGHT: 10,
-        LOADER_LINE_COLOR: '#dddddd',
-        LOADER_FILL_COLOR: '#5642bd',
-        LOADER_DL_MAX_TIME: 55555,
-        LOADER_UL_MAX_TIME: 66666,
-      })
+      //------------[CPEReboot]------------//
+      _doCPERebootLoadingAnimation: !1,
+      _doCPERebootLoading: !1,
+      _doCPERebootResult: null,
+      _doCPERebootError: null,
+      
+      //------------[CPERestoreConfig]------------//
+      _savedConfigsLoading: !1,
+      _savedConfigsResult: null,
+      _savedConfigsError: null,
+      _selectedConfig: null,
+      _doCPERestoreConfigLoadingAnimation: !1,
+      _doCPERestoreConfigLoading: !1,
+      _doCPERestoreConfigResult: null,
+      _doCPERestoreConfigError: null,
+      
+      CONST: {
+        SpeedTest: Object.freeze({
+          LOADER_HEIGHT: 10,
+          LOADER_LINE_COLOR: '#dddddd',
+          LOADER_FILL_COLOR: '#5642bd',
+          LOADER_DL_MAX_TIME: 55555,
+          LOADER_UL_MAX_TIME: 66666,
+        }),
+        Reboot: Object.freeze({
+          LOADER_HEIGHT: 10,
+          LOADER_LINE_COLOR: '#dddddd',
+          LOADER_FILL_COLOR: '#5642bd',
+          LOADER_MAX_TIME: 66666,
+        }),
+        RestoreConfig: Object.freeze({
+          LOADER_HEIGHT: 10,
+          LOADER_LINE_COLOR: '#dddddd',
+          LOADER_FILL_COLOR: '#5642bd',
+          LOADER_MAX_TIME: 66666,
+        }),
+      },
+      
+      //------------[AccountDevicePort]------------//
+      _accountDevicePort:null,
+      _accountDevicePortLoading:!1,
+      _device:null,
+      _deviceLoading:!1,
+      
+      //------------[AccountInfo]------------//
+      _accountServiceEquipmentsLoading:!1,
+      _accountServiceEquipmentLogin: '',
+      _accountServiceEquipmentPassword: '',
+      _accountServiceEquipmentUsageType: '',
+      _accountServiceEquipmentStaticIP: '',
     },
     getters: {
+      mrID: (state) => state._mrID,
+      cpeID: (state) => state._cpeID,
+      accountNumber: (state) => state._accountNumber,
+      serviceNumber: (state) => state._serviceNumber,
+      serverID: (state) => state._serverID,
+      
+      //------------[CPELastInfo]------------//
+      lastInfoLoading: (state) => state._lastInfoLoading,
+      lastInfoExist: (state, getters) => getters['Sections/CPEInfo/lastInfoExist'],
+      lastInfoError: (state) => state._lastInfoError,
+      
+      //------------[CPEOnlineInfo]------------//
+      onlineInfoLoading: (state) => state._onlineInfoLoading,
+      onlineInfoLoadingRefresh: (state) => state._onlineInfoLoadingRefresh,
+      onlineInfoExist: (state, getters) => getters['Sections/CPEInfo/onlineInfoExist'],
+      onlineInfoError: (state, getters) => getters['Sections/CPEInfo/onlineInfoError'],
+      
       CONST: (state) => state.CONST,
       
-      loaderID_DL: (state) => atok('CPEManagementSpeedTest', state._mrID, state._cpeID, 'DL'),
-      loaderID_UL: (state) => atok('CPEManagementSpeedTest', state._mrID, state._cpeID, 'UL'),
-      
+      //------------[CPESpeedTest]------------//
+      speedTestLoaderID_DL: (state) => atok('CPEManagementSpeedTest', state._mrID, state._cpeID, 'DL'),
+      speedTestLoaderID_UL: (state) => atok('CPEManagementSpeedTest', state._mrID, state._cpeID, 'UL'),
       doCPESpeedTestResult: (state) => state._doCPESpeedTestResult,
       doCPESpeedTestError: (state) => state._doCPESpeedTestError,
-      
       speedTestDLState: (state) => state._doCPESpeedTestResult?.dl_state || 'DL Error',
       speedTestDLSpeed: (state) => {
         const kb = parseInt(state._doCPESpeedTestResult?.dl_speed);
@@ -2239,455 +2298,40 @@ const createSubModuleCPEManagement_CPE_SpeedTest = function(modulePath, mrID = 0
         const kb = parseInt(state._doCPESpeedTestResult?.ul_speed);
         return kb > 0 ? `${(kb*0.001).toFixed()} МБит/с` : kb;
       },
-      
+      doCPESpeedTestLoading: (state) => state._doCPESpeedTestLoading,
       doCPESpeedTestLoadingAnimationEnd: (state) => state._doCPESpeedTestLoading || state._doCPESpeedTestLoadingAnimationDL || state._doCPESpeedTestLoadingAnimationUL,
-    },
-    mutations: {
-      _setStateProp: STORE.mutations.setStateProp,
-    },
-    actions: {
-      async $initModule({state, getters, dispatch}){
-        const {LOADER_UL_MAX_TIME, LOADER_DL_MAX_TIME} = state.CONST;
-        dispatch('UILinearProgressLoader/init', [getters.loaderID_DL, LOADER_DL_MAX_TIME], STORE.R00T);
-        dispatch('UILinearProgressLoader/init', [getters.loaderID_UL, LOADER_UL_MAX_TIME], STORE.R00T);
-      },
-      async doCPESpeedTest({state, getters, commit, dispatch}){
-        commit('_setStateProp', {_doCPESpeedTestResult: null});
-        commit('_setStateProp', {_doCPESpeedTestError: null});
-        commit('_setStateProp', {_doCPESpeedTestLoading: !0});
-        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationDL: !0});
-        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationUL: !0});
-        const {loaderID_DL, loaderID_UL} = getters;
-        dispatch('UILinearProgressLoader/start', loaderID_DL, STORE.R00T);
-        dispatch('UILinearProgressLoader/start', loaderID_UL, STORE.R00T);
-        try{
-          const response = await AxirosService.doCPESpeedTest(state._mrID, state._cpeID);
-          if(response?.data){
-            commit('_setStateProp', {_doCPESpeedTestResult: response.data});
-            dispatch('UILinearProgressLoader/done', loaderID_DL, STORE.R00T);
-            dispatch('UILinearProgressLoader/done', loaderID_UL, STORE.R00T);
-          }else if(response?.message || response?.text){
-            commit('_setStateProp', {_doCPESpeedTestError: [
-              response?.message || 'Error',
-              response?.text
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID_DL, STORE.R00T);
-            dispatch('UILinearProgressLoader/abort', loaderID_UL, STORE.R00T);
-          }else{
-            commit('_setStateProp', {_doCPESpeedTestError: [
-              'unknown error'
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID_DL, STORE.R00T);
-            dispatch('UILinearProgressLoader/abort', loaderID_UL, STORE.R00T);
-          };
-          dispatch('main/report',['CPEManagementSpeedTest',{
-            params: {
-              mrID: state._mrID,
-              cpeID: state._cpeID
-            },
-            response,
-          }],STORE.R00T);
-        }catch(error){
-          console.warn('doCPESpeedTest.error', error)
-          commit('_setStateProp', {_doCPESpeedTestError: [
-            'Error: Unexpected'
-          ]});
-          dispatch('UILinearProgressLoader/abort', loaderID_DL, STORE.R00T);
-          dispatch('UILinearProgressLoader/abort', loaderID_UL, STORE.R00T);
-        };
-        commit('_setStateProp', {_doCPESpeedTestLoading: !1});
-      },
-      onAnimationEndDL({commit}){
-        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationDL: !1});
-      },
-      onAnimationEndUL({commit}){
-        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationUL: !1});
-      },
-    },
-  });
-};
-
-const createSubModuleCPEManagement_CPE_Reboot = function(modulePath, mrID = 0, cpeID = ''){
-  return STORE.createSubModule(modulePath, {
-    state: {
-      _mrID: mrID,
-      _cpeID: cpeID,
       
-      _doCPERebootLoadingAnimation: !1,
-      _doCPERebootLoading: !1,
-      _doCPERebootResult: null,
-      _doCPERebootError: null,
-      
-      CONST: Object.freeze({
-        LOADER_HEIGHT: 10,
-        LOADER_LINE_COLOR: '#dddddd',
-        LOADER_FILL_COLOR: '#5642bd',
-        LOADER_MAX_TIME: 66666,
-      })
-    },
-    getters: {
-      CONST: (state) => state.CONST,
-      
-      loaderID: (state) => atok('CPEManagementReboot', state._mrID, state._cpeID),
-      
+      //------------[CPEReboot]------------//
+      rebootLoaderID: (state) => atok('CPEManagementReboot', state._mrID, state._cpeID),
       doCPERebootResult: (state) => state._doCPERebootResult,
       doCPERebootError: (state) => state._doCPERebootError,
-      
+      doCPERebootLoading: (state) => state._doCPERebootLoading,
       doCPERebootLoadingAnimationEnd: (state) => state._doCPERebootLoading || state._doCPESpeedTestLoadingAnimation,
-    },
-    mutations: {
-      _setStateProp: STORE.mutations.setStateProp,
-    },
-    actions: {
-      async $initModule({state, getters, dispatch}){
-        const {LOADER_MAX_TIME} = state.CONST;
-        dispatch('UILinearProgressLoader/init', [getters.loaderID, LOADER_MAX_TIME], STORE.R00T);
-      },
-      async doCPEReboot({state, getters, commit, dispatch}){
-        commit('_setStateProp', {_doCPERebootResult: null});
-        commit('_setStateProp', {_doCPERebootError: null});
-        commit('_setStateProp', {_doCPERebootLoading: !0});
-        commit('_setStateProp', {_doCPERebootLoadingAnimation: !0});
-        const {loaderID} = getters;
-        dispatch('UILinearProgressLoader/start', loaderID, STORE.R00T);
-        try{
-          const response = await AxirosService.doCPEReboot(state._mrID, state._cpeID);
-          if(response?.data){
-            commit('_setStateProp', {_doCPERebootResult: response.data});
-            dispatch('UILinearProgressLoader/done', loaderID, STORE.R00T);
-          }else if(response?.message || response?.text){
-            commit('_setStateProp', {_doCPERebootError: [
-              response?.message || 'Error',
-              response?.text
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-          }else{
-            commit('_setStateProp', {_doCPERebootError: [
-              'unknown error'
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-          };
-          dispatch('main/report',['CPEManagementReboot',{
-            params: {
-              mrID: state._mrID,
-              cpeID: state._cpeID
-            },
-            response,
-          }],STORE.R00T);
-        }catch(error){
-          console.warn('doCPEReboot.error', error)
-          commit('_setStateProp', {_doCPERebootError: [
-            'Error: Unexpected'
-          ]});
-          dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-        };
-        commit('_setStateProp', {_doCPERebootLoading: !1});
-      },
-      onAnimationEnd({commit}){
-        commit('_setStateProp', {_doCPERebootLoadingAnimation: !1});
-      },
-    },
-  });
-};
-
-const createSubModuleCPEManagement_CPE_RestoreConfig = function(modulePath, mrID = 0, cpeID = ''){
-  return STORE.createSubModule(modulePath, {
-    state: {
-      _mrID: mrID,
-      _cpeID: cpeID,
       
-      _savedConfigsLoading: !1,
-      _savedConfigsResult: null,
-      _savedConfigsError: null,
-      
-      _selectedConfig: null,
-      
-      _doCPERestoreConfigLoadingAnimation: !1,
-      _doCPERestoreConfigLoading: !1,
-      _doCPERestoreConfigResult: null,
-      _doCPERestoreConfigError: null,
-      
-      CONST: Object.freeze({
-        LOADER_HEIGHT: 10,
-        LOADER_LINE_COLOR: '#dddddd',
-        LOADER_FILL_COLOR: '#5642bd',
-        LOADER_MAX_TIME: 66666,
-      })
-    },
-    getters: {
-      CONST: (state) => state.CONST,
-      
+      //------------[CPERestoreConfig]------------//
       savedConfigsLoading: (state) => state._savedConfigsLoading,
       savedConfigsResult: (state) => state._savedConfigsResult,
       savedConfigsError: (state) => state._savedConfigsError,
-      
       savedConfigsList: (state) => (state._savedConfigsResult || []).map(config=>({
         ...config,
         date: DATE.toDateTimeString(new Date(Date.parse(config.last_updated || config.creation_time) + 7 * 60 * 60 * 1000)),//дата приходит в гринвиче
         label: atok([config.cfgid, config.cid, config.config_name].filter(Boolean)),
         disabled: state._doCPERestoreConfigLoading,
       })),
-      
       selectedConfig: (state) => state._selectedConfig,
       cfgID: (state) => state._selectedConfig?.cfgid,
-      
-      loaderID: (state) => atok('CPEManagementRestoreConfig', state._mrID, state._cpeID),
-      
+      restoreConfigLoaderID: (state) => atok('CPEManagementRestoreConfig', state._mrID, state._cpeID),
       doCPERestoreConfigResult: (state) => state._doCPERestoreConfigResult,
       doCPERestoreConfigError: (state) => state._doCPERestoreConfigError,
       ticketid: (state) => state._doCPERestoreConfigResult?.ticketid || '',
-      
-      doCPERestoreConfigLoadingAnimationEnd: (state) => state._doCPERebootLoading || state._doCPERestoreConfigLoadingAnimation,
-    },
-    mutations: {
-      _setStateProp: STORE.mutations.setStateProp,
-    },
-    actions: {
-      async $initModule({state, getters, dispatch}){
-        const {LOADER_MAX_TIME} = state.CONST;
-        dispatch('UILinearProgressLoader/init', [getters.loaderID, LOADER_MAX_TIME], STORE.R00T);
-        await dispatch('_getSavedConfigs');
-      },
-      async _getSavedConfigs({state, getters, commit, dispatch}){
-        if(getters.savedConfigsLoading){return};
-        commit('_setStateProp', {_savedConfigsLoading: !0});
-        commit('_setStateProp', {_savedConfigsError: null});
-        commit('_setStateProp', {_savedConfigsResult: null});
-        try{
-          const response = await AxirosService.getCPEConfigsList(state._mrID, state._cpeID);
-          if(Array.isArray(response?.data)){
-            commit('_setStateProp', {_savedConfigsResult: response.data});
-          }else if(response?.message || response?.text){
-            commit('_setStateProp', {_savedConfigsError: [
-              response?.message || 'Error',
-              response?.text
-            ]});
-          }else{
-            commit('_setStateProp', {_savedConfigsError: [
-              'unknown error'
-            ]});
-          };
-        }catch(error){
-          console.warn('_getSavedConfigs.error', error);
-          commit('_setStateProp', {_savedConfigsError: [
-            'unexpected error'
-          ]});
-        };
-        commit('_setStateProp', {_savedConfigsLoading: !1});
-      },
-      selectConfig({commit}, _selectedConfig = null){
-        commit('_setStateProp', {_selectedConfig});
-      },
-      async doCPERestoreConfig({state, getters, commit, dispatch}){
-        commit('_setStateProp', {_doCPERestoreConfigResult: null});
-        commit('_setStateProp', {_doCPERestoreConfigError: null});
-        commit('_setStateProp', {_doCPERestoreConfigLoading: !0});
-        commit('_setStateProp', {_doCPERestoreConfigLoadingAnimation: !0});
-        const {loaderID} = getters;
-        dispatch('UILinearProgressLoader/start', loaderID, STORE.R00T);
-        try{
-          const response = await AxirosService.doCPERestoreConfig(state._mrID, state._cpeID, getters.cfgID);
-          if(response?.data?.ticketid){
-            commit('_setStateProp', {_doCPERestoreConfigResult: response.data});
-            dispatch('UILinearProgressLoader/done', loaderID, STORE.R00T);
-          }else if(response?.message || response?.text){
-            commit('_setStateProp', {_doCPERestoreConfigError: [
-              response?.message || 'Error',
-              response?.text
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-          }else{
-            commit('_setStateProp', {_doCPERestoreConfigError: [
-              'unknown error'
-            ]});
-            dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-          };
-          dispatch('main/report',['CPEManagementRestoreConfig',{
-            params: {
-              mrID: state._mrID,
-              cpeID: state._cpeID,
-              cfgID: getters.cfgID,
-            },
-            response,
-          }],STORE.R00T);
-        }catch(error){
-          console.warn('doCPEReboot.error', error)
-          commit('_setStateProp', {_doCPERestoreConfigError: [
-            'Error: Unexpected'
-          ]});
-          dispatch('UILinearProgressLoader/abort', loaderID, STORE.R00T);
-        };
-        commit('_setStateProp', {_doCPERestoreConfigLoading: !1});
-      },
-      onAnimationEnd({commit}){
-        commit('_setStateProp', {_doCPERestoreConfigLoadingAnimation: !1});
-      },
-    },
-  });
-};
-
-const createSubModuleCPEManagement_CPE_AccountDevicePort = function(modulePath, accountNumber = '', serviceNumber = ''){
-  return STORE.createSubModule(modulePath, {
-    state: {
-      _accountNumber: accountNumber,
-      _serviceNumber: serviceNumber,
-      
-      _accountDevicePort:null,
-      _accountDevicePortLoading:!1,
-      
-      _device:null,
-      _deviceLoading:!1,
-    },
-    getters: {
-      accountDevicePortLoading: (state) => state._accountDevicePortLoading,
-      accountDevicePort: (state) => state._accountDevicePort,
-      deviceName: (state) => state._accountDevicePort?.device?.name,
-      port: (state) => state._accountDevicePort?.port,
-      deviceLoading: (state) => state._deviceLoading,
-      device: (state) => state._device,
-    },
-    mutations: {
-      _setStateProp: STORE.mutations.setStateProp,
-    },
-    actions: {
-      async $initModule({state, getters, dispatch}){
-        if(!state._accountNumber){return};
-        await dispatch('_getAccountDevicePort');
-        if(getters.deviceName){
-          await dispatch('_getDevice');
-        };
-      },
-      async _getAccountDevicePort({state, getters, commit, dispatch}){
-        if(getters.accountDevicePortLoading){return};
-        commit('_setStateProp', {_accountDevicePort: null});
-        commit('_setStateProp', {_accountDevicePortLoading: !0});
-        try{
-          //const response = await DeviceService.AccountAccessPort.useCache(state._accountNumber);
-          const response = await DeviceService2.AccountDevicePort.useCache(state._accountNumber, state._serviceNumber);
-          if(response?.data?.port){
-            commit('_setStateProp', {_accountDevicePort: response.data});
-          };
-        }catch(error){
-          console.warn('_getAccountDevicePort.error', error);
-        };
-        commit('_setStateProp', {_accountDevicePortLoading: !1});
-      },
-      async _getDevice({state, getters, commit, dispatch}){
-        if(getters.deviceLoading){return};
-        commit('_setStateProp', {_device: null});
-        commit('_setStateProp', {_deviceLoading: !0});
-        try{
-          const response = await DeviceService.DevicesByName.useCache(getters.deviceName, DeviceService.transliterate);
-          if(Array.isArray(response?.data) && response.data[0]){
-            commit('_setStateProp', {_device: response.data[0]});
-          };
-        }catch(error){
-          console.warn('_getDevice.error', error);
-        };
-        commit('_setStateProp', {_deviceLoading: !1});
-      },
-    },
-  });
-};
-
-const createSubModuleCPEManagement_CPE_AccountInfo = function(modulePath, cpeID = '', accountNumber = '', serviceNumber = ''){
-  return STORE.createSubModule(modulePath, {
-    state: {
-      _cpeID: cpeID,
-      _accountNumber: accountNumber,
-      _serviceNumber: serviceNumber,
-      
-      _accountServiceEquipments:null,
-      _accountServiceEquipmentsLoading:!1,
-    },
-    getters: {
-      accountServiceEquipmentsLoading: (state) => state._accountServiceEquipmentsLoading,
-      
-      _equipment: (state) => state._accountServiceEquipments?.find(({equipment_parameters}) => equipment_parameters?.find(({code, value})=> code == 'HardNumber' && value.value == state._cpeID)),
-      
-      Login: (state, getters) => {
-        const equipment_parameter = getters._equipment?.credentials?.find(({code})=> code == 'Login');
-        return equipment_parameter?.value?.value
-      },
-      Password: (state, getters) => {
-        const equipment_parameter = getters._equipment?.credentials?.find(({code})=> code == 'Password');
-        return equipment_parameter?.value?.value
-      },
-      UsageType: (state, getters) => {
-        const equipment_parameter = getters._equipment?.equipment_parameters?.find(({code})=> code == 'UsageType');
-        return equipment_parameter?.value?.name || equipment_parameter?.value?.value
-      },
-      StaticIP: (state, getters) => {
-        const equipment_parameter = getters._equipment?.equipment_parameters?.find(({code})=> code == 'StaticIP');
-        return equipment_parameter?.value?.value
-      },
-      serviceNumber: (state, getters) => getters._equipment?.service_number,
-    },
-    mutations: {
-      _setStateProp: STORE.mutations.setStateProp,
-    },
-    actions: {
-      async $initModule({state, getters, dispatch}){
-        if(!state._accountNumber){return};
-        if(state._accountNumber.length == 12){
-          
-        }else{
-          await dispatch('_getAccountServiceEquipments');
-        };
-      },
-      async _getAccountServiceEquipments({state, getters, commit, dispatch}){
-        if(getters.accountServiceEquipmentsLoading){return};
-        commit('_setStateProp', {_accountServiceEquipments: null});
-        commit('_setStateProp', {_accountServiceEquipmentsLoading: !0});
-        try{
-          const response = await SMSGatewayService.getAccountServiceEquipments(state._accountNumber, SMSGW.SERVICE_TYPE_SPD);
-          if(response?.data?.service_equipments){
-            const service_equipments = [response.data.service_equipments].flat();//может прийти {} вместо [{},...]
-            commit('_setStateProp', {_accountServiceEquipments: service_equipments});
-          };
-        }catch(error){
-          console.warn('_getAccountServiceEquipments.error', error);
-        };
-        commit('_setStateProp', {_accountServiceEquipmentsLoading: !1});
-      },
-    },
-  });
-};
-
-const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = '', accountNumber = '', serviceNumber = ''){
-  return STORE.createSubModule(modulePath, {
-    state: {
-      _mrID: mrID,
-      _cpeID: cpeID,
-      _accountNumber: accountNumber,
-      _serviceNumber: serviceNumber,
-      
-      _lastInfoLoading: !1,
-      _lastInfoError: null,
-      
-      _onlineInfoLoading: !1,
-      _onlineInfoLoadingRefresh: !1,
-    },
-    getters: {
-      mrID: (state) => state._mrID,
-      cpeID: (state) => state._cpeID,
-      accountNumber: (state) => state._accountNumber,
-      serviceNumber: (state) => state._serviceNumber,
-      
-      lastInfoLoading: (state) => state._lastInfoLoading,
-      lastInfoExist: (state, getters) => getters['Sections/CPEInfo/lastInfoExist'],
-      lastInfoError: (state) => state._lastInfoError,
-      
-      onlineInfoLoading: (state) => state._onlineInfoLoading,
-      onlineInfoLoadingRefresh: (state) => state._onlineInfoLoadingRefresh,
-      onlineInfoExist: (state, getters) => getters['Sections/CPEInfo/onlineInfoExist'],
-      onlineInfoError: (state, getters) => getters['Sections/CPEInfo/onlineInfoError'],
+      doCPERestoreConfigLoading: (state) => state._doCPERestoreConfigLoading,
+      doCPERestoreConfigLoadingAnimationEnd: (state) => state._doCPERestoreConfigLoading || state._doCPERestoreConfigLoadingAnimation,
       
       loadingSomeOperation: (state, getters) => [
-        getters.onlineInfoLoading,
-        getters['SpeedTest/doCPESpeedTestLoadingAnimationEnd'],
-        getters['Reboot/doCPERebootLoadingAnimationEnd'],
-        getters['RestoreConfig/doCPERestoreConfigLoadingAnimationEnd'],
+        state._onlineInfoLoading,
+        state._doCPESpeedTestLoading,
+        state._doCPERebootLoading,
+        state._doCPERestoreConfigLoading,
       ].some(Boolean),
       
       title: (state, getters) => !getters.lastInfoExist ? '' :([
@@ -2702,6 +2346,21 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
       auth_type: (state, getters) => getters['Sections/WANPorts/auth_type'],
       wan_def: (state, getters) => getters['Sections/WANPorts/wan_def'],
       wan: (state, getters) => getters['Sections/WANPorts/wan/port'],
+      
+      //------------[AccountDevicePort]------------//
+      accountDevicePortLoading: (state) => state._accountDevicePortLoading,
+      accountDevicePort: (state) => state._accountDevicePort,
+      deviceName: (state) => state._accountDevicePort?.device?.name,
+      port: (state) => state._accountDevicePort?.port,
+      deviceLoading: (state) => state._deviceLoading,
+      device: (state) => state._device,
+      
+      //------------[AccountInfo]------------//
+      accountServiceEquipmentsLoading: (state) => state._accountServiceEquipmentsLoading,
+      accountServiceEquipmentLogin: (state) => state._accountServiceEquipmentLogin,
+      accountServiceEquipmentPassword: (state) => state._accountServiceEquipmentPassword,
+      accountServiceEquipmentUsageType: (state) => state._accountServiceEquipmentUsageType,
+      accountServiceEquipmentStaticIP: (state) => state._accountServiceEquipmentStaticIP,
     },
     mutations: {
       _setStateProp: STORE.mutations.setStateProp,
@@ -2709,17 +2368,33 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
     actions: {
       async $initModule({state, getters, dispatch}){
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_Sections([state.$modulePath, 'Sections']));
-        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_SpeedTest([state.$modulePath, 'SpeedTest'], state._mrID, state._cpeID));
-        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_Reboot([state.$modulePath, 'Reboot'], state._mrID, state._cpeID));
-        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_RestoreConfig([state.$modulePath, 'RestoreConfig'], state._mrID, state._cpeID));
-        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountDevicePort([state.$modulePath, 'AccountDevicePort'], state._accountNumber, state._serviceNumber));
-        //dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountInfo([state.$modulePath, 'AccountInfo'], state._cpeID, state._accountNumber, state._serviceNumber));
-        await dispatch('_getLastInfo');
-        if(getters.lastInfoExist){
-          await Promise.allSettled([
-            dispatch('getOnlineInfo', !0),
-          ])
+        dispatch('UILinearProgressLoader/init', [getters.speedTestLoaderID_DL, state.CONST.SpeedTest.LOADER_DL_MAX_TIME], STORE.R00T);
+        dispatch('UILinearProgressLoader/init', [getters.speedTestLoaderID_UL, state.CONST.SpeedTest.LOADER_UL_MAX_TIME], STORE.R00T);
+        dispatch('UILinearProgressLoader/init', [getters.rebootLoaderID, state.CONST.Reboot.LOADER_MAX_TIME], STORE.R00T);
+        dispatch('UILinearProgressLoader/init', [getters.restoreConfigLoaderID, state.CONST.RestoreConfig.LOADER_MAX_TIME], STORE.R00T);
+        if(state._accountNumber){
+          dispatch('_getAccountDevicePort').then(()=>{
+            if(getters.deviceName){
+              dispatch('_getDevice');
+            };
+          });
+          if(state._accountNumber.length == 12){
+            if(state._serviceNumber && state._serverID){
+              //Foris
+            };
+          }else{
+            dispatch('_getAccountServiceEquipments')
+          }
         };
+        dispatch('_getSavedConfigs'),
+        await Promise.allSettled([
+          dispatch('_getLastInfo'),
+        ]);
+        await Promise.allSettled([
+          ...getters.lastInfoExist ? [
+            dispatch('getOnlineInfo', !0),
+          ]:[]
+        ]);
       },
       async _getLastInfo({state, getters, commit, dispatch}){
         if(getters.lastInfoLoading){return};
@@ -2750,6 +2425,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
         commit('_setStateProp', {_lastInfoLoading: !1});
       },
       async getOnlineInfo({state, getters, commit, dispatch}, refresh = !1){
+        if(getters.loadingSomeOperation){return};
         if(getters.onlineInfoLoading){return};
         commit('_setStateProp', {_onlineInfoLoading: !0});
         dispatch('Sections/CPEInfo/setOnlineInfoError');
@@ -2839,6 +2515,239 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
           };
         };
       },
+      async doCPESpeedTest({state, getters, commit, dispatch}){
+        if(getters.loadingSomeOperation){return};
+        commit('_setStateProp', {_doCPESpeedTestResult: null});
+        commit('_setStateProp', {_doCPESpeedTestError: null});
+        commit('_setStateProp', {_doCPESpeedTestLoading: !0});
+        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationDL: !0});
+        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationUL: !0});
+        const {speedTestLoaderID_DL, speedTestLoaderID_UL} = getters;
+        dispatch('UILinearProgressLoader/start', speedTestLoaderID_DL, STORE.R00T);
+        dispatch('UILinearProgressLoader/start', speedTestLoaderID_UL, STORE.R00T);
+        try{
+          const response = await AxirosService.doCPESpeedTest(state._mrID, state._cpeID);
+          if(response?.data){
+            commit('_setStateProp', {_doCPESpeedTestResult: response.data});
+            dispatch('UILinearProgressLoader/done', speedTestLoaderID_DL, STORE.R00T);
+            dispatch('UILinearProgressLoader/done', speedTestLoaderID_UL, STORE.R00T);
+          }else if(response?.message || response?.text){
+            commit('_setStateProp', {_doCPESpeedTestError: [
+              response?.message || 'Error',
+              response?.text
+            ]});
+            dispatch('UILinearProgressLoader/abort', speedTestLoaderID_DL, STORE.R00T);
+            dispatch('UILinearProgressLoader/abort', speedTestLoaderID_UL, STORE.R00T);
+          }else{
+            commit('_setStateProp', {_doCPESpeedTestError: [
+              'unknown error'
+            ]});
+            dispatch('UILinearProgressLoader/abort', speedTestLoaderID_DL, STORE.R00T);
+            dispatch('UILinearProgressLoader/abort', speedTestLoaderID_UL, STORE.R00T);
+          };
+          dispatch('main/report',['CPEManagementSpeedTest',{
+            params: {
+              mrID: state._mrID,
+              cpeID: state._cpeID
+            },
+            response,
+          }],STORE.R00T);
+        }catch(error){
+          console.warn('doCPESpeedTest.error', error)
+          commit('_setStateProp', {_doCPESpeedTestError: [
+            'Error: Unexpected'
+          ]});
+          dispatch('UILinearProgressLoader/abort', speedTestLoaderID_DL, STORE.R00T);
+          dispatch('UILinearProgressLoader/abort', speedTestLoaderID_UL, STORE.R00T);
+        };
+        commit('_setStateProp', {_doCPESpeedTestLoading: !1});
+      },
+      onCPESpeedTestAnimationEndDL({commit}){
+        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationDL: !1});
+      },
+      onCPESpeedTestAnimationEndUL({commit}){
+        commit('_setStateProp', {_doCPESpeedTestLoadingAnimationUL: !1});
+      },
+      async doCPEReboot({state, getters, commit, dispatch}){
+        if(getters.loadingSomeOperation){return};
+        commit('_setStateProp', {_doCPERebootResult: null});
+        commit('_setStateProp', {_doCPERebootError: null});
+        commit('_setStateProp', {_doCPERebootLoading: !0});
+        commit('_setStateProp', {_doCPERebootLoadingAnimation: !0});
+        const {rebootLoaderID} = getters;
+        dispatch('UILinearProgressLoader/start', rebootLoaderID, STORE.R00T);
+        try{
+          const response = await AxirosService.doCPEReboot(state._mrID, state._cpeID);
+          if(response?.data){
+            commit('_setStateProp', {_doCPERebootResult: response.data});
+            dispatch('UILinearProgressLoader/done', rebootLoaderID, STORE.R00T);
+          }else if(response?.message || response?.text){
+            commit('_setStateProp', {_doCPERebootError: [
+              response?.message || 'Error',
+              response?.text
+            ]});
+            dispatch('UILinearProgressLoader/abort', rebootLoaderID, STORE.R00T);
+          }else{
+            commit('_setStateProp', {_doCPERebootError: [
+              'unknown error'
+            ]});
+            dispatch('UILinearProgressLoader/abort', rebootLoaderID, STORE.R00T);
+          };
+          dispatch('main/report',['CPEManagementReboot',{
+            params: {
+              mrID: state._mrID,
+              cpeID: state._cpeID
+            },
+            response,
+          }],STORE.R00T);
+        }catch(error){
+          console.warn('doCPEReboot.error', error)
+          commit('_setStateProp', {_doCPERebootError: [
+            'Error: Unexpected'
+          ]});
+          dispatch('UILinearProgressLoader/abort', rebootLoaderID, STORE.R00T);
+        };
+        commit('_setStateProp', {_doCPERebootLoading: !1});
+      },
+      onCPERebootAnimationEnd({commit}){
+        commit('_setStateProp', {_doCPERebootLoadingAnimation: !1});
+      },
+      async _getSavedConfigs({state, getters, commit, dispatch}){
+        if(getters.savedConfigsLoading){return};
+        commit('_setStateProp', {_savedConfigsLoading: !0});
+        commit('_setStateProp', {_savedConfigsError: null});
+        commit('_setStateProp', {_savedConfigsResult: null});
+        try{
+          const response = await AxirosService.getCPEConfigsList(state._mrID, state._cpeID);
+          if(Array.isArray(response?.data)){
+            commit('_setStateProp', {_savedConfigsResult: response.data});
+          }else if(response?.message || response?.text){
+            commit('_setStateProp', {_savedConfigsError: [
+              response?.message || 'Error',
+              response?.text
+            ]});
+          }else{
+            commit('_setStateProp', {_savedConfigsError: [
+              'unknown error'
+            ]});
+          };
+        }catch(error){
+          console.warn('_getSavedConfigs.error', error);
+          commit('_setStateProp', {_savedConfigsError: [
+            'unexpected error'
+          ]});
+        };
+        commit('_setStateProp', {_savedConfigsLoading: !1});
+      },
+      selectConfig({commit}, _selectedConfig = null){
+        commit('_setStateProp', {_selectedConfig});
+      },
+      async doCPERestoreConfig({state, getters, commit, dispatch}){
+        if(getters.loadingSomeOperation){return};
+        commit('_setStateProp', {_doCPERestoreConfigResult: null});
+        commit('_setStateProp', {_doCPERestoreConfigError: null});
+        commit('_setStateProp', {_doCPERestoreConfigLoading: !0});
+        commit('_setStateProp', {_doCPERestoreConfigLoadingAnimation: !0});
+        const {restoreConfigLoaderID} = getters;
+        dispatch('UILinearProgressLoader/start', restoreConfigLoaderID, STORE.R00T);
+        try{
+          const response = await AxirosService.doCPERestoreConfig(state._mrID, state._cpeID, getters.cfgID);
+          if(response?.data?.ticketid){
+            commit('_setStateProp', {_doCPERestoreConfigResult: response.data});
+            dispatch('UILinearProgressLoader/done', restoreConfigLoaderID, STORE.R00T);
+          }else if(response?.message || response?.text){
+            commit('_setStateProp', {_doCPERestoreConfigError: [
+              response?.message || 'Error',
+              response?.text
+            ]});
+            dispatch('UILinearProgressLoader/abort', restoreConfigLoaderID, STORE.R00T);
+          }else{
+            commit('_setStateProp', {_doCPERestoreConfigError: [
+              'unknown error'
+            ]});
+            dispatch('UILinearProgressLoader/abort', restoreConfigLoaderID, STORE.R00T);
+          };
+          dispatch('main/report',['CPEManagementRestoreConfig',{
+            params: {
+              mrID: state._mrID,
+              cpeID: state._cpeID,
+              cfgID: getters.cfgID,
+            },
+            response,
+          }],STORE.R00T);
+        }catch(error){
+          console.warn('doCPEReboot.error', error)
+          commit('_setStateProp', {_doCPERestoreConfigError: [
+            'Error: Unexpected'
+          ]});
+          dispatch('UILinearProgressLoader/abort', restoreConfigLoaderID, STORE.R00T);
+        };
+        commit('_setStateProp', {_doCPERestoreConfigLoading: !1});
+      },
+      onCPERestoreConfigAnimationEnd({commit}){
+        commit('_setStateProp', {_doCPERestoreConfigLoadingAnimation: !1});
+      },
+      async _getAccountDevicePort({state, getters, commit, dispatch}){
+        if(getters.accountDevicePortLoading){return};
+        commit('_setStateProp', {_accountDevicePort: null});
+        commit('_setStateProp', {_accountDevicePortLoading: !0});
+        try{
+          //const response = await DeviceService.AccountAccessPort.useCache(state._accountNumber);
+          const response = await DeviceService2.AccountDevicePort.useCache(state._accountNumber, state._serviceNumber);
+          if(response?.data?.port){
+            commit('_setStateProp', {_accountDevicePort: response.data});
+          };
+        }catch(error){
+          console.warn('_getAccountDevicePort.error', error);
+        };
+        commit('_setStateProp', {_accountDevicePortLoading: !1});
+      },
+      async _getDevice({state, getters, commit, dispatch}){
+        if(getters.deviceLoading){return};
+        commit('_setStateProp', {_device: null});
+        commit('_setStateProp', {_deviceLoading: !0});
+        try{
+          const response = await DeviceService.DevicesByName.useCache(getters.deviceName, DeviceService.transliterate);
+          if(Array.isArray(response?.data) && response.data[0]){
+            commit('_setStateProp', {_device: response.data[0]});
+          };
+        }catch(error){
+          console.warn('_getDevice.error', error);
+        };
+        commit('_setStateProp', {_deviceLoading: !1});
+      },
+      async _getAccountServiceEquipments({state, getters, commit, dispatch}){
+        if(getters.accountServiceEquipmentsLoading){return};
+        commit('_setStateProp', {_accountServiceEquipmentLogin: ''});
+        commit('_setStateProp', {_accountServiceEquipmentPassword: ''});
+        commit('_setStateProp', {_accountServiceEquipmentUsageType: ''});
+        commit('_setStateProp', {_accountServiceEquipmentStaticIP: ''});
+        commit('_setStateProp', {_accountServiceEquipmentsLoading: !0});
+        try{
+          const response = await SMSGatewayService.getAccountServiceEquipments(state._accountNumber, SMSGW.SERVICE_TYPE_SPD);
+          if(response?.data?.service_equipments){
+            //может прийти {} вместо [{},...]
+            const ses = [response.data.service_equipments].flat();
+            const se = ses.find(({service_number}) => {
+              return (service_number && state._serviceNumber && service_number == state._serviceNumber);
+            }) || ses.find(({equipment_parameters}) => {
+              return equipment_parameters?.find(({code, value})=> code == 'HardNumber' && value?.value == state._cpeID);
+            });
+            const Login = se?.credentials?.find(({code})=> code == 'Login')?.value?.value;
+            const Password = se?.credentials?.find(({code})=> code == 'Password')?.value?.value;
+            const sep_UsageType = se?.equipment_parameters?.find(({code})=> code == 'UsageType');
+            const UsageType = sep_UsageType?.value?.name || sep_UsageType?.value?.value;
+            const StaticIP = se?.equipment_parameters?.find(({code})=> code == 'StaticIP')?.value?.value;
+            commit('_setStateProp', {_accountServiceEquipmentLogin: Login || ''});
+            commit('_setStateProp', {_accountServiceEquipmentPassword: Password || ''});
+            commit('_setStateProp', {_accountServiceEquipmentUsageType: UsageType || ''});
+            commit('_setStateProp', {_accountServiceEquipmentStaticIP: StaticIP || ''});
+          };
+        }catch(error){
+          console.warn('_getAccountServiceEquipments.error', error);
+        };
+        commit('_setStateProp', {_accountServiceEquipmentsLoading: !1});
+      },
     }
   });
 };
@@ -2850,45 +2759,47 @@ const createSubModuleCPEManagement_CPEs = function(modulePath){
       _cpeID: '',
       _accountNumber: '',
       _serviceNumber: '',
+      _serverID: '',
     },
     getters: {
       mrID: (state) => state._mrID,
       cpeID: (state) => state._cpeID,
       accountNumber: (state) => state._accountNumber,
       serviceNumber: (state) => state._serviceNumber,
-      cpeKey: (state) => [state._mrID, state._cpeID, state._accountNumber, state._serviceNumber].filter(Boolean).join(),
+      cpeKey: (state) => [state._mrID, state._cpeID, state._accountNumber, state._serviceNumber, state._serverID].filter(Boolean).join(),
     },
     mutations: {
       _setStateProp: STORE.mutations.setStateProp,
     },
     actions: {
-      addCPE({state, getters, commit, dispatch}, [_mrID = 0, _cpeID = '', _accountNumber = '', _serviceNumber = ''] = []){
+      addCPE({state, getters, commit, dispatch}, [_mrID = 0, _cpeID = '', _accountNumber = '', _serviceNumber = '', _serverID = ''] = []){
         //в _accountNumber может прилететь MSISDN
         const accountNumber = /^7[0-9]{10}$/.test(_accountNumber) ? '' : SIEBEL.toAgreementNum(_accountNumber);
         commit('_setStateProp', {_mrID});
         commit('_setStateProp', {_cpeID});
         commit('_setStateProp', {_accountNumber: accountNumber});
         commit('_setStateProp', {_serviceNumber});
+        commit('_setStateProp', {_serverID});
         if(_mrID && _cpeID){
-          dispatch('$addSubModule', createSubModuleCPEManagement_CPE([state.$modulePath, getters.cpeKey], _mrID, _cpeID, accountNumber, _serviceNumber));
+          dispatch('$addSubModule', createSubModuleCPEManagement_CPE([state.$modulePath, getters.cpeKey], _mrID, _cpeID, accountNumber, _serviceNumber, _serverID));
         };
       },
-      delCPE({getters, commit, dispatch}, [_mrID = 0, _cpeID = ''] = []){
-        commit('_setStateProp', {_mrID});
-        commit('_setStateProp', {_cpeID});
-        if(_mrID && _cpeID){
-          if(getters.mrID == _mrID && getters.cpeID == _cpeID){
-            commit('_setStateProp', {_mrID: 0});
-            commit('_setStateProp', {_cpeID: ''});
-          };
-          dispatch('$delSubModule', atos(_mrID, _cpeID));
-        };
-      },
-      delCPEs({commit, dispatch}){
-        commit('_setStateProp', {_mrID: 0});
-        commit('_setStateProp', {_cpeID: ''});
-        dispatch('$delSubModules');
-      },
+      //delCPE({getters, commit, dispatch}, [_mrID = 0, _cpeID = ''] = []){
+      //  commit('_setStateProp', {_mrID});
+      //  commit('_setStateProp', {_cpeID});
+      //  if(_mrID && _cpeID){
+      //    if(getters.mrID == _mrID && getters.cpeID == _cpeID){
+      //      commit('_setStateProp', {_mrID: 0});
+      //      commit('_setStateProp', {_cpeID: ''});
+      //    };
+      //    dispatch('$delSubModule', atos(_mrID, _cpeID));
+      //  };
+      //},
+      //delCPEs({commit, dispatch}){
+      //  commit('_setStateProp', {_mrID: 0});
+      //  commit('_setStateProp', {_cpeID: ''});
+      //  dispatch('$delSubModules');
+      //},
     }
   });
 };
