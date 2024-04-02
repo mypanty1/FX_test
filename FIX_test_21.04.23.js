@@ -31,6 +31,10 @@ createStyleElement('fix-test-app-css',`
     0% { opacity: 1; }
     50% { opacity: 0.2;}
   }
+  .margin-left-tight-16px {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
 `);
 
 
