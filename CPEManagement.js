@@ -2050,7 +2050,7 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
         'CPEManagementSpeedTest',
         'CPEManagementReboot',
         'CPEManagementRestoreConfig',
-        'CPEManagementAccountInfo',
+        //'CPEManagementAccountInfo',
         'CPEManagementAccountDevicePort',
       ],
     },
@@ -2713,7 +2713,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_Reboot([state.$modulePath, 'Reboot'], state._mrID, state._cpeID));
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_RestoreConfig([state.$modulePath, 'RestoreConfig'], state._mrID, state._cpeID));
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountDevicePort([state.$modulePath, 'AccountDevicePort'], state._accountNumber, state._serviceNumber));
-        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountInfo([state.$modulePath, 'AccountInfo'], state._cpeID, state._accountNumber, state._serviceNumber));
+        //dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountInfo([state.$modulePath, 'AccountInfo'], state._cpeID, state._accountNumber, state._serviceNumber));
         await dispatch('_getLastInfo');
         if(getters.lastInfoExist){
           await Promise.allSettled([
