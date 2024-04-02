@@ -18,11 +18,11 @@ Vue.component('CPEManagementPage', {
     </transition>
   </div>`,
   beforeRouteEnter(to, from, next){
-    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber]);
+    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber]);
     next();
   },
   beforeRouteUpdate(to, from, next){
-    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber]);
+    store.dispatch('CPEManagement/CPEs/addCPE',[to.params.mrID, to.params.cpeID, to.query.accountNumber, to.query.serviceNumber]);
     next();
   },
   beforeRouteLeave(to, from, next){
@@ -815,7 +815,7 @@ Vue.component('CPEManagementSpeedTest', {
     });
   },
   template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
-    <div class="padding-left-right-8px">
+    <div class="padding-left-right-12px">
       <div class="display-flex align-items-center justify-content-space-between gap-8px">
         <div class="width-100-100">
           <div v-if="doCPESpeedTestLoadingAnimationEnd || doCPESpeedTestError" class="display-flex flex-direction-column">
@@ -868,7 +868,7 @@ Vue.component('CPEManagementSpeedTest', {
       </div>
     </div>
     
-    <div class="padding-left-right-8px" v-if="!doCPESpeedTestLoadingAnimationEnd && doCPESpeedTestError">
+    <div class="padding-left-right-12px" v-if="!doCPESpeedTestLoadingAnimationEnd && doCPESpeedTestError">
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPESpeedTestError"/>
     </div>
   </div>`,
@@ -905,7 +905,7 @@ Vue.component('CPEManagementReboot', {
     });
   },
   template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
-    <div class="padding-left-right-8px">
+    <div class="padding-left-right-12px">
       <div class="display-flex align-items-center justify-content-space-between gap-8px">
         <button-main label="Reboot" @click="doCPEReboot" v-bind="{
           loading: doCPERebootLoadingAnimationEnd,
@@ -936,7 +936,7 @@ Vue.component('CPEManagementReboot', {
       </div>
     </div>
     
-    <div class="padding-left-right-8px" v-if="!doCPERebootLoadingAnimationEnd && doCPERebootError">
+    <div class="padding-left-right-12px" v-if="!doCPERebootLoadingAnimationEnd && doCPERebootError">
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERebootError"/>
     </div>
   </div>`,
@@ -1601,7 +1601,7 @@ Vue.component('CPEManagementRestoreConfig', {
     <template v-if="savedConfigsError || savedConfigsResult">
       <div class="divider-line"/>
       
-      <div class="padding-left-right-8px" v-if="!savedConfigsLoading && savedConfigsError">
+      <div class="padding-left-right-12px" v-if="!savedConfigsLoading && savedConfigsError">
         <CPEManagementErrorMessage userText="Ошибка получения конфигураций" :error="savedConfigsError"/>
       </div>
       
@@ -1612,7 +1612,7 @@ Vue.component('CPEManagementRestoreConfig', {
       </div>
     </template>
     
-    <div class="padding-left-right-8px" v-if="savedConfigsResult">
+    <div class="padding-left-right-12px" v-if="savedConfigsResult">
       <div class="display-flex align-items-center justify-content-space-between gap-8px">
         <div class="width-100-100">
           <template v-if="doCPERestoreConfigLoadingAnimationEnd || doCPERestoreConfigError">
@@ -1643,7 +1643,7 @@ Vue.component('CPEManagementRestoreConfig', {
       </div>
     </div>
     
-    <div class="padding-left-right-8px" v-if="!doCPERestoreConfigLoadingAnimationEnd && doCPERestoreConfigError">
+    <div class="padding-left-right-12px" v-if="!doCPERestoreConfigLoadingAnimationEnd && doCPERestoreConfigError">
       <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERestoreConfigError"/>
     </div>
   </div>`,
@@ -1659,6 +1659,97 @@ Vue.component('CPEManagementRestoreConfig', {
   ]),
 });
 
+Vue.component('CPEManagementAccountDevicePort', {
+  beforeCreate(){
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/AccountDevicePort', {
+      getters: [
+        'device',
+        'port',
+      ],
+    });
+  },
+  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="device">
+    <div class="padding-left-12px">
+      <title-main icon="cable-test" text="Порт подключения" class="padding-unset margin-top-bottom--8px"/>
+    </div>
+    
+    <div class="padding-left-right-12px">
+      <device-info v-bind="{
+        networkElement: device,
+        ports: [port],
+      }" hideEntrances showLocation addBorder autoSysInfo/>
+     </div>
+  </div>`,
+  computed: mapGetters('CPEManagement/CPEs',[
+    'cpeKey',
+  ]),
+});
+
+Vue.component('CPEManagementAccountInfo', {
+  beforeCreate(){
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
+      getters: [
+        'accountNumber',
+      ],
+    });
+    this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/AccountInfo', {
+      getters: [
+        'Login',
+        'Password',
+        'UsageType',
+        'StaticIP',
+        'serviceNumber',
+      ],
+    });
+  },
+  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="accountNumber">
+    <div class="padding-left-12px">
+      <title-main icon="person" text="Данные абонента" :textSub="accountNumber" textSubClass="tone-500" class="padding-unset">
+        <button-sq icon="right-link" @click="$router.push({path:'/' + accountNumber})" type="large"/>
+      </title-main>
+    </div>
+    
+    <div class="padding-left-right-12px" v-if="Login || Password">
+      <div class="display-flex flex-direction-column gap-8px align-items-center">
+        <div class="font--13-500">
+          <span class="tone-500">Логин • </span><span>{{Login || 'Нет логина'}}</span>
+        </div>
+        <div class="width-75-100">
+          <button-main @click="show=!show" v-bind="btnProps" button-style="outlined" size="full"/>
+        </div>
+      </div>
+    </div>
+    
+    <div class="padding-left-right-12px" v-if="UsageType">
+      <div class="display-flex flex-direction-column">
+        <div class="font--13-500 tone-500">Условие предоставления CPE:</div>
+        <div class="font--13-500">{{UsageType}}</div>
+      </div>
+    </div>
+    
+    <div class="padding-left-right-12px" v-if="StaticIP">
+      <div class="display-flex flex-direction-column">
+        <div class="font--13-500"><span class="tone-500">StaticIP:</span> {{StaticIP}}</div>
+      </div>
+    </div>
+  </div>`,
+  data:()=>({
+    show: !1,
+  }),
+  computed:{
+    ...mapGetters('CPEManagement/CPEs',[
+      'cpeKey',
+    ]),
+    btnProps(){
+      const {show}=this;
+      return {
+        class: [show && 'password'],
+        icon: !show ? 'unlock' : '',
+        label: show ? this.Password : 'Показать пароль',
+      }
+    }
+  },
+});
 
 const createSubModuleCPEManagement_CPE_Port_Host = function(modulePath, host = null){
   return STORE.createSubModule(modulePath, {
@@ -1959,16 +2050,8 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
         'CPEManagementSpeedTest',
         'CPEManagementReboot',
         'CPEManagementRestoreConfig',
-        /*Vue.component(`CPEManagementAccountInfo`,{
-          template:`<div class="white-block-100 padding-left-right-8px">
-            <div class="text-align-center">CPEManagementAccountInfo</div>
-          </div>`,
-        }),
-        Vue.component(`CPEManagementAccessPort`,{
-          template:`<div class="white-block-100 padding-left-right-8px">
-            <div class="text-align-center">CPEManagementAccessPort</div>
-          </div>`,
-        }),*/
+        'CPEManagementAccountInfo',
+        'CPEManagementAccountDevicePort',
       ],
     },
     mutations: {
@@ -2443,12 +2526,141 @@ const createSubModuleCPEManagement_CPE_RestoreConfig = function(modulePath, mrID
   });
 };
 
-const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = '', accountNumber = ''){
+const createSubModuleCPEManagement_CPE_AccountDevicePort = function(modulePath, accountNumber = '', serviceNumber = ''){
+  return STORE.createSubModule(modulePath, {
+    state: {
+      _accountNumber: accountNumber,
+      _serviceNumber: serviceNumber,
+      
+      _accountDevicePort:null,
+      _accountDevicePortLoading:!1,
+      
+      _device:null,
+      _deviceLoading:!1,
+    },
+    getters: {
+      accountDevicePortLoading: (state) => state._accountDevicePortLoading,
+      accountDevicePort: (state) => state._accountDevicePort,
+      deviceName: (state) => state._accountDevicePort?.device?.name,
+      port: (state) => state._accountDevicePort?.port,
+      deviceLoading: (state) => state._deviceLoading,
+      device: (state) => state._device,
+    },
+    mutations: {
+      _setStateProp: STORE.mutations.setStateProp,
+    },
+    actions: {
+      async $initModule({state, getters, dispatch}){
+        if(!state._accountNumber){return};
+        await dispatch('_getAccountDevicePort');
+        if(getters.deviceName){
+          await dispatch('_getDevice');
+        };
+      },
+      async _getAccountDevicePort({state, getters, commit, dispatch}){
+        if(getters.accountDevicePortLoading){return};
+        commit('_setStateProp', {_accountDevicePort: null});
+        commit('_setStateProp', {_accountDevicePortLoading: !0});
+        try{
+          //const response = await DeviceService.AccountAccessPort.useCache(state._accountNumber);
+          const response = await DeviceService2.AccountDevicePort.useCache(state._accountNumber, state._serviceNumber);
+          if(response?.data?.port){
+            commit('_setStateProp', {_accountDevicePort: response.data});
+          };
+        }catch(error){
+          console.warn('_getAccountDevicePort.error', error);
+        };
+        commit('_setStateProp', {_accountDevicePortLoading: !1});
+      },
+      async _getDevice({state, getters, commit, dispatch}){
+        if(getters.deviceLoading){return};
+        commit('_setStateProp', {_device: null});
+        commit('_setStateProp', {_deviceLoading: !0});
+        try{
+          const response = await DeviceService.DevicesByName.useCache(getters.deviceName, DeviceService.transliterate);
+          if(Array.isArray(response?.data) && response.data[0]){
+            commit('_setStateProp', {_device: response.data[0]});
+          };
+        }catch(error){
+          console.warn('_getDevice.error', error);
+        };
+        commit('_setStateProp', {_deviceLoading: !1});
+      },
+    },
+  });
+};
+
+const createSubModuleCPEManagement_CPE_AccountInfo = function(modulePath, cpeID = '', accountNumber = '', serviceNumber = ''){
+  return STORE.createSubModule(modulePath, {
+    state: {
+      _cpeID: cpeID,
+      _accountNumber: accountNumber,
+      _serviceNumber: serviceNumber,
+      
+      _accountServiceEquipments:null,
+      _accountServiceEquipmentsLoading:!1,
+    },
+    getters: {
+      accountServiceEquipmentsLoading: (state) => state._accountServiceEquipmentsLoading,
+      
+      _equipment: (state) => state._accountServiceEquipments?.find(({equipment_parameters}) => equipment_parameters?.find(({code, value})=> code == 'HardNumber' && value.value == state._cpeID)),
+      
+      Login: (state, getters) => {
+        const equipment_parameter = getters._equipment?.credentials?.find(({code})=> code == 'Login');
+        return equipment_parameter?.value?.value
+      },
+      Password: (state, getters) => {
+        const equipment_parameter = getters._equipment?.credentials?.find(({code})=> code == 'Password');
+        return equipment_parameter?.value?.value
+      },
+      UsageType: (state, getters) => {
+        const equipment_parameter = getters._equipment?.equipment_parameters?.find(({code})=> code == 'UsageType');
+        return equipment_parameter?.value?.name || equipment_parameter?.value?.value
+      },
+      StaticIP: (state, getters) => {
+        const equipment_parameter = getters._equipment?.equipment_parameters?.find(({code})=> code == 'StaticIP');
+        return equipment_parameter?.value?.value
+      },
+      serviceNumber: (state, getters) => getters._equipment?.service_number,
+    },
+    mutations: {
+      _setStateProp: STORE.mutations.setStateProp,
+    },
+    actions: {
+      async $initModule({state, getters, dispatch}){
+        if(!state._accountNumber){return};
+        if(state._accountNumber.length == 12){
+          
+        }else{
+          await dispatch('_getAccountServiceEquipments');
+        };
+      },
+      async _getAccountServiceEquipments({state, getters, commit, dispatch}){
+        if(getters.accountServiceEquipmentsLoading){return};
+        commit('_setStateProp', {_accountServiceEquipments: null});
+        commit('_setStateProp', {_accountServiceEquipmentsLoading: !0});
+        try{
+          const response = await SMSGatewayService.getAccountServiceEquipments(state._accountNumber, SMSGW.SERVICE_TYPE_SPD);
+          if(response?.data?.service_equipments){
+            const service_equipments = [response.data.service_equipments].flat();//может прийти {} вместо [{},...]
+            commit('_setStateProp', {_accountServiceEquipments: service_equipments});
+          };
+        }catch(error){
+          console.warn('_getAccountServiceEquipments.error', error);
+        };
+        commit('_setStateProp', {_accountServiceEquipmentsLoading: !1});
+      },
+    },
+  });
+};
+
+const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = '', accountNumber = '', serviceNumber = ''){
   return STORE.createSubModule(modulePath, {
     state: {
       _mrID: mrID,
       _cpeID: cpeID,
       _accountNumber: accountNumber,
+      _serviceNumber: serviceNumber,
       
       _lastInfoLoading: !1,
       _lastInfoError: null,
@@ -2460,6 +2672,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
       mrID: STORE.getters.getStateProp('_mrID', CAST.toEmptyInt),
       cpeID: STORE.getters.getStateProp('_cpeID', CAST.toEmptyString),
       accountNumber: STORE.getters.getStateProp('_accountNumber', CAST.toEmptyString),
+      serviceNumber: STORE.getters.getStateProp('_serviceNumber', CAST.toEmptyString),
       
       lastInfoLoading: STORE.getters.getStateProp('_lastInfoLoading', CAST.toBoolean),
       lastInfoExist: (state, getters) => getters['Sections/CPEInfo/lastInfoExist'],
@@ -2499,6 +2712,8 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_SpeedTest([state.$modulePath, 'SpeedTest'], state._mrID, state._cpeID));
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_Reboot([state.$modulePath, 'Reboot'], state._mrID, state._cpeID));
         dispatch('$addSubModule', createSubModuleCPEManagement_CPE_RestoreConfig([state.$modulePath, 'RestoreConfig'], state._mrID, state._cpeID));
+        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountDevicePort([state.$modulePath, 'AccountDevicePort'], state._accountNumber, state._serviceNumber));
+        dispatch('$addSubModule', createSubModuleCPEManagement_CPE_AccountInfo([state.$modulePath, 'AccountInfo'], state._cpeID, state._accountNumber, state._serviceNumber));
         await dispatch('_getLastInfo');
         if(getters.lastInfoExist){
           await Promise.allSettled([
@@ -2634,23 +2849,28 @@ const createSubModuleCPEManagement_CPEs = function(modulePath){
       _mrID: 0,
       _cpeID: '',
       _accountNumber: '',
+      _serviceNumber: '',
     },
     getters: {
       mrID: STORE.getters.getStateProp('_mrID', CAST.toEmptyInt),
       cpeID: STORE.getters.getStateProp('_cpeID', CAST.toEmptyString),
       accountNumber: STORE.getters.getStateProp('_accountNumber', CAST.toEmptyString),
-      cpeKey: (state) => [state._mrID, state._cpeID, state._accountNumber].filter(Boolean).join(),
+      serviceNumber: STORE.getters.getStateProp('_serviceNumber', CAST.toEmptyString),
+      cpeKey: (state) => [state._mrID, state._cpeID, state._accountNumber, state._serviceNumber].filter(Boolean).join(),
     },
     mutations: {
       _setStateProp: STORE.mutations.setStateProp,
     },
     actions: {
-      addCPE({state, getters, commit, dispatch}, [_mrID = 0, _cpeID = '', _accountNumber = ''] = []){
+      addCPE({state, getters, commit, dispatch}, [_mrID = 0, _cpeID = '', _accountNumber = '', _serviceNumber = ''] = []){
+        //в _accountNumber может прилететь MSISDN
+        const accountNumber = /^7[0-9]{10}$/.test(_accountNumber) ? '' : SIEBEL.toAgreementNum(_accountNumber);
         commit('_setStateProp', {_mrID});
         commit('_setStateProp', {_cpeID});
-        commit('_setStateProp', {_accountNumber});
+        commit('_setStateProp', {_accountNumber: accountNumber});
+        commit('_setStateProp', {_serviceNumber});
         if(_mrID && _cpeID){
-          dispatch('$addSubModule', createSubModuleCPEManagement_CPE([state.$modulePath, getters.cpeKey], _mrID, _cpeID, _accountNumber));
+          dispatch('$addSubModule', createSubModuleCPEManagement_CPE([state.$modulePath, getters.cpeKey], _mrID, _cpeID, accountNumber, _serviceNumber));
         };
       },
       delCPE({getters, commit, dispatch}, [_mrID = 0, _cpeID = ''] = []){
