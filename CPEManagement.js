@@ -1758,10 +1758,10 @@ const createSubModuleCPEManagement_CPE_Port_Host = function(modulePath, host = n
       _oui: '',
     },
     getters: {
-      ip: STORE.getters.getStateProp('_host.ip', CAST.toEmptyString),
-      mac: STORE.getters.getStateProp('_host.mac', CAST.toEmptyString),
-      uptime: STORE.getters.getStateProp('_host.uptime', CAST.toEmptyString),
-      hostname: STORE.getters.getStateProp('_host.hostname', CAST.toEmptyString),
+      ip: (state) => state._host?.ip || '',
+      mac: (state) => state._host?.mac || '',
+      uptime: (state) => state._host?.uptime || '',
+      hostname: (state) => state._host?.hostname || '',
       hostUpTime: (state, getters) => Datetools.duration(Number(getters.uptime)*1000),
       oui: (state) => state._oui || '',
     },
@@ -1807,8 +1807,8 @@ const _createSubModuleCPEManagement_CPE_Port = function(modulePath, portName = '
         })
       ],
       ...getters,
-      portName: STORE.getters.getStateProp('_portName', CAST.toEmptyString),
-      port: STORE.getters.getStateProp('_port', CAST.toEmptyObject),
+      portName: (state) => state._portName,
+      port: (state) => state._port || null,
       
       hostsIDs: (state, getters) => getters['Hosts/$subModulesKeys'],
     },
@@ -1854,8 +1854,8 @@ const _createSubModuleCPEManagement_CPE_EthernetPort = function(modulePath, port
       speedWarn: (state, getters) => getters.linkUp && state._port?.rate == 10,
       speedText: (state, getters) => !getters.linkUp ? '' : !state._port?.rate ? 'Auto' : state._port?.rate === 'Auto' ? state._port?.rate : `${state._port?.rate} Мбит/с`,
       crcErrorsText: (state) => atop(state._port?.crc_in || 0, state._port?.crc_out || 0),
-      packetsRX: STORE.getters.getStateProp('_port.received', CAST.toEmptyInt),
-      packetsTX: STORE.getters.getStateProp('_port.sent', CAST.toEmptyInt),
+      packetsRX: (state) => state._port?.received || 0,
+      packetsTX: (state) => state._port?.sent || 0,
     },
     mutations: {
       ...mutations,
@@ -1894,13 +1894,13 @@ const createSubModuleCPEManagement_CPE_WANPort = function(modulePath, portName =
     getters: {
       portLabel: (state) => 'WAN порт',
       wanDef: (state) => state._wanDef || '',
-      username: STORE.getters.getStateProp('_port.username', CAST.toEmptyString),
+      username: (state) => state._port?.username || '',
       isPPPoE: (state) => state._port?.auth_type === 'pppoe',
-      wan_ip: STORE.getters.getStateProp('_port.wan_ip', CAST.toEmptyString),
-      wan_gateway: STORE.getters.getStateProp('_port.wan_gateway', CAST.toEmptyString),
-      wan_mask: STORE.getters.getStateProp('_port.wan_mask', CAST.toEmptyString),
+      wan_ip: (state) => state._port?.wan_ip || '',
+      wan_gateway: (state) => state._port?.wan_gateway || '',
+      wan_mask: (state) => state._port?.wan_mask || '',
       dns_auto_enabled: (state) => state._port?.dns_auto_enabled == 'Up',
-      dns_servers: STORE.getters.getStateProp('_port.dns_servers', CAST.toEmptyString),
+      dns_servers: (state) => state._port?.dns_servers || '',
     },
     mutations: {
       
@@ -1930,8 +1930,8 @@ const createSubModuleCPEManagement_CPE_WiFiPort = function(modulePath, portName 
       autoChannelEn: (state) => state._port?.autochannelenable == 'Up',
       channel: (state) => state._port?.channel || '',
       ssid: (state) => state._port?.ssid || '',
-      packetsRX: STORE.getters.getStateProp('_port.received', CAST.toEmptyInt),
-      packetsTX: STORE.getters.getStateProp('_port.sent', CAST.toEmptyInt),
+      packetsRX: (state) => state._port?.received || 0,
+      packetsTX: (state) => state._port?.sent || 0,
     },
     mutations: {
       
@@ -1981,7 +1981,7 @@ const _createSubModuleCPEManagement_CPE_SectionWithPortSelector = function(modul
     },
     getters: {
       ...getters,
-      portName: STORE.getters.getStateProp('_portName',CAST.toEmptyString),
+      portName: (state) => state._portName,
       portsSections: (state, getters) => getters.$subModulesKeys.map(portName=>{
         return {
           portName,
@@ -2025,7 +2025,7 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
       label: () => 'CPE',
       lastInfoExist: (state) => Boolean(state._lastInfo?.last_msg_time),
       onlineInfoExist: (state) => Boolean(state._onlineInfo?.uptime),
-      onlineInfoError: STORE.getters.getStateProp('_onlineInfoError', CAST.toNullObject),
+      onlineInfoError: (state) => state._onlineInfoError,
       
       vendor: (state) => state._onlineInfo?.vendor || state._lastInfo?.vendor || '',
       model: (state) => state._onlineInfo?.model || state._lastInfo?.model || '',
@@ -2077,7 +2077,7 @@ const createSubModuleCPEManagement_CPE_Sections = function(modulePath){
       _sectionName: '',
     },
     getters: {
-      sectionName: STORE.getters.getStateProp('_sectionName',CAST.toEmptyString),
+      sectionName: (state) => state._sectionName,
       sections: (state, getters) => getters.$subModulesKeys.map(sectionName=>{
         return {
           sectionName,
@@ -2104,9 +2104,9 @@ const createSubModuleCPEManagement_CPE_Sections = function(modulePath){
             count: (state, getters) => getters.$subModulesKeys.length,
             
             portName: (state, getters) => getters.$subModulesKeys[0],
-            wan_def: STORE.getters.getStateProp('_wanInfo.wan_def',CAST.toEmptyString),
-            auth_type: STORE.getters.getStateProp('_wanInfo.auth_type',CAST.toEmptyString),
-            mac: STORE.getters.getStateProp('_wanInfo.mac',CAST.toEmptyString),
+            wan_def: (state) => state._wanInfo?.wan_def || '',
+            auth_type: (state) => state._wanInfo?.auth_type || '',
+            mac: (state) => state._wanInfo?.mac || '',
             
             sectionComponents: () => [
               'CPEManagementWANPortsInfo',
@@ -2153,12 +2153,12 @@ const createSubModuleCPEManagement_CPE_Sections = function(modulePath){
             label: () => 'LAN порты',
             count: (state, getters) => getters.$subModulesKeys.length,
             
-            lan_ip: STORE.getters.getStateProp('_lanInfo.lan_ip',CAST.toEmptyString),
-            lan_mask: STORE.getters.getStateProp('_lanInfo.lan_mask',CAST.toEmptyString),
+            lan_ip: (state) => state._lanInfo?.lan_ip || '',
+            lan_mask: (state) => state._lanInfo?.lan_mask || '',
             subnet24: (state) => state._lanInfo?.lan_mask === '255.255.255.0',
             dhcpRange: (state) => state._lanInfo?.lan_dhcp_min + ' - ' + (state._lanInfo?.lan_dhcp_max || '').split('.').reverse()[0],
-            lan_dhcp_min: STORE.getters.getStateProp('_lanInfo.lan_dhcp_min',CAST.toEmptyString),
-            lan_dhcp_max: STORE.getters.getStateProp('_lanInfo.lan_dhcp_max',CAST.toEmptyString),
+            lan_dhcp_min: (state) => state._lanInfo?.lan_dhcp_min || '',
+            lan_dhcp_max: (state) => state._lanInfo?.lan_dhcp_max || '',
             dhcpEnText: (state) => state._lanInfo?.dhcp_ena == 'Up' ? 'Включен' : 'Выключен',
             igmpEnText: (state) => state._lanInfo?.igmp_ena == 'Up' ? 'Включен' : 'Выключен',
             
@@ -2669,17 +2669,17 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
       _onlineInfoLoadingRefresh: !1,
     },
     getters: {
-      mrID: STORE.getters.getStateProp('_mrID', CAST.toEmptyInt),
-      cpeID: STORE.getters.getStateProp('_cpeID', CAST.toEmptyString),
-      accountNumber: STORE.getters.getStateProp('_accountNumber', CAST.toEmptyString),
-      serviceNumber: STORE.getters.getStateProp('_serviceNumber', CAST.toEmptyString),
+      mrID: (state) => state._mrID,
+      cpeID: (state) => state._cpeID,
+      accountNumber: (state) => state._accountNumber,
+      serviceNumber: (state) => state._serviceNumber,
       
-      lastInfoLoading: STORE.getters.getStateProp('_lastInfoLoading', CAST.toBoolean),
+      lastInfoLoading: (state) => state._lastInfoLoading,
       lastInfoExist: (state, getters) => getters['Sections/CPEInfo/lastInfoExist'],
-      lastInfoError: STORE.getters.getStateProp('_lastInfoError', CAST.toNullObject),
+      lastInfoError: (state) => state._lastInfoError,
       
-      onlineInfoLoading: STORE.getters.getStateProp('_onlineInfoLoading', CAST.toBoolean),
-      onlineInfoLoadingRefresh: STORE.getters.getStateProp('_onlineInfoLoadingRefresh', CAST.toBoolean),
+      onlineInfoLoading: (state) => state._onlineInfoLoading,
+      onlineInfoLoadingRefresh: (state) => state._onlineInfoLoadingRefresh,
       onlineInfoExist: (state, getters) => getters['Sections/CPEInfo/onlineInfoExist'],
       onlineInfoError: (state, getters) => getters['Sections/CPEInfo/onlineInfoError'],
       
@@ -2852,10 +2852,10 @@ const createSubModuleCPEManagement_CPEs = function(modulePath){
       _serviceNumber: '',
     },
     getters: {
-      mrID: STORE.getters.getStateProp('_mrID', CAST.toEmptyInt),
-      cpeID: STORE.getters.getStateProp('_cpeID', CAST.toEmptyString),
-      accountNumber: STORE.getters.getStateProp('_accountNumber', CAST.toEmptyString),
-      serviceNumber: STORE.getters.getStateProp('_serviceNumber', CAST.toEmptyString),
+      mrID: (state) => state._mrID,
+      cpeID: (state) => state._cpeID,
+      accountNumber: (state) => state._accountNumber,
+      serviceNumber: (state) => state._serviceNumber,
       cpeKey: (state) => [state._mrID, state._cpeID, state._accountNumber, state._serviceNumber].filter(Boolean).join(),
     },
     mutations: {
