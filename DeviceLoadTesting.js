@@ -712,7 +712,7 @@ Vue.component('DeviceLoadTestStart',{
     });
   },
   template:`<div class="display-contents">
-    <button-main label="Начать тест" @click="doCPEsSpeedTest" :disabled="loadingSome || !onlineInfoExistSome || !(store.getters.userLogin == 'mypanty1')" :loading="doCPESpeedTestLoadingSome" buttonStyle="contained" size="full"/>
+    <button-main label="Начать тест" @click="doCPEsSpeedTest" :disabled="loadingSome || !onlineInfoExistSome" :loading="doCPESpeedTestLoadingSome" buttonStyle="contained" size="full"/>
   </div>`,
   computed: mapGetters('DeviceLoadTesting',[
     'currentDeviceName',
