@@ -10,7 +10,7 @@ Vue.component('CPEManagementErrorMessage', {
   }
 });
 
-Vue.component('CPEManagementPage', {
+Vue.component('CPEManagementPage', {// transition
   template: `<div class="display-flex flex-direction-column gap-8px padding-bottom-100px">
     <router-view name="navbar"/>
     <transition name="slide-page" mode="out-in">
@@ -89,7 +89,7 @@ Vue.component('CPEManagementPageNavbar', {
   ]),
 });
 
-Vue.component('CPEManagementPageContent', {
+Vue.component('CPEManagementPageContent', {// transition
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -170,7 +170,7 @@ Vue.component('CPEManagementPageContent', {
   ]),
 });
 
-Vue.component('CPEManagementSection', {
+Vue.component('CPEManagementSection', {// transition-group
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections', {
       getters: [
@@ -183,13 +183,9 @@ Vue.component('CPEManagementSection', {
       ]
     });
   },
-  template: `<div class="display-contents">
-    <transition name="slide-page" mode="out-in" tag="div">
-      <div class="display-flex flex-direction-column gap-8px">
-        <component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
-      </div>
-    </transition>
-  </div>`,
+  template: `<transition-group name="slide-page" tag="div" transition-group class="display-flex flex-direction-column gap-8px">
+    <component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
+  </transition-group>`,
   beforeRouteEnter(to, from, next){
     if(to.name !== 'R_CPEManagementCPESectionPort'){return next()};
     
@@ -214,7 +210,7 @@ Vue.component('CPEManagementSection', {
   ])
 });
 
-Vue.component('CPEManagementSectionPort', {
+Vue.component('CPEManagementSectionPort', {// transition
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections', {
       getters: [
@@ -590,7 +586,7 @@ Vue.component('CPEManagementPortSelect',{
   ]),
 });
 
-Vue.component('CPEManagementSelectedPort',{
+Vue.component('CPEManagementSelectedPort',{// transition-group-item & transition-group
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey/Sections', {
       getters: [
@@ -609,12 +605,12 @@ Vue.component('CPEManagementSelectedPort',{
       ],
     });
   },
-  template: `<div class="display-contents" v-if="portName">
-    <transition name="slide-page" mode="out-in" tag="div">
-      <div class="display-flex flex-direction-column gap-8px">
+  template: `<div transition-group-item class="display-contents">
+    <template v-if="portName">
+      <transition-group name="slide-page" tag="div" transition-group class="display-flex flex-direction-column gap-8px">
         <component v-for="(component, index) of portComponents" :key="index" :is="component"/>
-      </div>
-    </transition>
+      </transition-group>
+    </template>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
@@ -781,7 +777,7 @@ Vue.component('CPEManagementWiFiModuleInfo',{
   ]),
 });
 
-Vue.component('CPEManagementSpeedTest', {
+Vue.component('CPEManagementSpeedTest', {// transition-group-item
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -806,62 +802,64 @@ Vue.component('CPEManagementSpeedTest', {
       ],
     });
   },
-  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
-    <div class="padding-left-right-12px">
-      <div class="display-flex align-items-center justify-content-space-between gap-8px">
-        <div class="width-100-100">
-          <div v-if="doCPESpeedTestLoadingAnimationEnd || doCPESpeedTestError" class="display-flex flex-direction-column">
-            <UILinearProgressLoader v-bind="{
-              loaderID: speedTestLoaderID_DL,
-              maxTime: CONST.SpeedTest.LOADER_DL_MAX_TIME,
-              lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
-              fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
-              height: CONST.SpeedTest.LOADER_HEIGHT,
-            }" v-on="{
-              onMinEnd: () => onCPESpeedTestAnimationEndDL(),
-              onMaxEnd: () => onCPESpeedTestAnimationEndDL(),
-            }" rounded showPercent>
-              <div slot="prefix" class="font--13-500 tone-500">DL:</div>
-            </UILinearProgressLoader>
+  template: `<div transition-group-item class="display-contents">
+    <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
+      <div class="padding-left-right-12px">
+        <div class="display-flex align-items-center justify-content-space-between gap-8px">
+          <div class="width-100-100">
+            <div v-if="doCPESpeedTestLoadingAnimationEnd || doCPESpeedTestError" class="display-flex flex-direction-column">
+              <UILinearProgressLoader v-bind="{
+                loaderID: speedTestLoaderID_DL,
+                maxTime: CONST.SpeedTest.LOADER_DL_MAX_TIME,
+                lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
+                fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
+                height: CONST.SpeedTest.LOADER_HEIGHT,
+              }" v-on="{
+                onMinEnd: () => onCPESpeedTestAnimationEndDL(),
+                onMaxEnd: () => onCPESpeedTestAnimationEndDL(),
+              }" rounded showPercent>
+                <div slot="prefix" class="font--13-500 tone-500">DL:</div>
+              </UILinearProgressLoader>
+              
+              <UILinearProgressLoader v-bind="{
+                loaderID: speedTestLoaderID_UL,
+                maxTime: CONST.SpeedTest.LOADER_UL_MAX_TIME,
+                lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
+                fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
+                height: CONST.SpeedTest.LOADER_HEIGHT,
+              }" v-on="{
+                onMinEnd: () => onCPESpeedTestAnimationEndUL(),
+                onMaxEnd: () => onCPESpeedTestAnimationEndUL(),
+              }" rounded showPercent>
+                <div slot="prefix" class="font--13-500 tone-500">UL:</div>
+              </UILinearProgressLoader>
+            </div>
             
-            <UILinearProgressLoader v-bind="{
-              loaderID: speedTestLoaderID_UL,
-              maxTime: CONST.SpeedTest.LOADER_UL_MAX_TIME,
-              lineColor: CONST.SpeedTest.LOADER_LINE_COLOR,
-              fillColor: CONST.SpeedTest.LOADER_FILL_COLOR,
-              height: CONST.SpeedTest.LOADER_HEIGHT,
-            }" v-on="{
-              onMinEnd: () => onCPESpeedTestAnimationEndUL(),
-              onMaxEnd: () => onCPESpeedTestAnimationEndUL(),
-            }" rounded showPercent>
-              <div slot="prefix" class="font--13-500 tone-500">UL:</div>
-            </UILinearProgressLoader>
+            <div v-else-if="doCPESpeedTestResult" class="display-flex flex-direction-column">
+              <div class="display-flex align-items-center gap-4px">
+                <div class="font--13-500 tone-500">DL:</div>
+                <div class="font--13-500">{{speedTestDLSpeed}}</div>
+                <div class="font--13-500 tone-500">{{speedTestDLState}}</div>
+              </div>
+              
+              <div class="display-flex align-items-center gap-4px">
+                <div class="font--13-500 tone-500">UL:</div>
+                <div class="font--13-500">{{speedTestULSpeed}}</div>
+                <div class="font--13-500 tone-500">{{speedTestULState}}</div>
+              </div>
+            </div>
           </div>
           
-          <div v-else-if="doCPESpeedTestResult" class="display-flex flex-direction-column">
-            <div class="display-flex align-items-center gap-4px">
-              <div class="font--13-500 tone-500">DL:</div>
-              <div class="font--13-500">{{speedTestDLSpeed}}</div>
-              <div class="font--13-500 tone-500">{{speedTestDLState}}</div>
-            </div>
-            
-            <div class="display-flex align-items-center gap-4px">
-              <div class="font--13-500 tone-500">UL:</div>
-              <div class="font--13-500">{{speedTestULSpeed}}</div>
-              <div class="font--13-500 tone-500">{{speedTestULState}}</div>
-            </div>
-          </div>
+          <button-main label="SpeedTest" @click="doCPESpeedTest" v-bind="{
+            loading: doCPESpeedTestLoadingAnimationEnd,
+            disabled: loadingSomeOperation,
+          }" buttonStyle="outlined" size="content"/>
         </div>
-        
-        <button-main label="SpeedTest" @click="doCPESpeedTest" v-bind="{
-          loading: doCPESpeedTestLoadingAnimationEnd,
-          disabled: loadingSomeOperation,
-        }" buttonStyle="outlined" size="content"/>
       </div>
-    </div>
-    
-    <div class="padding-left-right-12px" v-if="!doCPESpeedTestLoadingAnimationEnd && doCPESpeedTestError">
-      <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPESpeedTestError"/>
+      
+      <div class="padding-left-right-12px" v-if="!doCPESpeedTestLoadingAnimationEnd && doCPESpeedTestError">
+        <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPESpeedTestError"/>
+      </div>
     </div>
   </div>`,
   mounted(){
@@ -875,7 +873,7 @@ Vue.component('CPEManagementSpeedTest', {
   ]),
 });
 
-Vue.component('CPEManagementReboot', {
+Vue.component('CPEManagementReboot', {// transition-group-item
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -894,40 +892,42 @@ Vue.component('CPEManagementReboot', {
       ],
     });
   },
-  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
-    <div class="padding-left-right-12px">
-      <div class="display-flex align-items-center justify-content-space-between gap-8px">
-        <button-main label="Reboot" @click="doCPEReboot" v-bind="{
-          loading: doCPERebootLoadingAnimationEnd,
-          disabled: loadingSomeOperation,
-        }" buttonStyle="outlined" size="content"/>
-        
-        <div class="width-100-100">
-          <template v-if="doCPERebootLoadingAnimationEnd || doCPERebootError">
-            <UILinearProgressLoader v-bind="{
-              loaderID: rebootLoaderID,
-              maxTime: CONST.Reboot.LOADER_MAX_TIME,
-              lineColor: CONST.Reboot.LOADER_LINE_COLOR,
-              fillColor: CONST.Reboot.LOADER_FILL_COLOR,
-              height: CONST.Reboot.LOADER_HEIGHT,
-            }" v-on="{
-              onMinEnd: () => onCPERebootAnimationEnd(),
-              onMaxEnd: () => onCPERebootAnimationEnd(),
-            }" rounded showPercent/>
-          </template>
+  template: `<div transition-group-item class="display-contents">
+    <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
+      <div class="padding-left-right-12px">
+        <div class="display-flex align-items-center justify-content-space-between gap-8px">
+          <button-main label="Reboot" @click="doCPEReboot" v-bind="{
+            loading: doCPERebootLoadingAnimationEnd,
+            disabled: loadingSomeOperation,
+          }" buttonStyle="outlined" size="content"/>
           
-          <template v-else-if="doCPERebootResult">
-            <div class="display-flex align-items-center gap-4px">
-              <div class="font--13-500">OK</div>
-              <div class="font--13-500 tone-500">#{{doCPERebootResult}}</div>
-            </div>
-          </template>
+          <div class="width-100-100">
+            <template v-if="doCPERebootLoadingAnimationEnd || doCPERebootError">
+              <UILinearProgressLoader v-bind="{
+                loaderID: rebootLoaderID,
+                maxTime: CONST.Reboot.LOADER_MAX_TIME,
+                lineColor: CONST.Reboot.LOADER_LINE_COLOR,
+                fillColor: CONST.Reboot.LOADER_FILL_COLOR,
+                height: CONST.Reboot.LOADER_HEIGHT,
+              }" v-on="{
+                onMinEnd: () => onCPERebootAnimationEnd(),
+                onMaxEnd: () => onCPERebootAnimationEnd(),
+              }" rounded showPercent/>
+            </template>
+            
+            <template v-else-if="doCPERebootResult">
+              <div class="display-flex align-items-center gap-4px">
+                <div class="font--13-500">OK</div>
+                <div class="font--13-500 tone-500">#{{doCPERebootResult}}</div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <div class="padding-left-right-12px" v-if="!doCPERebootLoadingAnimationEnd && doCPERebootError">
-      <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERebootError"/>
+      
+      <div class="padding-left-right-12px" v-if="!doCPERebootLoadingAnimationEnd && doCPERebootError">
+        <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERebootError"/>
+      </div>
     </div>
   </div>`,
   mounted(){
@@ -1554,7 +1554,7 @@ Vue.component('CPEManagementWANConfigModalOLD',{//TODO перенесено as-i
   },
 });
 
-Vue.component('CPEManagementRestoreConfig', {
+Vue.component('CPEManagementRestoreConfig', {// transition-group-item
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -1580,58 +1580,60 @@ Vue.component('CPEManagementRestoreConfig', {
       ],
     });
   },
-  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
-    <div class="padding-left-12px">
-      <title-main icon="view-list" text="Выбор конфигурации" class="padding-unset margin-top-bottom--8px"/>
-    </div>
-    
-    <template v-if="savedConfigsError || savedConfigsResult">
-      <div class="divider-line"/>
-      
-      <div class="padding-left-right-12px" v-if="!savedConfigsLoading && savedConfigsError">
-        <CPEManagementErrorMessage userText="Ошибка получения конфигураций" :error="savedConfigsError"/>
+  template: `<div transition-group-item class="display-contents">
+    <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="onlineInfoExist">
+      <div class="padding-left-12px">
+        <title-main icon="view-list" text="Выбор конфигурации" class="padding-unset margin-top-bottom--8px"/>
       </div>
       
-      <div class="padding-left-right-12px" v-else-if="savedConfigsResult">
-        <div class="border-1px-solid-c8c7c7 border-radius-4px">
-          <radio-select-el ref="cfg_selector" :list="savedConfigsList" keyName="cfgid" keyLabel="label" keyLabel2="date" keyLabel3="comments" keyDisabled="disabled" @selected="selectConfig" :value="selectedConfig" reverse/>
-        </div>
-      </div>
-    </template>
-    
-    <div class="padding-left-right-12px" v-if="savedConfigsResult">
-      <div class="display-flex align-items-center justify-content-space-between gap-8px">
-        <div class="width-100-100">
-          <template v-if="doCPERestoreConfigLoadingAnimationEnd || doCPERestoreConfigError">
-            <UILinearProgressLoader v-bind="{
-              loaderID: restoreConfigLoaderID,
-              maxTime: CONST.RestoreConfig.LOADER_MAX_TIME,
-              lineColor: CONST.RestoreConfig.LOADER_LINE_COLOR,
-              fillColor: CONST.RestoreConfig.LOADER_FILL_COLOR,
-              height: CONST.RestoreConfig.LOADER_HEIGHT,
-            }" v-on="{
-              onMinEnd: () => onCPERestoreConfigAnimationEnd(),
-              onMaxEnd: () => onCPERestoreConfigAnimationEnd(),
-            }" rounded showPercent/>
-          </template>
-          
-          <template v-else-if="doCPERestoreConfigResult">
-            <div class="display-flex align-items-center gap-4px">
-              <div class="font--13-500">OK</div>
-              <div class="font--13-500 tone-500">#{{ticketid}}</div>
-            </div>
-          </template>
+      <template v-if="savedConfigsError || savedConfigsResult">
+        <div class="divider-line"/>
+        
+        <div class="padding-left-right-12px" v-if="!savedConfigsLoading && savedConfigsError">
+          <CPEManagementErrorMessage userText="Ошибка получения конфигураций" :error="savedConfigsError"/>
         </div>
         
-        <button-main label="RestoreConfig" @click="doCPERestoreConfig" v-bind="{
-          loading: doCPERestoreConfigLoadingAnimationEnd,
-          disabled: loadingSomeOperation || !selectedConfig,
-        }" buttonStyle="outlined" size="content"/>
+        <div class="padding-left-right-12px" v-else-if="savedConfigsResult">
+          <div class="border-1px-solid-c8c7c7 border-radius-4px">
+            <radio-select-el ref="cfg_selector" :list="savedConfigsList" keyName="cfgid" keyLabel="label" keyLabel2="date" keyLabel3="comments" keyDisabled="disabled" @selected="selectConfig" :value="selectedConfig" reverse/>
+          </div>
+        </div>
+      </template>
+      
+      <div class="padding-left-right-12px" v-if="savedConfigsResult">
+        <div class="display-flex align-items-center justify-content-space-between gap-8px">
+          <div class="width-100-100">
+            <template v-if="doCPERestoreConfigLoadingAnimationEnd || doCPERestoreConfigError">
+              <UILinearProgressLoader v-bind="{
+                loaderID: restoreConfigLoaderID,
+                maxTime: CONST.RestoreConfig.LOADER_MAX_TIME,
+                lineColor: CONST.RestoreConfig.LOADER_LINE_COLOR,
+                fillColor: CONST.RestoreConfig.LOADER_FILL_COLOR,
+                height: CONST.RestoreConfig.LOADER_HEIGHT,
+              }" v-on="{
+                onMinEnd: () => onCPERestoreConfigAnimationEnd(),
+                onMaxEnd: () => onCPERestoreConfigAnimationEnd(),
+              }" rounded showPercent/>
+            </template>
+            
+            <template v-else-if="doCPERestoreConfigResult">
+              <div class="display-flex align-items-center gap-4px">
+                <div class="font--13-500">OK</div>
+                <div class="font--13-500 tone-500">#{{ticketid}}</div>
+              </div>
+            </template>
+          </div>
+          
+          <button-main label="RestoreConfig" @click="doCPERestoreConfig" v-bind="{
+            loading: doCPERestoreConfigLoadingAnimationEnd,
+            disabled: loadingSomeOperation || !selectedConfig,
+          }" buttonStyle="outlined" size="content"/>
+        </div>
       </div>
-    </div>
-    
-    <div class="padding-left-right-12px" v-if="!doCPERestoreConfigLoadingAnimationEnd && doCPERestoreConfigError">
-      <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERestoreConfigError"/>
+      
+      <div class="padding-left-right-12px" v-if="!doCPERestoreConfigLoadingAnimationEnd && doCPERestoreConfigError">
+        <CPEManagementErrorMessage userText="Ошибка связи с CPE" :error="doCPERestoreConfigError"/>
+      </div>
     </div>
   </div>`,
   mounted(){
@@ -1651,7 +1653,7 @@ Vue.component('CPEManagementRestoreConfig', {
   ]),
 });
 
-Vue.component('CPEManagementAccountDevicePort', {
+Vue.component('CPEManagementAccountDevicePort', {// transition-group-item
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -1660,24 +1662,26 @@ Vue.component('CPEManagementAccountDevicePort', {
       ],
     });
   },
-  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="device">
-    <div class="padding-left-12px">
-      <title-main icon="cable-test" text="Порт подключения" class="padding-unset margin-top-bottom--8px"/>
+  template: `<div transition-group-item class="display-contents">
+    <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="device">
+      <div class="padding-left-12px">
+        <title-main icon="cable-test" text="Порт подключения" class="padding-unset margin-top-bottom--8px"/>
+      </div>
+      
+      <div class="padding-left-right-12px">
+        <device-info v-bind="{
+          networkElement: device,
+          ports: [port],
+        }" hideEntrances showLocation addBorder autoSysInfo/>
+      </div>
     </div>
-    
-    <div class="padding-left-right-12px">
-      <device-info v-bind="{
-        networkElement: device,
-        ports: [port],
-      }" hideEntrances showLocation addBorder autoSysInfo/>
-     </div>
   </div>`,
   computed: mapGetters('CPEManagement/CPEs',[
     'cpeKey',
   ]),
 });
 
-Vue.component('CPEManagementAccountInfo', {
+Vue.component('CPEManagementAccountInfo', {// transition-group-item
   beforeCreate(){
     this.$mapDynamicNamespace('CPEManagement/CPEs/:cpeKey', {
       getters: [
@@ -1689,34 +1693,36 @@ Vue.component('CPEManagementAccountInfo', {
       ],
     });
   },
-  template: `<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="accountNumber">
-    <div class="padding-left-12px">
-      <title-main icon="person" text="Данные абонента" :textSub="accountNumber" textSubClass="font--13-500 tone-500" class="padding-unset">
-        <button-sq icon="right-link" @click="$router.push({path:'/' + accountNumber})" type="large"/>
-      </title-main>
+  template: `<div transition-group-item class="display-contents">
+    <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px" v-if="accountNumber">
+      <div class="padding-left-12px">
+        <title-main icon="person" text="Данные абонента" :textSub="accountNumber" textSubClass="font--13-500 tone-500" class="padding-unset">
+          <button-sq icon="right-link" @click="$router.push({path:'/' + accountNumber})" type="large"/>
+        </title-main>
+      </div>
+      
+      <template v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
+        <div class="divider-line"/>
+        
+        <div class="padding-left-right-12px display-flex flex-direction-column gap-8px align-items-center" v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
+          <div class="font--13-500">
+            <span class="tone-500">Логин • </span><span>{{accountServiceEquipmentLogin || 'Нет логина'}}</span>
+          </div>
+          <div class="width-75-100">
+            <button-main @click="show=!show" v-bind="btnProps" button-style="outlined" size="full"/>
+          </div>
+        </div>
+      </template>
+      
+      <template v-if="accountServiceEquipmentUsageType || accountServiceEquipmentStaticIP">
+        <div class="divider-line"/>
+        
+        <div class="padding-left-right-12px display-flex flex-direction-column">
+          <div v-if="accountServiceEquipmentUsageType" class="font--13-500"><span class="tone-500">Условие предоставления CPE:</span> {{accountServiceEquipmentUsageType}}</div>
+          <div v-if="accountServiceEquipmentStaticIP" class="font--13-500"><span class="tone-500">StaticIP:</span> {{accountServiceEquipmentStaticIP}}</div>
+        </div>
+      </template>
     </div>
-    
-    <template v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
-      <div class="divider-line"/>
-      
-      <div class="padding-left-right-12px display-flex flex-direction-column gap-8px align-items-center" v-if="accountServiceEquipmentLogin || accountServiceEquipmentPassword">
-        <div class="font--13-500">
-          <span class="tone-500">Логин • </span><span>{{accountServiceEquipmentLogin || 'Нет логина'}}</span>
-        </div>
-        <div class="width-75-100">
-          <button-main @click="show=!show" v-bind="btnProps" button-style="outlined" size="full"/>
-        </div>
-      </div>
-    </template>
-    
-    <template v-if="accountServiceEquipmentUsageType || accountServiceEquipmentStaticIP">
-      <div class="divider-line"/>
-      
-      <div class="padding-left-right-12px display-flex flex-direction-column">
-        <div v-if="accountServiceEquipmentUsageType" class="font--13-500"><span class="tone-500">Условие предоставления CPE:</span> {{accountServiceEquipmentUsageType}}</div>
-        <div v-if="accountServiceEquipmentStaticIP" class="font--13-500"><span class="tone-500">StaticIP:</span> {{accountServiceEquipmentStaticIP}}</div>
-      </div>
-    </template>
   </div>`,
   data:()=>({
     show: !1,
