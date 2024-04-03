@@ -187,7 +187,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //test DynamicScroller for CMTasks
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DynamicScroller_CMTasks.js',type:'text/javascript'}));
 
-
+//test device uplink
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceLoadTesting.js',type:'text/javascript'}));
 
 
 let sendStateTimer=null;
