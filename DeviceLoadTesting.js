@@ -381,7 +381,8 @@ const createSubModuleDevicesSpeedTest_Device_Ports = function(modulePath, _mrID 
       _setStateProp: STORE.mutations.setStateProp,
     },
     actions: {
-      doCPEsSpeedTest({getters, dispatch}){
+      doCPEsSpeedTest({getters, dispatch, rootGetters}){
+        if(!(rootGetters.userLogin == 'mypanty1')){return};
         for(const ifIndex of getters.onlineCPEsPortsIDs){
           dispatch(atop(ifIndex,'doCPESpeedTest'));
         };
@@ -580,7 +581,7 @@ STORE.createSubModule('DeviceLoadTesting', {
   }
 }).register();
 
-if(store.getters.userLogin == 'mypanty1'){
+if(!0 || store.getters.userLogin == 'mypanty1'){
   Vue.component('NetworkElementActions',{
     template:`<div class="display-contents">
       <NetworkElementActions2 v-bind="$props" v-on="$listeners"/>
@@ -711,7 +712,7 @@ Vue.component('DeviceLoadTestStart',{
     });
   },
   template:`<div class="display-contents">
-    <button-main label="Начать тест" @click="doCPEsSpeedTest" :disabled="loadingSome || !onlineInfoExistSome" :loading="doCPESpeedTestLoadingSome" buttonStyle="contained" size="full"/>
+    <button-main label="Начать тест" @click="doCPEsSpeedTest" :disabled="loadingSome || !onlineInfoExistSome || !(store.getters.userLogin == 'mypanty1')" :loading="doCPESpeedTestLoadingSome" buttonStyle="contained" size="full"/>
   </div>`,
   computed: mapGetters('DeviceLoadTesting',[
     'currentDeviceName',
