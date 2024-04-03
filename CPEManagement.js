@@ -184,11 +184,11 @@ Vue.component('CPEManagementSection', {
     });
   },
   template: `<div class="display-contents">
-    <transition-group name="slide-page" tag="div" class="display-flex flex-direction-column gap-8px">
-      <div v-for="(component, index) of sectionComponents" :key="index">
-        <component :is="component"/>
+    <transition name="slide-page" mode="out-in" tag="div">
+      <div class="display-flex flex-direction-column gap-8px">
+        <component v-for="(component, index) of sectionComponents" :key="index" :is="component"/>
       </div>
-    </transition-group>
+    </transition>
   </div>`,
   beforeRouteEnter(to, from, next){
     if(to.name !== 'R_CPEManagementCPESectionPort'){return next()};
@@ -610,11 +610,11 @@ Vue.component('CPEManagementSelectedPort',{
     });
   },
   template: `<div class="display-contents" v-if="portName">
-    <transition-group name="slide-page" tag="div" class="display-flex flex-direction-column gap-8px">
-      <div v-for="(component, index) of portComponents" :key="index">
-        <component :is="component"/>
+    <transition name="slide-page" mode="out-in" tag="div">
+      <div class="display-flex flex-direction-column gap-8px">
+        <component v-for="(component, index) of portComponents" :key="index" :is="component"/>
       </div>
-    </transition-group>
+    </transition>
   </div>`,
   computed:mapGetters('CPEManagement/CPEs',[
     'cpeKey',
@@ -1998,8 +1998,7 @@ const _createSubModuleCPEManagement_CPE_SectionWithPortSelector = function(modul
   })
 };
 
-const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sectionName = '', options = {}){
-  const {state = {}, getters = {}, mutations = {}, actions = {}} = options;
+const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sectionName = ''){
   return _createSubModuleCPEManagement_CPE_Section(modulePath, sectionName, {
     state: {
       _lastInfo: null,
@@ -2030,7 +2029,7 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
       cpeStateColor: (state, getters) => ACS_CPE.cpeState[getters.onlineInfoExist ? 0 : state._lastInfo?.connect_state]?.color || '',
       cpeStateText: (state, getters) => ACS_CPE.cpeState[getters.onlineInfoExist ? 0 : state._lastInfo?.connect_state]?.text || 'Неизвестное состояние',
       
-      sectionComponents: () => [
+      sectionComponents: (state, getters) => [
         'CPEManagementCPEInfo',
         'CPEManagementSpeedTest',
         'CPEManagementReboot',
