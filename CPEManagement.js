@@ -2413,6 +2413,13 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
               response?.message,
               response?.text
             ]});
+            dispatch('main/report',['CPEManagement/_lastInfoError',{
+              params: {
+                mrID: state._mrID,
+                cpeID: state._cpeID
+              },
+              response,
+            }],STORE.R00T);
           }else{
             commit('_setStateProp', {_lastInfoError: [
               'unknown error'
@@ -2448,6 +2455,13 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
               response?.message,
               response?.text
             ]);
+            dispatch('main/report',['CPEManagement/_onlineInfoError',{
+              params: {
+                mrID: state._mrID,
+                cpeID: state._cpeID
+              },
+              response,
+            }],STORE.R00T);
           }else{
             dispatch('Sections/CPEInfo/setOnlineInfoError', [
               'unknown error'
