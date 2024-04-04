@@ -2014,6 +2014,13 @@ const createSubModuleCPEManagement_CPE_SectionCPEInfo = function(modulePath, sec
     getters: {
       label: () => 'CPE',
       lastInfoExist: (state) => Boolean(state._lastInfo?.last_msg_time),
+      canOnlineInfo: (state, getters) => {
+        if(!getters.lastInfoExist){return}
+        const H9 = 32400000;
+        const ms = state._lastInfo?.last_msg_time * 1000;
+        const duration = new Date() - ms;
+        return duration <= H9;
+      },
       onlineInfoExist: (state) => Boolean(state._onlineInfo?.uptime),
       onlineInfoError: (state) => state._onlineInfoError,
       
@@ -2275,6 +2282,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
       //------------[CPELastInfo]------------//
       lastInfoLoading: (state) => state._lastInfoLoading,
       lastInfoExist: (state, getters) => getters['Sections/CPEInfo/lastInfoExist'],
+      canOnlineInfo: (state, getters) => getters['Sections/CPEInfo/canOnlineInfo'],
       lastInfoError: (state) => state._lastInfoError,
       
       //------------[CPEOnlineInfo]------------//
@@ -2393,7 +2401,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
           dispatch('_getLastInfo'),
         ]);
         await Promise.allSettled([
-          ...getters.lastInfoExist ? [
+          ...getters.canOnlineInfo ? [
             dispatch('getOnlineInfo', !0),
           ]:[]
         ]);
