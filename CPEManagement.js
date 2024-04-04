@@ -75,7 +75,7 @@ Vue.component('CPEManagementPageNavbar', {
     </PageNavbar>
     
     <div class="white-block-100" v-if="onlineInfoExist">
-      <LineScrollSelector2 v-bind="{
+      <UILineScrollSelector v-bind="{
         selectedItem: {sectionName,label},
         items: sections,
         counters: counters,
@@ -575,7 +575,7 @@ Vue.component('CPEManagementPortSelect',{
       </title-main>
     </div>
     <div class="divider-line"/>
-    <LineScrollSelector2 v-bind="{
+    <UILineScrollSelector v-bind="{
       selectedItem: {portName,portLabel},
       items: portsSections,
       counters
@@ -2878,7 +2878,7 @@ app.$router.addRoutes([
 ]);
 
 //FIX класс disabled в LineScrollSelector2
-(function(id=`LineScrollSelector2-css`){
+/*(function(id=`LineScrollSelector2-css`){
   document.getElementById(id)?.remove();
   const el=Object.assign(document.createElement('style'),{type:'text/css',id});
   el.appendChild(document.createTextNode(`
@@ -2955,7 +2955,7 @@ Vue.component('UILinearProgressLoader', {
   //beforeDestroy(){
   //  this.$store.dispatch('UILinearProgressLoader/abort', this.loaderID);
   //}
-});
+});*/
 
 router.beforeEach((to, from, next)=>{
   if(to.name == 'account-cpe'){
