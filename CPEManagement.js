@@ -2738,7 +2738,7 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
             const Login = se?.credentials?.find(({code})=> code == 'Login')?.value?.value;
             const Password = se?.credentials?.find(({code})=> code == 'Password')?.value?.value;
             const sep_UsageType = se?.equipment_parameters?.find(({code})=> code == 'UsageType');
-            const UsageType = sep_UsageType?.value?.name || sep_UsageType?.value?.value;
+            const UsageType = /*sep_UsageType?.value?.name ||*/ sep_UsageType?.value?.value;
             const StaticIP = se?.equipment_parameters?.find(({code})=> code == 'StaticIP')?.value?.value;
             commit('_setStateProp', {_accountServiceEquipmentLogin: Login || ''});
             commit('_setStateProp', {_accountServiceEquipmentPassword: Password || ''});
