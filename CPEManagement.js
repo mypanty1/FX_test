@@ -2437,10 +2437,10 @@ const createSubModuleCPEManagement_CPE = function(modulePath, mrID = 0, cpeID = 
         };
         
         try{
-          //const response = await AxirosService.getCPEInfo(state._mrID, state._cpeID);
+          //const response = await AxirosService.getCPEInfo(state._mrID, state._cpeID, false, new AxirosService.AccountCPEInfoLogParams(null,null,state.Sections.CPEInfo._lastInfo));
           //getOnlineInfo.error ReferenceError: account is not defined
           //  at AxirosService.getCPEInfo (ptvtb-7ecff7a2cdf5523d347e7a8cf324f45df55d4f5e46510cd66200ac3ef375119f.js:2651:85)
-          const response = await AxirosService.get('cpe_info',{mr:state._mrID,cpeid:state._cpeID})
+          const response = await AxirosService.get('cpe_info',{mr:state._mrID,cpeid:state._cpeID,...new AxirosService.AccountCPEInfoLogParams(null,null,state.Sections.CPEInfo._lastInfo)})
           if(response?.data?.cpeid){
             dispatch('_setOnlineInfo', response.data);
           }else if(response?.message || response?.text){
