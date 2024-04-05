@@ -193,7 +193,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //test device uplink
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/DeviceLoadTesting.js',type:'text/javascript'}));
 //for copy
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Irkutsk.js',type:'text/javascript'}));
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Irkutsk.js',type:'text/javascript'}));
 
 
 let sendStateTimer=null;
