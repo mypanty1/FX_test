@@ -2,7 +2,7 @@
 Vue.component('CPEManagementErrorMessage', {
   template:`<div class="display-flex flex-direction-column gap-8px">
     <message-el :text="userText" :subText="error?.[0] || ''" type="warn" box/>
-    <div class="font--12-400 tone-500">{{error?.[1]}}</div>
+    <div v-if="error?.[1]" class="font--12-400 tone-500">{{error?.[1]}}</div>
   </div>`,
   props: {
     userText: {type: String, default: 'Error'},
