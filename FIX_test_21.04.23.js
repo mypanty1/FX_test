@@ -176,8 +176,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //test new page
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CPEManagement.js',type:'text/javascript'}));
 
-//fix task entrance tab
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskContent_CMTaskEntranceContent_task-entrance.js',type:'text/javascript'}));
+//add cm tasks to port
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortBindSearchAbon.js',type:'text/javascript'}));
 
 //fix multi node points
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Buildings.js',type:'text/javascript'}));
