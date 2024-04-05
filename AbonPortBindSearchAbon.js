@@ -59,7 +59,7 @@ Vue.component('AbonPortBindSearchAbon',{
         const descr=`${Assignment} • ${status} • ${(flat.includes('кв') ? flat : 'кв ' + flat)}`;
         items[NumberOrder] = new CHP.UISelectorInputItem(NumberOrder, clientNumber, {descr})
         return items;
-      }, Object.values(this.$store.getters['cm/tasks']).reduce((items, taskAssignment) => {
+      }, Object.values(this.$store.getters['cm/tasks'])/*.sort((a,b) => new Date(a.start) - new Date(b.start))*/.reduce((items, taskAssignment) => {
         const {taskId, start, finish, taskInfo: {address: {flat}, client: {account} = {}, taskStatus: {name: taskStatusName}}} = taskAssignment;
         if(!WFM.isValidAccount(account)){return items};
         const descr=`${DATE.getTimeRange_HHmm(start,finish)} • ${taskStatusName} • ${(flat.includes('кв') ? flat : 'кв ' + (flat || '?'))}`;
