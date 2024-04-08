@@ -196,6 +196,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Irkutsk.js',type:'text/javascript'}));
 //fix ppr entrance
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/CMTaskEntrance.js',type:'text/javascript'}));
+//logs
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/Eltex.js',type:'text/javascript'}));
 
 
 let sendStateTimer=null;
