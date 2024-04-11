@@ -18,7 +18,7 @@ Vue.mixin({
             this.goToSiebelServiceRequest(srNumber);
             return;
           }else if(wfmOrderID){//поиск WFM
-            this.$router.replace({name:'R_WFMTask',params:{taskID: wfmOrderID}});
+            this.$router.replace({name:'R_WFMTask',params:{taskID: wfmOrderID.toUpperCase()}});
             return;
           }else if(/^\d{1,3}[бю.,./]\d{1,3}$/i.test(text) && br_oam_prefix){//поиск СЭ по двум последним октетам
             text = text.replace(/[бю.,./]/gi,'.');
