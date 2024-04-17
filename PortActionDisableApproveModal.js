@@ -14,7 +14,7 @@ Vue.component('PortActionDisable', {
             </div>
 
             <div class="display-flex flex-direction-column gap-8px padding-left-right-8px width-100-100 margin-top-100px">
-              <div class="display-flex flex-wrap-wrap gap-8px" :style="apprBtnsContainerStyle">
+              <div class="display-flex flex-wrap-wrap gap-8px justify-content-center">
                 <template v-for="index of apprBtnsCount" >
                   <button-main :key="index" label="Да" @click="apprBtnsCount--" v-bind="{
                     disabled: loading || disabled,
@@ -46,12 +46,8 @@ Vue.component('PortActionDisable', {
       data: () => ({
         loading: !1,
         apprBtnsCount: 16,
-        apprBtnsContainerStyle: '',
       }),
       watch: {
-        'apprBtnsCount'(){
-          this.apprBtnsContainerStyle = 'justify-content:' + shuffle(['left','right','center','space-around','space-between','space-evenly'])[0];
-        },
         'loading'(loading){
           this.$emit('loading', loading)
         }
@@ -65,7 +61,7 @@ Vue.component('PortActionDisable', {
         },
         onOpen(){
           this.loading = !1;
-          this.apprBtnsCount = 16
+          this.apprBtnsCount = 16;
         },
         onClose(){
           
