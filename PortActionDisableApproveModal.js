@@ -44,7 +44,7 @@ Vue.component('PortActionDisable', {
         disabled: {type: Boolean, default: !1},
       },
       data: () => ({
-        message: '',
+        message: 'Вы действительно хотите этот порт отключить?',
         loading: !1,
         apprBtnsCount: 16,
       }),
@@ -61,7 +61,6 @@ Vue.component('PortActionDisable', {
           this.$refs.modal.close();
         },
         onOpen(){
-          this.message = 'Вы '+shuffle('действительно хотите этот порт отключить'.split(' ')).join(' ')+'?'
           this.loading = !1;
           this.apprBtnsCount = 16;
         },
