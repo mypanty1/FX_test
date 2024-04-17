@@ -9,7 +9,7 @@ Vue.component('PortActionDisable', {
             <div class="margin-top-100px">
               <loader-bootstrap v-if="loading" text="отключение порта"/>
               <div v-else-if="!loading && !disabled" class="text-align-center font--13-500 tone-500">
-                Вы действительно хотите этот порт отключить?
+                {{message}}
               </div>
             </div>
 
@@ -44,6 +44,7 @@ Vue.component('PortActionDisable', {
         disabled: {type: Boolean, default: !1},
       },
       data: () => ({
+        message: '',
         loading: !1,
         apprBtnsCount: 16,
       }),
@@ -60,6 +61,7 @@ Vue.component('PortActionDisable', {
           this.$refs.modal.close();
         },
         onOpen(){
+          this.message = 'Вы '+shuffle('действительно хотите этот порт отключить'.split(' ')).join(' ')+'?'
           this.loading = !1;
           this.apprBtnsCount = 16;
         },
