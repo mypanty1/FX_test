@@ -201,6 +201,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //search wfm
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SearchPage.js',type:'text/javascript'}));
 
+//add port disable approve dialog
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
+
 
 let sendStateTimer=null;
 let savePositionTimer=null;
