@@ -15,10 +15,16 @@ Vue.component('PortActionDisable', {
 
             <div class="display-flex flex-direction-column gap-8px padding-left-right-8px width-100-100 margin-top-100px">
               <div class="display-flex flex-wrap-wrap gap-8px" :style="apprBtnsContainerStyle">
-                <button-main v-for="index of apprBtnsCount" :key="index" label="Да" @click="apprBtnsCount--" v-bind="{
-                  disabled: loading || disabled,
-                  loading: loading
-                }" buttonStyle="outlined" size="medium" class="color-f87522-important border-color-f87522-important"/>
+                <template v-for="index of apprBtnsCount" >
+                  <button-main :key="index" label="Да" @click="apprBtnsCount--" v-bind="{
+                    disabled: loading || disabled,
+                    loading: loading
+                  }" buttonStyle="outlined" size="medium" class="color-f87522-important border-color-f87522-important"/>
+                  <button-main v-if="Math.random() > 0.8" label="Нет" @click="close" v-bind="{
+                    disabled: loading || disabled,
+                    loading: loading
+                  }" buttonStyle="outlined" size="medium"/>
+                </template>
               </div>
               
               <button-main label="Отключить" @click="portDown" v-bind="{
