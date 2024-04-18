@@ -233,7 +233,7 @@ Vue.mixin({
           console.warn(error);
         }
       }
-    }else if(this.$options.name=='LbsvContent'){
+    }else if(this.$options.name=='LbsvContent' || this.$options.name=='LbsvB2bContent'){
       this.$options.methods.updateAgreementServices = async function(){
         const {serverID}=this;
         // this.agreementServicesUpdated={};
