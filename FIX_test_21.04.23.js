@@ -190,7 +190,22 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
       }).map(([key, value]) => (`${key}=${value}`)).join(',')
     }
   }
-})
+});
+Vue.mixin({
+  beforeCreate(){
+    if(this.$options.name=='MacEntityItem'){
+      this.$options.template=`<div class="display-flex margin-left-right-16px align-items-center gap-2px" @click="$emit('onClick',onClick())">
+        <div class="font--12-400 white-space-pre"><slot name="label">{{label}}:</slot></div>
+        <slot name="content">
+          <div class="font--13-500 white-space-pre padding-left-right-4px border-radius-4px" :class="textBgClass">{{text}}</div>
+        </slot>
+        <slot name="arrow">
+          <div v-if="showArrow" class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px cursor-pointer"></div>
+        </slot>
+      </div>`
+    }
+  }
+});
 
 
 let sendStateTimer=null;
