@@ -206,6 +206,32 @@ Vue.mixin({
     }
   }
 });
+Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
+  template:`<div class="display-flex align-items-center gap-8px cursor-pointer" @click="onClick" v-if="isB2CEngineer">
+    <IcIcon name="fas fa-link" color="#5642bd" class="font-size-22px"/>
+    <span>Биржа нарядов</span>
+    <div class="margin-left-auto">
+      <IcIcon name="fa fa-chevron-right"/>
+    </div>
+  </div>`,
+  computed:mapGetters([
+    'userLogin',
+    'isB2CEngineer',
+    'vacantTaskWebURI'
+  ]),
+  methods:{
+    onClick(){
+      const _uri = this.vacantTaskWebURI;
+      const uri = /auth.mgts.ru/.test(_uri) ? `https://auth.mgts.ru/vtf` : _uri
+      if(this.$store.getters['app/isApp']){
+        this.$store.dispatch('app/actionView', uri);
+      }else{
+        window.open(uri, '_blank');
+      }
+      this.$store.dispatch('menu/close');
+    },
+  }
+});
 
 
 let sendStateTimer=null;
