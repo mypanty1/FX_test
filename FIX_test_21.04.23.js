@@ -234,12 +234,7 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   methods:{
     onClick(){
       const _uri = this.vacantTaskWebURI;
-      // if(/auth.mgts.ru/.test(_uri)){
-      //   return this.$router.push({
-      //     name: 'R_VacantTasks',
-      //   })
-      // }
-      const uri = /auth.mgts.ru/.test(_uri) ? `https://auth.mgts.ru/vtf` : _uri
+      const uri = /(auth.mgts.ru)/.test(_uri) ? `https://auth.mgts.ru/vtf` : _uri
       if(this.$store.getters['app/isApp']){
         this.$store.dispatch('app/actionView', uri);
       }else{
