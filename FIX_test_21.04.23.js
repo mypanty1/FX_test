@@ -176,7 +176,16 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
 
-[GoOctopusService, GoRemedyWorkService, GoNiossService, GoDeviceServiceDnm, GoSiebelService, GoMangoService, GoSwitchRep, GoEmailer, GoMaintenance].forEach(service=>{
+const GoBillingServiceLbsv = new class GoBillingServiceLbsv extends GoRequestService {
+  getVgroupEx(serverID, vgID, ActivTaskNumber, ServiceType) {
+    return this.post('GetVgroupEx', this.mergeParams({
+      serverid: serverID,
+      vgroupid: vgID
+    }), this.metaDataHeaders({ActivTaskNumber, ServiceType}));
+  }
+}('/v1/BillingService/Lbsv');
+
+[GoOctopusService, GoRemedyWorkService, GoNiossService, GoDeviceServiceDnm, GoSiebelService, GoMangoService, GoSwitchRep, GoEmailer, GoMaintenance, GoBillingServiceLbsv].forEach(service=>{
   service.metaDataHeaders = function(metaData = {}, headers = {}){
     return {
       ...headers,
@@ -191,6 +200,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
     }
   }
 });
+
 Vue.mixin({
   beforeCreate(){
     if(this.$options.name=='MacEntityItem'){
@@ -203,9 +213,43 @@ Vue.mixin({
           <div v-if="showArrow" class="ic-20 ic-right-1 main-lilac bg-main-lilac-light border-radius-4px cursor-pointer"></div>
         </slot>
       </div>`
+    };
+    if(this.$options.name=='AbonPortBindSearchAbon'){
+      this.$options.methods.updateLbsvResource = async function({serverid,vgid}={}){
+        if(!serverid||!vgid){return};
+        const {vgroups}=this.lbsv;
+        try{
+          const serviceType = vgroups?.find(vg => vg.vgid === vgid)?.type;
+          const response = await GoBillingServiceLbsv.getVgroupEx(serverid, vgid, this.activeWfmTask?.NumberOrder, serviceType);
+          if(!response?.data?.vgid){return};
+          const currentVg=vgroups.find(vg=>vg.vgid==vgid);
+          if(!currentVg){return};
+          const currentVgIndex=vgroups.findIndex(vg=>vg.vgid==vgid);
+          this.$set(this.lbsv.vgroups,currentVgIndex,{
+            ...currentVg,
+            ...response.data
+          });
+        }catch(error){
+          console.warn("resource_info.error",error);
+        }
+      }
+    }else if(this.$options.name=='LbsvContent'){
+      this.$options.methods.updateAgreementServices = async function(){
+        const {serverID}=this;
+        // this.agreementServicesUpdated={};
+        for (const service of Object.values(this.agreementServices)) {
+          try{
+            const response = await GoBillingServiceLbsv.getVgroupEx(serverID, service.vgid, this.activeWfmTask?.NumberOrder, service.type);
+            if(!response?.data?.vgid){return};
+            this.$set(this.agreementServicesUpdated,response.data.vgid,response.data);
+          }catch(error){
+            console.warn("updateAgreementService.error",vgid,error);
+          };
+        };
+      }
     }
   }
-});
+})
 
 app.$router.addRoutes([
   {
