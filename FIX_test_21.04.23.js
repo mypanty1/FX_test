@@ -230,7 +230,7 @@ Vue.mixin({
             ...response.data
           });
         }catch(error){
-          console.warn("resource_info.error",error);
+          console.warn(error);
         }
       }
     }else if(this.$options.name=='LbsvContent'){
@@ -240,10 +240,11 @@ Vue.mixin({
         for (const service of Object.values(this.agreementServices)) {
           try{
             const response = await GoBillingServiceLbsv.getVgroupEx(serverID, service.vgid, this.activeWfmTask?.NumberOrder, service.type);
-            if(!response?.data?.vgid){return};
-            this.$set(this.agreementServicesUpdated,response.data.vgid,response.data);
+            if(response?.data?.vgid){
+              this.$set(this.agreementServicesUpdated,response.data.vgid,response.data);
+            };
           }catch(error){
-            console.warn("updateAgreementService.error",vgid,error);
+            console.warn(error);
           };
         };
       }
