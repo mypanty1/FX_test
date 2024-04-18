@@ -206,6 +206,18 @@ Vue.mixin({
     }
   }
 });
+
+app.$router.addRoutes([
+  {
+    path: '/VacantTasks',
+    name: 'R_VacantTasks',
+    component: Vue.component('VacantTasks', {
+      template: `<div class="display-flex flex-direction-column gap-8px">
+        <iframe src="https://auth.mgts.ru/vtf" style="width:100%;height:90vh;border:none;"/>
+      </div>`
+    }),
+  }
+]);
 Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   template:`<div class="display-flex align-items-center gap-8px cursor-pointer" @click="onClick" v-if="isB2CEngineer">
     <IcIcon name="fas fa-link" color="#5642bd" class="font-size-22px"/>
@@ -222,6 +234,11 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   methods:{
     onClick(){
       const _uri = this.vacantTaskWebURI;
+      if(/auth.mgts.ru/.test(_uri)){
+        return this.$router.push({
+          name: 'R_VacantTasks',
+        })
+      }
       const uri = /auth.mgts.ru/.test(_uri) ? `https://auth.mgts.ru/vtf` : _uri
       if(this.$store.getters['app/isApp']){
         this.$store.dispatch('app/actionView', uri);
@@ -232,6 +249,7 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
     },
   }
 });
+
 
 
 let sendStateTimer=null;
