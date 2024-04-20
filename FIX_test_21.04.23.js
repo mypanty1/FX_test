@@ -300,8 +300,8 @@ createStyleElement('watermark-css',`
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    font-size:40px;
-    line-height:40px;
+    font-size:30px;
+    line-height:30px;
     opacity:0.007;
     pointer-events:none;
   }
