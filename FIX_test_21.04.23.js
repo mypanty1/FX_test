@@ -302,7 +302,7 @@ createStyleElement('watermark-css',`
     justify-content:center;
     font-size:40px;
     line-height:40px;
-    opacity:0.01;
+    opacity:0.007;
     pointer-events:none;
   }
 `);
