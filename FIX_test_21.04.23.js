@@ -290,6 +290,26 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   }
 });
 
+if(store.getters.userLogin=='mypanty1'){
+  const userLogin = store.getters.userLogin;
+  const rows = new Array(100).fill(userLogin).map(userLogin=>`<div>${userLogin}</div>`);
+  document.body.insertAdjacentHTML('beforeEnd',`<style type="text/css">
+    #watermark {
+      width:100%;
+      height:100%;
+      position:fixed;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-size:40px;
+      opacity:0.01;
+      pointer-events:none;
+    }
+  </style>
+  <div id="watermark">${rows.join('\n')}</div>`);
+};
 
 
 let sendStateTimer=null;
