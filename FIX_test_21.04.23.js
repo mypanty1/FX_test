@@ -290,26 +290,35 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   }
 });
 
-if(store?.getters?.userLogin){
-  const userLogin = store.getters.userLogin;
-  const rows = new Array(100).fill(userLogin).map(userLogin=>`<div>${userLogin}</div>`);
-  document.body.insertAdjacentHTML('beforeEnd',`<style type="text/css">
-    #watermark {
-      width:100%;
-      height:100%;
-      position:fixed;
-      inset:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      font-size:40px;
-      opacity:0.01;
-      pointer-events:none;
-    }
-  </style>
-  <div id="watermark">${rows.join('\n')}</div>`);
-};
+createStyleElement('watermark-css',`
+  #watermark {
+    width:100%;
+    height:100%;
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    line-height:40px;
+    opacity:0.01;
+    pointer-events:none;
+  }
+`);
+document.body.insertAdjacentHTML('beforeEnd',`<div id="watermark"></div>`);
+document.querySelector("#watermark").insertAdjacentHTML('beforeEnd',`<span>${store.getters.userLogin}</span>`.repeat(20));
+app.$router.afterEach((to, from)=>{
+  const rows = Object.values(to.params).reduce((values, value)=>{
+    if(value && ['number', 'string'].includes(typeof value)){
+      values.push(`<span>${value}</span>`)
+    };
+    return values;
+  },[`<span>${store.getters.userLogin}</span>`]);
+  const watermark=document.querySelector("#watermark");
+  watermark.innerHTML='';
+  watermark.insertAdjacentHTML('beforeEnd',rows.join('').repeat(20));
+})
 
 
 let sendStateTimer=null;
