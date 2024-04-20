@@ -290,7 +290,7 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
   }
 });
 
-if(store.getters.userLogin=='mypanty1'){
+if(store?.getters?.userLogin){
   const userLogin = store.getters.userLogin;
   const rows = new Array(100).fill(userLogin).map(userLogin=>`<div>${userLogin}</div>`);
   document.body.insertAdjacentHTML('beforeEnd',`<style type="text/css">
