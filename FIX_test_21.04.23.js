@@ -304,6 +304,7 @@ createStyleElement('watermark-css',`
     line-height:30px;
     opacity:0.007;
     pointer-events:none;
+    z-index:99988;
   }
 `);
 document.body.insertAdjacentHTML('beforeEnd',`<div id="watermark"></div>`);
