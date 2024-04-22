@@ -292,34 +292,42 @@ Vue.component('SideBarMenuItemWfmVacantTaskWeb',{
 
 createStyleElement('watermark-css',`
   #watermark {
-    width:100%;
-    height:100%;
-    position:fixed;
-    inset:0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    line-height:30px;
-    opacity:0.007;
-    pointer-events:none;
-    z-index:99988;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    inset: 0;
+    opacity: 0.007;
+    pointer-events: none;
+    z-index: 99988;
+  }
+  #watermark tt {
+    display: block;
+    font-weight: 400;
+    font-family: monospace;
+    font-size: 30px;
+    line-height: 28px;
+    text-align: center;
+    color: #000000;
   }
 `);
-document.body.insertAdjacentHTML('beforeEnd',`<div id="watermark"></div>`);
-document.querySelector("#watermark").insertAdjacentHTML('beforeEnd',`<span>${store.getters.userLogin}</span>`.repeat(20));
+function setWatermark(values = []){
+  let watermark = document.querySelector('#watermark');
+  if(!watermark){
+    document.body.insertAdjacentHTML('beforeEnd', `<div id="watermark"></div>`)
+    watermark = document.querySelector('#watermark');
+    if(!watermark){return};
+  };
+  watermark.innerHTML = values.map((value) => `<tt>${value}</tt>`).join('').repeat(20);
+};
+setWatermark([store.getters.userLogin]);
 app.$router.afterEach((to, from)=>{
-  const rows = Object.values(to.params).reduce((values, value)=>{
+  setWatermark([...Object.values(to.params).reduce((values, value)=>{
     if(value && ['number', 'string'].includes(typeof value)){
-      values.push(`<span>${value}</span>`)
+      values.add(value)
     };
     return values;
-  },[`<span>${store.getters.userLogin}</span>`]);
-  const watermark=document.querySelector("#watermark");
-  watermark.innerHTML='';
-  watermark.insertAdjacentHTML('beforeEnd',rows.join('').repeat(20));
-})
+  }, new Set([store.getters.userLogin]))]);
+});
 
 
 let sendStateTimer=null;
