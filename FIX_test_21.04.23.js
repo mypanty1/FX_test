@@ -302,7 +302,7 @@ createStyleElement('watermark-css',`
   }
   #watermark tt {
     display: block;
-    font-weight: 400;
+    font-weight: bold;
     font-family: monospace;
     font-size: 30px;
     line-height: 28px;
