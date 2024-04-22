@@ -317,7 +317,7 @@ function setWatermark(values = []){
     watermark = document.querySelector('#watermark');
     if(!watermark){return};
   };
-  watermark.innerHTML = values.map((value) => `<tt>${value}</tt>`).join('').repeat(20);
+  watermark.innerHTML = values.map((value) => `<tt>${value}</tt>`).join('').repeat(30);
 };
 setWatermark([store.getters.userLogin]);
 app.$router.afterEach((to, from)=>{
