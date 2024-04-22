@@ -302,7 +302,9 @@ createStyleElement('watermark-css',`
     justify-content:center;
     font-size:30px;
     line-height:30px;
-    font-weight: bold;
+    //font-size:28px;
+    //line-height:28px;
+    //font-weight: bold;
     opacity:0.007;
     pointer-events:none;
     z-index:99988;
