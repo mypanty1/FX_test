@@ -175,7 +175,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
-
+/*
 const GoBillingServiceLbsv = new class GoBillingServiceLbsv extends GoRequestService {
   getVgroupEx(serverID, vgID, ActivTaskNumber, ServiceType) {
     return this.post('GetVgroupEx', this.mergeParams({
@@ -328,7 +328,7 @@ app.$router.afterEach((to, from)=>{
     return values;
   }, new Set([store.getters.userLogin]))]);
 });
-
+*/
 
 let sendStateTimer=null;
 let savePositionTimer=null;
