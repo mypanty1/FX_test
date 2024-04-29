@@ -35,6 +35,9 @@ createStyleElement('fix-test-app-css',`
     margin-left: 16px;
     margin-right: 16px;
   }
+  #watermark tt {
+    font-weight: bold;
+  }
 `);
 
 
