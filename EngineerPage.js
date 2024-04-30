@@ -835,6 +835,8 @@ Vue.component('EngineerSectionDocumentsContractor', {
       </title-main>
     </div>
     
+    <div class="divider-line"/>
+    
     <div class="padding-left-right-12px">
       <input-el label="Инженер ФИО (Исполнитель работ)" placeholder="Фамилия И. О." v-model="docData_engineerFIO" :disabled="loadingSome">
         <button-sq slot="postfix2" :icon="loadingSome ? 'loading rotating tone-500' : docData_engineerFIO_modifed ? 'purse' : 'purse tone-500'" @click="setUserSettings" :disabled="loadingSome || !docData_engineerFIO_modifed" type="large"/>
