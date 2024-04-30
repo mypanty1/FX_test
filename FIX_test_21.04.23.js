@@ -178,6 +178,11 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
+
+//EngineerPage
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EngineerPage.js',type:'text/javascript'}));
+
+
 /*
 const GoBillingServiceLbsv = new class GoBillingServiceLbsv extends GoRequestService {
   getVgroupEx(serverID, vgID, ActivTaskNumber, ServiceType) {
