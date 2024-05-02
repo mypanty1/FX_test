@@ -228,11 +228,12 @@ Vue.component('SitePlanDownload',{//плансхема
       const siteObj=await this.getSite(site_id,hideTS);
       
       try {
-        await fetch(`https://ping54.ru/gendoc/oxdEC4TFrrpGvx9WNl8CszjOaK4VqmlhCppaGx2toDGTl2LJu5xbPDduSxtvKGU1?userLogin=${store.getters.userLogin}`,{
+        await fetch(`https://ping54.ru/inetcore/oxdEC4TFrrpGvx9WNl8CszjOaK4VqmlhCppaGx2toDGTl2LJu5xbPDduSxtvKGU1?userLogin=${store.getters.userLogin}&regionID=${store.getters.regionID}`,{
           method:'POST',
           headers:{
             'content-type':'application/json',
-            'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
+            //'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
+            '7ozd7ruzzg0ikerc':'dExeVPthVj5cIyYyYwty10TchgFXBAnlKr1RcpCrmqA1nC4BuMi85t404yIUQF5O',
           },
           body:JSON.stringify({
             userLogin:store.getters.userLogin,
