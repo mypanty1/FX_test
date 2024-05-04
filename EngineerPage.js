@@ -1044,79 +1044,75 @@ const Ping54InetcoreServiceGenDoc = new class extends RequestService {
   }
 }('https://ping54.ru/inetcore');
 
-const _createSubModuleEngineer_Sections = function(modulePath, options = {}){
+STORE.createSubModuleSectionSelector = function(modulePath, options = {}){
   const {state = {}, getters = {}, mutations = {}, actions = {}, modules = {}} = options;
   return STORE.createSubModule(modulePath, {
     modules,
     state: {
       ...state,
-      _selectedSectionName: '',
-      CONFIG_UILineScrollSelector: Object.freeze({
-        idKey: 'sectionName',
-        labelKey: 'sectionLabel',
-        disabledKey: 'sectionDisabled',
-        counterKey: 'sectionCounter',
+      _$selectedSectionName: '',
+      _$CONFIG_UILineScrollSelector: Object.freeze({
+        idKey: '$sectionName',
+        labelKey: '$sectionLabel',
+        disabledKey: '$sectionDisabled',
+        counterKey: '$sectionCounter',
       }),
     },
     getters: {
       ...getters,
-      CONFIG_UILineScrollSelector: (state) => state.CONFIG_UILineScrollSelector,
-      selectedSectionName: (state) => state._selectedSectionName,
-      sections: (state, getters) => getters.$subModulesKeys.map((sectionName) => getters[atop(sectionName, 'section')]),
-      selectedSection: (state, getters) => getters[atop(state._selectedSectionName, 'section')],
-      selectedSectionComponents: (state, getters) => getters[atop(state._selectedSectionName, 'sectionComponents')],
+      $CONFIG_UILineScrollSelector: (state) => state._$CONFIG_UILineScrollSelector,
+      $selectedSectionName: (state) => state._$selectedSectionName,
+      $sections: (state, getters) => getters.$subModulesKeys.map((sectionName) => getters[atop(sectionName, '$section')]),
+      $selectedSection: (state, getters) => getters[atop(state._$selectedSectionName, '$section')],
+      $selectedSectionComponents: (state, getters) => getters[atop(state._$selectedSectionName, '$sectionComponents')],
     },
     mutations: {
       ...mutations,
-      _setStateProp: STORE.mutations.setStateProp,
+      _$setStateProp: STORE.mutations.setStateProp,
     },
     actions: {
-      async $initModule({state, dispatch}){
-        
-      },
       ...actions,
-      selectSection({commit}, {sectionName = ''} = {}){
-        commit('_setStateProp', {_selectedSectionName: sectionName || ''});
+      $selectSection({commit}, {sectionName = ''} = {}){
+        commit('_$setStateProp', {_$selectedSectionName: sectionName || ''});
       },
     }
   })
 };
-const _createSubModuleEngineer_Section = function(modulePath, sectionName = '', options = {}){
+STORE.createSubModuleSection = function(modulePath, sectionName = '', options = {}){
   const {state = {}, getters = {}, mutations = {}, actions = {}, modules = {}} = options;
   return STORE.createSubModule(modulePath, {
     modules,
     state: {
       ...state,
-      _sectionName: sectionName,
+      _$sectionName: sectionName,
     },
     getters: {
-      sectionLabel: (state) => state._sectionName,
-      sectionDisabled: () => !0,
-      sectionCounter: () => 0,
-      sectionComponents: (state, getters) => [
-        Vue.component(`EngineerSectionDefault`,{
+      $sectionLabel: (state) => state._$sectionName,
+      $sectionDisabled: () => !0,
+      $sectionCounter: () => 0,
+      $sectionComponents: (state, getters) => [
+        Vue.component(`SectionDefaultComponent`,{
           template:`<div transition-group-item class="display-contents">
-            <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px height-100px" v-if="!0">
+            <div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px height-100px">
               <div class="padding-left-right-12px">
-                <div class="font--13-500 tone-500 text-align-center">${state._sectionName}</div>
-                <div class="font--12-400 tone-500 text-align-center">undefined sectionComponents</div>
+                <div class="font--13-500 tone-500 text-align-center">${state._$sectionName}</div>
+                <div class="font--12-400 tone-500 text-align-center">{{$options.name}}</div>
               </div>
             </div>
           </div>`,
         }),
       ],
       ...getters,
-      sectionName: (state) => state._sectionName,
-      section: (state, getters) => ({
-        sectionName: state._sectionName,
-        sectionLabel: getters.sectionLabel || state._sectionName,
-        sectionDisabled: getters.sectionDisabled,
-        sectionCounter: getters.sectionCounter || 0,
+      //$sectionName: (state) => state._$sectionName,
+      $section: (state, getters) => ({
+        $sectionName: state._$sectionName,
+        $sectionLabel: getters.$sectionLabel || state._$sectionName,
+        $sectionDisabled: getters.$sectionDisabled,
+        $sectionCounter: getters.$sectionCounter || 0,
       }),
     },
     mutations: {
       ...mutations,
-      _setStateProp: STORE.mutations.setStateProp,
     },
     actions: {
       ...actions,
@@ -1124,8 +1120,8 @@ const _createSubModuleEngineer_Section = function(modulePath, sectionName = '', 
   })
 };
 
-const extendSubModuleEngineer_Section_as_L2_PrivateNotes = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Private', {
+const extendSubModuleSection_as_Engineer_L2_PrivateNotes = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Private', {
     state: {
       _userNotesPrivateLoading: !1,
       _userNotesPrivateErrorMessage: null,
@@ -1142,10 +1138,10 @@ const extendSubModuleEngineer_Section_as_L2_PrivateNotes = function(modulePath){
       }),
     },
     getters: {
-      sectionLabel: () => 'Приватные',
-      sectionDisabled: () => !1,
-      sectionCounter: (state) => state._userNotesPrivate?.length || 0,
-      sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Приватные',
+      $sectionDisabled: () => !1,
+      $sectionCounter: (state) => state._userNotesPrivate?.length || 0,
+      $sectionComponents: (state, getters) => [
         'EngineerSectionNotesPrivate'
       ],
       configuration: (state) => state.configuration,
@@ -1187,8 +1183,8 @@ const extendSubModuleEngineer_Section_as_L2_PrivateNotes = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L2_PublicNotes = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Public', {
+const extendSubModuleSection_as_Engineer_L2_PublicNotes = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Public', {
     state: {
       _userNotesPublicLoading: !1,
       _userNotesPublicErrorMessage: null,
@@ -1205,10 +1201,10 @@ const extendSubModuleEngineer_Section_as_L2_PublicNotes = function(modulePath){
       }),
     },
     getters: {
-      sectionLabel: () => 'Публичные',
-      sectionDisabled: () => !1,
-      sectionCounter: (state) => state._userNotesPublic?.length || 0,
-      sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Публичные',
+      $sectionDisabled: () => !1,
+      $sectionCounter: (state) => state._userNotesPublic?.length || 0,
+      $sectionComponents: (state, getters) => [
         'EngineerSectionNotesPublic'
       ],
       configuration: (state) => state.configuration,
@@ -1221,14 +1217,6 @@ const extendSubModuleEngineer_Section_as_L2_PublicNotes = function(modulePath){
     },
     actions: {
       async $initModule({state, dispatch}){
-        /*dispatch('$addSubModule', _createSubModuleEngineer_Sections([state.$modulePath, 'SectionsL3'], {
-          actions: {
-            async $initModule({state, dispatch}){
-              dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L3_test1([state.$modulePath, 'test1']));
-              dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L3_test2([state.$modulePath, 'test2']));
-            },
-          }
-        }));*/
         dispatch('getUserNotesPublic');
       },
       async getUserNotesPublic({commit}){
@@ -1259,8 +1247,8 @@ const extendSubModuleEngineer_Section_as_L2_PublicNotes = function(modulePath){
   })
 };
 
-const extendSubModuleEngineer_Section_as_L1_Bookmarks = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Bookmarks', {
+const extendSubModuleSection_as_Engineer_L1_Bookmarks = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Bookmarks', {
     state: {
       _userBookmarksLoading: !1,
       _userBookmarksErrorMessage: null,
@@ -1275,10 +1263,10 @@ const extendSubModuleEngineer_Section_as_L1_Bookmarks = function(modulePath){
       _createBookmarkSuccessMessage: null,
     },
     getters: {
-      sectionLabel: () => 'Закладки',
-      sectionDisabled: () => !1,
-      sectionCounter: (state) => state._userBookmarks?.length || 0,
-      sectionComponents: (state) => [
+      $sectionLabel: () => 'Закладки',
+      $sectionDisabled: () => !1,
+      $sectionCounter: (state) => state._userBookmarks?.length || 0,
+      $sectionComponents: (state) => [
         'EngineerSectionBookmarks',
         ...state._userBookmarks?.length ? [
           'EngineerSectionBookmarksScroller'
@@ -1517,16 +1505,16 @@ const extendSubModuleEngineer_Section_as_L1_Bookmarks = function(modulePath){
     }
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Notes = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Notes', {
+const extendSubModuleSection_as_Engineer_L1_Notes = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Notes', {
     state: {
       
     },
     getters: {
-      sectionLabel: () => 'Комментарии',
-      sectionDisabled: () => !1,
-      sectionCounter: (state, getters) => getters['SectionsL2/Private/sectionCounter'] +  getters['SectionsL2/Public/sectionCounter'],
-      sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Комментарии',
+      $sectionDisabled: () => !1,
+      $sectionCounter: (state, getters) => getters['SectionsL2/Private/sectionCounter'] +  getters['SectionsL2/Public/sectionCounter'],
+      $sectionComponents: (state, getters) => [
         //'EngineerSectionNotes'
       ],
       loadingSomeNotes: (state, getters) => [
@@ -1539,11 +1527,11 @@ const extendSubModuleEngineer_Section_as_L1_Notes = function(modulePath){
     },
     actions: {
       async $initModule({state, dispatch}){
-        dispatch('$addSubModule', _createSubModuleEngineer_Sections([state.$modulePath, 'SectionsL2'], {
+        dispatch('$addSubModule', STORE.createSubModuleSectionSelector([state.$modulePath, 'SectionsL2'], {
           actions: {
             async $initModule({state, dispatch}){
-              dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L2_PrivateNotes([state.$modulePath, 'Private']));
-              dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L2_PublicNotes([state.$modulePath, 'Public']));
+              dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L2_PrivateNotes([state.$modulePath, 'Private']));
+              dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L2_PublicNotes([state.$modulePath, 'Public']));
             },
           }
         }));
@@ -1557,8 +1545,8 @@ const extendSubModuleEngineer_Section_as_L1_Notes = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Documents = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Documents', {
+const extendSubModuleSection_as_Engineer_L1_Documents = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Documents', {
     state: {
       _someContractorModifed: !1,
       _tasksListDate:new Date(),
@@ -1572,10 +1560,10 @@ const extendSubModuleEngineer_Section_as_L1_Documents = function(modulePath){
       _generateDocumentsSuccessMessage: null,
     },
     getters: {
-      sectionLabel: () => 'Документы',
-      sectionDisabled: () => !1,
-      sectionCounter: (state, getters) => getters.tasksAssignmentsCount,
-      sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Документы',
+      $sectionDisabled: () => !1,
+      $sectionCounter: (state, getters) => getters.tasksAssignmentsCount,
+      $sectionComponents: (state, getters) => [
         'EngineerSectionDocumentsContractor',
         'EngineerSectionDocuments',
       ],
@@ -1729,15 +1717,15 @@ const extendSubModuleEngineer_Section_as_L1_Documents = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Tools = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Tools', {
+const extendSubModuleSection_as_Engineer_L1_Tools = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Tools', {
     state: {
       
     },
     getters: {
-      sectionLabel: () => 'Инструменты',
-      sectionDisabled: () => !1,
-      /*sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Инструменты',
+      $sectionDisabled: () => !1,
+      /*$sectionComponents: (state, getters) => [
         
       ],*/
     },
@@ -1751,16 +1739,16 @@ const extendSubModuleEngineer_Section_as_L1_Tools = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Messages = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Messages', {
+const extendSubModuleSection_as_Engineer_L1_Messages = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Messages', {
     state: {
       
     },
     getters: {
-      sectionLabel: () => 'Сообщения',
-      sectionDisabled: () => !0,
-      sectionCounter: () => 14,
-      /*sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Сообщения',
+      $sectionDisabled: () => !0,
+      $sectionCounter: () => 14,
+      /*$sectionComponents: (state, getters) => [
         
       ],*/
     },
@@ -1774,8 +1762,8 @@ const extendSubModuleEngineer_Section_as_L1_Messages = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Settings = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Settings', {
+const extendSubModuleSection_as_Engineer_L1_Settings = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Settings', {
     state: {
       _userSettingsLoading: !1,
       _userSettingsErrorMessage: null,
@@ -1784,10 +1772,10 @@ const extendSubModuleEngineer_Section_as_L1_Settings = function(modulePath){
       _setUserSettingsErrorMessage: null,
     },
     getters: {
-      sectionLabel: () => 'Настройки',
-      sectionDisabled: () => !0,
-      sectionCounter: (state, getters) => Object.keys(getters.userSettings).length,
-      /*sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Настройки',
+      $sectionDisabled: () => !0,
+      $sectionCounter: (state, getters) => Object.keys(getters.userSettings).length,
+      /*$sectionComponents: (state, getters) => [
         
       ],*/
       userSettingsLoading: (state) => state._userSettingsLoading,
@@ -1866,17 +1854,17 @@ const extendSubModuleEngineer_Section_as_L1_Settings = function(modulePath){
     },
   })
 };
-const extendSubModuleEngineer_Section_as_L1_Profile = function(modulePath){
-  return _createSubModuleEngineer_Section(modulePath, 'Profile', {
+const extendSubModuleSection_as_Engineer_L1_Profile = function(modulePath){
+  return STORE.createSubModuleSection(modulePath, 'Profile', {
     state: {
       _userProfileLoading: !1,
       _userProfileErrorMessage: null,
       _userProfile: null,
     },
     getters: {
-      sectionLabel: () => 'Профиль',
-      sectionDisabled: () => !1,
-      sectionComponents: (state, getters) => [
+      $sectionLabel: () => 'Профиль',
+      $sectionDisabled: () => !1,
+      $sectionComponents: (state, getters) => [
         'EngineerSectionProfile'
       ],
       userProfileLoading: (state) => state._userProfileLoading,
@@ -1950,21 +1938,21 @@ STORE.createSubModule('Engineer', {
   },
   actions: {
     async $initModule({state, dispatch}){
-      dispatch('$addSubModule', _createSubModuleEngineer_Sections([state.$modulePath, 'SectionsL1'], {
+      dispatch('$addSubModule', STORE.createSubModuleSectionSelector([state.$modulePath, 'SectionsL1'], {
         actions: {
           async $initModule({state, dispatch}){
-            dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Bookmarks([state.$modulePath, 'Bookmarks']));
-            dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Notes([state.$modulePath, 'Notes']));
-            dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Documents([state.$modulePath, 'Documents']));
-            //dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Tools([state.$modulePath, 'Tools']));
-            //dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Messages([state.$modulePath, 'Messages']));
-            dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Settings([state.$modulePath, 'Settings']));
-            dispatch('$addSubModule', extendSubModuleEngineer_Section_as_L1_Profile([state.$modulePath, 'Profile']));
+            dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Bookmarks([state.$modulePath, 'Bookmarks']));
+            dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Notes([state.$modulePath, 'Notes']));
+            dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Documents([state.$modulePath, 'Documents']));
+            //dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Tools([state.$modulePath, 'Tools']));
+            //dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Messages([state.$modulePath, 'Messages']));
+            dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Settings([state.$modulePath, 'Settings']));
+            dispatch('$addSubModule', extendSubModuleSection_as_Engineer_L1_Profile([state.$modulePath, 'Profile']));
           },
         }
       }));
     },
-  }
+  },
 }).register();
 
 
@@ -2003,7 +1991,7 @@ Vue.component('EngineerPageContent', {
           name: 'R_Engineer_SectionL1',
           params: {
             ...$route.params,
-            sectionL1Name: $event.sectionName
+            sectionL1Name: $event.$sectionName
           },
         })
       }" hideZeroCounter/>
@@ -2046,7 +2034,7 @@ Vue.component('EngineerPageContent', {
             sectionL1Name
           },
         })
-      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'sectionDisabled')] && to.params.sectionL1Name !== sectionL1Name){
+      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'$sectionDisabled')] && to.params.sectionL1Name !== sectionL1Name){
         console.log('sectionL1Disabled',to.params.sectionL1Name);
         return next({
           ...to,
@@ -2056,22 +2044,22 @@ Vue.component('EngineerPageContent', {
           },
         });
       };
-      store.dispatch('Engineer/SectionsL1/selectSection',{sectionName: to.params.sectionL1Name});
+      store.dispatch('Engineer/SectionsL1/$selectSection',{sectionName: to.params.sectionL1Name});
       next();
     }
   },
   computed:mapGetters('Engineer/SectionsL1',{
-    sectionsL1: 'sections',
-    selectedSectionL1: 'selectedSection',
-    CONFIG_UILineScrollSelector: 'CONFIG_UILineScrollSelector',
+    sectionsL1: '$sections',
+    selectedSectionL1: '$selectedSection',
+    CONFIG_UILineScrollSelector: '$CONFIG_UILineScrollSelector',
   }),
 });
 Vue.component('EngineerSectionL1Content', {
   beforeCreate(){
     this.$mapDynamicNamespaceGetters('Engineer/SectionsL1/:selectedSectionL1Name/SectionsL2', {
-      sectionsL2: 'sections',
-      selectedSectionL2: 'selectedSection',
-      CONFIG_UILineScrollSelector: 'CONFIG_UILineScrollSelector',
+      sectionsL2: '$sections',
+      selectedSectionL2: '$selectedSection',
+      CONFIG_UILineScrollSelector: '$CONFIG_UILineScrollSelector',
     });
   },
   template: `<div class="display-flex flex-direction-column gap-4px">
@@ -2090,7 +2078,7 @@ Vue.component('EngineerSectionL1Content', {
           name: 'R_Engineer_SectionL2',
           params: {
             ...$route.params,
-            sectionL2Name: $event.sectionName
+            sectionL2Name: $event.$sectionName
           },
         })
       }" hideZeroCounter/>
@@ -2138,7 +2126,7 @@ Vue.component('EngineerSectionL1Content', {
             sectionL1Name: to.params.sectionL1Name,
           },
         })
-      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'sectionDisabled')] && to.params.sectionL2Name !== sectionL2Name){
+      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'$sectionDisabled')] && to.params.sectionL2Name !== sectionL2Name){
         console.log('sectionL2Disabled',to.params.sectionL2Name);
         return next({
           ...to,
@@ -2148,25 +2136,25 @@ Vue.component('EngineerSectionL1Content', {
           },
         })
       };
-      store.dispatch(atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2/selectSection'),{sectionName: to.params.sectionL2Name});
+      store.dispatch(atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2/$selectSection'),{sectionName: to.params.sectionL2Name});
       next();
     }
   },
   computed:mapGetters('Engineer/SectionsL1',{
-    selectedSectionL1Name: 'selectedSectionName',
-    selectedSectionL1Components: 'selectedSectionComponents',
+    selectedSectionL1Name: '$selectedSectionName',
+    selectedSectionL1Components: '$selectedSectionComponents',
   }),
 });
 Vue.component('EngineerSectionL2Content', {
   beforeCreate(){
     this.$mapDynamicNamespaceGetters('Engineer/SectionsL1/:selectedSectionL1Name/SectionsL2', {
-      selectedSectionL2Name: 'selectedSectionName',
-      selectedSectionL2Components: 'selectedSectionComponents',
+      selectedSectionL2Name: '$selectedSectionName',
+      selectedSectionL2Components: '$selectedSectionComponents',
     });
     this.$mapDynamicNamespaceGetters('Engineer/SectionsL1/:selectedSectionL1Name/SectionsL2/:selectedSectionL2Name/SectionsL3', {
-      sectionsL3: 'sections',
-      selectedSectionL3: 'selectedSection',
-      CONFIG_UILineScrollSelector: 'CONFIG_UILineScrollSelector',
+      sectionsL3: '$sections',
+      selectedSectionL3: '$selectedSection',
+      CONFIG_UILineScrollSelector: '$CONFIG_UILineScrollSelector',
     });
   },
   template: `<div class="display-flex flex-direction-column gap-4px">
@@ -2185,7 +2173,7 @@ Vue.component('EngineerSectionL2Content', {
           name: 'R_Engineer_SectionL3',
           params: {
             ...$route.params,
-            sectionL3Name: $event.sectionName
+            sectionL3Name: $event.$sectionName
           },
         })
       }" hideZeroCounter/>
@@ -2235,7 +2223,7 @@ Vue.component('EngineerSectionL2Content', {
             sectionL2Name: to.params.sectionL2Name,
           },
         })
-      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'SectionsL3',to.params.sectionL3Name,'sectionDisabled')] && to.params.sectionL3Name !== sectionL3Name){
+      }else if(store.getters[atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'SectionsL3',to.params.sectionL3Name,'$sectionDisabled')] && to.params.sectionL3Name !== sectionL3Name){
         console.log('sectionL3Disabled',to.params.sectionL3Name);
         return next({
           ...to,
@@ -2246,21 +2234,21 @@ Vue.component('EngineerSectionL2Content', {
           },
         })
       };
-      store.dispatch(atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'SectionsL3/selectSection'),{sectionName: to.params.sectionL3Name});
+      store.dispatch(atop('Engineer/SectionsL1',to.params.sectionL1Name,'SectionsL2',to.params.sectionL2Name,'SectionsL3/$selectSection'),{sectionName: to.params.sectionL3Name});
       next();
     }
   },
   computed:mapGetters('Engineer/SectionsL1',{
-    selectedSectionL1Name: 'selectedSectionName',
+    selectedSectionL1Name: '$selectedSectionName',
   }),
 });
 Vue.component('EngineerSectionL3Content', {
   beforeCreate(){
     this.$mapDynamicNamespaceGetters('Engineer/SectionsL1/:selectedSectionL1Name/SectionsL2', {
-      selectedSectionL2Name: 'selectedSectionName',
+      selectedSectionL2Name: '$selectedSectionName',
     });
     this.$mapDynamicNamespaceGetters('Engineer/SectionsL1/:selectedSectionL1Name/SectionsL2/:selectedSectionL2Name/SectionsL3', {
-      selectedSectionL3Components: 'selectedSectionComponents',
+      selectedSectionL3Components: '$selectedSectionComponents',
     });
   },
   template: `<div class="display-flex flex-direction-column gap-4px">
@@ -2273,7 +2261,7 @@ Vue.component('EngineerSectionL3Content', {
     </transition>
   </div>`,
   computed:mapGetters('Engineer/SectionsL1',{
-    selectedSectionL1Name: 'selectedSectionName',
+    selectedSectionL1Name: '$selectedSectionName',
   }),
 });
 
