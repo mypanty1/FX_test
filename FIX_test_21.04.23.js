@@ -119,33 +119,16 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
   };
 });
 
-/*
-document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_refresh" value="refresh" style="position:absolute;top:0;right:0;"/>`);
-document.getElementById('btn_refresh')?.addEventListener('click',()=>{
-  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-  window.location.href='https://fx.mts.ru/fix';
-});*/
-/*
-document.body.insertAdjacentHTML('beforeend',`<input type="button" id="btn_slim_refresh" value="${window.node_id}" style="position:absolute;top:0;right:0;height:16px;font-size:12px;line-height:10px;"/>`);
-document.getElementById('btn_slim_refresh')?.addEventListener('click',()=>{
-  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`);
-  window.location.href='https://fx.mts.ru/fix';
-});*/
-
-//test inventory
-/*if(store?.state?.main?.userData?.username=='mypanty1'){
-  window.AppInventor.setWebViewString(`set:FollowLinks:::=true`)
-};*/
 
 //async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 //fix site_entrance_list
-async function httpGet(url,quiet){
-  //const url=/site_entrance_list\?/.test(_url)?_url.replace('site_entrance_list','site_flat_list'):_url;
-  //if(_url!==url){httpRequest('GET',_url,null,quiet)};
-  const response=await httpRequest('GET',url,null,quiet);
-  pushResponse({url,response});
-  return response
-};
+// async function httpGet(url,quiet){
+//   //const url=/site_entrance_list\?/.test(_url)?_url.replace('site_entrance_list','site_flat_list'):_url;
+//   //if(_url!==url){httpRequest('GET',_url,null,quiet)};
+//   const response=await httpRequest('GET',url,null,quiet);
+//   pushResponse({url,response});
+//   return response
+// };
 const max_buffer_size=20;
 const buffer=new Map();
 function pushResponse({url,response}={}){
@@ -153,7 +136,7 @@ function pushResponse({url,response}={}){
   if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
   if(buffer.size<max_buffer_size){return};
   const entries=[...buffer.entries()];
-  const region_id=store.getters.regionID||store.getters.regionId;
+  const region_id=store.getters.regionID;
   const username=store.getters.userLogin;
   if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
   if(region_id===54&&username&&!window.FIX_test_DEV){
@@ -184,155 +167,6 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EngineerPage.js',type:'text/javascript'}));
 
 
-Vue.component('SiteNodeDetails', {
-  components: {
-    SiteLastTechMaintenance: () => import('/fe/ma/features/TechMaintenance/components/SiteLastTechMaintenance.js'),
-  },
-  template:`<div class="white-block-100 padding-top-bottom-8px display-flex flex-direction-column gap-8px">
-    <div class="padding-left-12px">
-      <title-main text="Инфо по площадке*" @open="show=!show" class="padding-unset">
-        <button-sq :icon="loading ? 'loading rotating' : 'mark-circle'" @click="help.show = !help.show"/>
-        <button-sq v-if="show && siteNode" icon="edit" @click="$refs.SiteNodeDetailsEditModal.open()" :disabled="loading"/>
-      </title-main>
-      <SiteNodeDetailsEditModal v-if="siteNode" ref="SiteNodeDetailsEditModal" v-bind="modalProps" @onNodeSaveOk="get_nioss_object('node',siteNode?.node_id,'update')" @onSiteSaveOk="get_nioss_object('site',siteNode?.id,'update')"/>
-    </div>
-    
-    <div class="padding-left-right-12px">
-      <info-text-icon v-if="help.show" icon="info" :text="help.text" class="padding-unset"/>
-    </div>
-    
-    <template v-if="show && siteNode">
-      <div v-if="siteNode.lessor" class="padding-left-right-12px display-flex flex-direction-column gap-4px">
-        <div class="font--12-400">{{siteNode.lessor.name}}</div>
-        <PhoneCall v-if="siteNode.lessor.phone" :phone="siteNode.lessor.phone" title="Контактный номер телефона" :descr="[siteNode.lessor.person,siteNode.lessor.position]"/>
-        <PhoneCall v-if="siteNode.lessor.phone2" :phone="siteNode.lessor.phone2" title="Контактный номер телефона по вопросам доступа"/>
-        <PhoneCall v-if="siteNode.lessor.phone3" :phone="siteNode.lessor.phone3" title="Телефонные номера аварийных служб"/>
-      </div>
-      
-      <div class="divider-line"/>
-
-      <div class="padding-left-right-12px">
-        <div class="font--13-500 tone-500">{{address_descr_title}}</div>
-        <div class="font--12-400">{{address_descr}}</div>
-      </div>
-      
-      <div class="divider-line"/>
-
-      <div class="padding-left-right-12px">
-        <div class="font--13-500 tone-500">{{site_descr_title}}</div>
-        <div class="font--12-400">{{site_descr}}</div>
-      </div>
-      
-      <div class="divider-line"/>
-
-      <div class="padding-left-right-12px">
-        <div class="font--13-500 tone-500">{{node_descr_title}}</div>
-        <div class="font--12-400">{{node_descr}}</div>
-      </div>
-      
-      <template v-if="!1&&siteID">
-        <div class="divider-line"/>
-
-        <div class="padding-left-right-12px">
-          <SiteLastTechMaintenance v-bind="{siteID}"/>
-        </div>
-      </template>
-      
-      <template v-if="address_id">
-        <div class="divider-line"/>
-
-        <UrlLink :url="urlToInventory"/>
-      </template>
-    </template>
-  </div>`,
-  props:{
-    siteNode:{type:Object},
-  },
-  data:()=>({
-    show:true,
-    help:{
-      text:`Информация об арендодателе площадей под размещение оборудования ПАО МТС может быть устаревшей либо вовсе не быть информацией по доступу. 
-      Для корректировки данной информации нужно обратиться к ФГТСЖ. Подробная информация по доступу в помещения подъезда находится на странице Подъезд`,
-      show:false,
-    },
-    resps:{//8100749217013993313 - получены все доступные атрибуты
-      node:null,
-      site:null,
-      address:null,
-    },
-    loads:{
-      node:false,
-      site:false,
-      address:null,
-    },
-  }),
-  created(){
-    this.get_nioss_object('address',this.siteNode?.address_id);
-    this.get_nioss_object('site',this.siteNode?.id);
-    this.get_nioss_object('node',this.siteNode?.node_id||this.siteNode?.uzel_id);
-  },
-  watch:{
-    'siteNode'(siteNode){
-      if(!siteNode){return};
-      if(!this.resps.site&&!this.loads.site){
-        this.get_nioss_object('site',this.siteNode?.id);
-      }
-      if(!this.resps.node&&!this.loads.node){
-        this.get_nioss_object('node',this.siteNode?.node_id||this.siteNode?.uzel_id);
-      }
-    },
-    'address_id'(address_id){
-      if(address_id&&!this.resps.address&&!this.loads.address){
-        this.get_nioss_object('address',address_id);
-      }
-    }
-  },
-  computed:{
-    siteID(){return this.siteNode?.id},
-    loading(){return Object.values(this.loads).some(l=>l)},
-    address_descr(){return [this.resps.address?.description,this.siteNode?.details].filter(Boolean).join('\n')||'—'},
-    address_descr_title(){return `Примечание к адресу ${[this.resps.address?.BuildingType||this.resps.address?.BldType||'',this.resps.address?.resourceBusinessName||''].filter(Boolean).join(' ')}`},
-    site_descr(){return (this.resps.site?this.resps.site?.description:this.siteNode?.site_descr)||'—'},
-    site_descr_title(){return `Примечание к площадке ${this.siteNode?.name||''}`},
-    node_descr(){return (this.resps.node?this.resps.node?.description:this.siteNode?.node_descr)||'—'},
-    //node_descr_title(){return `Примечание к ООС ${this.siteNode?.type||''}`},
-    node_descr_title(){return `Примечание к ООС ${this.siteNode?.node||''}`},
-    address_id(){return this.resps.site?.AddressPA?.NCObjectKey||this.siteNode?.address_id||''},
-    site_name(){return this.resps.site?.SiteName||this.siteNode?.name||''},
-    urlToInventory(){return {title:`Инвентори площадки ${this.site_name}`,hideUrl:!0,url:`https://inventory.ural.mts.ru/tb/address_view.php?id_address=${this.address_id}`}},
-    modalProps(){
-      const {id:site_id,node_id}=this.siteNode;
-      const {site,node}=this.resps;
-      return {site,site_id,node,node_id}
-    },
-  },
-  methods:{
-    async get_nioss_object(object='unknown',object_id='',update=false){
-      if(!object_id){return};
-      if(!update){
-        const cache=this.$cache.getItem(`get_nioss_object/${object_id}`);
-        if(cache){
-          this.resps[object]=cache;
-          return;
-        };
-      }
-      this.loads[object]=true;
-      const response=await this.get_nioss_object_and_save({object_id,object});
-      this.resps[object]=response||null;
-      this.loads[object]=false;
-    },
-    async get_nioss_object_and_save({object_id,object}){
-      try{
-        const response=await httpGet(buildUrl("get_nioss_object",{object_id,cache:!0},"/call/nioss/"),true);
-        if(response?.parent){this.$cache.setItem(`get_nioss_object/${object_id}`,response)};
-        return response;
-      }catch(error){
-        console.warn("get_nioss_object.error",{object_id},error);
-      }
-      return null;
-    },
-  }
-});
 
 let sendStateTimer=null;
 let savePositionTimer=null;
@@ -425,7 +259,7 @@ async function getUserStateBufferAndSend(){
   
   function getUserStateAndSend({username,region_id,position_ldap,position,history,date,time,battery,connection,platform,userAgentData}){
     const sites=getSitesCache();//{}
-    const tasks=getTasksCache();//[]
+    const tasks=getTasksCache();//{}
     
     getSitesToCacheIfNotPresent({tasks,sites});
     
@@ -433,7 +267,7 @@ async function getUserStateBufferAndSend(){
     sendUserState({username,position,region_id,position_ldap,sites,tasks,history,date,time,battery,connection,platform,userAgentData});
   };
   
-  function getTasksCache(){
+  function getTasksCache(){return {}
     return [...store.getters['wfm/tasks']].reduce((tasks,task)=>{
       const {
         NumberOrder:task_id,
@@ -463,7 +297,7 @@ async function getUserStateBufferAndSend(){
     },{})
   };
 
-  function getSitesCache(){
+  function getSitesCache(){return {}
     return Object.assign(Object.entries(localStorage).reduce((sites,[key,value])=>{
       if(!/^(building|buildings|get_nioss_object|getSite)/i.test(key)){return sites};
       let data=null;
