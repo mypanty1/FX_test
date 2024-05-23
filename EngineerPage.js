@@ -1969,13 +1969,13 @@ Vue.component('EngineerPage', {
 });
 Vue.component('EngineerPageNavbar', {
   template: `<div class="display-flex flex-direction-column gap-8px">
-    <PageNavbar title="Разное">
+    <!--<PageNavbar title="Разное">
       <template slot="btn-right">
         <button-sq disabled type="large">
           <IcIcon name="info" color="#918F8F" size="24"/>
         </button-sq>
       </template>
-    </PageNavbar>
+    </PageNavbar>-->
   </div>`,
 });
 Vue.component('EngineerPageContent', {
