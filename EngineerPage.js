@@ -809,7 +809,7 @@ Vue.component('EngineerSectionBookmarksScroller', {
     ]),
     style(){
       return {
-        height: `calc(100vh - ${this.offsetTop}px)`
+        height: `calc(100vh - ${this.offsetTop}px - 100px)`
       }
     },
   },
