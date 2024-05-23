@@ -1513,7 +1513,7 @@ const extendSubModuleSection_as_Engineer_L1_Notes = function(modulePath){
     getters: {
       $sectionLabel: () => 'Комментарии',
       $sectionDisabled: () => !1,
-      $sectionCounter: (state, getters) => getters['SectionsL2/Private/sectionCounter'] +  getters['SectionsL2/Public/sectionCounter'],
+      $sectionCounter: (state, getters) => getters['SectionsL2/Private/$sectionCounter'] + getters['SectionsL2/Public/$sectionCounter'],
       $sectionComponents: (state, getters) => [
         //'EngineerSectionNotes'
       ],
