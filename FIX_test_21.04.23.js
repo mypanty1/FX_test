@@ -165,6 +165,16 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 
 //EngineerPage
 //document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EngineerPage.js',type:'text/javascript'}));
+const Ping54InetcoreServiceGenDoc = new class extends RequestService {
+  defaultHeaders={'7ozd7ruzzg0ikerc':'dExeVPthVj5cIyYyYwty10TchgFXBAnlKr1RcpCrmqA1nC4BuMi85t404yIUQF5O'}
+  defaultQueryParams={userLogin: store.getters.userLogin, regionID: store.getters.regionID}
+  generateDocuments(documents = []){
+    return this.post('x8ygqD1JAJkDys7RDbRnmGCYCxpK5LSGS7Bc042rZzcD921hGq8Vk6UoNm9uvPNT', {
+      userLogin: store.getters.userLogin,
+      documents
+    });
+  }
+}('https://ping54.ru/inetcore');
 
 
 
