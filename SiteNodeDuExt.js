@@ -1,26 +1,29 @@
-Vue.component('SiteExt',{
-  template:`<div class="display-contents">
-    <link-block :actionIcon="open_ext?'up':'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext=!open_ext"/>
-    <div v-show="open_ext" class="padding-left-right-16px">
-      <SitePlanDownload v-bind="$props"/>
+
+Vue.component('SiteNodeDuExt', {
+  template: `<div class="display-contents">
+    <div class="margin-left--8px">
+      <link-block :actionIcon="open_ext ? 'up' : 'down'" icon="card" text="дополнительно" type="large" @block-click="open_ext = !open_ext"/>
     </div>
-    <devider-line />
-    <!--<link-block icon="amount" :text="site.name" @block-click="$router.push({name:'search',params:{text:site.name}})" actionIcon="right-link" type="medium"/>
-    <devider-line />-->
+    <div v-show="open_ext">
+      <SitePlanDownload v-bind="{
+        site: siteNode,
+        site_id: siteID,
+        entrances: entrances,
+        entrance_id: entranceID,
+      }"/>
+    </div>
+    <div class="divider-line margin-top-8px"/>
   </div>`,
-  props:{
-    site:{type:Object,default:null,required:true},
-    site_id:{type:String,default:'',required:true},
-    entrances:{type:Array,default:()=>([]),required:true},
-    entrance_id:{type:String,default:''},
-    loads:{type:Object,default:()=>({})},
+  props: {
+    siteNode: {type: Object, default: null, required: !0},
+    siteID: {type: String, default: '', required: !0},
+    entrances: {type: Array, default: () => ([]), required: !0},
+    entranceID: {type: String, default: ''},
+    loads: {type: Object, default: null},
   },
   data:()=>({
     open_ext:false,
   }),
-  created(){},
-  computed:{},
-  methods:{}
 });
 
 Vue.component('SitePlanDownload',{//плансхема
