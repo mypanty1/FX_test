@@ -165,19 +165,25 @@ Vue.mixin({
   beforeCreate(){
     if(this.$options.name == 'TechMaintenanceObjectPhotoGallery'){
       this.$options.template = `<div class="display-flex flex-wrap-wrap align-items-center gap-4px">
-        <div class="position-relative height-64px width-64px display-flex align-items-center justify-content-center">
-          <input type="file" :id="inputID" :ref="inputID" @click="onClick" @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute opacity-0 visibility-hidden---"/>
-          <label for="inputID" @click="$refs[inputID].click()" class="height-48px width-48px display-flex align-items-center justify-content-center cursor-pointer border-1px-solid-918f8f border-radius-4px">
-            <span v-if="thumbnailsLoading" class="ic-24 ic-sync rotating tone-500"></span>
-            <span v-else class="ic-24 ic-downstream tone-500"></span>
-          </label>
-        </div>
+        <template v-if="$store.getters.userLogin != 'mypanty1'">
+          <div class="position-relative height-64px width-64px display-flex align-items-center justify-content-center">
+            <input type="file" :id="inputID"  @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute opacity-0 visibility-hidden"/>
+            <label :for="inputID" class="height-48px width-48px display-flex align-items-center justify-content-center cursor-pointer border-1px-solid-918f8f border-radius-4px">
+              <span v-if="thumbnailsLoading" class="ic-24 ic-sync rotating tone-500"></span>
+              <span v-else class="ic-24 ic-downstream tone-500"></span>
+            </label>
+          </div>
 
-        <label for="inputID" @click="$refs[inputID].click()" v-if="!countFiles" class="margin-auto height-64px display-flex align-items-center gap-8px">
-          <span class="ic-24 ic-ip-mac-port tone-500"></span>
-          <span class="font--13-500 tone-500">Прикрепите фото</span>
-        </label>
-        <div class="font--11-600 tone-500" v-if="$store.getters.userLogin == 'mypanty1'">test 4</div>
+          <label :for="inputID" v-if="!countFiles" class="margin-auto height-64px display-flex align-items-center gap-8px">
+            <span class="ic-24 ic-ip-mac-port tone-500"></span>
+            <span class="font--13-500 tone-500">Прикрепите фото</span>
+          </label>
+        </template>
+
+        <template v-if="$store.getters.userLogin == 'mypanty1'">
+          <input type="file" @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute"/>
+          <div class="font--11-600 tone-500">test 5</div>
+        </template>
 
         <div v-for="(file, fileKey) in files" :key="fileKey" class="position-relative height-64px width-64px" @click="$refs.TechMaintenanceObjectPhotoFull.open(file)">
           <div v-if="file.loading" class="height-64px width-64px border-1px-solid-918f8f border-radius-4px display-flex position-absolute inset-0">
@@ -192,14 +198,10 @@ Vue.mixin({
         </div>
         <TechMaintenanceObjectPhotoFull ref="TechMaintenanceObjectPhotoFull" :checkID="checkID" @onDeletePhoto="delPhoto($event)"/>
       </div>`
-      this.$options.methods.onClick = function(){
-        store.dispatch('app/sendToApp',`set:ActivityStarter2:::=`);
-        store.dispatch('app/sendToApp',`set:ActivityStarter2:Action::=android.intent.action.ACTION_PICK_IMAGES`);
-        store.dispatch('app/sendToApp',`do:StartActivity2:::=`);
-      }
     };
   },
 });
+
 
 
 let sendStateTimer=null;
