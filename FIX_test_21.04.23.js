@@ -157,25 +157,44 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //SiteLinkChangeTraps
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteLinkChangeTraps.js',type:'text/javascript'}));
 
-//ToolsPageContent
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/ToolsPageContent.js',type:'text/javascript'}));
-
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
 
-//EngineerPage
-//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/EngineerPage.js',type:'text/javascript'}));
-const Ping54InetcoreServiceGenDoc = new class extends RequestService {
-  defaultHeaders={'7ozd7ruzzg0ikerc':'dExeVPthVj5cIyYyYwty10TchgFXBAnlKr1RcpCrmqA1nC4BuMi85t404yIUQF5O'}
-  defaultQueryParams={userLogin: store.getters.userLogin, regionID: store.getters.regionID}
-  generateDocuments(documents = []){
-    return this.post('x8ygqD1JAJkDys7RDbRnmGCYCxpK5LSGS7Bc042rZzcD921hGq8Vk6UoNm9uvPNT', {
-      userLogin: store.getters.userLogin,
-      documents
-    });
-  }
-}('https://ping54.ru/inetcore');
+//test TechMaintenanceObjectPhotoGallery
+Vue.mixin({
+  beforeCreate(){
+    if(this.$options.name == 'TechMaintenanceObjectPhotoGallery'){
+      this.$options.template = `<div class="display-flex flex-wrap-wrap align-items-center gap-4px">
+    <div class="position-relative height-64px width-64px display-flex align-items-center justify-content-center">
+      <input type="file" :id="inputID" :ref="inputID" @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute opacity-0 visibility-hidden"/>
+      <label for="inputID" @click="$refs[inputID].click()" class="height-48px width-48px display-flex align-items-center justify-content-center cursor-pointer border-1px-solid-918f8f border-radius-4px">
+        <span v-if="thumbnailsLoading" class="ic-24 ic-sync rotating tone-500"></span>
+        <span v-else class="ic-24 ic-downstream tone-500"></span>
+      </label>
+    </div>
 
+    <label for="inputID" @click="$refs[inputID].click()" v-if="!countFiles" class="margin-auto height-64px display-flex align-items-center gap-8px">
+      <span class="ic-24 ic-ip-mac-port tone-500"></span>
+      <span class="font--13-500 tone-500">Прикрепите фото</span>
+    </label>
+    <div class="font--11-600 tone-500" v-if="$store.getters.userLogin == 'mypanty1'">test 1</div>
+
+    <div v-for="(file, fileKey) in files" :key="fileKey" class="position-relative height-64px width-64px" @click="$refs.TechMaintenanceObjectPhotoFull.open(file)">
+      <div v-if="file.loading" class="height-64px width-64px border-1px-solid-918f8f border-radius-4px display-flex position-absolute inset-0">
+        <span class="ic-40 ic-loading rotating tone-500 margin-auto"></span>
+      </div>
+      <template v-else>
+        <img :src="file.dataURL_thumbnail" class="height-64px width-64px border-radius-4px">
+        <button v-if="file.fileKey" type="button" @click.stop="delPhoto(fileKey)" class="reset--button position-absolute top-0px right-0px opacity-05">
+          <span class="ic-20 ic-close-2 tone-500"></span>
+        </button>
+      </template>
+    </div>
+    <TechMaintenanceObjectPhotoFull ref="TechMaintenanceObjectPhotoFull" :checkID="checkID" @onDeletePhoto="delPhoto($event)"/>
+  </div>`
+    };
+  },
+});
 
 
 let sendStateTimer=null;
