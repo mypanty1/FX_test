@@ -115,7 +115,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
     //     }
     //   }
     // })
-    document.body.insertAdjacentHTML('beforeend',`<div style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;line-height:100%;background:#00000022;">приложение FIX_test будет выведено из эксплуатации 01.08.24\nновая версия приложения - ICFL</div>`);
+    document.body.insertAdjacentHTML('beforeend',`<div style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;line-height:100%;color:#ffffff;background:#00000080;">новая версия приложения - ICFL\nFIX_test будет снят с эксплуатации 01.08.24</div>`);
   };
 });
 
