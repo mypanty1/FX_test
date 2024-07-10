@@ -129,78 +129,28 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
 //   pushResponse({url,response});
 //   return response
 // };
-const max_buffer_size=20;
-const buffer=new Map();
-function pushResponse({url,response}={}){
-  buffer.set(url,response);
-  if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
-  if(buffer.size<max_buffer_size){return};
-  const entries=[...buffer.entries()];
-  const region_id=store.getters.regionID;
-  const username=store.getters.userLogin;
-  if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
-  if(region_id===54&&username&&!window.FIX_test_DEV){
-    fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
-      method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-      body:JSON.stringify({region_id,username,entries})
-    })
-  }
-  buffer.clear()
-};
 
-//port refree
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/AbonPortRefree.js',type:'text/javascript'}));
-//SitePlanDownload
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteNodeDuExt.js',type:'text/javascript'}));
-//SendKionPq
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SendKionPq.js',type:'text/javascript'}));
-//SiteLinkChangeTraps
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/SiteLinkChangeTraps.js',type:'text/javascript'}));
+// const max_buffer_size=20;
+// const buffer=new Map();
+// function pushResponse({url,response}={}){
+//   buffer.set(url,response);
+//   if(window.FIX_test_DEV){console.log('buffer.size:',buffer.size)}
+//   if(buffer.size<max_buffer_size){return};
+//   const entries=[...buffer.entries()];
+//   const region_id=store.getters.regionID;
+//   const username=store.getters.userLogin;
+//   if(window.FIX_test_DEV){console.log('buffer.size==max_buffer_size:',region_id,username,entries)};
+//   if(region_id===54&&username&&!window.FIX_test_DEV){
+//     fetch('https://script.google.com/macros/s/AKfycbzV-IEHP2thb4wXGXPwmflsGwT8MJg-pGzXd1zCpekJ3b0Ecal6aTxJddtRXh_qVu0-/exec',{
+//       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+//       body:JSON.stringify({region_id,username,entries})
+//     })
+//   }
+//   buffer.clear()
+// };
 
-//add port disable approve dialog
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
-
-//test TechMaintenanceObjectPhotoGallery
-// Vue.mixin({
-//   beforeCreate(){
-//     if(this.$options.name == 'TechMaintenanceObjectPhotoGallery'){
-//       this.$options.template = `<div class="display-flex flex-wrap-wrap align-items-center gap-4px">
-//         <template v-if="$store.getters.userLogin != 'mypanty1'">
-//           <div class="position-relative height-64px width-64px display-flex align-items-center justify-content-center">
-//             <input type="file" :id="inputID"  @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute opacity-0 visibility-hidden"/>
-//             <label :for="inputID" class="height-48px width-48px display-flex align-items-center justify-content-center cursor-pointer border-1px-solid-918f8f border-radius-4px">
-//               <span v-if="thumbnailsLoading" class="ic-24 ic-sync rotating tone-500"></span>
-//               <span v-else class="ic-24 ic-downstream tone-500"></span>
-//             </label>
-//           </div>
-
-//           <label :for="inputID" v-if="!countFiles" class="margin-auto height-64px display-flex align-items-center gap-8px">
-//             <span class="ic-24 ic-ip-mac-port tone-500"></span>
-//             <span class="font--13-500 tone-500">Прикрепите фото</span>
-//           </label>
-//         </template>
-
-//         <template v-if="$store.getters.userLogin == 'mypanty1'">
-//           <input type="file" @change="onChange" :disabled="thumbnailsLoading" multiple accept="image/*" class="position-absolute"/>
-//           <div class="font--11-600 tone-500">test 5</div>
-//         </template>
-
-//         <div v-for="(file, fileKey) in files" :key="fileKey" class="position-relative height-64px width-64px" @click="$refs.TechMaintenanceObjectPhotoFull.open(file)">
-//           <div v-if="file.loading" class="height-64px width-64px border-1px-solid-918f8f border-radius-4px display-flex position-absolute inset-0">
-//             <span class="ic-40 ic-loading rotating tone-500 margin-auto"></span>
-//           </div>
-//           <template v-else>
-//             <img :src="file.dataURL_thumbnail" class="height-64px width-64px border-radius-4px">
-//             <button v-if="file.fileKey" type="button" @click.stop="delPhoto(fileKey)" class="reset--button position-absolute top-0px right-0px opacity-05">
-//               <span class="ic-20 ic-close-2 tone-500"></span>
-//             </button>
-//           </template>
-//         </div>
-//         <TechMaintenanceObjectPhotoFull ref="TechMaintenanceObjectPhotoFull" :checkID="checkID" @onDeletePhoto="delPhoto($event)"/>
-//       </div>`
-//     };
-//   },
-// });
+//addons.js
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/addons.js',type:'text/javascript'}));
 
 
 
