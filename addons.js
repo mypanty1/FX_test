@@ -10,6 +10,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
 
+/*
 Vue.mixin({
   beforeCreate(){
     if(this.$options.name == 'SiteLastTechMaintenance'){
@@ -38,3 +39,4 @@ Vue.mixin({
     };
   },
 });
+*/
