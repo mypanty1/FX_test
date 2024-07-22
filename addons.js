@@ -10,6 +10,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add port disable approve dialog
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
 
+//add clear cache on wfm dictionary error
+document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/TasksListEmpty.js',type:'text/javascript'}));
+
 /*
 Vue.mixin({
   beforeCreate(){
