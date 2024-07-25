@@ -13,6 +13,37 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add clear cache on wfm dictionary error
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/TasksListEmpty.js',type:'text/javascript'}));
 
+//fix deleted racks
+DeviceService.SiteRacks = new class SiteRacks extends RequestService {
+  use(siteID){
+    return this.get('site_rack_listt=', this.checkMandatoryParams({
+      site_id: siteID
+    }));
+  }
+  async useCache(siteID){
+    const mandatory = this.checkMandatoryParams({siteID});
+    const cacheKey = this.cacheKey(this, mandatory.siteID);
+    try{
+      const cache = localStorageCache.getItem(cacheKey);
+      const response = cache || await this.use(mandatory.siteID);
+      if(Array.isArray(response?.data)){
+        response.data = response.data.filter(({description}) => !/DELETE/.test(description))
+        if(!cache){
+          localStorageCache.setItem(cacheKey, response);
+        };
+        return response;
+      }
+    }catch(error){
+      console.warn(error);
+    };
+    return {isError: !0};
+  }
+  delCache(siteID){
+    const mandatory = this.checkMandatoryParams({siteID});
+    const cacheKey = this.cacheKey(this, mandatory.siteID);
+    localStorageCache.removeItem(cacheKey);
+  }
+}(DeviceService)
 /*
 Vue.mixin({
   beforeCreate(){
