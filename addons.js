@@ -13,7 +13,8 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //add clear cache on wfm dictionary error
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/TasksListEmpty.js',type:'text/javascript'}));
 
-//fix deleted racks
+//fix deleted CU
+const DELETED_OBJECTS = new Set();
 DeviceService.SiteRacks = new class SiteRacks extends RequestService {
   use(siteID){
     return this.get('site_rack_list', this.checkMandatoryParams({
@@ -27,7 +28,7 @@ DeviceService.SiteRacks = new class SiteRacks extends RequestService {
       const cache = localStorageCache.getItem(cacheKey);
       const response = cache || await this.use(mandatory.siteID);
       if(Array.isArray(response?.data)){
-        response.data = response.data.filter(({description}) => !/DELETE/.test(description))
+        response.data = response.data.filter(({description, rack_id}) => !/DELETE/.test(description) ? !0 : !DELETED_OBJECTS.add(rack_id))
         if(!cache){
           localStorageCache.setItem(cacheKey, response);
         };
@@ -44,6 +45,23 @@ DeviceService.SiteRacks = new class SiteRacks extends RequestService {
     localStorageCache.removeItem(cacheKey);
   }
 }(DeviceService)
+//and for old service
+RequestServiceOLD.httpGet = async function (uri){
+  const {url, params} = RequestServiceOLD.parseURI(uri);
+  try{
+    const response = await RequestServiceOLD.get(url, params);
+    if(/site_rack_list/.test(url) && response?.type == 'success' && Array.isArray(response?.data)){
+      response.data = response.data.filter(({description, rack_id}) => !/DELETE/.test(description) ? !0 : !DELETED_OBJECTS.add(rack_id))
+    };
+    if(/patch_panels/.test(url) && response?.type == 'success' && Array.isArray(response?.data)){
+      response.data = response.data.map((pp) => DELETED_OBJECTS.has(pp.rack_id) ? Object.assign(pp, {rack_id: ''}) : pp)
+    };
+    return RequestServiceOLD.handleResponse(response);
+  }catch(error){
+    return RequestServiceOLD.wrapError(error);
+  }
+};
+
 /*
 Vue.mixin({
   beforeCreate(){
