@@ -16,7 +16,7 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 //fix deleted racks
 DeviceService.SiteRacks = new class SiteRacks extends RequestService {
   use(siteID){
-    return this.get('site_rack_listt=', this.checkMandatoryParams({
+    return this.get('site_rack_list', this.checkMandatoryParams({
       site_id: siteID
     }));
   }
