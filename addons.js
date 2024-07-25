@@ -61,7 +61,13 @@ RequestServiceOLD.httpGet = async function (uri){
     return RequestServiceOLD.wrapError(error);
   }
 };
-
+//test fix 500
+cookieStore.set({
+  name: 'check_ma',
+  value: '1',
+  expires: Date.now() + (24 * 60 * 60 * 1000),
+  domain: location.host,
+});
 /*
 Vue.mixin({
   beforeCreate(){
