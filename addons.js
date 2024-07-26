@@ -65,7 +65,7 @@ RequestServiceOLD.httpGet = async function (uri){
 cookieStore.set({
   name: 'check_ma',
   value: '1',
-  expires: Date.now() + (24 * 60 * 60 * 1000),
+  expires: Date.now() + (7 * 24 * 60 * 60 * 1000),
   domain: location.host,
 });
 /*
