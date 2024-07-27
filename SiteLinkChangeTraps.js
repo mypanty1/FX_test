@@ -253,7 +253,7 @@ Vue.component('SiteLinkChangeTraps',{
       if(!ne){return};
       const {ne_name}=ne;
       const port_name=`PORT-${ne_name}/${ifIndex}`;
-      this.$router.push({ name: "eth-port", params: { id: port_name } });
+      this.$router.push({ name: "search", params: { text: port_name } });
       this.send({click:{ip,ifIndex,ifName}});
       this.closeWs();
     },
@@ -261,7 +261,7 @@ Vue.component('SiteLinkChangeTraps',{
       const ne=Object.values(this.networkElementsDuESwInstalled54).find(ne=>ne.ip===ip);
       if(!ne){return};
       const {ne_name}=ne;
-      this.$router.push({ name: "network-element", params: { device_id: ne_name } });
+      this.$router.push({ name: "search", params: { text: ne_name } });
       this.send({click:{ip}});
       this.closeWs();
     },
