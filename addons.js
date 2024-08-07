@@ -11,8 +11,9 @@ document.head.appendChild(Object.assign(document.createElement('script'),{src:'h
 document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/PortActionDisableApproveModal.js',type:'text/javascript'}));
 
 //add clear cache on wfm dictionary error
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/TasksListEmpty.js',type:'text/javascript'}));
+//document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/TasksListEmpty.js',type:'text/javascript'}));
 
+/*
 //fix deleted CU
 const DELETED_OBJECTS = new Set();
 DeviceService.SiteRacks = new class SiteRacks extends RequestService {
@@ -61,6 +62,8 @@ RequestServiceOLD.httpGet = async function (uri){
     return RequestServiceOLD.wrapError(error);
   }
 };
+*/
+/*
 //test fix 500
 cookieStore.set({
   name: 'check_ma',
@@ -68,6 +71,7 @@ cookieStore.set({
   expires: Date.now() + (7 * 24 * 60 * 60 * 1000),
   domain: location.host,
 });
+*/
 /*
 Vue.mixin({
   beforeCreate(){
