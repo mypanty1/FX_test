@@ -23,20 +23,12 @@ function createStyleElement(id='',css=''){
   document.body.insertAdjacentElement('afterBegin',el);
 };
 createStyleElement('fix-test-app-css',`
-  .ports-map__grid--gap-4px{gap:4px;}
   .blink-2s {
     animation: keyframes-blink-opacity-1-02 2s infinite; 
   }
   @keyframes keyframes-blink-opacity-1-02 {
     0% { opacity: 1; }
     50% { opacity: 0.2;}
-  }
-  .margin-left-tight-16px {
-    margin-left: 16px;
-    margin-right: 16px;
-  }
-  #watermark tt {
-    font-weight: 400;
   }
 `);
 
@@ -149,8 +141,8 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
 //   buffer.clear()
 // };
 
-//addons.js
-document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/addons.js',type:'text/javascript'}));
+// addons.js
+// document.head.appendChild(Object.assign(document.createElement('script'),{src:'https://mypanty1.github.io/FX_test/addons.js',type:'text/javascript'}));
 
 
 
