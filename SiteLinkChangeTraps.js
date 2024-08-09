@@ -171,7 +171,7 @@ Vue.component('SiteLinkChangeTraps',{
       if(!userLogin){return};
       if(this.ws){return};
       this.message=`установка соединения ${userLogin}`;
-      this.ws=new WebSocket(`wss://ping54.ru/wstest`,[userLogin]);
+      this.ws=new WebSocket(`wss://ping54.ru/1KsRdWY0SUk38JZbmJoN79xE16YEnjNp3I1BQ4spanATW4vGtegsDfIJpD2aMGXn`,[userLogin]);
       this.ws.onopen=(event)=>{
         console.log('ws.onopen');
         const alive={type:'alive',user:userLogin};
@@ -192,11 +192,7 @@ Vue.component('SiteLinkChangeTraps',{
             this.recived.push(message.data);
           }
         };
-        if(message.type==='alive'){
-          this.message=`соединение активно ${message.date}`;
-        }else{
-          this.message=`соединение активно ${new Date().toLocaleString()}`;
-        }
+        this.message=`соединение активно ${new Date().toLocaleString()}`;
       };
       this.ws.onclose=(event)=>{
         this.ws=null;
