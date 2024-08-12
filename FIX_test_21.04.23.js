@@ -24,7 +24,7 @@ function createStyleElement(id='',css=''){
 };
 createStyleElement('fix-test-app-css',`
   .blink-2s {
-    animation: keyframes-blink-opacity-1-02 2s infinite; 
+    animation: keyframes-blink-opacity-1-02 2s infinite linear; 
   }
   @keyframes keyframes-blink-opacity-1-02 {
     0% { opacity: 1; }
@@ -107,7 +107,7 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
     //     }
     //   }
     // })
-    document.body.insertAdjacentHTML('beforeend',`<div style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;line-height:100%;color:#ffffff;background:#00000080;">новая версия приложения - ICFL\nFIX_test будет снят с эксплуатации 01.08.24</div>`);
+    document.body.insertAdjacentHTML('beforeend',`<div style="position:absolute;top:0;left:0;width:100%;white-space:pre;font-size:12px;line-height:100%;color:#ffffff;background:#00000080;" class="blink-2s">новая версия приложения - ICFL\nFIX_test будет снят с эксплуатации 01.08.24</div>`);
   };
 });
 
