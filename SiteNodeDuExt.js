@@ -79,20 +79,19 @@ Vue.component('SitePlanDownload',{//плансхема
           entrances:{},
           racks:{},
           devices:{},
-          unmount_devices:{},
           ppanels:{},
+          unmount_devices:{},//obsolete
         },
       };
       const gets=[];
       const dict={};
 
       return Promise.allSettled([
-        this.$cache.getItem(`building/${site_id}`)?Promise.resolve(this.$cache.getItem(`building/${site_id}`)):httpGet(buildUrl('search_ma',{pattern:site_id},'/call/v1/search/')),
-        this.$cache.getItem(`site_flat_list/${site_id}`)?Promise.resolve(this.$cache.getItem(`site_flat_list/${site_id}`)):httpGet(buildUrl('site_flat_list',{site_id},'/call/v1/device/')),
-        /*this.$cache.getItem(`devices/${site_id}`)?Promise.resolve(this.$cache.getItem(`devices/${site_id}`)):*/httpGet(buildUrl('devices',{site_id},'/call/v1/device/')),
-        this.$cache.getItem(`get_unmount_devices/${site_id}`)?Promise.resolve(this.$cache.getItem(`get_unmount_devices/${site_id}`)):httpGet(buildUrl('get_unmount_devices',{site_id},'/call/v1/device/')),
-        this.$cache.getItem(`site_rack_list/${site_id}`)?Promise.resolve(this.$cache.getItem(`site_rack_list/${site_id}`)):httpGet(buildUrl('site_rack_list',{site_id},'/call/v1/device/')),
-        this.$cache.getItem(`patch_panels/${site_id}`)?Promise.resolve(this.$cache.getItem(`patch_panels/${site_id}`)):httpGet(buildUrl('patch_panels',{site_id,without_tree:true},'/call/v1/device/')),
+        httpGet(buildUrl('search_ma',{pattern:site_id},'/call/v1/search/')),
+        httpGet(buildUrl('site_flat_list',{site_id},'/call/v1/device/')),
+        httpGet(buildUrl('devices',{site_id},'/call/v1/device/')),
+        httpGet(buildUrl('site_rack_list',{site_id},'/call/v1/device/')),
+        httpGet(buildUrl('patch_panels',{site_id,without_tree:true},'/call/v1/device/')),
       ]).then((responses)=>{
         const results=[];
         for(const response of responses){
@@ -102,21 +101,14 @@ Vue.component('SitePlanDownload',{//плансхема
           nodes:results[0],
           entrances:results[1],
           devices:results[2],
-          unmount_devices:results[3],
-          racks:results[4],
-          ppanels:results[5],
+          racks:results[3],
+          ppanels:results[4],
         };
       }).then(results=>{
         for(const name in results){
           switch(name){
             case 'nodes':
               result[site_id].nodes=results[name].length?(results[name][0].type!=='building_list'?[results[name][0].data]:results[name][0].data):[];
-              //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:site_id,object:'site'},'/call/nioss/')));
-              //dict[gets.length-1]='_sites/'+site_id+'/nioss';
-              for(const node of result[site_id].nodes){
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:node.uzel_id,object:'node'},'/call/nioss/')));
-                //dict[gets.length-1]='_nodes/'+node.uzel_id+'/nioss';
-              };
             break;
             case 'entrances':
               for(const entrance of results[name].filter(item=>!item.nioss_error)){
@@ -140,70 +132,21 @@ Vue.component('SitePlanDownload',{//плансхема
                     return floor;
                   });
                 };
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:entrance.id,object:'entrance'},'/call/nioss/')));
-                //dict[gets.length-1]=name+'/'+entrance.id+'/nioss';
                 result[site_id][name][entrance.id]=entrance;
               };
             break;
             case 'devices':
               for(const device of results[name]){
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.nioss_id,object:'device'},'/call/nioss/')));
-                //dict[gets.length-1]=name+'/'+device.nioss_id+'/nioss';
-                if(['ETH','OP','CPE','FAMP','SBE','FTRM','IP','MPLS','OLT','MBH'].includes(device.name.split('_')[0].split('-')[0])){
-                  gets.push(httpGet(buildUrl('search_ma',{pattern:device.name},'/call/v1/search/')));
-                  dict[gets.length-1]=name+'/'+device.nioss_id;
-                };
-                gets.push(httpGet(buildUrl('get_dismantled_devices',{device_name:device.name},'/call/v1/device/')));
-                dict[gets.length-1]=name+'/'+device.nioss_id+'/devices';
-                if(['ETH','MPLS','MBH','OLT'].includes(device.name.split('_')[0].split('-')[0])){
-                  if(!hideTS){
-                    gets.push(httpGet(buildUrl('device_port_list',{device:device.name},'/call/device/')));
-                    dict[gets.length-1]=name+'/'+device.nioss_id+'/ports';
-                    //gets.push(httpGet(buildUrl('get_history_conn_point_list',{device_id:643651,region_id:54},'/call/v1/device/')));
-                    //dict[gets.length-1]=name+'/'+device.nioss_id+'/conn_point_list';
-                  };
-                };
                 result[site_id][name][device.nioss_id]=device;
               };
             break;
-            case 'unmount_devices':
-              for(const device of results[name]){
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:device.device_nioss_id,object:'device'},'/call/nioss/')));
-                //dict[gets.length-1]=name+'/'+device.device_nioss_id+'/nioss';
-                result[site_id][name][device.device_nioss_id]={
-                  site_id:device.site_id,
-                  uzel:{id:device.uzel_id,name:device.uzel_name},
-                  nioss_id:device.device_nioss_id,
-                  name:device.device_name,
-                  ip:device.ip_address,
-                  display:device.display_name,
-                  ne_status:device.ne_status,
-                  snmp:{version:device.snmp_version,community:device.snmp_community},
-                  region:results['devices'][0]?.region||{code:"",id:0,location:"",mr_id:0,name:""},
-                  access_mode:null,
-                  description:"",
-                  discovery:{date:"",type:"",status:"",text:""},
-                  firmware:"",
-                  firmware_revision:null,
-                  model:"",
-                  system_object_id:"",
-                  type:"",
-                  upstream_ne:"",
-                  vendor:"",
-                };
-              };
-            break;
             case 'racks':
-              for(const rack of results[name].filter(item=>!item.nioss_error)){
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:rack.id,object:'rack'},'/call/nioss/')));
-                //dict[gets.length-1]=name+'/'+rack.id+'/nioss';
+              for(const rack of results[name]){
                 result[site_id][name][rack.id]=rack;
               };
             break;
             case 'ppanels':
-              for(const pp of results[name].filter(item=>!item.nioss_error)){
-                //gets.push(httpGet(buildUrl('get_nioss_object',{object_id:pp.id,object:'plint'},'/call/nioss/')));
-                //dict[gets.length-1]=name+'/'+pp.id+'/nioss';
+              for(const pp of results[name]){
                 result[site_id][name][pp.id]=pp;
               };
             break;
@@ -224,7 +167,6 @@ Vue.component('SitePlanDownload',{//плансхема
       });
     },
     async createSchematicPlan(site_id,hideTS=true){
-      //document.getElementById('btn_generatePL').setAttribute('disabled','disabled');
       document.getElementById('btn_generatePL_woTS').setAttribute('disabled','disabled');
       document.getElementById('loader_generatePL').style.display='inline-table';
 
@@ -235,7 +177,6 @@ Vue.component('SitePlanDownload',{//плансхема
           method:'POST',
           headers:{
             'content-type':'application/json',
-            //'mczx6id3h5lmbrlq':'ovtocINZuzraRJLQgiQp7HGZMhF1fhX4GDmWRYRJCOMMJsI9xpT5zq1mYeg7DvH8',
             '7ozd7ruzzg0ikerc':'dExeVPthVj5cIyYyYwty10TchgFXBAnlKr1RcpCrmqA1nC4BuMi85t404yIUQF5O',
           },
           body:JSON.stringify({
@@ -250,7 +191,6 @@ Vue.component('SitePlanDownload',{//плансхема
         console.log(error)
       };
 
-      //document.getElementById('btn_generatePL').removeAttribute('disabled');
       document.getElementById('btn_generatePL_woTS').removeAttribute('disabled');
       document.getElementById('loader_generatePL').style.display='none';
     },
