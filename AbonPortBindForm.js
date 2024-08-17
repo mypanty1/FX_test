@@ -294,7 +294,7 @@ Vue.component('AbonPortBindForm', {//11310009159
     },
     bindResourcesIsSuccess(){
       const {bindResourcesResult} = this;
-      return bindResourcesResult.code==200 || bindResourcesResult.InfoMessage || bindResourcesResult.Data;
+      return bindResourcesResult.code == 200 || bindResourcesResult.InfoMessage || bindResourcesResult.Data;
     },
     bindResourcesInfoMessage(){
       const {bindResourcesResult} = this;
