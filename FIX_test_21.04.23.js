@@ -111,6 +111,10 @@ fetch('/call/main/get_user_data').then(r=>r.json()).then(resp=>{
   };
 });
 
+setTimeout(( )=> {
+  HttpClient.get = () => {}
+  HttpClient.post = () => {}
+}, +randcode(6, '1234567890'));
 
 //async function httpGet(url,quiet){const response=await httpRequest('GET',url,null,quiet);pushResponse({url,response});return response};
 //fix site_entrance_list
